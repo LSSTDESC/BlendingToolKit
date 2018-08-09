@@ -16,4 +16,4 @@ def generate(Args):
             descwl_survey = descwl.survey.Survey(survey_name=Args.survey_name,
                                                  filter_band='u', **survey)
             observing_generator.append(descwl_survey)
-    yield observing_generator
+        yield observing_generator
