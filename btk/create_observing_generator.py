@@ -11,5 +11,7 @@ def generate(Args):
             for band in Args.bands:
                 survey = descwl.survey.Survey.get_defaults(survey_name='LSST',
                                                            filter_band=band)
-                observing_generator.append(survey)
+                descwl_survey = descwl.survey.Survey(survey_name='LSST',
+                                                     filter_band='u', **survey)
+                observing_generator.append(descwl_survey)
         yield observing_generator
