@@ -40,5 +40,8 @@ def generate(Args, catalog, sampling_function=None):
                 blend_catalog = sampling_function(Args, catalog)
             else:
                 blend_catalog = random_sample(Args, catalog)
+            np.testing.assert_array_less(len(blend_catalog) - 1, Args.max_number,
+                                         "Number of objects per blend must be \
+                                         less than max_number")
             blend_catalogs.append(blend_catalog)
         yield blend_catalogs
