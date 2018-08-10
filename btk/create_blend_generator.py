@@ -2,10 +2,11 @@
 import numpy as np
 
 
-def get_random_center_shift(number_of_objects, maxshift):
+def get_random_center_shift(Args, number_of_objects):
     """Returns a random shift from the center in x and y coordiantes
-    between 0 and maxshift.
+    between 0 and maxshift (in arcseconds).
     """
+    maxshift = Args.stamp_size / 10.  # in arcseconds
     dx = np.random.uniform(-maxshift, maxshift,
                            size=number_of_objects)
     dy = np.random.uniform(-maxshift, maxshift,
@@ -13,16 +14,16 @@ def get_random_center_shift(number_of_objects, maxshift):
     return dx, dy
 
 
-def random_sample(Args, catalog, number_of_objects):
+def random_sample(Args, catalog):
     """Randomly picks entries from input catlog that are brighter than 25.3
     mag in the i band. The centers are randomly distributed within 1/5 of the
     stamp size.
     """
+    number_of_objects = np.random.randint(1, Args.max_number)
     q, = np.where(catalog['i_ab'] <= 25.3)
     blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
     blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
-    maxshift = Args.stamp_size / 10.  # * Args.pixel_scale / 3600.
-    dx, dy = get_random_center_shift(number_of_objects, maxshift)
+    dx, dy = get_random_center_shift(Args, number_of_objects)
     blend_catalog['ra'] += dx
     blend_catalog['dec'] += dy
     return blend_catalog
@@ -35,11 +36,9 @@ def generate(Args, catalog, sampling_function=None):
     while True:
         blend_catalogs = []
         for i in range(Args.batch_size):
-            number_of_objects = np.random.randint(1, Args.max_number)
             if sampling_function:
-                blend_catalog = sampling_function(Args, catalog,
-                                                  number_of_objects)
+                blend_catalog = sampling_function(Args, catalog)
             else:
-                blend_catalog = random_sample(Args, catalog, number_of_objects)
+                blend_catalog = random_sample(Args, catalog)
             blend_catalogs.append(blend_catalog)
         yield blend_catalogs
