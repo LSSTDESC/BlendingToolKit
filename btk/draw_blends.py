@@ -50,4 +50,4 @@ def generate(Args, blend_genrator, observing_genrator):
                                                 sky_level=blend_obs.mean_sky_level)
                     blend_obs.image.addNoise(noise)
                 blend_images[i, :, :, j] = blend_obs.image.array
-        yield blend_images, isolated_images
+        yield blend_images, isolated_images, blend_list

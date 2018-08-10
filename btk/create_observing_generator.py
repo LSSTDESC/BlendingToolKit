@@ -1,5 +1,7 @@
 """Creates a generator of characteristics of a given observation for a given
 survey.
+ToDo:
+Add options for variabe psf and seeing conditions
 """
 import descwl
 
