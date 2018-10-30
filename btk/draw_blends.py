@@ -9,6 +9,17 @@ import descwl
 import copy
 import galsim
 import numpy as np
+from astropy.table import Column
+
+
+def get_center_in_pixels(blend_catalog, obs, Args):
+    """Return centroids in pixels"""
+    center = (Args.stamp_size/obs.pixel_scale - 1)/2
+    dx = blend_catalog['ra']/obs.pixel_scale + center
+    dy = blend_catalog['dec']/obs.pixel_scale + center
+    dx_col = Column(dx, name='dx')
+    dy_col = Column(dy, name='dy')
+    return dx_col, dy_col
 
 
 def generate(Args, blend_genrator, observing_generator):
@@ -38,6 +49,9 @@ def generate(Args, blend_genrator, observing_generator):
         sky_level = np.zeros((Args.batch_size,
                               len(Args.bands)))
         for i in range(Args.batch_size):
+            dx, dy = get_center_in_pixels(blend_list[i], obs_cond[0], Args)
+            blend_list[i].add_column(dx)
+            blend_list[i].add_column(dy)
             for j, band in enumerate(Args.bands):
                 blend_obs = copy.deepcopy(obs_cond[j])
                 galaxy_builder = descwl.model.GalaxyBuilder(blend_obs, False,
