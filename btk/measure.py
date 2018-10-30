@@ -22,10 +22,10 @@ def generate(Measurement_params, draw_blend_generator):
         deblended_images = []
         measured_results = []
         for i in range(batch_size):
-            measured_results.append(
-                Measurement_params.make_measurement(data=blend_output,
-                                                    index=i))
             deblended_images.append(
                 Measurement_params.get_deblended_images(data=blend_output,
                                                         index=i))
-        yield deblended_images, measured_results
+            measured_results.append(
+                Measurement_params.make_measurement(data=blend_output,
+                                                    index=i))
+        yield blend_output, deblended_images, measured_results
