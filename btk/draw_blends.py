@@ -70,15 +70,16 @@ def generate(Args, blend_genrator, observing_generator):
                                                              entry['dec'],
                                                              band)
                         blend_render_engine.render_galaxy(galaxy, True, False)
-                        iso_obs = copy.deepcopy(obs_cond[j])
-                        iso_render_engine = descwl.render.Engine(
-                            survey=iso_obs,
-                            min_snr=0.05,
-                            truncate_radius=30,
-                            no_margin=False,
-                            verbose_render=False)
-                        iso_render_engine.render_galaxy(galaxy, True, False)
-                        isolated_images[i, k, :, :, j] = iso_obs.image.array
+                        if Args.draw_isolated:
+                            iso_obs = copy.deepcopy(obs_cond[j])
+                            iso_render_engine = descwl.render.Engine(
+                                survey=iso_obs,
+                                min_snr=0.05,
+                                truncate_radius=30,
+                                no_margin=False,
+                                verbose_render=False)
+                            iso_render_engine.render_galaxy(galaxy, True, False)
+                            isolated_images[i, k, :, :, j] = iso_obs.image.array
                     except descwl.render.SourceNotVisible:
                         print("Source not visible")
                         continue

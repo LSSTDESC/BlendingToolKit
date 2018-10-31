@@ -11,12 +11,13 @@ class Simulation_params(object):
         survey_name: Name of survey to select observing conditions.
         seed: random seed.
         add_noise: If True, adds noise to output blended images.
+        draw_isolated: If trues, drwas image sof each isolated object.
         bands: Filters in which to simulate images.
     """
     def __init__(self, catalog_name, max_number=2,
                  batch_size=8, stamp_size=24, psf_stamp_size=41,
                  survey_name="LSST",
-                 seed=0, add_noise=True,
+                 seed=0, add_noise=True, draw_isolated=True,
                  bands=('u', 'g', 'r', 'i', 'z', 'y')):
         self.catalog_name = catalog_name
         self.max_number = max_number
@@ -25,5 +26,6 @@ class Simulation_params(object):
         self.psf_stamp_size = psf_stamp_size
         self.survey_name = survey_name
         self.add_noise = add_noise
+        self.draw_isolated = draw_isolated
         self.seed = seed
         self.bands = bands
