@@ -21,9 +21,9 @@ class Stack_params(measure.Measurement_params):
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
          the blend image for input index in the batch."""
-        image_array = data['blend_images'][index, :, :, 4].astype(np.float32)
-        variance_array = image_array + data['sky_level'][index, 4]
-        psf_array = data['psf_images'][index, :, :, 4].astype(np.float64)
+        image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
+        variance_array = image_array + data['sky_level'][index, 3]
+        psf_array = data['psf_images'][index, :, :, 3].astype(np.float64)
         cat = run_stack(image_array, variance_array, psf_array,
                         min_pix=self.min_pix, bkg_bin_size=self.bkg_bin_size,
                         thr_value=self.thr_value)
