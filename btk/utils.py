@@ -1,14 +1,6 @@
 """Contains functions to perform detection, deblending and measurement
     on images.
 """
-import lsst.afw.table
-import lsst.afw.image
-import lsst.afw.math
-import lsst.meas.algorithms
-import lsst.meas.base
-import lsst.meas.deblender
-import lsst.meas.extensions.shapeHSM
-import scarlet
 from btk import measure
 import numpy as np
 
@@ -54,6 +46,13 @@ def run_stack(image_array, variance_array, psf_array,
         catalog: Astropy table of detected sources
     """
     # Convet to stack Image object
+    import lsst.afw.table
+    import lsst.afw.image
+    import lsst.afw.math
+    import lsst.meas.algorithms
+    import lsst.meas.base
+    import lsst.meas.deblender
+    import lsst.meas.extensions.shapeHSM
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
     # Generate a masked image, i.e., an image+mask+variance image (mask=None)
@@ -148,6 +147,7 @@ def scarlet_initialize(images, peaks,
         rejected_sources: list of sources (if any) that scarlet was
                           unable to initlaize the image with.
     """
+    import scarlet
     sources, rejected_sources = [], []
     for n, peak in enumerate(peaks):
         try:
