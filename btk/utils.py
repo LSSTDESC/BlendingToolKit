@@ -121,7 +121,8 @@ class Scarlet_params(measure.Measurement_params):
         peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
         bg_rms = data['sky_level'][index]**0.5
         blend, rejected_sources = scarlet_initialize(images, peaks,
-                                                     bg_rms, self.iters, self.e_rel)
+                                                     bg_rms, self.iters,
+                                                     self.e_rel)
         im = []
         for m in range(len(blend.sources)):
             oth_indx = np.delete(range(len(blend.sources)), m)
