@@ -10,7 +10,7 @@ import astropy.table
 
 
 def load_catlog(Args):
-    """Returns astropy table with input name"""
+    """Returns astropy table with catalog name from input class"""
     name, ext = os.path.splitext(Args.catalog_name)
     if ext == '.fits':
         table = astropy.table.Table.read(Args.catalog_name,
