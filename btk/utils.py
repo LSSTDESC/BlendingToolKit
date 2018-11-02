@@ -95,9 +95,48 @@ def run_stack(image_array, variance_array, psf_array,
 class Scarlet_params(measure.Measurement_params):
     iters = 200
     e_rel = .015
+    detect_centers = True
 
     def make_measurement(self, data=None, index=None):
         return None
+
+    def get_centers(self, image):
+        import sep
+        detect = image.mean(axis=0)  # simple average for detection
+        bkg = sep.Background(detect)
+        catalog = sep.extract(detect, 1.5, err=bkg.globalrms)
+        return np.stack((catalog['x'], catalog['y']), axis=1)
+
+    def scarlet_initialize(self, images, peaks,
+                           bg_rms, iters, e_rel):
+        """ Intializes scarlet ExtendedSource at locations specified as
+        peaks in the (multi-band) input images.
+        Args:
+            images: Numpy array of multi-band image to run scarlet on
+                    [Number of bands, height, width].
+            peaks: Array of x and y cordinate of cntroids of objects in
+                   the image [number of sources, 2].
+            bg_rms: Background RMS value of the images [Number of bands]
+        Returns
+            blend: scarlet.Blend object for the initialized sources
+            rejected_sources: list of sources (if any) that scarlet was
+                              unable to initlaize the image with.
+        """
+        import scarlet
+        sources, rejected_sources = [], []
+        for n, peak in enumerate(peaks):
+            try:
+                result = scarlet.ExtendedSource(
+                    (peak[1], peak[0]),
+                    images,
+                    bg_rms)
+                sources.append(result)
+            except scarlet.source.SourceInitError:
+                rejected_sources.append(n)
+                print("No flux in peak {0} at {1}".format(n, peak))
+        blend = scarlet.Blend(sources).set_data(images, bg_rms=bg_rms)
+        blend.fit(iters, e_rel=e_rel)
+        return blend, rejected_sources
 
     def get_deblended_images(self, data, index):
         """
@@ -118,11 +157,14 @@ class Scarlet_params(measure.Measurement_params):
         """
         images = np.transpose(data['blend_images'][index], axes=(2, 0, 1))
         blend_cat = data['blend_list'][index]
-        peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
+        if self.detect_centers:
+            peaks = self.get_centers(images)
+        else:
+            peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
         bg_rms = data['sky_level'][index]**0.5
-        blend, rejected_sources = scarlet_initialize(images, peaks,
-                                                     bg_rms, self.iters,
-                                                     self.e_rel)
+        blend, rejected_sources = self.scarlet_initialize(images, peaks,
+                                                          bg_rms, self.iters,
+                                                          self.e_rel)
         im = []
         for m in range(len(blend.sources)):
             oth_indx = np.delete(range(len(blend.sources)), m)
@@ -131,35 +173,3 @@ class Scarlet_params(measure.Measurement_params):
                 model_oth += blend.get_model(k=i)
             im.append(np.transpose(images - model_oth, axes=(1, 2, 0)))
         return np.array(im)
-
-
-def scarlet_initialize(images, peaks,
-                       bg_rms, iters, e_rel):
-    """ Intializes scarlet ExtendedSource at locations specified as peaks
-    in the (multi-band) input images.
-    Args:
-        images: Numpy array of multi-band image to run scarlet on
-               [Number of bands, height, width].
-        peaks: Array of x and y cordinate of cntroids of objects in the image.
-               [number of sources, 2]
-        bg_rms: Background RMS value of the images [Number of bands]
-    Returns
-        blend: scarlet.Blend object for the initialized sources
-        rejected_sources: list of sources (if any) that scarlet was
-                          unable to initlaize the image with.
-    """
-    import scarlet
-    sources, rejected_sources = [], []
-    for n, peak in enumerate(peaks):
-        try:
-            result = scarlet.ExtendedSource(
-                (peak[1], peak[0]),
-                images,
-                bg_rms)
-            sources.append(result)
-        except scarlet.source.SourceInitError:
-            rejected_sources.append(n)
-            print("No flux in peak {0} at {1}".format(n, peak))
-    blend = scarlet.Blend(sources).set_data(images, bg_rms=bg_rms)
-    blend.fit(iters, e_rel=e_rel)
-    return blend, rejected_sources
