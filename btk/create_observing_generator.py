@@ -7,6 +7,14 @@ import descwl
 
 
 def default_obs_conditions(Args, band):
+    """Returns the default observing conditions from the WLD package
+    for a given survey_name and band
+    Args
+        Args: Class containing parametrs to genrate blends
+        band: filter name to get observing conditions for.
+    Returns
+        survey: WLD survey class with observing conditions.
+    """
     survey = descwl.survey.Survey.get_defaults(
         survey_name=Args.survey_name,
         filter_band=band)
@@ -14,6 +22,7 @@ def default_obs_conditions(Args, band):
 
 
 def generate(Args, obs_function=None):
+    """Generates observing condition for each band."""
     while True:
         observing_generator = []
         for band in Args.bands:
