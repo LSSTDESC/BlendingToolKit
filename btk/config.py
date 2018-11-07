@@ -18,7 +18,8 @@ class Simulation_params(object):
                  batch_size=8, stamp_size=24, psf_stamp_size=41,
                  survey_name="LSST",
                  seed=0, add_noise=True, draw_isolated=True,
-                 bands=('u', 'g', 'r', 'i', 'z', 'y')):
+                 bands=('u', 'g', 'r', 'i', 'z', 'y'),
+                 verbose=False, draw_PSF=True):
         self.catalog_name = catalog_name
         self.max_number = max_number
         self.batch_size = batch_size
@@ -29,3 +30,5 @@ class Simulation_params(object):
         self.draw_isolated = draw_isolated
         self.seed = seed
         self.bands = bands
+        self.verbose = verbose
+        self.draw_PSF = draw_PSF
