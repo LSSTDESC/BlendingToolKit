@@ -90,10 +90,12 @@ def generate(Args, blend_genrator, observing_generator):
                         sky_level=blend_obs.mean_sky_level)
                     blend_obs.image.addNoise(noise)
                     sky_level[i, j] = blend_obs.mean_sky_level
-                psf = blend_obs.psf_model
-                psf_images[i, :, :, j] = psf.drawImage(
-                    nx=Args.psf_stamp_size,
-                    ny=Args.psf_stamp_size).array
+                if Args.draw_PSF:
+                    print("PSF drawn")
+                    psf = blend_obs.psf_model
+                    psf_images[i, :, :, j] = psf.drawImage(
+                        nx=Args.psf_stamp_size,
+                        ny=Args.psf_stamp_size).array
                 blend_images[i, :, :, j] = blend_obs.image.array
         output = {'blend_images': blend_images,
                   'isolated_images': isolated_images,
