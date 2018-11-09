@@ -71,6 +71,8 @@ def generate(Args, blend_genrator, observing_generator):
                                                              band)
                         blend_render_engine.render_galaxy(galaxy, True, False)
                         if Args.draw_isolated:
+                            if Args.verbose:
+                                print("Draw isolated object")
                             iso_obs = copy.deepcopy(obs_cond[j])
                             iso_render_engine = descwl.render.Engine(
                                 survey=iso_obs,
@@ -84,6 +86,8 @@ def generate(Args, blend_genrator, observing_generator):
                         print("Source not visible")
                         continue
                 if Args.add_noise:
+                    if Args.verbose:
+                        print("Noise added to blend image")
                     generator = galsim.random.BaseDeviate(seed=Args.seed)
                     noise = galsim.PoissonNoise(
                         rng=generator,
@@ -91,7 +95,8 @@ def generate(Args, blend_genrator, observing_generator):
                     blend_obs.image.addNoise(noise)
                     sky_level[i, j] = blend_obs.mean_sky_level
                 if Args.draw_PSF:
-                    print("PSF drawn")
+                    if Args.verbose:
+                        print("PSF images drawn")
                     psf = blend_obs.psf_model
                     psf_images[i, :, :, j] = psf.drawImage(
                         nx=Args.psf_stamp_size,

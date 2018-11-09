@@ -40,6 +40,8 @@ def generate(Args, catalog, sampling_function=None):
                 blend_catalog = sampling_function(Args, catalog)
             else:
                 blend_catalog = random_sample(Args, catalog)
+                if Args.verbose:
+                    print("Default random sampling of objects from catalog")
             np.testing.assert_array_less(len(blend_catalog) - 1, Args.max_number,
                                          "Number of objects per blend must be \
                                          less than max_number")

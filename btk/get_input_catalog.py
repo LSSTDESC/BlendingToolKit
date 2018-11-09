@@ -18,4 +18,6 @@ def load_catlog(Args):
     else:
         table = astropy.table.Table.read(Args.catalog_name,
                                          format='ascii.basic')
+    if Args.verbose:
+        print("Catalog loaded")
     return table

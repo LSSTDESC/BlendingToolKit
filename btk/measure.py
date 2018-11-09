@@ -15,7 +15,7 @@ class Measurement_params(object):
         return None
 
 
-def generate(Measurement_params, draw_blend_generator):
+def generate(Measurement_params, draw_blend_generator, Args):
     while True:
         blend_output = next(draw_blend_generator)
         batch_size = len(blend_output['blend_images'])
@@ -28,4 +28,6 @@ def generate(Measurement_params, draw_blend_generator):
             measured_results.append(
                 Measurement_params.make_measurement(data=blend_output,
                                                     index=i))
+            if Args.verbose:
+                print("Measurement performed on batch")
         yield blend_output, deblended_images, measured_results

@@ -30,6 +30,8 @@ def generate(Args, obs_function=None):
                 survey = obs_function(Args, band)
             else:
                 survey = default_obs_conditions(Args, band)
+                if Args.verbose:
+                    print("Default observing conditions selected")
             survey['image_width'] = Args.stamp_size / survey['pixel_scale']
             survey['image_height'] = Args.stamp_size / survey['pixel_scale']
             descwl_survey = descwl.survey.Survey(survey_name=Args.survey_name,
