@@ -70,29 +70,37 @@ def generate(Args, blend_genrator, observing_generator):
                                                              entry['dec'],
                                                              band)
                         blend_render_engine.render_galaxy(galaxy, True, False)
-                        iso_obs = copy.deepcopy(obs_cond[j])
-                        iso_render_engine = descwl.render.Engine(
-                            survey=iso_obs,
-                            min_snr=0.05,
-                            truncate_radius=30,
-                            no_margin=False,
-                            verbose_render=False)
-                        iso_render_engine.render_galaxy(galaxy, True, False)
-                        isolated_images[i, k, :, :, j] = iso_obs.image.array
+                        if Args.draw_isolated:
+                            if Args.verbose:
+                                print("Draw isolated object")
+                            iso_obs = copy.deepcopy(obs_cond[j])
+                            iso_render_engine = descwl.render.Engine(
+                                survey=iso_obs,
+                                min_snr=0.05,
+                                truncate_radius=30,
+                                no_margin=False,
+                                verbose_render=False)
+                            iso_render_engine.render_galaxy(galaxy, True, False)
+                            isolated_images[i, k, :, :, j] = iso_obs.image.array
                     except descwl.render.SourceNotVisible:
                         print("Source not visible")
                         continue
                 if Args.add_noise:
+                    if Args.verbose:
+                        print("Noise added to blend image")
                     generator = galsim.random.BaseDeviate(seed=Args.seed)
                     noise = galsim.PoissonNoise(
                         rng=generator,
                         sky_level=blend_obs.mean_sky_level)
                     blend_obs.image.addNoise(noise)
                     sky_level[i, j] = blend_obs.mean_sky_level
-                psf = blend_obs.psf_model
-                psf_images[i, :, :, j] = psf.drawImage(
-                    nx=Args.psf_stamp_size,
-                    ny=Args.psf_stamp_size).array
+                if Args.draw_PSF:
+                    if Args.verbose:
+                        print("PSF images drawn")
+                    psf = blend_obs.psf_model
+                    psf_images[i, :, :, j] = psf.drawImage(
+                        nx=Args.psf_stamp_size,
+                        ny=Args.psf_stamp_size).array
                 blend_images[i, :, :, j] = blend_obs.image.array
         output = {'blend_images': blend_images,
                   'isolated_images': isolated_images,
