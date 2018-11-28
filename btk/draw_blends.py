@@ -44,10 +44,6 @@ def generate(Args, blend_genrator, observing_generator):
                                  len(Args.bands)))
         isolated_images = np.zeros((Args.batch_size, Args.max_number,
                                     stamp_size, stamp_size, len(Args.bands)))
-        psf_images = np.zeros((Args.batch_size, Args.psf_stamp_size,
-                               Args.psf_stamp_size, len(Args.bands)))
-        sky_level = np.zeros((Args.batch_size,
-                              len(Args.bands)))
         for i in range(Args.batch_size):
             dx, dy = get_center_in_pixels(blend_list[i], obs_cond[0], Args)
             blend_list[i].add_column(dx)
@@ -93,18 +89,9 @@ def generate(Args, blend_genrator, observing_generator):
                         rng=generator,
                         sky_level=blend_obs.mean_sky_level)
                     blend_obs.image.addNoise(noise)
-                    sky_level[i, j] = blend_obs.mean_sky_level
-                if Args.draw_PSF:
-                    if Args.verbose:
-                        print("PSF images drawn")
-                    psf = blend_obs.psf_model
-                    psf_images[i, :, :, j] = psf.drawImage(
-                        nx=Args.psf_stamp_size,
-                        ny=Args.psf_stamp_size).array
                 blend_images[i, :, :, j] = blend_obs.image.array
         output = {'blend_images': blend_images,
                   'isolated_images': isolated_images,
-                  'psf_images': psf_images,
-                  'sky_level': sky_level,
+                  'obs_condition': obs_cond,
                   'blend_list': blend_list}
         yield output
