@@ -9,13 +9,23 @@ class Stack_params(measure.Measurement_params):
     min_pix = 1
     bkg_bin_size = 32
     thr_value = 5
+    psf_stamp_size = 41
+
+    def get_psf_sky(self, obs_cond):
+        mean_sky_level = obs_cond.mean_sky_level
+        psf = obs_cond.psf_model
+        psf_image = psf.drawImage(
+           nx=self.psf_stamp_size,
+           ny=self.psf_stamp_size).array
+        return psf_image, mean_sky_level
 
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
          the blend image for input index in the batch."""
         image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
-        variance_array = image_array + data['sky_level'][index, 3]
-        psf_array = data['psf_images'][index, :, :, 3].astype(np.float64)
+        psf_image, mean_sky_level = self.get_psf_sky(data['obs_condition'][3])
+        variance_array = image_array + mean_sky_level
+        psf_array = psf_image.astype(np.float64)
         cat = run_stack(image_array, variance_array, psf_array,
                         min_pix=self.min_pix, bkg_bin_size=self.bkg_bin_size,
                         thr_value=self.thr_value)
@@ -161,7 +171,7 @@ class Scarlet_params(measure.Measurement_params):
             peaks = self.get_centers(images)
         else:
             peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
-        bg_rms = data['sky_level'][index]**0.5
+        bg_rms = data['obs_condition'][index][3].mean_sky_level**0.5
         blend, rejected_sources = self.scarlet_initialize(images, peaks,
                                                           bg_rms, self.iters,
                                                           self.e_rel)
