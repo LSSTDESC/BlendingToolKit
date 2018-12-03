@@ -19,10 +19,10 @@ def generate(Measurement_params, draw_blend_generator, Args):
     while True:
         blend_output = next(draw_blend_generator)
         batch_size = len(blend_output['blend_images'])
-        deblended_images = []
+        deblend_results = []
         measured_results = []
         for i in range(batch_size):
-            deblended_images.append(
+            deblend_results.append(
                 Measurement_params.get_deblended_images(data=blend_output,
                                                         index=i))
             measured_results.append(
@@ -30,4 +30,4 @@ def generate(Measurement_params, draw_blend_generator, Args):
                                                     index=i))
             if Args.verbose:
                 print("Measurement performed on batch")
-        yield blend_output, deblended_images, measured_results
+        yield blend_output, deblend_results, measured_results
