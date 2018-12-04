@@ -23,16 +23,16 @@ def get_center_in_pixels(blend_catalog, obs, Args):
 
 
 def generate(Args, blend_genrator, observing_generator):
-    """Generates images of blended objects, individual isolated objects, psf image
-    in each batch for each object in the batch
+    """Generates images of blended objects, individual isolated objects,
+    PSF image in each batch for each object in the batch
 
     Args:
-        Args: class containing parametrs to create blends
-        blend_genrator: generator to create blended object
-        observing_genrator: creates observing conditions for each entry in
+        Args: Class containing parameters to create blends
+        blend_genrator: Generator to create blended object
+        observing_genrator: Creates observing conditions for each entry in
                             batch.
     Returns:
-        output: output dict with blend image, isolated object image, psf image,
+        output: Dictionary with blend image, isolated object image, PSF image,
                 mean sky level in each band and, blend catalog per entry per
                 batch.
     """
