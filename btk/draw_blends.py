@@ -32,9 +32,9 @@ def generate(Args, blend_genrator, observing_generator):
         observing_genrator: Creates observing conditions for each entry in
                             batch.
     Returns:
-        output: Dictionary with blend image, isolated object image, PSF image,
-                mean sky level in each band and, blend catalog per entry per
-                batch.
+        output: Dictionary with blend images, isolated object images, observing
+        conditions in each band and, blend catalog per blend per
+        batch.
     """
     while True:
         blend_list = next(blend_genrator)
