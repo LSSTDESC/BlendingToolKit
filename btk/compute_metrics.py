@@ -13,7 +13,7 @@ from scipy import spatial
 
 class Metrics_params(object):
     def get_detections(self, data=None, index=None):
-        return None
+        return []
 
     def get_segmentation(self, data=None, index=None):
         return None
@@ -25,8 +25,8 @@ class Metrics_params(object):
         return None
 
 
-def evaluate_detection(detected_centers, data, index,
-                       distance_upper_bound=3):
+def evaluate_detection(detected_centers, true_centers,
+                       distance_upper_bound=5):
     """
     Compares the true centers and detected centers to identify the
     number of true detections, number of sources that were undetected
@@ -38,18 +38,19 @@ def evaluate_detection(detected_centers, data, index,
                               (Default:10)
     Returns:
     """
-    true_catalog = data[0]['blend_list'][index]
-    if detected_centers is None:
-        return [None, None, None]
-    peaks = np.stack([true_catalog['dx'], true_catalog['dy']]).T
-    z_tree = spatial.KDTree(peaks)
+    if len(detected_centers) == 0:
+        # no detection
+        return 0, len(true_centers), 0
+    z_tree = spatial.KDTree(true_centers)
+    detected_centers = np.array(detected_centers).reshape(-1, 2)
     match = z_tree.query(detected_centers,
                          distance_upper_bound=distance_upper_bound)
-    detected = len(np.unique(match[1]))
-    undetected = len(np.setdiff1d(range(len(true_catalog)), match))
-    detected = len(np.unique(match[1]))
-    spurious = len(np.unique(match[1][match[0] == np.inf]))
-    return [detected, undetected, spurious]
+    fin, = np.where(match[0] != np.inf)  # match exists
+    inf, = np.where(match[0] == np.inf)  # no match within distance_upper_bound
+    detected = len(np.unique(match[1][fin]))
+    undetected = len(np.setdiff1d(range(len(true_centers)), match[1][fin]))
+    spurious = len(np.unique(match[1][inf]))
+    return detected, undetected, spurious
 
 
 def evaluate_segmentation(segmentation, data=None, index=None):
