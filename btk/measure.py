@@ -1,7 +1,7 @@
 """For an input draw_object generator and measurement_function algorithm
 this script will:
 1) draw blended and isolated objects
-2) Run the deblending ans measuremnt algorithm as defined by the
+2) Run the deblending and measurement algorithm as defined by the
 Measuremnt_args class
 
 """
