@@ -8,12 +8,44 @@ redshift
 
 """
 import numpy as np
+import config
+import get_input_catalog
+import create_blend_generator
+import create_observing_generator
+import measure
+import draw_blends
 from scipy import spatial
 
 
 class Metrics_params(object):
-    def get_detections(self, data=None, index=None):
-        return []
+    def make_meas_generator(self, catalog_name):
+        """
+        Creates the default btk.meas_generator for input catalog
+        Overwrite this function for user defined measurement generator
+        """
+        # Load parameters
+        param = config.Simulation_params(
+            catalog_name, max_number=2, batch_size=1, seed=199)
+        np.random.seed(param.seed)
+        # Load input catalog
+        catalog = get_input_catalog.load_catlog(param)
+        # Generate catalogs of blended objects
+        blend_generator = create_blend_generator.generate(
+            param, catalog)
+        # Generates observing conditions
+        observing_generator = create_observing_generator.generate(
+            param)
+        # Generate images of blends in all the observing bands
+        draw_blend_generator = draw_blends.generate(
+            param, blend_generator, observing_generator)
+        meas_params = measure.Measurement_params()
+        meas_generator = measure.generate(
+            meas_params, draw_blend_generator, param)
+        self.meas_generator = meas_generator
+
+    def get_detections(self, index):
+
+        return [], []
 
     def get_segmentation(self, data=None, index=None):
         return None
@@ -71,32 +103,27 @@ def evaluate_redshift(redshift, data=None, index=None):
     return None
 
 
-def generate(Metrics_params, measure_generator, Args):
-    while True:
-        meas_output = next(measure_generator)
-        # meas_output = blend_output, deblend_results, measured_results
-        batch_size = len(meas_output[0]['blend_images'])
-        results = {}
-        for i in range(batch_size):
-            results[i] = {}
-            # Evaluate detection algorithm
-            detected_centers = Metrics_params.get_detection(
-                data=meas_output, index=i)
-            results[i]['detection'] = evaluate_detection(
-                detected_centers, data=meas_output, index=i)
-            # Evaluate segmentation algorithm
-            segmentation = Metrics_params.get_segmentation(
-                data=meas_output, index=i)
-            results[i]['segmentation'] = evaluate_segmentation(
-                segmentation, data=meas_output, index=i)
-            # Evaluate flux measurement algorithm
-            flux = Metrics_params.get_flux(
-                data=meas_output, index=i)
-            results[i]['flux'] = evaluate_flux(
-                flux, data=meas_output, index=i)
-            # Evaluate redshift estimation algorithm
-            redshift = Metrics_params.get_redshift(
-                data=meas_output, index=i)
-            results[i]['redshift'] = evaluate_redshift(
-                redshift, data=meas_output, index=i)
-        yield results, meas_output
+def run(Metrics_params, test_size=1000):
+    results = {'detection': [], 'segmentation': [],
+               'flux': [], 'redshift': []}
+    for i in range(test_size):
+        # Evaluate detection algorithm
+        detected_centers, true_centers = Metrics_params.get_detection(
+            index=i)
+        results['detection'].append(evaluate_detection(
+            detected_centers, true_centers))
+        # Evaluate segmentation algorithm
+        segmentation = Metrics_params.get_segmentation(index=i)
+        results['segmentation'].append(evaluate_segmentation(
+            segmentation))
+        # Evaluate flux measurement algorithm
+        flux = Metrics_params.get_flux(
+            index=i)
+        results['flux'].append(evaluate_flux(
+            flux))
+        # Evaluate redshift estimation algorithm
+        redshift = Metrics_params.get_redshift(
+            index=i)
+        results['redshift'].append(evaluate_redshift(
+            redshift))
+    return results
