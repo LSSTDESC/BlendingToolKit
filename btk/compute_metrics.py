@@ -8,12 +8,12 @@ redshift
 
 """
 import numpy as np
-import config
-import get_input_catalog
-import create_blend_generator
-import create_observing_generator
-import measure
-import draw_blends
+import btk.config
+import btk.get_input_catalog
+import btk.create_blend_generator
+import btk.create_observing_generator
+import btk.measure
+import btk.draw_blends
 from scipy import spatial
 
 
@@ -24,22 +24,22 @@ class Metrics_params(object):
         Overwrite this function for user defined measurement generator
         """
         # Load parameters
-        param = config.Simulation_params(
+        param = btk.config.Simulation_params(
             catalog_name, max_number=2, batch_size=1, seed=199)
         np.random.seed(param.seed)
         # Load input catalog
-        catalog = get_input_catalog.load_catlog(param)
+        catalog = btk.get_input_catalog.load_catlog(param)
         # Generate catalogs of blended objects
-        blend_generator = create_blend_generator.generate(
+        blend_generator = btk.create_blend_generator.generate(
             param, catalog)
         # Generates observing conditions
-        observing_generator = create_observing_generator.generate(
+        observing_generator = btk.create_observing_generator.generate(
             param)
         # Generate images of blends in all the observing bands
-        draw_blend_generator = draw_blends.generate(
+        draw_blend_generator = btk.draw_blends.generate(
             param, blend_generator, observing_generator)
-        meas_params = measure.Measurement_params()
-        meas_generator = measure.generate(
+        meas_params = btk.measure.Measurement_params()
+        meas_generator = btk.measure.generate(
             meas_params, draw_blend_generator, param)
         self.meas_generator = meas_generator
 
@@ -108,7 +108,7 @@ def run(Metrics_params, test_size=1000):
                'flux': [], 'redshift': []}
     for i in range(test_size):
         # Evaluate detection algorithm
-        detected_centers, true_centers = Metrics_params.get_detection(
+        detected_centers, true_centers = Metrics_params.get_detections(
             index=i)
         results['detection'].append(evaluate_detection(
             detected_centers, true_centers))
