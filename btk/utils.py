@@ -5,6 +5,31 @@ from btk import measure
 import numpy as np
 
 
+class SEP_params(measure.Measurement_params):
+    """Class to perform detection and deblending with SEP"""
+    def get_centers(self, image):
+        """Return centers detected when object detection and photometry
+        is done on input image with SEP.
+        Args:
+            image: Image (single band) of galaxy to perform measurement on.
+        Returns:
+                centers: x and y coordinates of detected  centroids
+
+        """
+        sep = __import__('sep')
+        bkg = sep.Background(image)
+        self.catalog, self.segmentation = sep.extract(
+            image, 1.5, err=bkg.globalrms, segmentation_map=True)
+        centers = np.stack((self.catalog['x'], self.catalog['y']), axis=1)
+        return centers
+
+    def get_deblended_images(self, data, index):
+        """Returns scarlet modeled blend  and centers for the given blend"""
+        image = np.mean(data['blend_images'][index], axis=2)
+        peaks = self.get_centers(image)
+        return [None, peaks]
+
+
 class Stack_params(measure.Measurement_params):
     min_pix = 1
     bkg_bin_size = 32
@@ -41,19 +66,19 @@ def run_stack(image_array, variance_array, psf_array,
               min_pix=1, bkg_bin_size=32, thr_value=5):
     """
     Function to setup the DM stack and perform detection, deblending and
-    measuremnt
+    measurement
     Args:
         image_array: Numpy array of image to run stack on
         variance_array: per pixel variance of the input image_array (must
                         have same dimensions as image_array)
-        psf_array: Image of the psf for image_array.
+        psf_array: Image of the PSF for image_array.
         min_pix: Minimum size in pixels of a source to be considered by the
                  stack (default=1).
         bkg_bin_size: Binning of the local background in pixels (default=32).
         thr_value: SNR threshold for the detected sources to be included in the
                    final catalog(default=5).
     Returns:
-        catalog: Astropy table of detected sources
+        catalog: AstroPy table of detected sources
     """
     # Convet to stack Image object
     import lsst.afw.table
@@ -119,18 +144,18 @@ class Scarlet_params(measure.Measurement_params):
 
     def scarlet_initialize(self, images, peaks,
                            bg_rms, iters, e_rel):
-        """ Intializes scarlet ExtendedSource at locations specified as
+        """ Initializes scarlet ExtendedSource at locations specified as
         peaks in the (multi-band) input images.
         Args:
             images: Numpy array of multi-band image to run scarlet on
                     [Number of bands, height, width].
-            peaks: Array of x and y cordinate of cntroids of objects in
+            peaks: Array of x and y coordinate of centroids of objects in
                    the image [number of sources, 2].
             bg_rms: Background RMS value of the images [Number of bands]
         Returns
             blend: scarlet.Blend object for the initialized sources
             rejected_sources: list of sources (if any) that scarlet was
-                              unable to initlaize the image with.
+                              unable to initialize the image with.
         """
         import scarlet
         sources, rejected_sources = [], []
@@ -154,16 +179,16 @@ class Scarlet_params(measure.Measurement_params):
         Args:
         images: Numpy array of multi-band image to run scarlet on
                [Number of bands, height, width].
-        peaks: Array of x and y cordinate of cntroids of objects in the image.
+        peaks: Array of x and y coordinate of centroids of objects in the image.
                [number of sources, 2]
         bg_rms: Background RMS value of the images [Number of bands]
         iters: Maximum number of iterations if scarlet doesn't converge
                (Default: 200).
-        e_rel: Relative error for convergence (Deafult: 0.015)
+        e_rel: Relative error for convergence (Default: 0.015)
         Returns
         blend: scarlet.Blend object for the initialized sources
         rejected_sources: list of sources (if any) that scarlet was
-        unable to initlaize the image with.
+        unable to initialize the image with.
         """
         images = np.transpose(data['blend_images'][index], axes=(2, 0, 1))
         blend_cat = data['blend_list'][index]
