@@ -46,7 +46,8 @@ class Stack_params(measure.Measurement_params):
 
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
-         the blend image for input index in the batch."""
+        the blend image for input index in the batch.
+         """
         image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
         psf_image, mean_sky_level = self.get_psf_sky(data['obs_condition'][3])
         variance_array = image_array + mean_sky_level
@@ -136,7 +137,7 @@ class Scarlet_params(measure.Measurement_params):
         return None
 
     def get_centers(self, image):
-        import sep
+        sep = __import__('sep')
         detect = image.mean(axis=0)  # simple average for detection
         bkg = sep.Background(detect)
         catalog = sep.extract(detect, 1.5, err=bkg.globalrms)
@@ -157,7 +158,7 @@ class Scarlet_params(measure.Measurement_params):
             rejected_sources: list of sources (if any) that scarlet was
                               unable to initialize the image with.
         """
-        import scarlet
+        scarlet = __import__("scarlet")
         sources, rejected_sources = [], []
         for n, peak in enumerate(peaks):
             try:
@@ -196,15 +197,14 @@ class Scarlet_params(measure.Measurement_params):
             peaks = self.get_centers(images)
         else:
             peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
-        bg_rms = data['obs_condition'][index][3].mean_sky_level**0.5
+        bg_rms = np.array(
+            [data['obs_condition'][i].mean_sky_level**0.5 for i in range(len(images))])
         blend, rejected_sources = self.scarlet_initialize(images, peaks,
                                                           bg_rms, self.iters,
                                                           self.e_rel)
-        im = []
+        im, selected_peaks = [], []
         for m in range(len(blend.sources)):
-            oth_indx = np.delete(range(len(blend.sources)), m)
-            model_oth = np.zeros_like(images)
-            for i in oth_indx:
-                model_oth += blend.get_model(k=i)
-            im.append(np.transpose(images - model_oth, axes=(1, 2, 0)))
-        return np.array(im)
+            im .append(np.transpose(blend.get_model(k=m), axes=(1, 2, 0)))
+            selected_peaks.append(
+                [blend.components[m].center[1], blend.components[m].center[0]])
+        return [np.array(im), selected_peaks]
