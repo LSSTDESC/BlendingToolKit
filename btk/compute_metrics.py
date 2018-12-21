@@ -18,14 +18,16 @@ from scipy import spatial
 
 
 class Metrics_params(object):
-    def make_meas_generator(self, catalog_name):
+    def make_meas_generator(self, catalog_name, max_number=2,
+                            batch_size=1, seed=999):
         """
         Creates the default btk.meas_generator for input catalog
         Overwrite this function for user defined measurement generator
         """
         # Load parameters
         param = btk.config.Simulation_params(
-            catalog_name, max_number=2, batch_size=1, seed=199)
+            catalog_name, max_number=max_number, batch_size=batch_size,
+            seed=seed)
         np.random.seed(param.seed)
         # Load input catalog
         catalog = btk.get_input_catalog.load_catlog(param)
