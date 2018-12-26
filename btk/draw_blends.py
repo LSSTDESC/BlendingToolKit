@@ -52,12 +52,12 @@ def generate(Args, blend_genrator, observing_generator):
                                             name='not_drawn'))
             for j, band in enumerate(Args.bands):
                 blend_obs = copy.deepcopy(obs_cond[j])
-                galaxy_builder = descwl.model.GalaxyBuilder(blend_obs, False,
-                                                            False, False,
-                                                            False)
+                galaxy_builder = descwl.model.GalaxyBuilder(
+                    blend_obs, no_disk=False, no_bulge=False,
+                    no_agn=False, verbose_model=False)
                 blend_render_engine = descwl.render.Engine(
                     survey=blend_obs,
-                    min_snr=0.01,
+                    min_snr=Args.min_snr,
                     truncate_radius=30,
                     no_margin=False,
                     verbose_render=False)
@@ -75,7 +75,7 @@ def generate(Args, blend_genrator, observing_generator):
                             iso_obs = copy.deepcopy(obs_cond[j])
                             iso_render_engine = descwl.render.Engine(
                                 survey=iso_obs,
-                                min_snr=0.01,
+                                min_snr=Args.min_snr,
                                 truncate_radius=30,
                                 no_margin=False,
                                 verbose_render=False)
