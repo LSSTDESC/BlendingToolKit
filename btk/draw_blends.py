@@ -67,7 +67,8 @@ def generate(Args, blend_genrator, observing_generator):
                                                              entry['ra'],
                                                              entry['dec'],
                                                              band)
-                        blend_render_engine.render_galaxy(galaxy, True, False)
+                        blend_render_engine.render_galaxy(
+                            galaxy, no_partials=True, calculate_bias=False)
                         if Args.draw_isolated:
                             if Args.verbose:
                                 print("Draw isolated object")
@@ -78,7 +79,8 @@ def generate(Args, blend_genrator, observing_generator):
                                 truncate_radius=30,
                                 no_margin=False,
                                 verbose_render=False)
-                            iso_render_engine.render_galaxy(galaxy, True, False)
+                            iso_render_engine.render_galaxy(
+                                galaxy, no_partials=True, calculate_bias=False)
                             isolated_images[i, k, :, :, j] = iso_obs.image.array
                     except descwl.render.SourceNotVisible:
                         print("Source not visible")
