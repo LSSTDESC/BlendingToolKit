@@ -13,13 +13,17 @@ class Simulation_params(object):
         add_noise: If True, adds noise to output blended images.
         draw_isolated: If trues, drwas image sof each isolated object.
         bands: Filters in which to simulate images.
+        min_snr(float): Simulate signals from individual sources down to this
+            S/N threshold, where the signal N is calculated for the full
+            exposure time and the noise N is set by the expected fluctuations
+            in the sky background during a full exposure.
         verbose: If true prints returns description at multiple steps.
     """
     def __init__(self, catalog_name, max_number=2,
                  batch_size=8, stamp_size=24,
                  survey_name="LSST",
                  seed=0, add_noise=True, draw_isolated=True,
-                 bands=('u', 'g', 'r', 'i', 'z', 'y'),
+                 bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
                  verbose=False):
         self.catalog_name = catalog_name
         self.max_number = max_number
@@ -30,4 +34,5 @@ class Simulation_params(object):
         self.draw_isolated = draw_isolated
         self.seed = seed
         self.bands = bands
+        self.min_snr = min_snr
         self.verbose = verbose
