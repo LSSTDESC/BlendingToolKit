@@ -81,7 +81,7 @@ def run_stack(image_array, variance_array, psf_array,
     Returns:
         catalog: AstroPy table of detected sources
     """
-    # Convet to stack Image object
+    # Convert to stack Image object
     import lsst.afw.table
     import lsst.afw.image
     import lsst.afw.math
@@ -208,3 +208,19 @@ class Scarlet_params(measure.Measurement_params):
             selected_peaks.append(
                 [blend.components[m].center[1], blend.components[m].center[0]])
         return [np.array(im), selected_peaks]
+
+
+def make_true_seg_map(image, threshold):
+    """Returns a boolean segmentation map corresponding to pixels in
+    image above a certain threshold value.threshold
+    Args:
+        image: Image to estimate segmentation map of
+        threshold: Pixels above this threshold are marked as belonging to
+                   segmentation map
+    Returns:
+        Boolean segmentation map of the image
+    """
+    seg_map = np.zeros_like(image)
+    seg_map[image < threshold] = 0
+    seg_map[image >= threshold] = 1
+    return seg_map.astype(np.bool)
