@@ -36,3 +36,15 @@ class Simulation_params(object):
         self.bands = bands
         self.min_snr = min_snr
         self.verbose = verbose
+        if survey_name is "LSST":
+            self.pixel_scale = 0.2
+        elif survey_name is "DES":
+            self.pixel_scale = 0.263
+        elif survey_name is "CFHT":
+            self.pixel_scale = 0.185
+        elif survey_name is "HSC":
+            self.pixel_scale = 0.17
+        else:
+            raise Exception(
+                "survey_name should be LSST, DES, CFHT or HSC. Input name was \
+                 {0}".format(survey_name))
