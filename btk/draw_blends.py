@@ -48,9 +48,9 @@ def generate(Args, blend_genrator, observing_generator):
             dx, dy = get_center_in_pixels(blend_list[i], obs_cond[0], Args)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
-            blend_list[i].add_column(Column(np.zeros(len(blend_list[i])),
-                                            name='not_drawn'))
             for j, band in enumerate(Args.bands):
+                blend_list[i].add_column(Column(np.zeros(len(blend_list[i])),
+                                                name='not_drawn_' + band))
                 blend_obs = copy.deepcopy(obs_cond[j])
                 galaxy_builder = descwl.model.GalaxyBuilder(
                     blend_obs, no_disk=False, no_bulge=False,
@@ -84,7 +84,7 @@ def generate(Args, blend_genrator, observing_generator):
                             isolated_images[i, k, :, :, j] = iso_obs.image.array
                     except descwl.render.SourceNotVisible:
                         print("Source not visible")
-                        blend_list[i]['not_drawn'][k] = 1
+                        blend_list[i]['not_drawn_' + band][k] = 1
                         continue
                 if Args.add_noise:
                     if Args.verbose:
