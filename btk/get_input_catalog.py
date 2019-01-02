@@ -3,14 +3,21 @@ generate postage stamp images with appropriate distributions of shapes, colors,
 fluxes, etc.
 TODO:
 1) Add script to load DC2 catalog
-2) Add option to load multiple catlogs(eg star , galaxy)
+2) Add option to load multiple catalogs(e.g. star , galaxy)
 """
 import os
 import astropy.table
 
 
-def load_catlog(Args):
-    """Returns astropy table with catalog name from input class"""
+def load_catlog(Args, selection_function=None):
+    """Returns astropy table with catalog name from input class.
+    Args:
+        Args: class containing input parameters
+        Args.catalog_name: Name of CatSim like catalog to draw galaxies from.
+        sampling_function: Selection cuts (if input) to place on input catalog.
+    Returns
+        CatSim like catalog to draw galaxies with selection cuts (if any).
+    """
     name, ext = os.path.splitext(Args.catalog_name)
     if ext == '.fits':
         table = astropy.table.Table.read(Args.catalog_name,
@@ -20,4 +27,8 @@ def load_catlog(Args):
                                          format='ascii.basic')
     if Args.verbose:
         print("Catalog loaded")
+    if selection_function:
+        if Args.verbose:
+            print("Selection criterion applied to input catalog")
+        return selection_function(table)
     return table
