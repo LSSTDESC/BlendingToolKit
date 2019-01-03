@@ -12,7 +12,7 @@ import astropy.table
 def load_catlog(Args, selection_function=None):
     """Returns astropy table with catalog name from input class.
     Args:
-        Args: class containing input parameters
+        Args: Class containing input parameters.
         Args.catalog_name: Name of CatSim like catalog to draw galaxies from.
         sampling_function: Selection cuts (if input) to place on input catalog.
     Returns

@@ -1,7 +1,7 @@
 """Creates a generator of characteristics of a given observation for a given
 survey.
 ToDo:
-Add options for variabe psf and seeing conditions
+Add options for variable PSF and seeing conditions
 """
 import descwl
 
@@ -10,7 +10,7 @@ def default_obs_conditions(Args, band):
     """Returns the default observing conditions from the WLD package
     for a given survey_name and band
     Args
-        Args: Class containing parametrs to genrate blends
+        Args: Class containing parameters to generate blends
         band: filter name to get observing conditions for.
     Returns
         survey: WLD survey class with observing conditions.
@@ -22,7 +22,13 @@ def default_obs_conditions(Args, band):
 
 
 def generate(Args, obs_function=None):
-    """Generates observing condition for each band."""
+    """Generates observing condition for each band.
+    Args:
+        Args: Class containing input parameters.
+        obs_function: Function that outputs dict of observing conditions.
+    Returns:
+        Generator with descwl.survey.Survey class for each band.
+    """
     while True:
         observing_generator = []
         for band in Args.bands:

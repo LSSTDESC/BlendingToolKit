@@ -180,7 +180,7 @@ class Scarlet_params(measure.Measurement_params):
         Args:
         images: Numpy array of multi-band image to run scarlet on
                [Number of bands, height, width].
-        peaks: Array of x and y coordinate of centroids of objects in the image.
+        peaks: x and y coordinate of centroids of objects in the image.
                [number of sources, 2]
         bg_rms: Background RMS value of the images [Number of bands]
         iters: Maximum number of iterations if scarlet doesn't converge

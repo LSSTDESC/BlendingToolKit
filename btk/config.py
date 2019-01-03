@@ -2,16 +2,16 @@
 
 
 class Simulation_params(object):
-    """Parametrs to create blends.
+    """Parameters to create blends.
     Args:
         catalog_name: Name of input catalog from which to draw objects.
         max_number: Maximum number of objects per blend.
-        batch_size: Number of blends to si,utae per batch.
+        batch_size: Number of blends to simulate per batch.
         stamp_size: Size of postage stamp in arcseconds.
         survey_name: Name of survey to select observing conditions.
         seed: random seed.
         add_noise: If True, adds noise to output blended images.
-        draw_isolated: If trues, drwas image sof each isolated object.
+        draw_isolated: If trues, draws images of each isolated object.
         bands: Filters in which to simulate images.
         min_snr(float): Simulate signals from individual sources down to this
             S/N threshold, where the signal N is calculated for the full
