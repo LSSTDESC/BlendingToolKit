@@ -9,7 +9,7 @@ import os
 import astropy.table
 
 
-def load_catlog(Args, selection_function=None):
+def load_catalog(Args, selection_function=None):
     """Returns astropy table with catalog name from input class.
     Args:
         Args: Class containing input parameters.
