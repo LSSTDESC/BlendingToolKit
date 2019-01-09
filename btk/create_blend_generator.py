@@ -3,8 +3,8 @@ import numpy as np
 
 
 def get_random_center_shift(Args, number_of_objects):
-    """Returns a random shift from the center in x and y coordiantes
-    between 0 and maxshift (in arcseconds).
+    """Returns a random shift from the center in x and y coordinates
+    between 0 and max-shift (in arcseconds).
     """
     maxshift = Args.stamp_size / 10.  # in arcseconds
     dx = np.random.uniform(-maxshift, maxshift,
@@ -15,7 +15,7 @@ def get_random_center_shift(Args, number_of_objects):
 
 
 def random_sample(Args, catalog):
-    """Randomly picks entries from input catlog that are brighter than 25.3
+    """Randomly picks entries from input catalog that are brighter than 25.3
     mag in the i band. The centers are randomly distributed within 1/5 of the
     stamp size.
     """
@@ -31,7 +31,13 @@ def random_sample(Args, catalog):
 
 def generate(Args, catalog, sampling_function=None):
     """Generates a list of blend catalogs of length Args.batch_size. Each blend
-    catlog has overlapping objects between 1 and Args.max_number.
+    catalog has overlapping objects between 1 and Args.max_number.
+    Args:
+        Args: Class containing input parameters.
+        sampling_function: Function to sample input catalog from which to draw
+                           blends.
+    Returns:
+        Generator for parameters of each galaxy in blend.
     """
     while True:
         blend_catalogs = []
@@ -42,8 +48,9 @@ def generate(Args, catalog, sampling_function=None):
                 blend_catalog = random_sample(Args, catalog)
                 if Args.verbose:
                     print("Default random sampling of objects from catalog")
-            np.testing.assert_array_less(len(blend_catalog) - 1, Args.max_number,
-                                         "Number of objects per blend must be \
-                                         less than max_number")
+            np.testing.assert_array_less(
+                len(blend_catalog) - 1, Args.max_number, "Number of objects"
+                " per blend must be less than max_number: {0} <= {1}".format(
+                    len(blend_catalog), Args.max_number))
             blend_catalogs.append(blend_catalog)
         yield blend_catalogs

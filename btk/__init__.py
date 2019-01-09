@@ -5,3 +5,4 @@ from . import draw_blends
 from . import measure
 from . import utils
 from . import config
+from . import compute_metrics

@@ -23,18 +23,18 @@ def get_center_in_pixels(blend_catalog, obs, Args):
 
 
 def generate(Args, blend_genrator, observing_generator):
-    """Generates images of blended objects, individual isolated objects, psf image
-    in each batch for each object in the batch
+    """Generates images of blended objects, individual isolated objects,
+    PSF image in each batch for each object in the batch
 
     Args:
-        Args: class containing parametrs to create blends
-        blend_genrator: generator to create blended object
-        observing_genrator: creates observing conditions for each entry in
+        Args: Class containing parameters to create blends
+        blend_genrator: Generator to create blended object
+        observing_genrator: Creates observing conditions for each entry in
                             batch.
     Returns:
-        output: output dict with blend image, isolated object image, psf image,
-                mean sky level in each band and, blend catalog per entry per
-                batch.
+        output: Dictionary with blend images, isolated object images, observing
+        conditions in each band and, blend catalog per blend per
+        batch.
     """
     while True:
         blend_list = next(blend_genrator)
@@ -44,22 +44,20 @@ def generate(Args, blend_genrator, observing_generator):
                                  len(Args.bands)))
         isolated_images = np.zeros((Args.batch_size, Args.max_number,
                                     stamp_size, stamp_size, len(Args.bands)))
-        psf_images = np.zeros((Args.batch_size, Args.psf_stamp_size,
-                               Args.psf_stamp_size, len(Args.bands)))
-        sky_level = np.zeros((Args.batch_size,
-                              len(Args.bands)))
         for i in range(Args.batch_size):
             dx, dy = get_center_in_pixels(blend_list[i], obs_cond[0], Args)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             for j, band in enumerate(Args.bands):
+                blend_list[i].add_column(Column(np.zeros(len(blend_list[i])),
+                                                name='not_drawn_' + band))
                 blend_obs = copy.deepcopy(obs_cond[j])
-                galaxy_builder = descwl.model.GalaxyBuilder(blend_obs, False,
-                                                            False, False,
-                                                            False)
+                galaxy_builder = descwl.model.GalaxyBuilder(
+                    blend_obs, no_disk=False, no_bulge=False,
+                    no_agn=False, verbose_model=False)
                 blend_render_engine = descwl.render.Engine(
                     survey=blend_obs,
-                    min_snr=0.05,
+                    min_snr=Args.min_snr,
                     truncate_radius=30,
                     no_margin=False,
                     verbose_render=False)
@@ -69,21 +67,24 @@ def generate(Args, blend_genrator, observing_generator):
                                                              entry['ra'],
                                                              entry['dec'],
                                                              band)
-                        blend_render_engine.render_galaxy(galaxy, True, False)
+                        blend_render_engine.render_galaxy(
+                            galaxy, no_partials=True, calculate_bias=False)
                         if Args.draw_isolated:
                             if Args.verbose:
                                 print("Draw isolated object")
                             iso_obs = copy.deepcopy(obs_cond[j])
                             iso_render_engine = descwl.render.Engine(
                                 survey=iso_obs,
-                                min_snr=0.05,
+                                min_snr=Args.min_snr,
                                 truncate_radius=30,
                                 no_margin=False,
                                 verbose_render=False)
-                            iso_render_engine.render_galaxy(galaxy, True, False)
+                            iso_render_engine.render_galaxy(
+                                galaxy, no_partials=True, calculate_bias=False)
                             isolated_images[i, k, :, :, j] = iso_obs.image.array
                     except descwl.render.SourceNotVisible:
                         print("Source not visible")
+                        blend_list[i]['not_drawn_' + band][k] = 1
                         continue
                 if Args.add_noise:
                     if Args.verbose:
@@ -93,18 +94,9 @@ def generate(Args, blend_genrator, observing_generator):
                         rng=generator,
                         sky_level=blend_obs.mean_sky_level)
                     blend_obs.image.addNoise(noise)
-                    sky_level[i, j] = blend_obs.mean_sky_level
-                if Args.draw_PSF:
-                    if Args.verbose:
-                        print("PSF images drawn")
-                    psf = blend_obs.psf_model
-                    psf_images[i, :, :, j] = psf.drawImage(
-                        nx=Args.psf_stamp_size,
-                        ny=Args.psf_stamp_size).array
                 blend_images[i, :, :, j] = blend_obs.image.array
         output = {'blend_images': blend_images,
                   'isolated_images': isolated_images,
-                  'psf_images': psf_images,
-                  'sky_level': sky_level,
+                  'obs_condition': obs_cond,
                   'blend_list': blend_list}
         yield output
