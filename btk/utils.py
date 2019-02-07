@@ -49,7 +49,8 @@ class Stack_params(measure.Measurement_params):
         the blend image for input index in the batch.
          """
         image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
-        psf_image, mean_sky_level = self.get_psf_sky(data['obs_condition'][3])
+        psf_image, mean_sky_level = self.get_psf_sky(
+            data['obs_condition'][index][3])
         variance_array = image_array + mean_sky_level
         psf_array = psf_image.astype(np.float64)
         cat = run_stack(image_array, variance_array, psf_array,
@@ -198,7 +199,7 @@ class Scarlet_params(measure.Measurement_params):
         else:
             peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
         bg_rms = np.array(
-            [data['obs_condition'][i].mean_sky_level**0.5 for i in range(len(images))])
+            [data['obs_condition'][index][i].mean_sky_level**0.5 for i in range(len(images))])
         blend, rejected_sources = self.scarlet_initialize(images, peaks,
                                                           bg_rms, self.iters,
                                                           self.e_rel)
