@@ -30,20 +30,17 @@ def generate(Args, obs_function=None):
         Generator with descwl.survey.Survey class for each band.
     """
     while True:
-        batch_observing_generator = []
-        for i in range(Args.batch_size):
-            observing_generator = []
-            for band in Args.bands:
-                if obs_function:
-                    survey = obs_function(Args, band)
-                else:
-                    survey = default_obs_conditions(Args, band)
-                    if Args.verbose:
-                        print("Default observing conditions selected")
-                survey['image_width'] = Args.stamp_size / survey['pixel_scale']
-                survey['image_height'] = Args.stamp_size / survey['pixel_scale']
-                descwl_survey = descwl.survey.Survey(survey_name=Args.survey_name,
-                                                     filter_band=band, **survey)
-                observing_generator.append(descwl_survey)
-            batch_observing_generator.append(observing_generator)
-        yield batch_observing_generator
+        observing_generator = []
+        for band in Args.bands:
+            if obs_function:
+                survey = obs_function(Args, band)
+            else:
+                survey = default_obs_conditions(Args, band)
+                if Args.verbose:
+                    print("Default observing conditions selected")
+            survey['image_width'] = Args.stamp_size / survey['pixel_scale']
+            survey['image_height'] = Args.stamp_size / survey['pixel_scale']
+            descwl_survey = descwl.survey.Survey(survey_name=Args.survey_name,
+                                                 filter_band=band, **survey)
+            observing_generator.append(descwl_survey)
+        yield observing_generator
