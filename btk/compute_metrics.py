@@ -83,7 +83,7 @@ def evaluate_detection(detected_centers, true_centers,
     inf, = np.where(match[0] == np.inf)  # no match within distance_upper_bound
     detected = len(np.unique(match[1][fin]))
     undetected = len(np.setdiff1d(range(len(true_centers)), match[1][fin]))
-    spurious = len(np.unique(match[1][inf]))
+    spurious = len(match[1][inf])
     return detected, undetected, spurious
 
 
