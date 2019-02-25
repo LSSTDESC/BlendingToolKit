@@ -60,7 +60,7 @@ class Metrics_params(object):
 
 
 def evaluate_detection(detected_centers, true_centers,
-                       distance_upper_bound=3):
+                       distance_upper_bound=4):
     """
     Compares the true centers and detected centers to identify the
     number of true detections, number of sources that were undetected
