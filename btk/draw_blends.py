@@ -75,7 +75,7 @@ def run_single_band(Args, blend_cat,
     if Args["add_noise"]:
         if Args["verbose"]:
             print("Noise added to blend image")
-        generator = galsim.random.BaseDeviate(seed=Args["seed"])
+        generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
         noise = galsim.PoissonNoise(
             rng=generator,
             sky_level=blend_obs.mean_sky_level)
@@ -121,7 +121,7 @@ def generate(Args, blend_genrator, observing_generator,
         observing_genrator: Creates observing conditions for each entry in
                             batch.
         multiprocessing: Divides batch of blends to draw into mini-batches and\
-                         runs each on different core 
+                         runs each on different core
     Returns:
         output: Dictionary with blend images, isolated object images, observing
         conditions in each band and, blend catalog per blend per
