@@ -10,7 +10,7 @@ Tools to create blend catalogs, produce training samples and implement blending 
 
 
 ## Input Catalog
-- Catsim like catalogs and pre-processed WeakLensingDeblending catlogs can be found [here](ftp://ftp.slac.stanford.edu/groups/desc/WL/)
+- Catsim like catalogs and pre-processed WeakLensingDeblending catlogs can be found [here](https://weaklensingdeblending.readthedocs.io/en/latest/products.html)
 
 ## Useful tools
 - [WeakLensingDeblending](https://github.com/LSSTDESC/WeakLensingDeblending)
