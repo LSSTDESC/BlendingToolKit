@@ -98,8 +98,15 @@ def single_blend(Args, blend_list, obs_cond, index):
         blend_image_multi = np.zeros(
                     (stamp_size, stamp_size, len(Args["bands"])))
         for j in range(len(Args["bands"])):
+            survey = descwl.survey.Survey.get_defaults(
+                survey_name=Args['survey_name'],
+                filter_band=Args["bands"][j])
+            survey['image_width'] = Args['stamp_size'] / survey['pixel_scale']
+            survey['image_height'] = Args['stamp_size'] / survey['pixel_scale']
+            obs_cond = descwl.survey.Survey(survey_name=Args.survey_name,
+                                            filter_band=Args["bands"][j], **survey)
             single_band_output = run_single_band(Args, blend_list[i],
-                                                 obs_cond[j], Args["bands"][j])
+                                                 obs_cond, Args["bands"][j])
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
         single_output = [blend_image_multi, iso_image_multi,
