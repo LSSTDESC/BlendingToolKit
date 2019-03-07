@@ -41,6 +41,7 @@ def draw_isolated(Args, galaxy, iso_obs):
 def run_single_band(Args, blend_cat,
                     obs_cond,
                     band):
+    """Draws image of isolated galaxies and blend image in input band"""
     blend_obs = copy.deepcopy(obs_cond)
     iso_obs = copy.deepcopy(obs_cond)
     blend_cat.add_column(Column(np.zeros(len(blend_cat)),
@@ -84,9 +85,7 @@ def run_single_band(Args, blend_cat,
     return blend_image, iso_image
 
 
-def single_blend(Args, blend_list, obs_cond, index):
-    # print("start entry", index, time.time())
-    # start = time.time()
+def run_mini_batch(Args, blend_list, obs_cond, index):
     batch_blend_outputs = []
     for i in range(len(blend_list)):
         dx, dy = get_center_in_pixels(blend_list[i], Args)
@@ -94,26 +93,26 @@ def single_blend(Args, blend_list, obs_cond, index):
         blend_list[i].add_column(dy)
         stamp_size = np.int(Args["stamp_size"] / Args["pixel_scale"])
         iso_image_multi = np.zeros(
-                    (Args["max_number"], stamp_size, stamp_size, len(Args["bands"])))
+            (Args["max_number"], stamp_size, stamp_size,
+             len(Args["bands"])))
         blend_image_multi = np.zeros(
                     (stamp_size, stamp_size, len(Args["bands"])))
         for j in range(len(Args["bands"])):
-            survey = descwl.survey.Survey.get_defaults(
-                survey_name=Args['survey_name'],
-                filter_band=Args["bands"][j])
-            survey['image_width'] = Args['stamp_size'] / survey['pixel_scale']
-            survey['image_height'] = Args['stamp_size'] / survey['pixel_scale']
-            obs_cond = descwl.survey.Survey(survey_name=Args.survey_name,
-                                            filter_band=Args["bands"][j], **survey)
+            #survey = descwl.survey.Survey.get_defaults(
+            #    survey_name=Args['survey_name'],
+            #    filter_band=Args["bands"][j])
+            #survey['image_width'] = Args['stamp_size'] / survey['pixel_scale']
+            #survey['image_height'] = Args['stamp_size'] / survey['pixel_scale']
+            #obs_cond = descwl.survey.Survey(survey_name=Args['survey_name'],
+            #                                filter_band=Args["bands"][j],
+            #                                **survey)
             single_band_output = run_single_band(Args, blend_list[i],
-                                                 obs_cond, Args["bands"][j])
+                                                 obs_cond[j], Args["bands"][j])
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
         single_output = [blend_image_multi, iso_image_multi,
                          blend_list[i], obs_cond]
         batch_blend_outputs.append(single_output)
-    # print("end entry", index, time.time())
-    # print("Time taken to finish ", index, time.time()-start)
     return batch_blend_outputs
 
 
@@ -152,18 +151,18 @@ def generate(Args, blend_genrator, observing_generator,
                 print(f"Running mini-batch of size {len(in_args)} \
                     with multiprocessing with pool ", cpu)
             with mp.Pool(processes=cpu) as pool:
-                single_blend_results = pool.starmap(single_blend, in_args)
+                mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
             if Args.verbose:
                 print(f"Running mini-batch of size {len(in_args)} \
                     serial {cpu} times")
-            single_blend_results = list(starmap(single_blend, in_args))
-        single_blend_results = list(chain(*single_blend_results))
+            mini_batch_results = list(starmap(run_mini_batch, in_args))
+        batch_results = list(chain(*mini_batch_results))
         for i in range(Args.batch_size):
-            blend_images[i] = single_blend_results[i][0]
-            isolated_images[i] = single_blend_results[i][1]
-            batch_blend_cat.append(single_blend_results[i][2])
-            batch_obs_cond.append(single_blend_results[i][3])
+            blend_images[i] = batch_results[i][0]
+            isolated_images[i] = batch_results[i][1]
+            batch_blend_cat.append(batch_results[i][2])
+            batch_obs_cond.append(batch_results[i][3])
         output = {'blend_images': blend_images,
                   'isolated_images': isolated_images,
                   'blend_list': batch_blend_cat,

@@ -40,7 +40,8 @@ def generate(Args, obs_function=None):
                     print("Default observing conditions selected")
             survey['image_width'] = Args.stamp_size / survey['pixel_scale']
             survey['image_height'] = Args.stamp_size / survey['pixel_scale']
-            descwl_survey = descwl.survey.Survey(survey_name=Args.survey_name,
+            descwl_survey = descwl.survey.Survey(no_analysis=True,
+                                                 survey_name=Args.survey_name,
                                                  filter_band=band, **survey)
             observing_generator.append(descwl_survey)
         yield observing_generator
