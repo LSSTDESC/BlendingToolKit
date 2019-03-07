@@ -25,6 +25,7 @@ def get_center_in_pixels(blend_catalog, Args):
 
 
 def draw_isolated(Args, galaxy, iso_obs):
+    """Returns descwl rendered object for an isolated galaxy."""
     if Args["verbose"]:
         print("Draw isolated object")
     iso_render_engine = descwl.render.Engine(
@@ -35,7 +36,8 @@ def draw_isolated(Args, galaxy, iso_obs):
         verbose_render=False)
     iso_render_engine.render_galaxy(
         galaxy, no_partials=True, calculate_bias=False, no_analysis=True)
-    return iso_obs.image.array
+    #return iso_obs.image.array
+    return iso_obs
 
 
 def run_single_band(Args, blend_cat,
@@ -43,46 +45,80 @@ def run_single_band(Args, blend_cat,
                     band):
     """Draws image of isolated galaxies and blend image in input band"""
     blend_obs = copy.deepcopy(obs_cond)
-    iso_obs = copy.deepcopy(obs_cond)
     blend_cat.add_column(Column(np.zeros(len(blend_cat)),
                                 name='not_drawn_' + band))
+    #galaxy_builder = descwl.model.GalaxyBuilder(
+    #    blend_obs, no_disk=False, no_bulge=False,
+    #    no_agn=False, verbose_model=False)
     galaxy_builder = descwl.model.GalaxyBuilder(
         blend_obs, no_disk=False, no_bulge=False,
         no_agn=False, verbose_model=False)
-    blend_render_engine = descwl.render.Engine(
-        survey=blend_obs,
-        min_snr=Args["min_snr"],
-        truncate_radius=30,
-        no_margin=False,
-        verbose_render=False)
+    #blend_render_engine = descwl.render.Engine(
+    #    survey=blend_obs,
+    #    min_snr=Args["min_snr"],
+    #    truncate_radius=30,
+    #    no_margin=False,
+    #    verbose_render=False)
     stamp_size = np.int(Args["stamp_size"] / Args["pixel_scale"])
     iso_image = np.zeros(
         (Args["max_number"], stamp_size, stamp_size))
+    iso_image_temp = np.zeros(
+        (Args["max_number"], stamp_size, stamp_size))
     for k, entry in enumerate(blend_cat):
+        iso_obs = copy.deepcopy(obs_cond)
         try:
             galaxy = galaxy_builder.from_catalog(entry,
                                                  entry['ra'],
                                                  entry['dec'],
                                                  band)
-            blend_render_engine.render_galaxy(
-                galaxy, no_partials=True, calculate_bias=False,
-                no_analysis=True)
-            if Args["draw_isolated"]:
-                iso_image[k] = draw_isolated(Args, galaxy, iso_obs)
+            #blend_render_engine.render_galaxy(
+            #    galaxy, no_partials=True, calculate_bias=False,
+            #    no_analysis=True)
+            #if Args["draw_isolated"]:
+            #    iso_image[k] = draw_isolated(Args, galaxy, iso_obs)
+            iso_render = draw_isolated(Args, galaxy, iso_obs)
+            iso_image[k] = iso_render.image.array
+            if Args["add_noise"]:
+                if Args["verbose"]:
+                    print("Noise added to blend image")
+                generator = galsim.random.BaseDeviate(
+                    seed=np.random.randint(99999999))
+                noise = galsim.PoissonNoise(
+                    rng=generator,
+                    sky_level=iso_obs.mean_sky_level)
+                iso_render.image.addNoise(noise)
+            iso_image_temp[k] = iso_render.image.array
         except descwl.render.SourceNotVisible:
             print("Source not visible")
             blend_cat['not_drawn_' + band][k] = 1
             continue
-    if Args["add_noise"]:
-        if Args["verbose"]:
-            print("Noise added to blend image")
-        generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
-        noise = galsim.PoissonNoise(
-            rng=generator,
-            sky_level=blend_obs.mean_sky_level)
-        blend_obs.image.addNoise(noise)
-    blend_image = blend_obs.image.array
+
+#    if Args["add_noise"]:
+#        if Args["verbose"]:
+#            print("Noise added to blend image")
+#        generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
+#        noise = galsim.PoissonNoise(
+#            rng=generator,
+#            sky_level=blend_obs.mean_sky_level)
+#        blend_obs.image.addNoise(noise)
+    #blend_image = blend_obs.image.array
+    blend_image = np.sum(iso_image_temp, axis=0)
     return blend_image, iso_image
+
+
+def get_default_obs_cond(Args):
+    obs_cond = []
+    for j in range(len(Args["bands"])):
+        survey = descwl.survey.Survey.get_defaults(
+                    survey_name=Args['survey_name'],
+                    filter_band=Args["bands"][j])
+        survey['image_width'] = Args['stamp_size'] / survey['pixel_scale']
+        survey['image_height'] = Args['stamp_size'] / survey['pixel_scale']
+        obs_cond.append(descwl.survey.Survey(no_analysis=True,
+                                             survey_name=Args['survey_name'],
+                                             filter_band=Args["bands"][j],
+                                             **survey))
+    return obs_cond
 
 
 def run_mini_batch(Args, blend_list, obs_cond, index):
@@ -97,15 +133,10 @@ def run_mini_batch(Args, blend_list, obs_cond, index):
              len(Args["bands"])))
         blend_image_multi = np.zeros(
                     (stamp_size, stamp_size, len(Args["bands"])))
+        if obs_cond is None:
+            print("No obs_cond")
+            obs_cond = get_default_obs_cond(Args)
         for j in range(len(Args["bands"])):
-            #survey = descwl.survey.Survey.get_defaults(
-            #    survey_name=Args['survey_name'],
-            #    filter_band=Args["bands"][j])
-            #survey['image_width'] = Args['stamp_size'] / survey['pixel_scale']
-            #survey['image_height'] = Args['stamp_size'] / survey['pixel_scale']
-            #obs_cond = descwl.survey.Survey(survey_name=Args['survey_name'],
-            #                                filter_band=Args["bands"][j],
-            #                                **survey)
             single_band_output = run_single_band(Args, blend_list[i],
                                                  obs_cond[j], Args["bands"][j])
             blend_image_multi[:, :, j] = single_band_output[0]
