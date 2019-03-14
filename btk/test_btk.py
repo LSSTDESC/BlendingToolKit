@@ -1,21 +1,18 @@
 import os
 import numpy as np
 import sys
-import ipdb
 import pytest
-# import cProfile
 parentdir = os.path.dirname(os.getcwd())
 sys.path.insert(0, parentdir)
 import btk
 import btk.config
 
 
-def get_draw_generator(batch_size, cpus, multiprocessing=False):
+def get_draw_generator(batch_size=8, cpus=1, multiprocessing=False):
     catalog_name = os.path.join(parentdir, 'OneDegSq.fits')
     param = btk.config.Simulation_params(catalog_name, max_number=2,
                                          batch_size=batch_size,
                                          verbose=False,
-                                         draw_isolated=True,
                                          add_noise=False)
     np.random.seed(param.seed)
     catalog = btk.get_input_catalog.load_catalog(param)
@@ -24,7 +21,7 @@ def get_draw_generator(batch_size, cpus, multiprocessing=False):
     draw_generator = btk.draw_blends.generate(param, blend_generator,
                                               observing_generator,
                                               multiprocessing=multiprocessing,
-                                              cpu=cpus)
+                                              cpus=cpus)
     return draw_generator
 
 
@@ -40,4 +37,17 @@ def test_multi_processing():
                                   serial_im['blend_images'])
     np.testing.assert_array_equal(parallel_im['isolated_images'],
                                   serial_im['isolated_images'])
+    pass
+
+
+@pytest.mark.timeout(5)
+def test_draw():
+    default_draw_generator = get_draw_generator()
+    draw_output = next(default_draw_generator)
+    assert len(draw_output['blend_list']) == 8, "Default batch should return 8"
+    assert len(draw_output['blend_list'][3]) < 3, "Default max_number should \
+        generate 2 or 1 galaxies per blend."
+    assert draw_output['obs_condition'][5][0].survey_name == 'LSST', "Default \
+        observing survey is LSST."
+
     pass
