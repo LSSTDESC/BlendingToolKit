@@ -1,22 +1,21 @@
-"""Function creates an astropy table containing information that is useful to
-generate postage stamp images with appropriate distributions of shapes, colors,
-fluxes, etc.
-TODO:
-1) Add script to load DC2 catalog
-2) Add option to load multiple catalogs(e.g. star , galaxy)
-"""
 import os
 import astropy.table
 
 
 def load_catalog(Args, selection_function=None):
     """Returns astropy table with catalog name from input class.
+
     Args:
         Args: Class containing input parameters.
-        Args.catalog_name: Name of CatSim like catalog to draw galaxies from.
+        Args.catalog_name: Name of CatSim-like catalog to draw galaxies from.
         sampling_function: Selection cuts (if input) to place on input catalog.
-    Returns
-        CatSim like catalog to draw galaxies with selection cuts (if any).
+
+    Returns:
+        CatSim-like catalog with selection applied (if provided).
+
+    Todo:
+        * Add script to load DC2 catalog
+        * Add option to load multiple catalogs(e.g. star , galaxy)
     """
     name, ext = os.path.splitext(Args.catalog_name)
     if ext == '.fits':
