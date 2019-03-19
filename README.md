@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/LSSTDESC/BlendingToolKit.svg?branch=master)](https://travis-ci.org/LSSTDESC/BlendingToolKit)
 # BlendingToolKit
 Tools to create blend catalogs, produce training samples and implement blending metrics
 
