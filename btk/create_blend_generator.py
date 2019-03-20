@@ -40,7 +40,7 @@ def default_sampling(Args, catalog):
     Returns:
         Catalog with entries corresponding to one blend.
     """
-    number_of_objects = np.random.randint(1, Args.max_number)
+    number_of_objects = np.random.randint(1, Args.max_number + 1)
     q, = np.where(catalog['i_ab'] <= 25.3)
     blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
     blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
