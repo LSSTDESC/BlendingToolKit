@@ -19,7 +19,7 @@ class Simulation_params(object):
     def __init__(self, catalog_name, max_number=2,
                  batch_size=8, stamp_size=24,
                  survey_name="LSST",
-                 seed=0, add_noise=True, draw_isolated=True,
+                 seed=0, add_noise=True,
                  bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
                  verbose=False):
         """Inits Simulation_params with input observing conditions and image
