@@ -1,2 +1,2 @@
 numpy>=1.12
-astropy>=3.1
+astropy>=2.0
