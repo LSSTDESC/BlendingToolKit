@@ -6,7 +6,7 @@ python:
 
 # command to install dependencies
 install:
-  - apt-get install libfftw3-dev
+  - sudo apt-get install libfftw3-dev
   - pip install -r requirements.txt
   - pip install .
   - git clone https://github.com/LSSTDESC/WeakLensingDeblending
