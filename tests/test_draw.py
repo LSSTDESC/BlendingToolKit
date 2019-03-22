@@ -37,10 +37,10 @@ def match_blend_images_default(blend_images):
         batch_max, test_batch_max,
         err_msg="Did not get desired maximum pixel values of blend images")
     np.testing.assert_almost_equal(
-        test_batch_mean, batch_mean,
+        batch_mean, test_batch_mean, decimal=5,
         err_msg="Did not get desired mean pixel values of blend images")
     np.testing.assert_almost_equal(
-        test_batch_std, batch_std,
+        batch_std, test_batch_std, decimal=5,
         err_msg="Did not get desired std of pixel values of blend images")
 
 
@@ -60,10 +60,10 @@ def match_isolated_images_default(isolated_images):
         batch_max, test_batch_max,
         err_msg="Did not get desired maximum pixel values of isolated images")
     np.testing.assert_almost_equal(
-        test_batch_mean, batch_mean,
+        batch_mean, test_batch_mean, decimal=5,
         err_msg="Did not get desired mean pixel values of isolated images")
     np.testing.assert_almost_equal(
-        test_batch_std, batch_std,
+        batch_std, test_batch_std, decimal=5,
         err_msg="Did not get desired std of pixel values of isolated images")
 
 
