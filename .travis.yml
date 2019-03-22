@@ -15,7 +15,8 @@ install:
   - git checkout no_analysis
   - python setup.py install
   - cd ..
-  - cd BlendingToolKit
+  - pwd
+  - ls
 
 
 # command to run tests
