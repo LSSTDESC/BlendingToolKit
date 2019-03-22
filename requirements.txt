@@ -4,4 +4,3 @@ fitsio>=0.9.8
 cython>=0.29.6
 pybind11>=2.2.3
 LSSTDESC.Coord>=1.0.5
-galsim>=2.1
