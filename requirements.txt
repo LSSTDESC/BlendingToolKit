@@ -2,5 +2,4 @@ numpy>=1.12
 astropy>=2.0
 fitsio>=0.9.8
 cython>=0.29.6
-eigency>=1.77
 galsim>=2.1
