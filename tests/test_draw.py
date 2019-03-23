@@ -34,7 +34,7 @@ def match_blend_images_default(blend_images):
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
     np.testing.assert_array_almost_equal(
-        batch_max, test_batch_max,
+        batch_max, test_batch_max, decimal=4,
         err_msg="Did not get desired maximum pixel values of blend images")
     np.testing.assert_almost_equal(
         batch_mean, test_batch_mean, decimal=5,
@@ -57,7 +57,7 @@ def match_isolated_images_default(isolated_images):
     batch_mean = isolated_images.mean()
     batch_std = isolated_images.std()
     np.testing.assert_array_almost_equal(
-        batch_max, test_batch_max,
+        batch_max, test_batch_max, decimal=4,
         err_msg="Did not get desired maximum pixel values of isolated images")
     np.testing.assert_almost_equal(
         batch_mean, test_batch_mean, decimal=5,
@@ -91,7 +91,6 @@ def test_multi_processing():
     serial_im_gen = get_draw_generator(b_size, cpus, multiprocessing=False,
                                        add_noise=False)
     serial_im = next(serial_im_gen)
-    print(parallel_im['blend_images'].shape, serial_im['blend_images'].shape)
     np.testing.assert_array_equal(parallel_im['blend_images'],
                                   serial_im['blend_images'])
     np.testing.assert_array_equal(parallel_im['isolated_images'],

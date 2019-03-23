@@ -204,14 +204,15 @@ def generate(Args, blend_genrator, observing_generator,
                         0, Args.batch_size, mini_batch_size)]
         if multiprocessing:
             if Args.verbose:
-                print(f"Running mini-batch of size {len(in_args)} \
-                    with multiprocessing with pool ", cpus)
+                print("Running mini-batch of size {0} \
+                    with multiprocessing with pool {1}".format(
+                        len(in_args), cpus))
             with mp.Pool(processes=cpus) as pool:
                 mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
             if Args.verbose:
-                print(f"Running mini-batch of size {len(in_args)} \
-                    serial {cpus} times")
+                print("Running mini-batch of size {0} \
+                    serial {1} times".format(len(in_args), cpus))
             mini_batch_results = list(starmap(run_mini_batch, in_args))
         batch_results = list(chain(*mini_batch_results))
         for i in range(Args.batch_size):
