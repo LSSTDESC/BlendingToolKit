@@ -93,10 +93,8 @@ def run_single_band(Args, blend_catalog,
     stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
     iso_image = np.zeros(
         (Args.max_number, stamp_size, stamp_size))
-    # define temporary array to hold isolated galaxy images that will be summed
-    # to get blend image.
-    iso_image_temp = np.zeros(
-        (Args.max_number, stamp_size, stamp_size))
+    # define temporary galsim image to hold isolated galaxy images that will be summed
+    blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)
         try:
@@ -106,22 +104,22 @@ def run_single_band(Args, blend_catalog,
                                                  band)
             iso_render = draw_isolated(Args, galaxy, iso_obs)
             iso_image[k] = iso_render.image.array
-            if Args.add_noise:
-                if Args.verbose:
-                    print("Noise added to blend image")
-                generator = galsim.random.BaseDeviate(
-                    seed=np.random.randint(99999999))
-                noise = galsim.PoissonNoise(
-                    rng=generator,
-                    sky_level=iso_obs.mean_sky_level)
-                iso_render.image.addNoise(noise)
-            iso_image_temp[k] = iso_render.image.array
+            blend_image_temp += iso_render.image
         except descwl.render.SourceNotVisible:
             if Args.verbose:
                 print("Source not visible")
             blend_catalog['not_drawn_' + band][k] = 1
             continue
-    blend_image = np.sum(iso_image_temp, axis=0)
+        if Args.add_noise:
+            if Args.verbose:
+                print("Noise added to blend image")
+            generator = galsim.random.BaseDeviate(
+                seed=np.random.randint(99999999))
+            noise = galsim.PoissonNoise(
+                rng=generator,
+                sky_level=iso_obs.mean_sky_level)
+            blend_image_temp.addNoise(noise)
+    blend_image = blend_image_temp.array
     return blend_image, iso_image
 
 

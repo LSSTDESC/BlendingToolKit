@@ -26,13 +26,14 @@ def match_blend_images_default(blend_images):
     the mean and std values in the batch. This is compared to the values
     measured a proiri for the default input settings.
     """
-    test_batch_max = np.array([262.25805664, 2211.23046875, 8004.875,
-                               10741.5, 9397.46875, 5418.3125])
-    test_batch_mean = 7.3488463451244215
-    test_batch_std = 486.0310945531883
+    test_batch_max = np.array([244.6290132, 2133.11614647, 8080.93459939,
+                               10759.50400858, 8818.22664691, 5424.14672976])
+    test_batch_mean = 7.345121563268825
+    test_batch_std = 486.57733801008953
     batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
+    print(batch_max, batch_mean, batch_std)
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of blend images")
@@ -56,6 +57,7 @@ def match_isolated_images_default(isolated_images):
     batch_max = isolated_images.max(axis=0).max(axis=0).max(axis=0).max(axis=0)
     batch_mean = isolated_images.mean()
     batch_std = isolated_images.std()
+    print(batch_max, batch_mean, batch_std)
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of isolated images")
