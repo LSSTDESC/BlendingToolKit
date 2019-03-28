@@ -11,7 +11,6 @@ install:
   - pip install .
   - git clone https://github.com/LSSTDESC/WeakLensingDeblending
   - cd WeakLensingDeblending
-  - git checkout no_analysis
   - python setup.py install
   - cd ..
 

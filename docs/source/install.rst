@@ -1,32 +1,33 @@
 
 :tocdepth: 1
 
-
   Installation
 ============
-*BlendingToolKit* is essentially a wrapper around the WealLensingDeblending
-which uses GalSim to simulate the galaxy images. So these packages along with
+
+*BlendingToolKit* (btk) is essentially a wrapper around the
+`WealLensingDeblending <https://weaklensingdeblending.readthedocs.io/en/latest/>`_
+which uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate
+the galaxy images. So these packages along with
 their dependencies need to be installed first.
 
 The folllowing dependencies are pip installable:
 
-*numpy
-*astropy
-*fitsio
-*scipy
-*lmfit
-
+* numpy
+* astropy
+* fitsio
+* scipy
+* lmfit
 
 Install Galsim
 ----------------
+
 GalSim is a python module that has much of its implementation in C++ for
 improved computational efficiency. It can be installed with
 ::
     pip install galsim
 However you may have to install FFTW and Eigen maunally. Refer
-`this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`
+`this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
 for mre details.
-
 
 Install WeakLensingDeblending package
 ----------------
@@ -40,7 +41,7 @@ and then run the following inside the WeakLensingDeblending folder
 Install *BlendingToolKit* with GIT
 ----------------
 
-The code is hosted on `github <https://github.com/LSSTDESC/BlendingToolKit>`.
+The code is hosted on `github <https://github.com/LSSTDESC/BlendingToolKit>`_.
 First download the repo
 ::
 
@@ -50,4 +51,20 @@ then istall using
 
     python setup.py install
 
+Optional Packages
+----------------
+*BlendingToolKit* is meant to perform detection/deblending/measuremnt with any
+user input algorithm. Thus, as such no algorithm is hardcoded into the basic
+framework. However, the tutorial notebooks do include examples of how these can
+be performed with btk.
 
+The tutorial notebooks require:
+#. scarlet_ (multi-band deblender)
+#. sep_ (Python library for Source Extraction and Photometry)
+#. lsst_ science pipeline
+
+
+.. _scarlet: https://scarlet.readthedocs.io/en/latest/index.html
+.. _sep: https://sep.readthedocs.io/en/v1.0.x/index.html
+.. _numpy: http://www.numpy.org
+.. _lsst: https://pipelines.lsst.io

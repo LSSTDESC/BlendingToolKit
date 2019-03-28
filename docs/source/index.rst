@@ -37,10 +37,9 @@ Getting Started
 ==================
 
    install
-   quickstart
-   user_docs
-   tutorials
-   diagnostics
+   datasets
+   catalog
+   user_guide
    api_docs
 
 Modules API Reference
