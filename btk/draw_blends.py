@@ -1,10 +1,3 @@
-"""For an input catalog of objects and observing conditions draws objects
-with WLDeblending package.
-ToDo:
-Add noise
-Add data augmentation(rotation)
-fix descwl.render.SourceNotVisible
-"""
 import descwl
 import copy
 import galsim
@@ -15,19 +8,20 @@ from itertools import chain, starmap
 
 
 def get_center_in_pixels(Args, blend_catalog):
-    """Computes the distance between the object.
+    """Returns center of objects in blend_catalog in pixel coordinates of
+    postage stamp.
+
+    blend_catalog contains ra dec of object center with the postage stamp
+    center being 0,0. The size of the postage stamp and pixel scale is used to
+    compute the object centers in pixel coordinates. Coordinates are in pixels
+    where bottom left corner of postage stamp is (0, 0).
 
     Args:
         Args: Class containing input parameters.
         blend_catalog: Catalog with entries corresponding to one blend.
 
     Returns:
-        {dx_col: astropy.table.Column for x coordinate of object centroid,
-         dy_col: astropy.table.Column for y coordinate of object centroid
-        }
-        Coordinates are in pixels where bottom left corner of postage stamp is
-        (0, 0).
-
+        `astropy.table.Column`s: x and y coordinates of object centroid
     """
     center = (Args.stamp_size/Args.pixel_scale - 1)/2
     dx = blend_catalog['ra']/Args.pixel_scale + center
@@ -38,13 +32,13 @@ def get_center_in_pixels(Args, blend_catalog):
 
 
 def draw_isolated(Args, galaxy, iso_obs):
-    """Returns descwl.survey.Survey class object that includes the
-        rendered object for an isolated galaxy.
+    """Returns `descwl.survey.Survey` class object that includes the rendered
+    object for an isolated galaxy.
 
     Args:
         Args: Class containing input parameters.
-        galaxy: descwl.model.Galaxy class that models galaxies.
-        iso_obs: descwl.survey.Survey class describing observing conditions.
+        galaxy: `descwl.model.Galaxy` class that models galaxies.
+        iso_obs: `descwl.survey.Survey` class describing observing conditions.
             The input galaxy is rendered and stored in here.
     """
     if Args.verbose:
@@ -78,7 +72,7 @@ def run_single_band(Args, blend_catalog,
     Args:
         Args: Class containing input parameters.
         blend_catalog: Catalog with entries corresponding to one blend.
-        obs_cond: descwl.survey.Survey class describing observing conditions.
+        obs_cond: `descwl.survey.Survey` class describing observing conditions.
         band(string): Name of band to draw images in.
 
     Returns:
@@ -135,7 +129,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
     Args:
         Args: Class containing input parameters.
         blend_list: List of catalogs with entries corresponding to one blend.
-        obs_cond: descwl.survey.Survey class describing observing conditions.
+        obs_cond: `descwl.survey.Survey` class describing observing conditions.
 
 
     Returns:
@@ -172,7 +166,7 @@ def generate(Args, blend_genrator, observing_generator,
     Batch is divided into mini batches of size Args.batch_size//cpus and each
     mini-batch analyzed separately. The results are then combined to output a
     dict with results of entire batch. If multiprocessing is true, then each of
-    the mini-batches are run parallely.
+    the mini-batches are run in parallel.
 
     Args:
         Args: Class containing parameters to create blends
@@ -184,8 +178,11 @@ def generate(Args, blend_genrator, observing_generator,
         cpus: If multiprocessing, then number of parallel processes to run.
 
     Yields:
-        Each batch run yields a dictionary with blend images, isolated object
-        images, blend catalog , and observing conditions.
+        Dictionary with blend images, isolated object images, blend catalog,
+        and observing conditions.
+
+    To do:
+        Add data augmentation.
     """
     while True:
         batch_blend_cat, batch_obs_cond = [], []
