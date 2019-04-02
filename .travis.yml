@@ -1,0 +1,20 @@
+language: python
+python:
+  - "3.6"
+
+# command to install dependencies
+install:
+  - pip install -U setuptools pip==9.0
+  - sudo apt-get install libfftw3-dev libeigen3-dev
+  - pip install -r requirements.txt
+  - pip install galsim
+  - pip install .
+  - git clone https://github.com/LSSTDESC/WeakLensingDeblending
+  - cd WeakLensingDeblending
+  - python setup.py install
+  - cd ..
+
+
+# command to run tests
+script:
+  - pytest

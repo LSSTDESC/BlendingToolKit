@@ -1,0 +1,9 @@
+numpy>=1.12
+astropy>=2.0
+fitsio>=0.9.8
+cython>=0.29.6
+pybind11>=2.2.3
+LSSTDESC.Coord>=1.0.5
+pytest>=3.6
+scipy>=1.2.0
+lmfit>=0.9.12

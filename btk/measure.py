@@ -1,13 +1,6 @@
-"""For an input draw_object generator and measurement_function algorithm
-this script will:
-1) draw blended and isolated objects
-2) Run the deblending and measurement algorithm as defined by the
-Measuremnt_args class
-
-"""
-
-
 class Measurement_params(object):
+    """Class describing functions to perform detection/deblending/measurement.
+    """
     def make_measurement(self, data=None, index=None):
         return None
 
@@ -17,12 +10,13 @@ class Measurement_params(object):
 
 def generate(Measurement_params, draw_blend_generator, Args):
     """Generates output of deblender and measurement algorithm.
+
     Args:
         Measurement_params: Class containing functions to perform deblending
                             and or measurement.
         draw_blend_generator: Generator that outputs dict with blended images,
-                              isolated images, observing conditions and
-                              blend catalog.
+                              isolated images, observing conditions and blend
+                              catalog.
         Args: Class containing input parameters.
     Returns:
         draw_blend_generator output, deblender output and measurement output.
