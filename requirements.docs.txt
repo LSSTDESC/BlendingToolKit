@@ -5,4 +5,5 @@ numpy>=1.12
 astropy>=2.0
 scipy>=1.2.0
 lmfit>=0.9.12
+galsim
 git+https://github.com/LSSTDESC/WeakLensingDeblending
