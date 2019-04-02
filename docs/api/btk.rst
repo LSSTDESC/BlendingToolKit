@@ -1,11 +1,6 @@
 btk package
 ===========
 
-.. automodule:: btk
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Submodules
 ----------
 
@@ -22,3 +17,11 @@ Submodules
    btk.test_btk
    btk.utils
 
+
+Module contents
+---------------
+
+.. automodule:: btk
+    :members:
+    :undoc-members:
+    :show-inheritance:
