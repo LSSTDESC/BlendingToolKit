@@ -2,6 +2,8 @@
 # BlendingToolKit
 Tools to create blend catalogs, produce training samples and implement blending metrics
 
+Documentation can be found at https://blendingtoolkit.readthedocs.io/en/latest/
+
 ## Workflow
 - Step 1: import raw catalogs from CatSim or the DC2 catalogs
 - Step 2: modify those catalogs to create catalogs of (multiple) blends and explore joint distributions (separation, magnitude difference)
