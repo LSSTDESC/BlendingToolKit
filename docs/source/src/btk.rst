@@ -1,6 +1,16 @@
 btk package
 ==============
 
+
+Module contents
+----------------
+
+.. automodule:: btk
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 -----------
 
@@ -12,11 +22,3 @@ Submodules
    btk.create_observing_generator
    btk.draw_blends
    btk.measure
-
-Module contents
-----------------
-
-.. automodule:: btk
-    :members:
-    :undoc-members:
-    :show-inheritance:
