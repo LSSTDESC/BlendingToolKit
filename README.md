@@ -20,6 +20,7 @@ This repository includes sample input catalogs with small number of galaxies tha
 - Catalog corresponding to one square degree sky and pre-processed WeakLensingDeblending catalogs can be downloaded from [here](https://stanford.app.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk).
 
 ## Requirements
+The code is intended to run in python >=3.6.
 To run btk you need to install
 - [WeakLensingDeblending](https://github.com/LSSTDESC/WeakLensingDeblending)
 - [GalSim](https://github.com/GalSim-developers/GalSim/)
