@@ -86,7 +86,10 @@ def test_default():
 @pytest.mark.timeout(15)
 def test_multi_processing():
     b_size = 16
-    cpus = mp.cpu_count()
+    try:
+        cpus = mp.cpu_count()
+    except NotImplementedError:
+        cpus = 2
     parallel_im_gen = get_draw_generator(b_size, cpus, multiprocessing=True,
                                          add_noise=False)
     parallel_im = next(parallel_im_gen)
