@@ -44,5 +44,13 @@ def generate(Args, obs_function=None):
             descwl_survey = descwl.survey.Survey(no_analysis=True,
                                                  survey_name=Args.survey_name,
                                                  filter_band=band, **survey)
+            if descwl_survey.pixel_scale != Args.pixel_scale:
+                raise ValueError("observing condition pixel scale does not \
+                    match input pixel scale: {0} == {1}".format(
+                        descwl_survey.pixel_scale, Args.pixel_scale))
+            if descwl_survey.filter_band != band:
+                raise ValueError("observing condition band does not \
+                    match input band: {0} == {1}".format(
+                        descwl_survey.filter_band, band))
             observing_generator.append(descwl_survey)
         yield observing_generator
