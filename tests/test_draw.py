@@ -1,8 +1,8 @@
-import os
 import numpy as np
 import pytest
 import btk
 import btk.config
+import multiprocessing as mp
 
 
 def get_draw_generator(batch_size=8, cpus=1,
@@ -86,7 +86,7 @@ def test_default():
 @pytest.mark.timeout(15)
 def test_multi_processing():
     b_size = 16
-    cpus = os.cpu_count()
+    cpus = mp.cpu_count()
     parallel_im_gen = get_draw_generator(b_size, cpus, multiprocessing=True,
                                          add_noise=False)
     parallel_im = next(parallel_im_gen)
