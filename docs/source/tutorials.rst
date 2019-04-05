@@ -28,6 +28,6 @@ Evaluate Metrics with btk (*evaluate_metrics.ipynb*)
 ----------------------------------------------------
 This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/%2315/notebooks/evaluate_metrics.ipynb>`_ shows how to test performance of different detection/deblending/measurement algorithms. At present this only assesses detection performance by returning the number of objects correctly detected, number undetected and number of spurious detections.
 
-5. Draw blends (*create_blend_generator*): Simulates scene of overlapping objects, convolved by PSF and with pixel noise (option set in *config*). Scene image is generated in each observing band. Isolated image of each object is also drawn without pixel contributions from other objects, in each band.
+Draw blends (*create_blend_generator*): Simulates scene of overlapping objects, convolved by PSF and with pixel noise (option set in *config*). Scene image is generated in each observing band. Isolated image of each object is also drawn without pixel contributions from other objects, in each band.
 
 

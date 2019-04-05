@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 
 def get_random_center_shift(Args, number_of_objects, maxshift=None):
@@ -72,9 +73,12 @@ def generate(Args, catalog, sampling_function=None):
                 blend_catalog = default_sampling(Args, catalog)
                 if Args.verbose:
                     print("Default random sampling of objects from catalog")
-            np.testing.assert_array_less(
-                len(blend_catalog) - 1, Args.max_number, "Number of objects"
-                " per blend must be less than max_number: {0} <= {1}".format(
-                    len(blend_catalog), Args.max_number))
+            if len(blend_catalog) > Args.max_number:
+                raise ValueError("Number of objects per blend must be less \
+                    than max_number: {0} <= {1}".format(
+                        len(blend_catalog), Args.max_number))
+            if (np.any(blend_catalog['ra'] > Args.stamp_size/2.) or
+                    np.any(blend_catalog['dec'] > Args.stamp_size/2.)):
+                warnings.warn('Object center lies outside the stamp')
             blend_catalogs.append(blend_catalog)
         yield blend_catalogs
