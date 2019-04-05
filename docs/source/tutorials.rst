@@ -10,7 +10,7 @@ This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/%2315/notebooks
 
 The notebook shows examples of performing:
 
-* detection with `SEP <https://sep.readthedocs.io/en/v1.0.x/index.html>`_ , `lsst science pipeline <https://pipelines.lsst.io>`
+* detection with `SEP <https://sep.readthedocs.io/en/v1.0.x/index.html>`_ , `lsst science pipeline <https://pipelines.lsst.io>`_
 * deblending with `scarlet <https://scarlet.readthedocs.io/en/latest/index.html>`_
 * segmentation with SEP.
 
