@@ -4,7 +4,7 @@ User Guide
 This document gives a detailed look into the work-flow of *BlendingToolKit* (btk). For a quick tutorial on how to run btk, see the JuPyter notebook tutorials :doc:`here </tutorials>`. This page is especially useful if you plan on using btk with your own detection/deblending/measurement algorithm.
 
 
-The work-flow of btk is shown below
+The workflow of btk is shown below
 
 .. image:: images/flow_chart.png
    :align: center

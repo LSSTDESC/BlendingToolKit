@@ -7,11 +7,7 @@ Tools to create blend catalogs, produce training samples and implement blending 
 Documentation can be found at https://blendingtoolkit.readthedocs.io/en/latest/
 
 ## Workflow
-- Step 1: import raw catalogs from CatSim or the DC2 catalogs(not yet implemented)
-- Step 2: modify those catalogs to create catalogs of (multiple) blends and explore joint distributions (separation, magnitude difference)
-- Step 3: generate PSF-convolved images and perform data augmentation
-- Step 4: train deep-learning algorithms to do various blending-related tasks such as detection, segmentation, deblending and measurements
-- Step 5: test algorithms with a set of low- and high-level performance metrics
+<img src="docs/source/images/flow_chart.png" alt="btk workflow" width="450"/>
 
 
 ## Running BlendingToolKit
@@ -34,6 +30,6 @@ More detailed installation instructions can be found [here](https://blendingtool
 
 ### Optional
 The tutorials include examples of using btk with some packages like
-- [Scarlet](https://github.com/fred3m/scarlet/) (multi-band deblender)
+- [scarlet](https://github.com/fred3m/scarlet/) (multi-band deblender)
 - [sep](https://sep.readthedocs.io/en/v1.0.x/index.html)(Source Extraction and Photometry)
 - [lsst](https://pipelines.lsst.io) science pipeline
