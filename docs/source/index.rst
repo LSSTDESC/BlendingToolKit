@@ -20,7 +20,7 @@ Key features of the framework are:
 
 * It can generate training/validation/test sets for developing and testing detection, deblending and measurement algorithms.
 * It includes data augmentation and independent (but reproducible) noise realizations.
-* It is easily customizable with options to include user defined functions for blend generation, observing conditions, etc,. produces images on the fly.
+* It is easily customizable with options to include user defined functions for blend generation, observing conditions, etc., and produce images on the fly.
 
 Getting Started
 ==================
