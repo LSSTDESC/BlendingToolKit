@@ -1,7 +1,7 @@
 User Guide
 ==============
 
-This document gives a detailed look into the work-flow of *BlendingToolKit* (btk). For a quick tutorial on how to run btk, see the JuPyter notebook tutorials :doc:`here </tutorials>`. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm.
+This document gives a detailed look into the work-flow of *BlendingToolKit* (btk). For a quick tutorial on how to run btk, see the JuPyter notebook tutorials `here <tutorials.html>`_. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm.
 
 
 The workflow of btk is shown here:
@@ -21,4 +21,4 @@ The workflow of btk is shown here:
 
 Utils
 -------
-*btk/utils.py* contains functions that the user may find useful in creating functions to perform detection/deblending/measurement in *measure*. It shows how a class derived from *measure.Measurement_params* can be defined by the user for use with SEP, the LSST science pipeline or stand-alone SCARLET; see point 6 above. 
+*btk/utils.py* contains functions that the user may find useful in creating functions to perform detection/deblending/measurement in *measure*. It shows how a class derived from *measure.Measurement_params* can be defined by the user for use with SEP, the LSST science pipeline or stand-alone SCARLET; see point 6 above.
