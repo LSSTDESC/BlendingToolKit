@@ -10,7 +10,7 @@ This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/%2315/notebooks
 
 The notebook shows examples of performing:
 
-* detection with `SEP <https://sep.readthedocs.io/en/v1.0.x/index.html>`_ , `lsst science pipeline <https://pipelines.lsst.io>`_,
+* detection with `SEP <https://sep.readthedocs.io/en/v1.0.x/index.html>`_, `lsst science pipeline <https://pipelines.lsst.io>`_,
 * deblending with `scarlet <https://scarlet.readthedocs.io/en/latest/index.html>`_,
 * segmentation with SEP.
 
@@ -25,7 +25,7 @@ Also shown is an example of how a user-defined custom function can be used to ge
 
 
 Evaluate metrics with btk (*evaluate_metrics.ipynb*).
-----------------------------------------------------
+------------------------------------------------------
 This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/%2315/notebooks/evaluate_metrics.ipynb>`_ shows how to test the performance of different detection/deblending/measurement algorithms. At present this only assesses detection performance by returning the number of objects correctly detected, the number of undetected objects and the number of spurious detections.
 
 Draw blends (*create_blend_generator*): Simulates a scene of overlapping objects, convolved by a PSF, with pixel noise (option set in *config*). The scene image is generated in each observing band. An isolated image of each object is also drawn in each band, with no pixel contributions from other objects.
