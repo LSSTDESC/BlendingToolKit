@@ -21,9 +21,10 @@ class Simulation_params(object):
                  survey_name="LSST",
                  seed=0, add_noise=True,
                  bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
-                 verbose=False):
+                 verbose=False, **kwargs):
         """Inits Simulation_params with input observing conditions and image
         parametrs."""
+        self.__dict__.update(kwargs)
         self.catalog_name = catalog_name
         self.max_number = max_number
         self.batch_size = batch_size
@@ -46,3 +47,11 @@ class Simulation_params(object):
             raise Exception(
                 "survey_name should be LSST, DES, CFHT or HSC. Input name was \
                  {0}".format(survey_name))
+
+    def display(self):
+        """Display configuration parameter values."""
+        print("\nConfigurations:")
+        for a in dir(self):
+            if not a.startswith("__") and not callable(getattr(self, a)):
+                print("{:30} {}".format(a, getattr(self, a)))
+        print("\n")
