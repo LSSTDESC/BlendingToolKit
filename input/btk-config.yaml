@@ -1,0 +1,63 @@
+# This YAML file is to be used with btk_input to simulate objects with
+# BlendingTooKit and perform detection/deblending/measurement
+
+user_input:
+    # Enter the directory location from BlendingToolKit folder
+    datadir: /data
+    # Enter file name containing user function to perform detection/deblending/measurement
+    utils_filename: None
+    output_name: test1  # btk output will be saved in a directory with this name
+    # Enter
+    utils_input:
+        observe_function: None
+        measure_function: None
+        metrics_function: None
+
+
+# Do not change parameters below
+---
+simulation: two_gal
+config:
+    catalog_name: OneDegSq.fits
+    max_number: 2
+    batch_size: 8
+    stamp_size: 24
+    survey_name: "LSST"
+    add_noise: True
+    bands: ('u', 'g', 'r', 'i', 'z', 'y')
+    min_snr: 0.05
+    seed: 1
+    selection_function: basic_selection_function
+    sampling_function: basic_sampling_function
+
+---
+simulation: multi_gal
+config:
+    catalog_name: OneDegSq.fits
+    max_number: 2
+    batch_size: 8
+    stamp_size: 24
+    survey_name: "LSST"
+    add_noise: True
+    bands: ('u', 'g', 'r', 'i', 'z', 'y')
+    min_snr: 0.05
+    seed: 1
+    selection_function: basic_selection_function
+    sampling_function: neff_sampling_function
+
+---
+
+simulation: group
+config:
+    catalog_name: OneDegSq.fits
+    wld_catalog:
+    max_number: 2
+    batch_size: 8
+    stamp_size: 24
+    survey_name: "LSST"
+    add_noise: True
+    bands: ('u', 'g', 'r', 'i', 'z', 'y')
+    min_snr: 0.05
+    seed: 1
+    selection_function: basic_selection_function
+    sampling_function: group_sampling_function
