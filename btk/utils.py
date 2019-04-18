@@ -246,7 +246,7 @@ def basic_selection_function(catalog):
     f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
     r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
                      catalog['a_b']*f**0.5*1.46)
-    q, = np.where((r_sec <= 2) & (catalog['i_ab'] <= 27))
+    q, = np.where((r_sec <= 4) & (catalog['i_ab'] <= 27))
     return catalog[q]
 
 
@@ -258,7 +258,7 @@ def basic_sampling_function(Args, catalog):
     """
     number_of_objects = np.random.randint(0, Args.max_number)
     a = np.hypot(catalog['a_d'], catalog['a_b'])
-    cond = (a <= 1.4) & (a > 0.6)
+    cond = (a <= 2) & (a > 0.2)
     q_bright, = np.where(cond & (catalog['i_ab'] <= 24))
     if np.random.random() >= 0.9:
         q, = np.where(cond & (catalog['i_ab'] < 28))
@@ -299,7 +299,8 @@ def group_sampling_function(Args, catalog):
     group_id = np.random.choice(group_ids, replace=False)
     # get all galaxies belonging to the group.
     ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
-    blend_catalog = astropy.table.vstack([catalog[catalog['galtileid'] == i] for i in ids])
+    blend_catalog = astropy.table.vstack(
+        [catalog[catalog['galtileid'] == i] for i in ids])
     # Set mean x and y coordinates of the group galaxies to the center of the postage stamp.
     blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
     blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
