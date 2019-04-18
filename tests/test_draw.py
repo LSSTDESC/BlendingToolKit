@@ -7,7 +7,7 @@ import multiprocessing as mp
 
 def get_draw_generator(batch_size=8, cpus=1,
                        multiprocessing=False, add_noise=True):
-    catalog_name = 'sample_input_catalog.fits'
+    catalog_name = 'data/sample_input_catalog.fits'
     param = btk.config.Simulation_params(catalog_name, batch_size=batch_size,
                                          add_noise=add_noise)
     np.random.seed(param.seed)
@@ -33,7 +33,6 @@ def match_blend_images_default(blend_images):
     batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
-    print(batch_max, batch_mean, batch_std)
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of blend images")
@@ -57,7 +56,6 @@ def match_isolated_images_default(isolated_images):
     batch_max = isolated_images.max(axis=0).max(axis=0).max(axis=0).max(axis=0)
     batch_mean = isolated_images.mean()
     batch_std = isolated_images.std()
-    print(batch_max, batch_mean, batch_std)
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of isolated images")

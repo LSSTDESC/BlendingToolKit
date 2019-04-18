@@ -1,0 +1,44 @@
+# This YAML file is to be used with btk_input to simulate objects with
+# BlendingTooKit and perform detection/deblending/measurement
+
+# Modify the following values; specify directory locations and name of your function.
+# If value are set to None, then the default btk parameters are used.
+
+user_input:
+    # Enter location to load dataset from
+    data_dir: data/
+    # Enter location where btk test output should be saved
+    output_dir: /input
+    # Enter file name containing user function to perform detection/deblending/measurement
+    utils_filename: None
+    output_name: test1  # btk output will be saved in a directory with this name inside output_dir
+    # Enter
+    utils_input:
+        measure_function: None
+        metrics_function: None
+
+
+# Below are the parameter values specifying 3 kinds of simulations.
+# Do not change parameters below!!
+---
+simulation: two_gal
+config:
+    catalog: 'sample_input_catalog.fits'
+    max_number: 2
+    batch_size: 8
+    stamp_size: 24
+    survey_name: "LSST"
+    add_noise: True
+    bands:
+        - 'u'
+        - 'g'
+        - 'r'
+        - 'i'
+        - 'z'
+        - 'y'
+    min_snr: 0.05
+    seed: 0
+    add: None
+    selection_function: None
+    sampling_function: None
+    observe_function: None
