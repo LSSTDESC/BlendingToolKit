@@ -2,7 +2,9 @@
     on images.
 """
 from btk import measure
+import btk.create_blend_generator
 import numpy as np
+import astropy.table
 
 
 class SEP_params(measure.Measurement_params):
@@ -225,3 +227,98 @@ def make_true_seg_map(image, threshold):
     seg_map[image < threshold] = 0
     seg_map[image >= threshold] = 1
     return seg_map.astype(np.bool)
+
+
+def basic_selection_function(catalog):
+    """Apply selection cuts to the input catalog.
+
+    Only galaxies that satisfy the below criteria are returned:
+    1) i band magnitude less than 27
+    2) Second moment size is less than 3 arcsec.
+    Second moments size (r_sec) computed as described in A1 of Chang et.al 2012
+
+    Args:
+        catalog: CatSim-like catalog from which to sample galaxies.
+
+    Returns:
+        CatSim-like catalog after applying selection cuts.
+    """
+    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
+    r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
+                     catalog['a_b']*f**0.5*1.46)
+    q, = np.where((r_sec <= 2) & (catalog['i_ab'] <= 27))
+    return catalog[q]
+
+
+def basic_sampling_function(Args, catalog):
+    """Randomly picks entries from input catalog that are brighter than 25.3
+    mag in the i band. The centers are randomly distributed within 1/5 of the
+    stamp size.
+    At least one bright galaxy (i<=24) is always selected.
+    """
+    number_of_objects = np.random.randint(0, Args.max_number)
+    a = np.hypot(catalog['a_d'], catalog['a_b'])
+    cond = (a <= 1.4) & (a > 0.6)
+    q_bright, = np.where(cond & (catalog['i_ab'] <= 24))
+    if np.random.random() >= 0.9:
+        q, = np.where(cond & (catalog['i_ab'] < 28))
+    else:
+        q, = np.where(cond & (catalog['i_ab'] <= 25.3))
+    blend_catalog = astropy.table.vstack(
+        [catalog[np.random.choice(q_bright, size=1)],
+         catalog[np.random.choice(q, size=number_of_objects)]])
+    blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
+    # keep number density of objects constant
+    maxshift = Args.stamp_size/30.*number_of_objects**0.5
+    dx, dy = btk.create_blend_generator.get_random_center_shift(
+        Args, number_of_objects + 1, maxshift=maxshift)
+    blend_catalog['ra'] += dx
+    blend_catalog['dec'] += dy
+    return blend_catalog
+
+
+def group_sampling_function(Args, catalog):
+    """Blends are defined from *groups* of galaxies from the CatSim
+    catalog previously analyzed with WLD.
+
+    The group is centered on the middle of the postage stamp.
+    Function only draws galaxies that lie within the postage stamp size
+    determined in Args.
+
+    Note: the pre-run WLD images are not used here. We only use the pre-run
+    catalog (in i band) to identify galaxies that belong to a group.
+    """
+    if not hasattr(Args, 'wld_catalog_name'):
+        raise Exception("A pre-run WLD catalog  name should be input as "
+                        "Args.wld_catalog_name")
+    else:
+        wld_catalog = astropy.table.Table.read(Args.wld_catalog_name,
+                                               format='fits')
+    # randomly sample a group.
+    group_ids = np.unique(wld_catalog['grp_id'][wld_catalog['grp_size'] >= 2])
+    group_id = np.random.choice(group_ids, replace=False)
+    # get all galaxies belonging to the group.
+    ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
+    blend_catalog = astropy.table.vstack([catalog[catalog['galtileid'] == i] for i in ids])
+    # Set mean x and y coordinates of the group galaxies to the center of the postage stamp.
+    blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
+    blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
+    # convert ra dec from degrees to arcsec
+    blend_catalog['ra'] *= 3600
+    blend_catalog['dec'] *= 3600
+    # Add small random shift so that center does not perfectly align with stamp center
+    dx, dy = btk.create_blend_generator.get_random_center_shift(
+        Args, 1, maxshift=3*Args.pixel_scale)
+    blend_catalog['ra'] += dx
+    blend_catalog['dec'] += dy
+    # make sure galaxy centers don't lie too close to edge
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 3
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 3
+    no_boundary = blend_catalog[cond1 & cond2]
+    if len(no_boundary) == 0:
+        return no_boundary
+    # make sure number of galaxies in blend is less than Args.max_number
+    # randomly select max_number of objects if larger.
+    num = min([len(no_boundary), Args.max_number])
+    select = np.random.choice(range(len(no_boundary)), num, replace=False)
+    return no_boundary[select]
