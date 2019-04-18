@@ -14,7 +14,7 @@ import btk.create_blend_generator
 import btk.create_observing_generator
 import btk.measure
 import btk.draw_blends
-from scipy import spatial
+import scipy.spatial
 
 
 class Metrics_params(object):
@@ -75,7 +75,7 @@ def evaluate_detection(detected_centers, true_centers,
     if len(detected_centers) == 0:
         # no detection
         return 0, len(true_centers), 0
-    z_tree = spatial.KDTree(true_centers)
+    z_tree = scipy.spatial.KDTree(true_centers)
     detected_centers = np.array(detected_centers).reshape(-1, 2)
     match = z_tree.query(detected_centers,
                          distance_upper_bound=distance_upper_bound)
