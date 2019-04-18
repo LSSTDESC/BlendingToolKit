@@ -5,7 +5,7 @@
 # If value are set to None, then the default btk parameters are used.
 
 user_input:
-    # Enter location to load dataset from
+    # Enter location to load dataset from (relative to where you open the yaml file)
     data_dir: data
     # Enter location where btk test output should be saved
     output_dir: input
@@ -87,8 +87,9 @@ config:
     min_snr: 0.05
     seed: 1
     add:
-        wld_catalog_name: 'data/sample_group_catalog.fits'
-    selection_function: basic_selection_function
+        # wld processed catalog with groups: relative to where you open the yaml file
+        wld_catalog_name: 'data/test_group_catalog.fits'
+    selection_function: None
     sampling_function: group_sampling_function
 
     observe_function: None
