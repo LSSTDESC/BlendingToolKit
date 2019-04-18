@@ -7,3 +7,4 @@ LSSTDESC.Coord>=1.0.5
 pytest>=3.6
 scipy>=1.2.0
 lmfit>=0.9.12
+PyYAML>=3.13
