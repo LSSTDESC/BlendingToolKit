@@ -69,7 +69,7 @@ config:
 
 simulation: group
 config:
-    catalog: OneDegSq.fits
+    catalog: 'sample_input_catalog.fits'
     wld_catalog:
     max_number: 2
     batch_size: 8
