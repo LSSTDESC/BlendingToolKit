@@ -20,6 +20,7 @@
 # -- Project information -----------------------------------------------------
 import os
 import sys
+import mock.Mock as MagicMock
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
 import sphinx_rtd_theme
@@ -37,20 +38,24 @@ release = '0.1'
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-from mock import Mock as MagicMock
 
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
         return Mock()
+
     def __mul__(self, other):
         return Mock()
+
     def __rmul__(self, other):
         return Mock()
+
     def __pow__(self, other):
         return Mock()
+
     def __div__(self, other):
         return Mock()
+
 
 MOCK_MODULES = [
     'numpy',
