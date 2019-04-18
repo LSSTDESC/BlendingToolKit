@@ -43,6 +43,6 @@ def test_input():
     tests if btk_input script is correctly executed
     """
     command = ['python', 'btk_input.py', '--name', 'unit_test',
-               '--configfile', 'input/btk-config.yaml']
+               '--configfile', 'tests/test-config.yaml']
     for s in ['all', 'two_gal', 'multi_gal', 'group']:
         subprocess.check_call(command + ['--simulation', s])
