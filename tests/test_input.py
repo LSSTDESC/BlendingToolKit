@@ -23,7 +23,7 @@ def test_input_draw():
     simulation_config_dict = config_dict['simulation'][args.simulation]
     user_config_dict = config_dict['user_input']
     draw_blend_generator = btk_input.make_draw_generator(
-            user_config_dict, simulation_config_dict, args.verbose)
+            args, user_config_dict, simulation_config_dict)
     draw_output = next(draw_blend_generator)
     assert len(draw_output['blend_list']) == 8, "Default batch should return 8"
     assert len(draw_output['blend_list'][3]) < 3, "Default max_number should \
