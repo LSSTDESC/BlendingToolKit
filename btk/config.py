@@ -1,5 +1,5 @@
 class Simulation_params(object):
-    """Parameters to create blends.
+    """Parameter values to create blends.
 
     Attributes:
         catalog_name: Name of input catalog from which to draw objects.
@@ -14,7 +14,7 @@ class Simulation_params(object):
             S/N threshold, where the signal N is calculated for the full
             exposure time and the noise N is set by the expected fluctuations
             in the sky background during a full exposure.
-        verbose: If true prints returns description at multiple steps.
+        verbose: If true, prints description at multiple steps.
     """
     def __init__(self, catalog_name, max_number=2,
                  batch_size=8, stamp_size=24,
