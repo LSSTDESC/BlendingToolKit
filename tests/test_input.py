@@ -39,6 +39,8 @@ def test_input_draw():
 
 @pytest.mark.timeout(35)
 def test_input():
+    import sys
+    sys.path.append("..")
     """
     tests if btk_input script is correctly executed
     """
