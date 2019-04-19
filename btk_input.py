@@ -177,38 +177,71 @@ def get_obs_generator(param, observe_function_name, verbose):
     return observing_generator
 
 
-def make_draw_generator(user_config_dict, simulation_config_dict, verbose):
-        catalog_name = os.path.join(
-            user_config_dict['data_dir'],
-            simulation_config_dict['catalog'])
-        # Set parameter values in param
-        param = get_config_class(simulation_config_dict,
-                                 catalog_name, verbose)
-        # Set seed
-        np.random.seed(int(param.seed))
-        # Load catalog to simulate objects from
-        catalog = get_catalog(
-            param, str(simulation_config_dict['selection_function']), verbose)
-        # Generate catalogs of blended objects
-        blend_genrator = get_blend_generator(
-            param, catalog, str(simulation_config_dict['sampling_function']),
-            verbose)
-        # Generate observing conditions
-        observing_genrator = get_obs_generator(
-            param, str(simulation_config_dict['observe_function']), verbose)
-        # Generate images of blends in all the observing bands
-        draw_blend_generator = btk.draw_blends.generate(param, blend_genrator,
-                                                        observing_genrator)
-        return draw_blend_generator
+def make_draw_generator(param, user_config_dict, simulation_config_dict):
+    """Returns a generator that yields simulations of blend scenes.
 
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+            values of simulations of the blend scene.
 
-def make_measurement_generator():
+    Returns:
+        Generator objects that generates output of blend scene.
+
     """
+    # Load catalog to simulate objects from
+    catalog = get_catalog(
+        param, str(simulation_config_dict['selection_function']),
+        param.verbose)
+    # Generate catalogs of blended objects
+    blend_genrator = get_blend_generator(
+        param, catalog, str(simulation_config_dict['sampling_function']),
+        param.verbose)
+    # Generate observing conditions
+    observing_genrator = get_obs_generator(
+        param, str(simulation_config_dict['observe_function']),
+        param.verbose)
+    # Generate images of blends in all the observing bands
+    draw_blend_generator = btk.draw_blends.generate(param, blend_genrator,
+                                                    observing_genrator)
+    return draw_blend_generator
+
+
+def get_measurement_class(user_config_dict, verbose):
+    """Returns the class that when input to btk.measure yields the output from
+    the measurement algorithm.
+
+    If utils_input.measure_function is input in user_config_dict then a class
+    with that name is loaded from utils_filename to generate the
+    btk.measure.Measurement_params class. If measure_function is 'None', then
+    default_measure_function from btk.utils is returned as measurement class.
+    The measurement class determines how objects in the blend images are
+    detected/deblended/measured.
+
+    Args:
         utills_filename: String describing name of file (with path) containing
                          the user defined functions.
         user_config_dict: Dict with information to run user defined functions.
+
+    Returns:
+        Class derived from btk.measure.Measurement_params that describes
+        how the detection/deblending/measurement algorithm processes the blend
+        scene image.
     """
-    return None
+    measure_class_name = user_config_dict.utils_input.measure_function
+    if measure_class_name == 'None':
+        measure_class_name = 'default_measure_function'
+        utills_filename = os.path.join(os.path.dirname(btk.__file__),
+                                       'utils.py')
+    else:
+        utills_filename = user_config_dict.utills_filename
+    measure_class = imp.load_source("", utills_filename)
+    if verbose:
+        print(f"Measurement class set as {measure_class_name} defined in "
+              f"{utils_filename}")
+    return measure_class
 
 
 def main(args):
@@ -225,9 +258,21 @@ def main(args):
     for i, s in enumerate(config_dict['simulation']):
         simulation_config_dict = config_dict['simulation'][s]
         user_config_dict = config_dict['user_input']
+        catalog_name = os.path.join(
+            user_config_dict['data_dir'],
+            simulation_config_dict['catalog'])
+        # Set parameter values in param
+        param = get_config_class(simulation_config_dict,
+                                 catalog_name, args.verbose)
+        # Set seed
+        np.random.seed(int(param.seed))
         draw_blend_generator = make_draw_generator(
-            user_config_dict, simulation_config_dict, args.verbose)
-        next(draw_blend_generator)
+            param, user_config_dict, simulation_config_dict)
+        return draw_blend_generator
+        #measure_class =
+        #measure_generator = btk.measure.generate(
+        #    measure_class, draw_blend_generator, param)
+        #next(measure_generator)
 
 
 if __name__ == '__main__':
