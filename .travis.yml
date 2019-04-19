@@ -15,6 +15,14 @@ install:
   - pwd
   - pip install .
   - git branch
+  - git status
+  - ls
+  - echo $PYTHONPATH
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/Library/Caches/pip
 
 
 # command to run tests
