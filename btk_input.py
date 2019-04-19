@@ -233,11 +233,11 @@ def get_measurement_class(user_config_dict, verbose):
     measure_class_name = user_config_dict.utils_input.measure_function
     if measure_class_name == 'None':
         measure_class_name = 'default_measure_function'
-        utills_filename = os.path.join(os.path.dirname(btk.__file__),
-                                       'utils.py')
+        utils_filename = os.path.join(os.path.dirname(btk.__file__),
+                                      'utils.py')
     else:
-        utills_filename = user_config_dict.utills_filename
-    measure_class = imp.load_source("", utills_filename)
+        utils_filename = user_config_dict.utils_filename
+    measure_class = imp.load_source("", utils_filename)
     if verbose:
         print(f"Measurement class set as {measure_class_name} defined in "
               f"{utils_filename}")
