@@ -1,6 +1,8 @@
 import pytest
 import subprocess
 import imp
+import os
+import numpy as np
 
 # check output dump file
 # delete test output at end
@@ -22,8 +24,16 @@ def test_input_draw():
                                             args.verbose)
     simulation_config_dict = config_dict['simulation'][args.simulation]
     user_config_dict = config_dict['user_input']
+    catalog_name = os.path.join(
+        user_config_dict['data_dir'],
+        simulation_config_dict['catalog'])
+# Set parameter values in param
+    param = btk_input.get_config_class(simulation_config_dict,
+                                       catalog_name, args.verbose)
+    # Set seed
+    np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            args, user_config_dict, simulation_config_dict)
+            param, user_config_dict, simulation_config_dict)
     draw_output = next(draw_blend_generator)
     assert len(draw_output['blend_list']) == 8, "Default batch should return 8"
     assert len(draw_output['blend_list'][3]) < 3, "Default max_number should \

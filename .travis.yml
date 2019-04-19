@@ -8,12 +8,12 @@ install:
   - sudo apt-get install libfftw3-dev libeigen3-dev
   - pip install -r requirements.txt
   - pip install galsim
-  - pip install .
   - git clone https://github.com/LSSTDESC/WeakLensingDeblending
   - cd WeakLensingDeblending
   - python setup.py install
   - cd ..
   - pwd
+  - pip install .
   - git branch
 
 
