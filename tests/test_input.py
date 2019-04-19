@@ -20,6 +20,7 @@ class Input_Args(object):
 def test_input_draw():
     args = Input_Args()
     import sys
+    sys.path.append("..")
     print(sys.path)
     print(os.getcwd())
     btk_input = __import__('btk_input')
