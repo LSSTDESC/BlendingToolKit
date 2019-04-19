@@ -19,6 +19,9 @@ class Input_Args(object):
 
 def test_input_draw():
     args = Input_Args()
+    import sys
+    print(sys.path)
+    print(os.getcwd())
     btk_input = __import__('btk_input')
     config_dict = btk_input.read_configfile(args.configfile, args.simulation,
                                             args.verbose)
