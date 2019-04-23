@@ -23,8 +23,9 @@ def parse_config(config_gen, simulation, verbose):
         if 'user_input' in doc.keys():
             config_dict['user_input'] = doc['user_input']
             # if no user input utils file, then use default in btk
-            if 'utils_filename' == 'None':
-                os.path.join(os.path.dirname(btk.__file__), 'utils.py')
+            if config_dict['user_input']['utils_filename'] == 'None':
+                config_dict['user_input']['utils_filename'] = os.path.join(
+                    os.path.dirname(btk.__file__), 'utils.py')
             continue
         if 'simulation' in doc.keys():
             if (simulation == doc['simulation'] or simulation == 'all'):
@@ -173,7 +174,7 @@ def get_obs_generator(param, observe_function_name, verbose):
         param, observe_function)
     if verbose:
         print(f"Observing conditions generated using {observe_function_name}"
-              "  function defined in btk/utils.py")
+              " function defined in btk/utils.py")
     return observing_generator
 
 
@@ -230,18 +231,45 @@ def get_measurement_class(user_config_dict, verbose):
         how the detection/deblending/measurement algorithm processes the blend
         scene image.
     """
-    measure_class_name = user_config_dict.utils_input.measure_function
+    measure_class_name = user_config_dict['utils_input']['measure_function']
     if measure_class_name == 'None':
-        measure_class_name = 'default_measure_function'
+        measure_class_name = 'Basic_measure_params'
         utils_filename = os.path.join(os.path.dirname(btk.__file__),
                                       'utils.py')
     else:
-        utils_filename = user_config_dict.utils_filename
-    measure_class = imp.load_source("", utils_filename)
+        utils_filename = user_config_dict['utils_filename']
+    utils = imp.load_source("", utils_filename)
+    measure_class = getattr(utils, measure_class_name)
     if verbose:
         print(f"Measurement class set as {measure_class_name} defined in "
               f"{utils_filename}")
     return measure_class
+
+
+def make_measure_generator(param, user_config_dict,
+                           draw_blend_generator, verbose):
+    """Returns a generator that yields simulations of blend scenes.
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        draw_blend_generator : Generator that yields simulations of blend
+            scenes.
+        verbose (bool): If True prints description at multiple steps.
+
+    Returns:
+        Generator objects that yields measured values by the measurement
+        algorithm over the batch.
+
+    """
+    # get class that describes how measurement algorithm performs measurement
+    measure_class = get_measurement_class(user_config_dict,
+                                          verbose)
+    # get generator that yields measured values.
+    measure_generator = btk.measure.generate(
+            measure_class(), draw_blend_generator, param)
+    return measure_generator
 
 
 def main(args):
@@ -252,7 +280,6 @@ def main(args):
     Args:
         args: Class with parameters controlling how btk should be run.
     """
-    #filename = os.path.join(args.btk_dir, args.configfile)
     config_dict = read_configfile(args.configfile, args.simulation,
                                   args.verbose)
     for i, s in enumerate(config_dict['simulation']):
@@ -266,13 +293,15 @@ def main(args):
                                  catalog_name, args.verbose)
         # Set seed
         np.random.seed(int(param.seed))
+        # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
             param, user_config_dict, simulation_config_dict)
-        return draw_blend_generator
-        #measure_class =
-        #measure_generator = btk.measure.generate(
-        #    measure_class, draw_blend_generator, param)
-        #next(measure_generator)
+        # Create generator for measurement algorithm outputs
+        measure_generator = make_measure_generator(param, user_config_dict,
+                                                   draw_blend_generator,
+                                                   args.verbose)
+
+        next(measure_generator)
 
 
 if __name__ == '__main__':
