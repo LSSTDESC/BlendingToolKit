@@ -5,6 +5,7 @@ from btk import measure
 import btk.create_blend_generator
 import numpy as np
 import astropy.table
+import skimage.feature
 
 
 class SEP_params(measure.Measurement_params):
@@ -323,3 +324,27 @@ def group_sampling_function(Args, catalog):
     num = min([len(no_boundary), Args.max_number])
     select = np.random.choice(range(len(no_boundary)), num, replace=False)
     return no_boundary[select]
+
+
+class Basic_measure_params(measure.Measurement_params):
+    """Class to perform detection and deblending with SEP"""
+    def get_centers(self, image):
+        """Return centers detected when object detection and photometry
+        is done on input image with SEP.
+        Args:
+            image: Image (single band) of galaxy to perform measurement on.
+        Returns:
+                centers: x and y coordinates of detected  centroids
+
+        """
+        # set detection threshold to 5 times std of image
+        threshold = 5*np.std(image)
+        coordinates = skimage.feature.peak_local_max(image, min_distance=3,
+                                                     threshold_abs=threshold)
+        return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
+
+    def get_deblended_images(self, data, index):
+        """Returns scarlet modeled blend  and centers for the given blend"""
+        image = np.mean(data['blend_images'][index], axis=2)
+        peaks = self.get_centers(image)
+        return [None, peaks]
