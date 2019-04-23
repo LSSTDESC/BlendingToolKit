@@ -12,12 +12,7 @@ install:
   - cd WeakLensingDeblending
   - python setup.py install
   - cd ..
-  - pwd
   - pip install .
-  - git branch
-  - git status
-  - ls
-  - echo $PYTHONPATH
 
 cache:
   directories:
