@@ -340,7 +340,7 @@ class Basic_measure_params(measure.Measurement_params):
         """
         # set detection threshold to 5 times std of image
         threshold = 5*np.std(image)
-        coordinates = skimage.feature.peak_local_max(image, min_distance=3,
+        coordinates = skimage.feature.peak_local_max(image, min_distance=2,
                                                      threshold_abs=threshold)
         return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
 
