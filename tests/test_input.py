@@ -4,11 +4,36 @@ import imp
 import os
 import sys
 import numpy as np
+import astropy
+import dill
 
 # TODO
 # check output dump file
 # delete test output at end
 # test multiprocessing
+
+
+@pytest.mark.timeout(5)
+def test_parse_config():
+    """Checks if input config files are parsed correctly"""
+    simulations = ['all', 'two_gal', 'multi_gal', 'group']
+    for simulation in simulations:
+        args = Input_Args(simulation=simulation)
+        sys.path.append(os.getcwd())
+        btk_input = __import__('btk_input')
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation,  args.verbose)
+        assert set(config_dict.keys()) == set(['user_input', 'simulation']), \
+            "config_dict must have only 'user_input', 'simulation'. Found" \
+            f"{config_dict.keys()}"
+        set_keys = set(config_dict['simulation'].keys())
+        if simulation == 'all':
+            assert set(simulations[1:]) == set_keys, "Invalid simulation keys"\
+                f" .Expected {simulations[1:]} found {set_keys}"
+        else:
+            assert set([simulation]) == set_keys, "Invalid "\
+                f"simulation name. Expected {simulation}. Got {set_keys}"
+    pass
 
 
 class Input_Args(object):
@@ -51,16 +76,91 @@ def test_input_draw():
     pass
 
 
+def check_output_file(user_config_dict, simulation):
+    """Check if metrics output is correctly written to file"""
+    ouput_path = os.path.join(user_config_dict['output_dir'],
+                              user_config_dict['output_name'])
+    if not os.path.isdir(ouput_path):
+        raise FileNotFoundError(f"btk output must be saved at {ouput_path}")
+    output_name = os.path.join(ouput_path,
+                               simulation + '_metrics_results.dill')
+    if not os.path.isfile(output_name):
+        raise FileNotFoundError(f"btk output must be saved at {output_name}")
+    pass
+
+
+def check_output_values(user_config_dict, simulation):
+    """Check if metrics output is correctly written to file"""
+    ouput_path = os.path.join(user_config_dict['output_dir'],
+                              user_config_dict['output_name'])
+    output_name = os.path.join(ouput_path,
+                               simulation + '_metrics_results.dill')
+    with open(output_name, 'rb') as handle:
+        results = dill.load(handle)
+    result_keys = ['detection', 'segmentation', 'flux', 'shapes']
+    assert set(results.keys()) == set(result_keys), "Results have incorrect"\
+        f"keys. Found {results.keys()}, expected {result_keys}"
+    if not isinstance(results['detection'][0], astropy.table.Table):
+        raise ValueError("Expected astropy table in results['detection'][0],  "
+                         f"got {type(results['detection'][0])} ")
+    if not isinstance(results['detection'][1], astropy.table.Table):
+        raise ValueError("Expected astropy table in results['detection'][1],  "
+                         f"got {type(results['detection'][1])} ")
+    if not isinstance(results['detection'][2], list):
+        raise ValueError("Expected astropy table in results['detection'][2],  "
+                         f"got {type(results['detection'][2])} ")
+    pass
+
+
+def delete_output_file(user_config_dict, simulation):
+    """Delete all files written to disk"""
+    ouput_path = os.path.join(user_config_dict['output_dir'],
+                              user_config_dict['output_name'])
+    output_name = os.path.join(ouput_path,
+                               simulation + '_metrics_results.dill')
+    yaml_output_name = os.path.join(ouput_path,
+                                    simulation + '_param.yaml')
+    if os.path.isfile(yaml_output_name):
+        subprocess.call(['rm', yaml_output_name])
+    if os.path.isfile(output_name):
+        subprocess.call(['rm', output_name])
+    if os.path.isdir(ouput_path):
+        subprocess.call(['rmdir', ouput_path])
+    return
+
+
 @pytest.mark.timeout(45)
-def test_input():
-    sys.path.append("..")
+def test_input_output():
+    """Checks output of btk called in test_input for input simulation.
+
+    Checks that the output files have correct values and are saved in correct
+    format and location.
+
     """
-    tests if btk_input script is correctly executed
-    """
-    command = ['python', 'btk_input.py', '--name', 'unit_test',
-               '--configfile', 'tests/test-config.yaml']
-    for s in ['all', 'two_gal', 'multi_gal', 'group']:
-        subprocess.check_call(command + ['--simulation', s])
+    for simulation in ['two_gal', 'multi_gal', 'group']:
+        command = ['python', 'btk_input.py', '--name', 'unit_test',
+                   '--configfile', 'tests/test-config.yaml']
+        subprocess.call(command + ['--simulation', simulation])
+        args = Input_Args(simulation=simulation)
+        sys.path.append(os.getcwd())
+        btk_input = __import__('btk_input')
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation, args.verbose)
+        user_config_dict = config_dict['user_input']
+        try:
+            check_output_file(user_config_dict, simulation)
+            check_output_values(user_config_dict, simulation)
+            print("btk output files created")
+        except FileNotFoundError as e:
+            print("btk output files not found")
+            raise e
+        except ValueError as e:
+            print("btk output files were not in correct format")
+            raise e
+        finally:
+            delete_output_file(user_config_dict, simulation)
+            print("deleted files")
+        pass
 
 
 def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
