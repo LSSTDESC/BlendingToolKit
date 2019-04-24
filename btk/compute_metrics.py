@@ -7,6 +7,9 @@ Performance metrics computed separately for detection, segmentation, flux,
 redshift
 
 """
+# TOdO
+# Fix when table is empty
+# add min_dist to true table
 import numpy as np
 import astropy.table
 
@@ -37,8 +40,8 @@ class Metrics_params(object):
         # Astropy table with entries corresponding to true sources
         true_tables = [astropy.table.Table()] * self.param.batch_size
         # Astropy table with entries corresponding to detections
-        detected_centers = [np.array((2,))] * self.param.batch_size
-        return true_tables, detected_centers
+        detected_tables = [astropy.table.Table()] * self.param.batch_size
+        return true_tables, detected_tables
 
     def get_segmentation(self):
         """Define function here to return results from the segmentation
@@ -111,13 +114,13 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
         true_table = true_tables[i]
         num_true = len(true_table)
         true_table['true_id'] = range(num_true)
-        true_table['blend_index'] = batch_index + i
+        true_table['blend_index'] = batch_index*len(true_tables) + i
         true_table['batch_index'] = batch_index
         det_table = detected_tables[i]
         num_det = len(det_table)
         det_table['detection_id'] = range(num_det)
-        det_table['blend_index'] = batch_index + i
-        det_table['batch_index'] = batch_index
+        det_table['blend_index'] = int(batch_index*len(true_tables) + i)
+        det_table['batch_index'] = int(batch_index)
         get_detction_match(true_table, det_table)
         batch_detected_table = astropy.table.vstack(
             (batch_detected_table, det_table))
@@ -167,6 +170,15 @@ def run(Metrics_params, test_size=1000):
     for i in range(test_size):
         # Evaluate detection algorithm
         batch_detection_result = Metrics_params.get_detections()
+        if (
+            len(batch_detection_result[0]) != len(batch_detection_result[1]) or
+            len(batch_detection_result[0]) != Metrics_params.param.batch_size
+           ):
+            raise ValueError("Metrics_params.get_detections output must be "
+                             "two lists of astropy table of length batch size."
+                             f" Found {len(batch_detection_result[0])}, "
+                             f"{len(batch_detection_result[1])}, "
+                             f"{ Metrics_params.param.batch_size}")
         true_table, detected_table, blend_detection_list = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1],
             batch_index=i)

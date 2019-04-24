@@ -4,6 +4,8 @@ import btk
 import os
 import numpy as np
 import imp
+import dill
+import subprocess
 
 
 def parse_config(config_gen, simulation, verbose):
@@ -270,25 +272,64 @@ def make_measure_generator(param, user_config_dict,
     return measure_generator
 
 
-def make_metrics_genrator(param, user_config_dict,
-                          measure_generator):
-    """Returns a generator that yields results from measurements algorithm
-    defined in measure_generator for a test size of
-    user_config_dict['test_size'].
+def get_metrics_class(user_config_dict, verbose):
+    """Returns the class that when input to btk.compute_metrics yields the
+    output from the metrics computed for measurement algorithm.
+
+    If utils_input.metrics_function is input in user_config_dict then a class
+    with that name is loaded from utils_filename to generate the
+    btk.measure.Measurement_params class. If metrics_function is 'None', then
+    default_metrics_function from btk.utils is returned as measurement class.
+    The metrics class determines how detected/deblended/measured output
+    performance can be assesed.
 
     Args:
-        param (class): Parameter values for btk simulations.
-        user_config_dict: Dictionary with information to run user defined
-            functions (filenames, file location of user algorithms).
-        measure_generator : Generator that yields measured values by a
-            measurement algorithm over the batch.
+        user_config_dict: Dict with information to run user defined functions.
+        verbose (bool): If True prints description at multiple steps.
 
     Returns:
-        Returns results from the measurement for the test set.
-
+        Class derived from btk.measure.Measurement_params that describes
+        how the detection/deblending/measurement algorithm processes the blend
+        scene image.
     """
-    pass
+    metrics_class_name = user_config_dict['utils_input']['metrics_function']
+    if metrics_class_name == 'None':
+        metrics_class_name = 'Basic_metric_params'
+        utils_filename = os.path.join(os.path.dirname(btk.__file__),
+                                      'utils.py')
+    else:
+        utils_filename = user_config_dict['utils_filename']
+    utils = imp.load_source("", utils_filename)
+    metrics_class = getattr(utils, metrics_class_name)
+    if verbose:
+        print(f"Measurement class set as {metrics_class_name} defined in "
+              f"{utils_filename}")
+    return metrics_class
 
+
+def get_ouput_path(user_config_dict, verbose):
+    """Returns path where btk output will be stored to disk.
+
+    If output folder does not exist it will be created
+
+    Args:
+        user_config_dict: Dict with information to run user defined functions
+            and store results.
+        verbose (bool): If True prints description at multiple steps.
+
+    Returns:
+        string with the path to where output must be stored to disk.
+    """
+    output_dir = user_config_dict['output_dir']
+    output_name = user_config_dict['output_name']
+    if not os.path.isdir(output_dir):
+        subprocess.call(['mkdir', output_dir])
+    ouput_path = os.path.join(output_dir, output_name)
+    if not os.path.isdir(ouput_path):
+        subprocess.call(['mkdir', ouput_path])
+    if verbose:
+        print(f"Output will be saved at {ouput_path}")
+    return ouput_path
 
 
 def main(args):
@@ -318,9 +359,16 @@ def main(args):
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(param, user_config_dict,
                                                    draw_blend_generator)
-
-
-        next(measure_generator)
+        # get metrics class that can generate metrics
+        metrics_class = get_metrics_class(user_config_dict,
+                                          param.verbose)
+        test_size = int(simulation_config_dict['test_size'])
+        metrics_param = metrics_class(measure_generator, param)
+        ouput_path = get_ouput_path(user_config_dict, param.verbose)
+        output_name = os.path.join(ouput_path, 'metrics_results.dill')
+        results = btk.compute_metrics.run(metrics_param, test_size=test_size)
+        with open(output_name, 'wb') as handle:
+            dill.dump(results, handle)
 
 
 if __name__ == '__main__':
