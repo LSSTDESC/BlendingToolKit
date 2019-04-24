@@ -31,6 +31,32 @@ def get_center_in_pixels(Args, blend_catalog):
     return dx_col, dy_col
 
 
+def get_size(Args, catalog, i_obs_cond):
+    """Returns a astropy.table.column with the size of the galaxy.
+
+    Galaxy size is estimated as second moments size (r_sec) computed as
+    described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
+    is computed by galsim from the psf model in obs_cond in the i band.
+    The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
+
+    Args:
+        Args: Class containing input parameters.
+        catalog: Catalog with entries corresponding to one blend.
+        i_obs_cond: `descwl.survey.Survey` class describing
+            observing conditions in i band.
+
+    Returns:
+        `astropy.table.Column`s: size of the galaxy.
+    """
+    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
+    r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
+                     catalog['a_b']*f**0.5*1.46)
+    psf = i_obs_cond.psf_model
+    psf_r_sec = psf.calculateMomentRadius()
+    size = np.sqrt(r_sec**2 + 2*psf_r_sec**2)
+    return Column(size, name='size')
+
+
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
     object for an isolated galaxy.
@@ -129,8 +155,8 @@ def run_mini_batch(Args, blend_list, obs_cond):
     Args:
         Args: Class containing input parameters.
         blend_list: List of catalogs with entries corresponding to one blend.
-        obs_cond: `descwl.survey.Survey` class describing observing conditions.
-
+        obs_cond (list): List of `descwl.survey.Survey` class describing
+            observing conditions in differnt bands.
 
     Returns:
         `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -141,6 +167,8 @@ def run_mini_batch(Args, blend_list, obs_cond):
         dx, dy = get_center_in_pixels(Args, blend_list[i])
         blend_list[i].add_column(dx)
         blend_list[i].add_column(dy)
+        size = get_size(Args, blend_list[i], obs_cond[3])
+        blend_list[i].add_column(size)
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
         iso_image_multi = np.zeros(
             (Args.max_number, stamp_size, stamp_size,
