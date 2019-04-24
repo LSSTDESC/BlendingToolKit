@@ -51,7 +51,7 @@ def test_input_draw():
     pass
 
 
-@pytest.mark.timeout(35)
+@pytest.mark.timeout(45)
 def test_input():
     sys.path.append("..")
     """
@@ -69,7 +69,7 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator, param.verbose)
+            param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[57, 67], [63, 59], [49, 57]],
                            [[49, 67]],
                            [[59, 67]],
@@ -77,7 +77,7 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
                            ]
     output, deb, _ = next(measure_generator)
     for i in range(len(output['blend_list'])):
-        detected_centers = deb[i][1]
+        detected_centers = deb[i]['peaks']
         np.testing.assert_array_almost_equal(
             detected_centers, test_detect_centers[i], decimal=3,
             err_msg="Did not get desired detected_centers")
@@ -91,7 +91,7 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
             param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'SEP_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator, param.verbose)
+            param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[62.633432, 58.845595], [56.823835, 66.857761],
                             [55.138673, 59.557461], [49.164199, 56.989852]],
                            [[49.245587, 67.135604]],
@@ -101,7 +101,7 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
                            ]
     output, deb, _ = next(measure_generator)
     for i in range(len(output['blend_list'])):
-        detected_centers = deb[i][1]
+        detected_centers = deb[i]['peaks']
         np.testing.assert_array_almost_equal(
             detected_centers, test_detect_centers[i], decimal=3,
             err_msg="Did not get desired detected_centers")
@@ -115,14 +115,14 @@ def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
             param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'Stack_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator, param.verbose)
+            param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[58.063703, 59.749699], [61.157868, 69.30290],
                             [68.304245, 61.537312]],
                            [[59.915507, 50.167592], [65.766700, 65.105297]],
                            [[51.243380, 58.382503], [54.900160, 68.5794316]],
                            [[70.645195, 51.627339], [63.226545, 56.1251558]]
                            ]
-    output, deb, _ = next(measure_generator)
+    output, deb, meas = next(measure_generator)
     for i in range(len(output['blend_list'])):
         detected_centers = deb[i][1]
         np.testing.assert_array_almost_equal(
@@ -138,7 +138,7 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
             param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'Scarlet_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator, param.verbose)
+            param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[58.063703, 59.749699], [61.157868, 69.30290],
                             [68.304245, 61.537312]],
                            [[59.915507, 50.167592], [65.766700, 65.105297]],
@@ -147,14 +147,14 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
                            ]
     output, deb, _ = next(measure_generator)
     for i in range(len(output['blend_list'])):
-        detected_centers = deb[i][1]
+        detected_centers = deb[i]['peaks']
         np.testing.assert_array_almost_equal(
             detected_centers, test_detect_centers[i], decimal=3,
             err_msg="Did not get desired detected_centers")
     pass
 
 
-@pytest.mark.timeout(15)
+@pytest.mark.timeout(25)
 def test_measure():
     args = Input_Args()
     sys.path.append(os.getcwd())
