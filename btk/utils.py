@@ -30,7 +30,7 @@ class SEP_params(measure.Measurement_params):
         """Returns scarlet modeled blend  and centers for the given blend"""
         image = np.mean(data['blend_images'][index], axis=2)
         peaks = self.get_centers(image)
-        return [None, peaks]
+        return {'deblend_image': None, 'peaks': peaks}
 
 
 class Stack_params(measure.Measurement_params):
@@ -43,8 +43,9 @@ class Stack_params(measure.Measurement_params):
         mean_sky_level = obs_cond.mean_sky_level
         psf = obs_cond.psf_model
         psf_image = psf.drawImage(
-           nx=self.psf_stamp_size,
-           ny=self.psf_stamp_size).array
+            scale=obs_cond.pixel_scale,
+            nx=self.psf_stamp_size,
+            ny=self.psf_stamp_size).array
         return psf_image, mean_sky_level
 
     def make_measurement(self, data, index):
@@ -211,7 +212,7 @@ class Scarlet_params(measure.Measurement_params):
             im .append(np.transpose(blend.get_model(k=m), axes=(1, 2, 0)))
             selected_peaks.append(
                 [blend.components[m].center[1], blend.components[m].center[0]])
-        return [np.array(im), selected_peaks]
+        return {'deblend_image': np.array(im), 'peaks': selected_peaks}
 
 
 def make_true_seg_map(image, threshold):
@@ -347,4 +348,38 @@ class Basic_measure_params(measure.Measurement_params):
         """Returns scarlet modeled blend  and centers for the given blend"""
         image = np.mean(data['blend_images'][index], axis=2)
         peaks = self.get_centers(image)
-        return [None, peaks]
+        return {'deblend_image': None, 'peaks': peaks}
+
+
+class Basic_metric_params(btk.compute_metrics.Metrics_params):
+    def __init__(self, *args, **kwargs):
+        super(Basic_metric_params, self).__init__(*args, **kwargs)
+        """Class describing functions to return results of
+         detection/deblending/measurement algorithm in meas_generator. Each
+         blend results yielded by the meas_generator for a batch.
+    """
+
+    def get_detections(self):
+        """Returns blend catalog and detection catalog for detction performed
+
+        Returns:
+            Results of the detection algorithm are returned as:
+                true_tables:  List of astropy Tables of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y coordinate
+                    values must be under columns named 'dx' and 'dy' respectively, in
+                    pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Tables of output from detection
+                    algorithm. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+        """
+        # Astropy table with entries corresponding to true sources
+        blend_op, deblend_op, _ = next(self.meas_generator)
+        true_tables = blend_op['blend_list']
+        detected_tables = []
+        for i in range(len(true_tables)):
+            detected_centers = deblend_op[i]['peaks']
+            detected_table = astropy.table.Table(detected_centers,
+                                                 names=['dx', 'dy'])
+            detected_tables.append(detected_table)
+        return true_tables, detected_tables

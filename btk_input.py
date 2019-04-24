@@ -222,9 +222,8 @@ def get_measurement_class(user_config_dict, verbose):
     detected/deblended/measured.
 
     Args:
-        utills_filename: String describing name of file (with path) containing
-                         the user defined functions.
         user_config_dict: Dict with information to run user defined functions.
+        verbose (bool): If True prints description at multiple steps.
 
     Returns:
         Class derived from btk.measure.Measurement_params that describes
@@ -247,7 +246,7 @@ def get_measurement_class(user_config_dict, verbose):
 
 
 def make_measure_generator(param, user_config_dict,
-                           draw_blend_generator, verbose):
+                           draw_blend_generator):
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
@@ -256,7 +255,6 @@ def make_measure_generator(param, user_config_dict,
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend
             scenes.
-        verbose (bool): If True prints description at multiple steps.
 
     Returns:
         Generator objects that yields measured values by the measurement
@@ -265,11 +263,32 @@ def make_measure_generator(param, user_config_dict,
     """
     # get class that describes how measurement algorithm performs measurement
     measure_class = get_measurement_class(user_config_dict,
-                                          verbose)
+                                          param.verbose)
     # get generator that yields measured values.
     measure_generator = btk.measure.generate(
             measure_class(), draw_blend_generator, param)
     return measure_generator
+
+
+def make_metrics_genrator(param, user_config_dict,
+                          measure_generator):
+    """Returns a generator that yields results from measurements algorithm
+    defined in measure_generator for a test size of
+    user_config_dict['test_size'].
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        measure_generator : Generator that yields measured values by a
+            measurement algorithm over the batch.
+
+    Returns:
+        Returns results from the measurement for the test set.
+
+    """
+    pass
+
 
 
 def main(args):
@@ -298,8 +317,8 @@ def main(args):
             param, user_config_dict, simulation_config_dict)
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(param, user_config_dict,
-                                                   draw_blend_generator,
-                                                   args.verbose)
+                                                   draw_blend_generator)
+
 
         next(measure_generator)
 
