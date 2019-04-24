@@ -12,7 +12,7 @@ user_input:
     # Enter file name containing user function to perform detection/deblending/measurement
     utils_filename: None
     output_name: test1  # btk output will be saved in a directory with this name inside output_dir
-    # Enter
+    # Enter name of functions to perform detection/deblending/measurement.
     utils_input:
         measure_function: None
         metrics_function: None
@@ -42,6 +42,7 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
+    test_size: 5000
 
 ---
 simulation: multi_gal
@@ -65,6 +66,7 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
+    test_size: 5000
 
 ---
 
@@ -91,5 +93,6 @@ config:
         wld_catalog_name: 'data/test_group_catalog.fits'
     selection_function: None
     sampling_function: group_sampling_function
-
     observe_function: None
+    test_size: 5000
+

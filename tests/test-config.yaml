@@ -5,21 +5,19 @@
 # If value are set to None, then the default btk parameters are used.
 
 user_input:
-    # Enter location to load dataset from
+    # Location to load dataset from
     data_dir: data/
-    # Enter location where btk test output should be saved
+    # Location where btk test output will be saved
     output_dir: /input
     # Enter file name containing user function to perform detection/deblending/measurement
     utils_filename: None
     output_name: test1  # btk output will be saved in a directory with this name inside output_dir
-    # Enter
     utils_input:
         measure_function: None
         metrics_function: None
 
 
 # Below are the parameter values specifying 3 kinds of simulations.
-# Do not change parameters below!!
 ---
 simulation: two_gal
 config:
@@ -42,6 +40,8 @@ config:
     selection_function: None
     sampling_function: None
     observe_function: None
+    test_size: 20
+
 ---
 simulation: multi_gal
 config:
@@ -64,6 +64,7 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
+    test_size: 20
 
 ---
 
@@ -89,5 +90,5 @@ config:
         wld_catalog_name: 'data/sample_group_catalog.fits'
     selection_function: None
     sampling_function: group_sampling_function
-
     observe_function: None
+    test_size: 10
