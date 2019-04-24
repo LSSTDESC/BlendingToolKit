@@ -55,7 +55,7 @@ def read_configfile(filename, simulation, verbose):
     with open(filename, 'r') as stream:
         config_gen = yaml.safe_load_all(stream)  # load all yaml files here
         if verbose:
-            print(f"config file {filename} loaded", config_gen)
+            print(f"config file {filename} loaded")
         if not isinstance(config_gen, types.GeneratorType):
             raise ValueError("input config yaml file not should contain at  "
                              " dictionary with btk configuration.two documents"
@@ -324,9 +324,13 @@ def get_ouput_path(user_config_dict, verbose):
     output_name = user_config_dict['output_name']
     if not os.path.isdir(output_dir):
         subprocess.call(['mkdir', output_dir])
+        if verbose:
+            print(f"Output directory created at {output_dir}")
     ouput_path = os.path.join(output_dir, output_name)
     if not os.path.isdir(ouput_path):
         subprocess.call(['mkdir', ouput_path])
+        if verbose:
+            print(f"Test output directory created at {ouput_path}")
     if verbose:
         print(f"Output will be saved at {ouput_path}")
     return ouput_path
@@ -365,7 +369,7 @@ def main(args):
         test_size = int(simulation_config_dict['test_size'])
         metrics_param = metrics_class(measure_generator, param)
         ouput_path = get_ouput_path(user_config_dict, param.verbose)
-        output_name = os.path.join(ouput_path, 'metrics_results.dill')
+        output_name = os.path.join(ouput_path, s + '_metrics_results.dill')
         results = btk.compute_metrics.run(metrics_param, test_size=test_size)
         with open(output_name, 'wb') as handle:
             dill.dump(results, handle)
