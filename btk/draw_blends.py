@@ -49,8 +49,10 @@ def get_size(Args, catalog, i_obs_cond):
         `astropy.table.Column`s: size of the galaxy.
     """
     f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
-    r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
-                     catalog['a_b']*f**0.5*1.46)
+    hlr_d = np.sqrt(catalog['a_d']*catalog['b_d'])
+    hlr_b = np.sqrt(catalog['a_b']*catalog['b_b'])
+    r_sec = np.hypot(hlr_d*(1-f)**0.5*4.66,
+                     hlr_b*f**0.5*1.46)
     psf = i_obs_cond.psf_model
     psf_r_sec = psf.calculateMomentRadius()
     size = np.sqrt(r_sec**2 + 2*psf_r_sec**2)
