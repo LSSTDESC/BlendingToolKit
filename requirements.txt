@@ -10,3 +10,4 @@ lmfit>=0.9.12
 PyYAML>=3.13
 sep>=1.0.3
 scikit-image>=0.14.2
+dill>=0.2.9
