@@ -7,9 +7,6 @@ Performance metrics computed separately for detection, segmentation, flux,
 redshift
 
 """
-# TOdO
-# Fix when table is empty
-# add min_dist to true table
 import numpy as np
 import astropy.table
 
@@ -62,12 +59,65 @@ class Metrics_params(object):
         return None
 
 
-def get_detction_match(true_table, detected_table):
+def initialize_detection_tables(detected_table, true_table,
+                                batch_index, batch_size,
+                                blend_index):
+    """Initialize column entries of true objects and detection catalog to their
+    default values.
+
+    This is necessary since, if either true objects or detection table is
+    empty, then there is no match in get_detection_match and those column
+    entries would not otherwise be present in the tables.
+
+    Function does not return anything, only the astropy tables are updates.
+    """
+    # initialize true objects table columns
+    num_true = len(true_table)
+    true_table['true_id'] = range(num_true)  # id in blend [0-num_true]
+    # index of blend in test size [0 - len(blend_summary)]
+    true_table['blend_index'] = np.ones(
+        num_true, dtype=int)*(batch_index*batch_size + blend_index)
+    # index of batch in test size [0 - batch_size]
+    true_table['batch_index'] = np.ones(
+        num_true, dtype=int)*batch_index
+    # number of times object was detected [0 - num_det]
+    true_table['num_dectections'] = np.zeros(num_true, dtype=int)
+    # id of closest detection; [0 - num_det] if detected, else -1
+    true_table['closest_det_id'] = -1 * np.ones(num_true, dtype=int)
+    # if multiple detections are made within size of object flag set to 1
+    true_table['is_shred'] = np.zeros(num_true, dtype=int)
+    # initialize detected objects table columns
+    num_det = len(detected_table)
+    detected_table['detection_id'] = range(num_det)  # id in blend [0-num_det]
+    # index of blend in test size [0 - len(blend_summary)]
+    detected_table['blend_index'] = np.ones(
+        num_det, dtype=int)*(batch_index*batch_size + blend_index)
+    # index of batch in test size [0 - batch_size]
+    detected_table['batch_index'] = np.ones(
+        num_det, dtype=int)*batch_index
+    # id of closest true object; [0 - num_true] if detected, else -1
+    detected_table['match_id'] = np.ones(
+        num_det, dtype=int)*-1
+    # if no match with true object flag set to 1
+    detected_table['is_spurious'] = np.zeros(len(detected_table), dtype=int)
+
+
+def get_detection_match(true_table, detected_table):
     """Match detections to true objects and update values in the input
     blend catalog and detection catalog.
 
-    """
+    Function does not return anything, only the astropy tables are updates.
 
+    Args:
+        true_table (astropy.table.Table): Table with entries corresponding to
+            the true object parameter values in one blend.
+        detected_table(astropy.table.Table): Table with entries corresponding
+            to output of measurement algorithm in one blend.
+
+    """
+    if (len(detected_table) == 0 or len(true_table) == 0):
+        # No match since either no detection or no true objects
+        return
     t_x = true_table['dx'][:, np.newaxis] - detected_table['dx']
     t_y = true_table['dy'][:, np.newaxis] - detected_table['dy']
     dist = np.hypot(t_x, t_y)
@@ -79,15 +129,52 @@ def get_detction_match(true_table, detected_table):
     condlist = [np.min(norm_dist, axis=0) <= 1, np.min(norm_dist, axis=0) > 1]
     choicelist = [np.argmin(norm_dist, axis=0), -1]
     detected_table['match_id'] = np.select(condlist, choicelist)
-    detected_table['is_spurious'] = np.zeros(len(detected_table), dtype=int)
     detected_table['is_spurious'][detected_table['match_id'] == -1] = 1
-    true_table['num_dectections'] = 0
+    np.testing.assert_array_equal(
+        np.argmin(dist, axis=1), np.argmin(norm_dist, axis=1),
+        err_msg='norm_dist computation is wrong.')
     true_table['closest_det_id'] = np.argmin(dist, axis=1)
     for j in detected_table['match_id']:
         if j > -1:
             true_table['num_dectections'][j] += 1
-    true_table['is_shred'] = np.zeros(len(true_table), dtype=int)
     true_table['is_shred'][true_table['num_dectections'] > 1] = 1
+
+
+def get_blend_detection_summary(true_table, det_table):
+    """Returns list summarizing results of detection metric computation
+
+    Args:
+        true_table (astropy.table.Table): Table with entries corresponding to
+            the true object parameter values in one blend.
+        detected_table(astropy.table.Table): Table with entries corresponding
+            to output of measurement algorithm in one blend.
+
+    Returns:
+        List of detection metrics summary:
+            num_true: number of true objects.
+            num_detected: Number of correct detections by algorithm.
+            num_undetected: Number of true objects not detected by algorithm.
+            num_spurious: Number of spurious detections.
+            num_shred: Number of true objects shredded by algorithm.
+
+    """
+    num_true = len(true_table)
+    num_det = len(det_table)
+    detected_true = det_table['match_id'][det_table['match_id'] >= 0]
+    num_detected = len(np.unique(detected_true))
+    num_undetected = len(np.where(true_table['num_dectections'] == 0)[0])
+    num_spurious = len(np.where(det_table['is_spurious'] == 1)[0])
+    num_shred = len(np.where(true_table['is_shred'] == 1)[0])
+    assert num_detected + num_undetected == num_true, "Number of "\
+        "detected objects + number undetected objects must be equal to "\
+        "the total number of true objects"
+    num_matched_detections = true_table['num_dectections'].sum()
+    assert num_matched_detections + num_spurious == num_det, "Number of "\
+        "detections match to a true object + number of spurious must be "\
+        "equal to the total number of detections."
+    blend_summary = [num_true, num_detected, num_undetected,
+                     num_spurious, num_shred]
+    return blend_summary
 
 
 def evaluate_detection(true_tables, detected_tables, batch_index):
@@ -110,36 +197,31 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
     batch_true_table = astropy.table.Table()
     batch_detected_table = astropy.table.Table()
     batch_blend_list = []
+    batch_size = len(true_tables)
     for i in range(len(true_tables)):
         true_table = true_tables[i]
-        num_true = len(true_table)
-        true_table['true_id'] = range(num_true)
-        true_table['blend_index'] = batch_index*len(true_tables) + i
-        true_table['batch_index'] = batch_index
-        det_table = detected_tables[i]
-        num_det = len(det_table)
-        det_table['detection_id'] = range(num_det)
-        det_table['blend_index'] = int(batch_index*len(true_tables) + i)
-        det_table['batch_index'] = int(batch_index)
-        get_detction_match(true_table, det_table)
+        detected_table = detected_tables[i]
+        # initialize columns to default values
+        initialize_detection_tables(detected_table, true_table,
+                                    batch_index, batch_size, i)
+        # match detection and true source
+        get_detection_match(true_table, detected_table)
+        # summarize blend detection results to table
+        blend_summary = get_blend_detection_summary(true_table, detected_table)
+        batch_blend_list.append(blend_summary)
+        # add results to batch table
         batch_detected_table = astropy.table.vstack(
-            (batch_detected_table, det_table))
+            (batch_detected_table, detected_table))
         batch_true_table = astropy.table.vstack(
             (batch_true_table, true_table))
-        detected_true = det_table['match_id'][det_table['match_id'] >= 0]
-        num_detected = len(np.unique(detected_true))
-        num_undetected = len(np.where(true_table['num_dectections'] == 0)[0])
-        num_spurious = len(np.where(det_table['is_spurious'] == 1)[0])
-        num_shred = len(np.where(true_table['is_shred'] == 1)[0])
-        assert num_detected + num_undetected == num_true, "Number of "\
-            "detected objects + number undetected objects must be equal to "\
-            "the total number of true objects"
-        num_matched_detections = true_table['num_dectections'].sum()
-        assert num_matched_detections + num_spurious == num_det, "Number of "\
-            "detections match to a true object + number of spurious must be "\
-            "equal to the total number of detections."
-        batch_blend_list.append([num_true, num_detected, num_undetected,
-                                 num_spurious, num_shred])
+    # check table
+    np.testing.assert_array_equal(batch_true_table['is_shred'] == 1,
+                                  batch_true_table['num_dectections'] > 1,
+                                  err_msg='Shredded object has less than 2'
+                                  'detections')
+    np.testing.assert_array_equal(batch_detected_table['is_spurious'] == 1,
+                                  batch_detected_table['match_id'] == -1,
+                                  err_msg='Spurious detection has match')
     return batch_true_table, batch_detected_table, batch_blend_list
 
 
