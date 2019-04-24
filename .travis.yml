@@ -22,5 +22,4 @@ cache:
 
 # command to run tests
 script:
-  - pwd
   - pytest
