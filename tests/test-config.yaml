@@ -8,10 +8,10 @@ user_input:
     # Location to load dataset from
     data_dir: data/
     # Location where btk test output will be saved
-    output_dir: /input
+    output_dir: tests
     # Enter file name containing user function to perform detection/deblending/measurement
     utils_filename: None
-    output_name: test1  # btk output will be saved in a directory with this name inside output_dir
+    output_name: unit_test_output # btk output will be saved in a directory with this name inside output_dir
     utils_input:
         measure_function: None
         metrics_function: None
@@ -40,7 +40,7 @@ config:
     selection_function: None
     sampling_function: None
     observe_function: None
-    test_size: 20
+    test_size: 2
 
 ---
 simulation: multi_gal
@@ -64,7 +64,7 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
-    test_size: 20
+    test_size: 2
 
 ---
 
@@ -91,4 +91,4 @@ config:
     selection_function: None
     sampling_function: group_sampling_function
     observe_function: None
-    test_size: 10
+    test_size: 2
