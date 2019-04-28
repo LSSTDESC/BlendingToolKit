@@ -9,6 +9,7 @@ redshift
 """
 import numpy as np
 import astropy.table
+import scipy.spatial
 
 
 class Metrics_params(object):
@@ -59,6 +60,29 @@ class Metrics_params(object):
         return None
 
 
+def get_closest_neighbor_distance(true_table):
+    """Returns a astropy.table.column with the distance to the closestobject.
+
+    Function uses scipy.apatial to compute distance between the object centers.
+    If object is the only one in the blend then the cosest_dist value is set to
+    np.inf.
+
+    Args:
+        true_table: Catalog with entries corresponding to one blend.
+
+    Returns:
+        `astropy.table.Column`s: size of the galaxy.
+    """
+    peaks = np.stack(
+        [np.array(true_table['dx']), np.array(true_table['dy'])]).T
+    if peaks.shape[0] > 1:
+        distance = scipy.spatial.distance.cdist(peaks, peaks,
+                                                metric='euclidean')
+        min_dist = [
+            np.min(distance[i][distance[i] > 0]) for i in range(len(distance))]
+        true_table['min_dist'] = min_dist
+
+
 def initialize_detection_tables(detected_table, true_table,
                                 batch_index, batch_size,
                                 blend_index):
@@ -86,6 +110,9 @@ def initialize_detection_tables(detected_table, true_table,
     true_table['closest_det_id'] = -1 * np.ones(num_true, dtype=int)
     # if multiple detections are made within size of object flag set to 1
     true_table['is_shred'] = np.zeros(num_true, dtype=int)
+    # find distance to nearest neighbor. If isolated then set to np.inf
+    true_table['min_dist'] = np.ones(num_true)*np.inf
+    get_closest_neighbor_distance(true_table)
     # initialize detected objects table columns
     num_det = len(detected_table)
     detected_table['detection_id'] = range(num_det)  # id in blend [0-num_det]
