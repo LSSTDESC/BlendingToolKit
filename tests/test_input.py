@@ -9,7 +9,6 @@ import dill
 
 # TODO
 # check output dump file
-# delete test output at end
 # test multiprocessing
 
 
@@ -286,3 +285,50 @@ def test_measure():
     except ImportError:
         print("scarlet not found")
     pass
+
+
+def basic_metric_two_gal(output_name):
+    """Loads metric results dill file and compares it to target value"""
+    with open(output_name, 'rb') as handle:
+        results = dill.load(handle)
+    detected_metrics = np.array(results['detection'][2])
+    test_metric_summary = np.array(
+        [[1, 1, 0, 0, 0], [2, 2, 0, 0, 0], [1, 1, 0, 0, 0], [1, 1, 0, 0, 0],
+         [2, 2, 0, 0, 0], [2, 2, 0, 0, 0], [2, 2, 0, 0, 0], [1, 1, 0, 0, 0],
+         [2, 1, 1, 0, 0], [2, 2, 0, 0, 0], [1, 1, 0, 0, 0], [2, 2, 0, 0, 0],
+         [2, 1, 1, 0, 0], [2, 1, 1, 0, 0], [2, 1, 1, 0, 0], [1, 1, 0, 0, 0]])
+    np.testing.assert_array_almost_equal(
+        detected_metrics, test_metric_summary, decimal=3,
+        err_msg="Did not get desired detection metrics summary")
+    pass
+
+
+@pytest.mark.timeout(15)
+def test_metrics():
+    simulations = ['two_gal', ]
+    for simulation in simulations:
+        command = ['python', 'btk_input.py', '--name', 'unit_test',
+                   '--configfile', 'tests/test-config.yaml']
+        subprocess.call(command + ['--simulation', simulation])
+        args = Input_Args(simulation=simulation)
+        sys.path.append(os.getcwd())
+        btk_input = __import__('btk_input')
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation, args.verbose)
+        user_config_dict = config_dict['user_input']
+        ouput_path = os.path.join(user_config_dict['output_dir'],
+                                  user_config_dict['output_name'])
+        output_name = os.path.join(ouput_path,
+                                   simulation + '_metrics_results.dill')
+        try:
+            basic_metric_two_gal(output_name)
+        except FileNotFoundError as e:
+            print("btk output files not found")
+            raise e
+        except ValueError as e:
+            print("btk output files were not in correct format")
+            raise e
+        finally:
+            delete_output_file(user_config_dict, simulation)
+            print("deleted files")
+        pass
