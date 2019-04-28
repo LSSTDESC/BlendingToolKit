@@ -55,7 +55,7 @@ def get_size(Args, catalog, i_obs_cond):
                      hlr_b*f**0.5*1.46)
     psf = i_obs_cond.psf_model
     psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec**2 + 2*psf_r_sec**2)
+    size = np.sqrt(r_sec**2 + 2*psf_r_sec**2) / Args.pixel_scale
     return Column(size, name='size')
 
 
