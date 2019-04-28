@@ -70,9 +70,9 @@ config:
 
 simulation: group
 config:
-    catalog: 'sample_input_catalog.fits'
+    catalog: 'sample_group_input_catalog.fits'
     wld_catalog:
-    max_number: 2
+    max_number: 10
     batch_size: 8
     stamp_size: 24
     survey_name: "LSST"
