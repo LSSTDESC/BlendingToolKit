@@ -96,6 +96,51 @@ def run_metrics_sep():
                                  simulation_config_dict, btk_input)
     pass
 
+def compare_stack_group_metric(param, user_config_dict,
+                             simulation_config_dict, btk_input):
+    # Set seed
+    test_metric_summary = np.array(
+        [[3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 2, 0, 0, 0],
+         [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [5, 0, 5, 0, 0],
+         [2, 1, 1, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [5, 2, 3, 0, 0],
+         [5, 0, 5, 1, 0], [6, 3, 3, 0, 0], [2, 1, 1, 0, 0], [6, 3, 3, 0, 0]])
+    np.random.seed(int(param.seed))
+    draw_blend_generator = btk_input.make_draw_generator(
+            param, user_config_dict, simulation_config_dict)
+    measure_generator = btk_input.make_measure_generator(
+            param, user_config_dict, draw_blend_generator)
+    metric_param = btk.utils.Basic_metric_params(
+        meas_generator=measure_generator, param=param)
+    results = btk.compute_metrics.run(metric_param, test_size=2)
+    detected_metrics_summary = results['detection'][2]
+    np.testing.assert_array_almost_equal(
+        detected_metrics_summary, test_metric_summary, decimal=3,
+        err_msg="Did not get desired detection metrics summary")
+    pass
+
+
+def run_metrics_stack():
+    test_input = imp.load_source("", 'tests/test_input.py')
+    simulations = ['group', ]
+    for simulation in simulations:
+        args = test_input.Input_Args(simulation=simulation)
+        sys.path.append(os.getcwd())
+        btk_input = __import__('btk_input')
+        config_dict = btk_input.read_configfile(args.configfile, args.simulation,
+                                                args.verbose)
+        simulation_config_dict = config_dict['simulation'][args.simulation]
+        user_config_dict = config_dict['user_input']
+        user_config_dict['utils_input']['measure_function'] = 'Stack_params'
+        catalog_name = os.path.join(
+            user_config_dict['data_dir'],
+            simulation_config_dict['catalog'])
+        # Set parameter values in param
+        param = btk_input.get_config_class(simulation_config_dict,
+                                           catalog_name, args.verbose)
+        compare_stack_group_metric(param, user_config_dict,
+                                 simulation_config_dict, btk_input)
+    pass
+
 
 @pytest.mark.timeout(15)
 def test_metrics_all():
@@ -104,3 +149,7 @@ def test_metrics_all():
         run_metrics_sep()
     except ImportError:
             print("sep not found")
+    try:
+        run_metrics_stack()
+    except ImportError:
+            print("stack not found")
