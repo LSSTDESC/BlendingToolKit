@@ -153,7 +153,8 @@ def get_detection_match(true_table, detected_table):
     detected_table['closest_gal_id'] = np.argmin(dist, axis=0)
     detected_table['closest_dist'] = np.min(dist, axis=0)
     detected_table['norm_closest_dist'] = np.min(norm_dist, axis=0)
-    condlist = [np.min(norm_dist, axis=0) <= 1, np.min(norm_dist, axis=0) > 1]
+    condlist = [
+        np.min(norm_dist, axis=0) <= 0.2, np.min(norm_dist, axis=0) > 0.2]
     choicelist = [np.argmin(norm_dist, axis=0), -1]
     detected_table['match_id'] = np.select(condlist, choicelist)
     detected_table['is_spurious'][detected_table['match_id'] == -1] = 1
