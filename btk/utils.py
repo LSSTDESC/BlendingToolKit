@@ -383,3 +383,37 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
                                                  names=['dx', 'dy'])
             detected_tables.append(detected_table)
         return true_tables, detected_tables
+
+
+class Stack_metric_params(btk.compute_metrics.Metrics_params):
+    def __init__(self, *args, **kwargs):
+        super(Stack_metric_params, self).__init__(*args, **kwargs)
+        """Class describing functions to return results of
+         detection/deblending/measurement algorithm in meas_generator. Each
+         blend results yielded by the meas_generator for a batch.
+    """
+
+    def get_detections(self):
+        """Returns blend catalog and detection catalog for detction performed
+
+        Returns:
+            Results of the detection algorithm are returned as:
+                true_tables:  List of astropy Tables of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y coordinate
+                    values must be under columns named 'dx' and 'dy' respectively, in
+                    pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Tables of output from detection
+                    algorithm. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+        """
+        # Astropy table with entries corresponding to true sources
+        blend_op, _, cat = next(self.meas_generator)
+        true_tables = blend_op['blend_list']
+        detected_tables = []
+        for i in range(len(true_tables)):
+            detected_centers = np.stack([cat[i]['base_NaiveCentroid_x'], cat[i]['base_NaiveCentroid_y']], axis=1)
+            detected_table = astropy.table.Table(detected_centers,
+                                                 names=['dx', 'dy'])
+            detected_tables.append(detected_table)
+        return true_tables, detected_tables
