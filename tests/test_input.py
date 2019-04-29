@@ -36,6 +36,8 @@ def test_parse_config():
 
 
 class Input_Args(object):
+    """Class that returns values in the same format as argparse in btk_input.
+    """
     def __init__(self, simulation='two_gal', name='unit_test',
                  configfile='tests/test-config.yaml', verbose=True):
         self.simulation = simulation
@@ -46,6 +48,8 @@ class Input_Args(object):
 
 @pytest.mark.timeout(5)
 def test_input_draw():
+    """Tests that objects are drawn correctly when btk is run with input config
+    yaml file."""
     args = Input_Args()
     sys.path.append(os.getcwd())
     btk_input = __import__('btk_input')
@@ -76,7 +80,14 @@ def test_input_draw():
 
 
 def check_output_file(user_config_dict, simulation):
-    """Check if metrics output is correctly written to file"""
+    """Check if metrics output is correctly written to file.
+
+    Args:
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+            values of simulations of the blend scene.
+    """
     ouput_path = os.path.join(user_config_dict['output_dir'],
                               user_config_dict['output_name'])
     if not os.path.isdir(ouput_path):
@@ -89,7 +100,14 @@ def check_output_file(user_config_dict, simulation):
 
 
 def check_output_values(user_config_dict, simulation):
-    """Check if metrics output is correctly written to file"""
+    """Check if metrics output results written to file are in the correct
+    format.
+
+    Args:
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+    """
     ouput_path = os.path.join(user_config_dict['output_dir'],
                               user_config_dict['output_name'])
     output_name = os.path.join(ouput_path,
@@ -112,7 +130,13 @@ def check_output_values(user_config_dict, simulation):
 
 
 def delete_output_file(user_config_dict, simulation):
-    """Delete all files written to disk"""
+    """Deletes metric output results written to file.
+
+    Args:
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+    """
     ouput_path = os.path.join(user_config_dict['output_dir'],
                               user_config_dict['output_name'])
     output_name = os.path.join(ouput_path,
@@ -147,7 +171,9 @@ def test_input_output():
             args.configfile, args.simulation, args.verbose)
         user_config_dict = config_dict['user_input']
         try:
+            # Check if results were written to file.
             check_output_file(user_config_dict, simulation)
+            # Check output was written to file in the right format.
             check_output_values(user_config_dict, simulation)
             print("btk output files created")
         except FileNotFoundError as e:
@@ -157,13 +183,27 @@ def test_input_output():
             print("btk output files were not in correct format")
             raise e
         finally:
+            # Delete unit test output files.
             delete_output_file(user_config_dict, simulation)
             print("deleted files")
         pass
 
 
 def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
-    # Set seed
+    """Checks if detection output from the default meas generator  matches
+    the pre-computed value .
+
+    The outputs from basic meas generator were visually checked and verified.
+    This function makes sure that and changes made to the btk pipeline will not
+    affect the detection results.
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+        btk_input : Module that runs btk for an input config file.
+    """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
@@ -184,7 +224,20 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
 
 
 def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
-    # Set seed
+    """Checks if detection output from the sep meas generator  matches
+    the pre-computed value .
+
+    The outputs from basic meas generator were visually checked and verified.
+    This function makes sure that and changes made to the btk pipeline will not
+    affect the detection results.
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+        btk_input : Module that runs btk for an input config file.
+    """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
@@ -208,7 +261,20 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
 
 
 def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
-    # Set seed
+    """Checks if detection output from the stack meas generator  matches
+    the pre-computed value .
+
+    The outputs from basic meas generator were visually checked and verified.
+    This function makes sure that and changes made to the btk pipeline will not
+    affect the detection results.
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+        btk_input : Module that runs btk for an input config file.
+    """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
@@ -231,7 +297,20 @@ def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
 
 
 def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
-    # Set seed
+    """Checks if detection output from the scarlet meas generator  matches
+    the pre-computed value .
+
+    The outputs from basic meas generator were visually checked and verified.
+    This function makes sure that and changes made to the btk pipeline will not
+    affect the detection results.
+
+    Args:
+        param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
+        simulation_config_dict (dict): Dictionary which sets the parameter
+        btk_input : Module that runs btk for an input config file.
+    """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
@@ -255,6 +334,9 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
 
 @pytest.mark.timeout(25)
 def test_measure():
+    """Performs measurements for different measurement functions and
+    simulations, and checks that the output matches previously measured values.
+    """
     args = Input_Args()
     sys.path.append(os.getcwd())
     btk_input = __import__('btk_input')
@@ -305,6 +387,10 @@ def basic_metric_two_gal(output_name):
 
 @pytest.mark.timeout(15)
 def test_metrics():
+    """Btk measure is run for input config yaml file for different measure
+    functions and simulations. The measure outputs written to file are compared
+    to the values they are supposed to get.
+    """
     simulations = ['two_gal', ]
     for simulation in simulations:
         command = ['python', 'btk_input.py', '--name', 'unit_test',

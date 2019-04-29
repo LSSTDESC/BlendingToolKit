@@ -96,8 +96,9 @@ def run_metrics_sep():
                                  simulation_config_dict, btk_input)
     pass
 
+
 def compare_stack_group_metric(param, user_config_dict,
-                             simulation_config_dict, btk_input):
+                               simulation_config_dict, btk_input):
     # Set seed
     test_metric_summary = np.array(
         [[3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 2, 0, 0, 0],
@@ -138,7 +139,7 @@ def run_metrics_stack():
         param = btk_input.get_config_class(simulation_config_dict,
                                            catalog_name, args.verbose)
         compare_stack_group_metric(param, user_config_dict,
-                                 simulation_config_dict, btk_input)
+                                   simulation_config_dict, btk_input)
     pass
 
 
