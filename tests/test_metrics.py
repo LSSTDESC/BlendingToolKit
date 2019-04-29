@@ -109,7 +109,7 @@ def compare_stack_group_metric(param, user_config_dict,
             param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
             param, user_config_dict, draw_blend_generator)
-    metric_param = btk.utils.Basic_metric_params(
+    metric_param = btk.utils.Stack_metric_params(
         meas_generator=measure_generator, param=param)
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results['detection'][2]

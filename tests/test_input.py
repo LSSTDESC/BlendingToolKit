@@ -275,13 +275,13 @@ def test_measure():
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
     except ImportError:
         print("sep not found")
-    try:
-        stack_meas(param, user_config_dict, simulation_config_dict, btk_input)
-    except ImportError:
-        print("stack not found")
-    try:
-        scarlet_meas(param, user_config_dict,
-                     simulation_config_dict, btk_input)
+    #try:
+        #stack_meas(param, user_config_dict, simulation_config_dict, btk_input)
+    #except ImportError:
+    #    print("stack not found")
+    #try:
+    #    scarlet_meas(param, user_config_dict,
+    #                simulation_config_dict, btk_input)
     except ImportError:
         print("scarlet not found")
     pass

@@ -85,7 +85,7 @@ def test_default():
 def test_multi_processing():
     b_size = 16
     try:
-        cpus = mp.cpu_count()
+        cpus = np.min([mp.cpu_count(), 16])
     except NotImplementedError:
         cpus = 2
     parallel_im_gen = get_draw_generator(b_size, cpus, multiprocessing=True,
