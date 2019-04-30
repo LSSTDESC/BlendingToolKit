@@ -1,12 +1,3 @@
-"""For an input measure generator and measurement_function algorithm
-this script will:
-1) compare the output from measure to truth
-2) return performance metrics
-
-Performance metrics computed separately for detection, segmentation, flux,
-redshift
-
-"""
 import numpy as np
 import astropy.table
 import scipy.spatial
@@ -22,18 +13,22 @@ class Metrics_params(object):
         self.param = param
 
     def get_detections(self):
-        """Overwrite this function to return results from the detection algorithm.
+        """
+        Returns detection results as two catalogs one with entries of true
+        objects in blend and the other with the detection.
+
+        Overwrite this function to return results from the detection algorithm.
 
         Returns:
-            Results of the detection algorithm are returned as:
-                true_tables:  List of astropy Tables of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y coordinate
-                    values must be under columns named 'dx' and 'dy' respectively, in
-                    pixels from bottom left corner as (0, 0).
-                detected_tables: List of astropy Tables of output from detection
-                    algorithm. Length of tables must be the batch size. x and y
-                    coordinate values must be under columns named 'dx' and 'dy'
-                    respectively, in pixels from bottom left corner as (0, 0).
+            list:  List of astropy tables with the blend catalogs used to draw
+                the blend scene in the batch. Length of tables must be equal to
+                the batch size. x and y coordinate values must be under columns
+                named 'dx' and 'dy' respectively, in pixels from bottom left
+                corner as (0, 0).
+            list: List of astropy Tables of output with the outputs of the
+            detection algorithm. Length of tables must be equal to the batch
+            size. x and y coordinate values must be under columns named 'dx'
+            and 'dy' respectively, in pixels from bottom left corner as (0, 0).
         """
         # Astropy table with entries corresponding to true sources
         true_tables = [astropy.table.Table()] * self.param.batch_size
@@ -61,7 +56,7 @@ class Metrics_params(object):
 
 
 def get_closest_neighbor_distance(true_table):
-    """Returns a astropy.table.column with the distance to the closestobject.
+    """Returns a astropy.table.column with the distance to the closest object.
 
     Function uses scipy.apatial to compute distance between the object centers.
     If object is the only one in the blend then the cosest_dist value is set to
