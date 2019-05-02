@@ -154,3 +154,21 @@ def test_metrics_all():
         run_metrics_stack()
     except ImportError:
             print("stack not found")
+
+
+@pytest.mark.timeout(3)
+def test_detection_eff_matrix():
+    """Tests detection efficiency matrix computation in utils by inputting a
+    summary table with 4 entries, with number of true sources between 1-4 and
+    all detected and expecting matrix with
+    secondary diagonal being one"""
+    summary = np.array([[1, 1, 0, 0, 0], [2, 2, 0, 0, 0],
+                        [3, 3, 0, 0, 0], [4, 4, 0, 0, 0]])
+    num = 4
+    eff_matrix = btk.utils.get_detection_eff_matrix(summary, num)
+    test_eff_matrix = np.zeros((num, num))
+    for i in range(1, num):
+        eff_matrix[num-i-1, i] = 100
+    np.testing.assert_array_equal(eff_matrix, test_eff_matrix,
+                                  err_msg="Incorrect efficiency matrix")
+    pass
