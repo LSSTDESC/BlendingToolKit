@@ -336,6 +336,33 @@ def get_ouput_path(user_config_dict, verbose):
     return ouput_path
 
 
+def save_config_file(param, user_config_dict, simulation_config_dict,
+                     simulation, ouput_path, verbose):
+    """Saves all parameter values to a yaml file and writes it to disk.
+
+    Args:
+        param(class): Parameter values for btk simulations.
+        user_config_dict: Dict with information to run user defined functions
+            and store results.
+        simulation_config_dict (dict): Dictionary which sets the parameter
+            values of simulations of the blend scene.
+        simulation: Name of simulation to run btk test on.
+        output_path(string): Path to where output must be stored to disk.
+        verbose (bool): If True prints description at multiple steps.
+
+    """
+    save_config_dict = {'simulation': simulation}
+    # save btk.Simulation_param values used.
+    save_config_dict.update({'btk_Simulation_params': param.__dict__})
+    # save simulation values from input config file.
+    save_config_dict.update({'simulation_config': simulation_config_dict})
+    # save user defined function and file names.
+    save_config_dict.update({'user_config': user_config_dict})
+    output_name = os.path.join(ouput_path, simulation + '_config.yaml')
+    with open(output_name, 'w') as outfile:
+        yaml.dump(save_config_dict, outfile)
+
+
 def main(args):
     """
     Runs btk test on simulation parameters and algorithm specified in input
@@ -373,6 +400,8 @@ def main(args):
         results = btk.compute_metrics.run(metrics_param, test_size=test_size)
         with open(output_name, 'wb') as handle:
             dill.dump(results, handle)
+        save_config_file(param, user_config_dict, simulation_config_dict,
+                         s, ouput_path, param.verbose)
 
 
 if __name__ == '__main__':
