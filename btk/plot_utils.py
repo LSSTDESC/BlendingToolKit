@@ -252,17 +252,19 @@ def plot_metrics_summary(summary, num, ax=None):
         _, ax = plt.subplots(1, 1, figsize=(5, 5))
     plt.subplots_adjust(wspace=0.7, hspace=0.3)
     results_table = btk.utils.get_detection_eff_matrix(summary, num)
-
-    cmap = ax.imshow(results_table, origin='left')
-    cbar = plt.colorbar(cmap, ax=ax)
-    cbar.set_label('% of blends')
+    best_eff = np.eye(num+2)[:, :num+1]*100
+    ax.imshow(best_eff, origin='left')
     ax.set_xlabel("# true objects")
     # Don't print zero'th column
     ax.set_xlim([0.5, num+0.5])
     ax.set_ylabel("# correctly detected objects")
-    for (j, i), label in np.ndenumerate(new_results_table):
+    for (j, i), label in np.ndenumerate(results_table):
         if i == 0:
             # Don't print efficiency for zero'th column
             continue
-        ax.text(
-            i, j, f"{int(label):g}%", ha='center', va='center', color='white')
+        if i == j:
+            ax.text(i, j, f"{label:.1f}%",
+                    ha='center', va='center', color='black')
+        else:
+            ax.text(i, j, f"{label:.1f}%",
+                    ha='center', va='center', color='white')
