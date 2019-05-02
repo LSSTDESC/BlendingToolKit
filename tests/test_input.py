@@ -96,6 +96,11 @@ def check_output_file(user_config_dict, simulation):
                                simulation + '_metrics_results.dill')
     if not os.path.isfile(output_name):
         raise FileNotFoundError(f"btk output must be saved at {output_name}")
+    output_configfile = os.path.join(ouput_path,
+                                     simulation + '_config.yaml')
+    if not os.path.isfile(output_configfile):
+        raise FileNotFoundError(f"cofig values to run btk must be saved at \
+                                {output_name}")
     pass
 
 
@@ -142,7 +147,7 @@ def delete_output_file(user_config_dict, simulation):
     output_name = os.path.join(ouput_path,
                                simulation + '_metrics_results.dill')
     yaml_output_name = os.path.join(ouput_path,
-                                    simulation + '_param.yaml')
+                                    simulation + '_config.yaml')
     if os.path.isfile(yaml_output_name):
         subprocess.call(['rm', yaml_output_name])
     if os.path.isfile(output_name):
