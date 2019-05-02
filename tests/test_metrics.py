@@ -168,7 +168,7 @@ def test_detection_eff_matrix():
     eff_matrix = btk.utils.get_detection_eff_matrix(summary, num)
     test_eff_matrix = np.zeros((num, num))
     for i in range(1, num):
-        eff_matrix[num-i-1, i] = 100
+        test_eff_matrix[num-i-1, i] = 100
     np.testing.assert_array_equal(eff_matrix, test_eff_matrix,
                                   err_msg="Incorrect efficiency matrix")
     pass
