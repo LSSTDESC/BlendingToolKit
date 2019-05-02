@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import btk
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -140,13 +141,13 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
     shown in the third panel along with the true centers.
 
     Args:
-        blend_images (array_like): Array of blend scene images to plot
+        blend_images(array_like): Array of blend scene images to plot
             [batch, height, width, bands].
         isolated_images (array_like): Array of isolated object images to plot
             [batch, max number of objects, height, width, bands].
-        blend_list (list) : List of `astropy.table.Table` with entries of true
+        blend_list(list) : List of `astropy.table.Table` with entries of true
             objects. Length of list must be the batch size.
-        detected_centers (list, default=`None`): List of `numpy.ndarray` or
+        detected_centers(list, default=`None`): List of `numpy.ndarray` or
             lists with centers of detected centers for each image in batch.
             Length of list must be the batch size. Each list entry must be a
             list or `numpy.ndarray` of dimensions [N, 2].
@@ -198,3 +199,70 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
                 plt.plot(detected_centers[i][j][0], detected_centers[i][j][1],
                          'go', fillstyle='none')
         plt.show()
+
+
+def plot_cumulative(table, column_name, ax=None, bins=40,
+                    color='red', label=None, xlabel=None):
+    """Plot cumulative counts of input column_name in table.
+
+    Args:
+        table(`astropy.table.Table`) : Catalog with features as columns and
+            different samples at rows.
+        column_name(str): Name of column in input table who's cumulative
+            counts are to be plotted.
+        ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
+            the plot. If not provided, one is created inside.
+        bins(int or sequence of scalars, optional, default=40): If bins is an
+            int, it defines the number of equal-width bins in the given range
+            (40, by default). If bins is a sequence, it defines a monotonically
+            increasing array of bin edges, including the rightmost edge,
+            allowing for non-uniform bin widths.
+        color(str, default='red'): Color of cumulative counts curve.
+        label(str, default=`None`): label for legend in plot.
+        xlabel(str, default=`None`): x-axis label in plot. If not provided,
+            then the column_name is set as x-axis label.
+    """
+    if xlabel is None:
+        xlabel = column_name
+    det_values, det_base = np.histogram(table[column_name], bins=bins)
+    det_cumulative = np.cumsum(det_values)
+    if label is None:
+        ax.plot(det_base[:-1], det_cumulative, c=color)
+    else:
+        ax.plot(det_base[:-1], det_cumulative, c=color, label=label)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel('Cumulative counts')
+
+
+def plot_metrics_summary(summary, num, ax=None):
+    """Plot detection summary as a matrix of detection efficiency.
+
+    Input argument num sets the maximum number of true detections for which the
+    detection efficiency matrix is to be created for. Detection efficiency is
+    computed for number of true objects in the range (1-num)
+
+    Args:
+        summary(`numpy.array`) : Detection summary as a table [N, 5].
+        num(int): Maximum number of true objects to create matrix for. Number
+            of columns in matrix will be num-1.
+        ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
+            the plot. If not provided, one is created inside.
+    """
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=(5, 5))
+    plt.subplots_adjust(wspace=0.7, hspace=0.3)
+    results_table = btk.utils.get_detection_eff_matrix(summary, num)
+
+    cmap = ax.imshow(results_table, origin='left')
+    cbar = plt.colorbar(cmap, ax=ax)
+    cbar.set_label('% of blends')
+    ax.set_xlabel("# true objects")
+    # Don't print zero'th column
+    ax.set_xlim([0.5, num+0.5])
+    ax.set_ylabel("# correctly detected objects")
+    for (j, i), label in np.ndenumerate(new_results_table):
+        if i == 0:
+            # Don't print efficiency for zero'th column
+            continue
+        ax.text(
+            i, j, f"{int(label):g}%", ha='center', va='center', color='white')
