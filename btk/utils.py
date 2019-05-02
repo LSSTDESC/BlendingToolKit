@@ -417,3 +417,34 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
                                                  names=['dx', 'dy'])
             detected_tables.append(detected_table)
         return true_tables, detected_tables
+
+
+def get_detection_eff_matrix(summary_table, num):
+    """Computes the detection efficiency table for input detection summary
+    table.
+
+    Input argument num sets the maximum number of true detections for which the
+    detection efficiency matrix is to be created for. Detection efficiency is
+    computed for number of true objects in the range (1-num).
+
+    Args:
+        summary(`numpy.array`) : Detection summary as a table [N, 5].
+        num(int): Maximum number of true objects to create matrix for. Number
+            of columns in matrix will be num-1.
+
+    Returns:
+        numpy.ndarray of size[num+2, num-1] that shows detection efficiency.
+    """
+    eff_matrix = np.zeros((num+2, num+1))
+    for i in range(0, num+1):
+        q_true, = np.where(summary_table[:, 0] == i)
+        for j in range(0, num+2):
+            if len(q_true) > 0:
+                q_det, = np.where(summary_table[q_true, 1] == j)
+                eff_matrix[j, i] = len(q_det)
+    norm = np.sum(eff_matrix, axis=0)
+    # If not detections along a column, set sum to 1 to avoid dividing by zero.
+    norm[norm == 0.] = 1
+    # normalize over columns.
+    eff_matrix = eff_matrix/norm[np.newaxis, :]*100.
+    return eff_matrix
