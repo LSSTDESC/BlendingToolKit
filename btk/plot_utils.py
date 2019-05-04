@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import btk
+import matplotlib.patches as patches
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -252,19 +253,24 @@ def plot_metrics_summary(summary, num, ax=None):
         _, ax = plt.subplots(1, 1, figsize=(5, 5))
     plt.subplots_adjust(wspace=0.7, hspace=0.3)
     results_table = btk.utils.get_detection_eff_matrix(summary, num)
-    best_eff = np.eye(num+2)[:, :num+1]*100
-    ax.imshow(best_eff, origin='left')
+    ax.imshow(results_table, origin='left', cmap=plt.cm.Blues)
     ax.set_xlabel("# true objects")
     # Don't print zero'th column
     ax.set_xlim([0.5, num+0.5])
     ax.set_ylabel("# correctly detected objects")
+    ax.set_xticks(np.arange(1, num+1, 1.0))
+    ax.set_yticks(np.arange(0, num+2, 1.0))
     for (j, i), label in np.ndenumerate(results_table):
         if i == 0:
             # Don't print efficiency for zero'th column
             continue
+        color = ("white" if label > 50
+                 else "black" if label > 0
+                 else "grey")
+        ax.text(i, j, f"{label:.1f}%",
+                ha='center', va='center', color=color)
         if i == j:
-            ax.text(i, j, f"{label:.1f}%",
-                    ha='center', va='center', color='black')
-        else:
-            ax.text(i, j, f"{label:.1f}%",
-                    ha='center', va='center', color='white')
+            rect = patches.Rectangle((i-0.5, j-0.5), 1, 1, linewidth=2,
+                                     edgecolor='mediumpurple',
+                                     facecolor='none')
+            ax.add_patch(rect)
