@@ -120,6 +120,8 @@ def initialize_detection_tables(detected_table, true_table,
     # id of closest true object; [0 - num_true] if detected, else -1
     detected_table['match_id'] = np.ones(
         num_det, dtype=int)*-1
+    detected_table['match_galtileid'] = np.ones(
+        num_det, dtype=int)*-1
     # if no match with true object flag set to 1
     detected_table['is_spurious'] = np.zeros(len(detected_table), dtype=int)
 
@@ -151,7 +153,9 @@ def get_detection_match(true_table, detected_table):
     condlist = [
         np.min(norm_dist, axis=0) <= 0.2, np.min(norm_dist, axis=0) > 0.2]
     choicelist = [np.argmin(norm_dist, axis=0), -1]
-    detected_table['match_id'] = np.select(condlist, choicelist)
+    match_id = np.select(condlist, choicelist)
+    detected_table['match_id'] = match_id
+    detected_table['match_galtileid'] = true_table['galtileid'][match_id]
     detected_table['is_spurious'][detected_table['match_id'] == -1] = 1
     np.testing.assert_array_equal(
         np.argmin(dist, axis=1), np.argmin(norm_dist, axis=1),
