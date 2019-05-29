@@ -58,7 +58,7 @@ class Metrics_params(object):
 def get_closest_neighbor_distance(true_table):
     """Returns a astropy.table.column with the distance to the closest object.
 
-    Function uses scipy.apatial to compute distance between the object centers.
+    Function uses scipy.spatial to compute distance between the object centers.
     If object is the only one in the blend then the cosest_dist value is set to
     np.inf.
 
@@ -100,11 +100,11 @@ def initialize_detection_tables(detected_table, true_table,
     true_table['batch_index'] = np.ones(
         num_true, dtype=int)*batch_index
     # number of times object was detected [0 - num_det]
-    true_table['num_dectections'] = np.zeros(num_true, dtype=int)
-    # id of closest detection; [0 - num_det] if detected, else -1
-    true_table['closest_det_id'] = -1 * np.ones(num_true, dtype=int)
-    # if multiple detections are made within size of object flag set to 1
-    true_table['is_shred'] = np.zeros(num_true, dtype=int)
+    true_table['num_detections1'] = np.zeros(num_true, dtype=int)
+    true_table['num_detections2'] = np.zeros(num_true, dtype=int)
+    # detection id of closest detection with 2 algorithms [0 - num_det]
+    true_table['closest_det_id1'] = np.ones(num_true, dtype=int) * -1.
+    true_table['closest_det_id2'] = np.ones(num_true, dtype=int) * -1.
     # find distance to nearest neighbor. If isolated then set to np.inf
     true_table['min_dist'] = np.ones(num_true)*np.inf
     get_closest_neighbor_distance(true_table)
@@ -118,12 +118,14 @@ def initialize_detection_tables(detected_table, true_table,
     detected_table['batch_index'] = np.ones(
         num_det, dtype=int)*batch_index
     # id of closest true object; [0 - num_true] if detected, else -1
-    detected_table['match_id'] = np.ones(
+    detected_table['match_true_id1'] = np.ones(
         num_det, dtype=int)*-1
-    detected_table['match_galtileid'] = np.ones(
+    detected_table['match_true_id2'] = np.ones(
         num_det, dtype=int)*-1
-    # if no match with true object flag set to 1
-    detected_table['is_spurious'] = np.zeros(len(detected_table), dtype=int)
+    detected_table['match_galtileid1'] = np.ones(
+        num_det, dtype=int)*-1
+    detected_table['match_galtileid2'] = np.ones(
+        num_det, dtype=int)*-1
 
 
 def get_detection_match(true_table, detected_table):
@@ -137,7 +139,6 @@ def get_detection_match(true_table, detected_table):
             the true object parameter values in one blend.
         detected_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
-
     """
     if (len(detected_table) == 0 or len(true_table) == 0):
         # No match since either no detection or no true objects
@@ -147,24 +148,35 @@ def get_detection_match(true_table, detected_table):
     dist = np.hypot(t_x, t_y)
     norm_size = true_table['size']
     norm_dist = dist/norm_size[:, np.newaxis]
-    detected_table['closest_gal_id'] = np.argmin(dist, axis=0)
-    detected_table['closest_dist'] = np.min(dist, axis=0)
-    detected_table['norm_closest_dist'] = np.min(norm_dist, axis=0)
-    condlist = [
-        np.min(norm_dist, axis=0) <= 0.2, np.min(norm_dist, axis=0) > 0.2]
-    choicelist = [np.argmin(norm_dist, axis=0), -1]
-    match_id = np.select(condlist, choicelist)
-    detected_table['match_id'] = match_id
-    detected_table['match_galtileid'] = true_table['galtileid'][match_id]
-    detected_table['is_spurious'][detected_table['match_id'] == -1] = 1
+    detected_table['dSigma_min'] = np.min(norm_dist, axis=0)
+    detected_table['d_min'] = np.min(dist, axis=0)
+    detection_threshold1 = 0.5
+    condlist1 = [
+        np.min(norm_dist, axis=0) <= detection_threshold1,
+        np.min(norm_dist, axis=0) > detection_threshold1]
+    choicelist1 = [np.argmin(norm_dist, axis=0), -1]
+    match_id1 = np.select(condlist1, choicelist1)
+    detected_table['match_true_id1'] = match_id1
+    detected_table['match_galtileid1'] = true_table['galtileid'][match_id1]
+    detection_threshold2 = 5
+    condlist2 = [
+        np.min(dist, axis=0) <= detection_threshold2,
+        np.min(dist, axis=0) > detection_threshold2]
+    choicelist2 = [np.argmin(dist, axis=0), -1]
+    match_id2 = np.select(condlist2, choicelist2)
+    detected_table['match_true_id2'] = match_id2
+    detected_table['match_galtileid2'] = true_table['galtileid'][match_id2]
     np.testing.assert_array_equal(
         np.argmin(dist, axis=1), np.argmin(norm_dist, axis=1),
         err_msg='norm_dist computation is wrong.')
-    true_table['closest_det_id'] = np.argmin(dist, axis=1)
-    for j in detected_table['match_id']:
+    true_table['closest_det_id1'] = np.argmin(norm_dist, axis=1)
+    for j in detected_table['match_true_id1']:
         if j > -1:
-            true_table['num_dectections'][j] += 1
-    true_table['is_shred'][true_table['num_dectections'] > 1] = 1
+            true_table['num_detections1'][j] += 1
+    true_table['closest_det_id2'] = np.argmin(dist, axis=1)
+    for j in detected_table['match_true_id2']:
+        if j > -1:
+            true_table['num_detections2'][j] += 1
 
 
 def get_blend_detection_summary(true_table, det_table):
@@ -187,24 +199,36 @@ def get_blend_detection_summary(true_table, det_table):
     """
     num_true = len(true_table)
     num_det = len(det_table)
-    detected_true = det_table['match_id'][det_table['match_id'] >= 0]
-    num_detected = len(np.unique(detected_true))
-    num_undetected = len(np.where(true_table['num_dectections'] == 0)[0])
-    num_spurious = len(np.where(det_table['is_spurious'] == 1)[0])
-    num_shred = len(np.where(true_table['is_shred'] == 1)[0])
-    assert num_detected + num_undetected == num_true, "Number of "\
+    num_detected1 = len(np.where(true_table['num_detections1'] == 1)[0])
+    num_undetected1 = len(np.where(true_table['num_detections1'] == 0)[0])
+    num_spurious1 = len(np.where(det_table['match_true_id1'] == -1)[0])
+    num_shred1 = len(np.where(true_table['num_detections1'] > 1)[0])
+    num_detected2 = len(np.where(true_table['num_detections2'] == 1)[0])
+    num_undetected2 = len(np.where(true_table['num_detections2'] == 0)[0])
+    num_spurious2 = len(np.where(det_table['match_true_id2'] == -1)[0])
+    num_shred2 = len(np.where(true_table['num_detections2'] > 1)[0])
+    assert num_detected1+num_undetected1+num_shred1 == num_true, "Number of "\
         "detected objects + number undetected objects must be equal to "\
         "the total number of true objects"
-    num_matched_detections = true_table['num_dectections'].sum()
-    assert num_matched_detections + num_spurious == num_det, "Number of "\
+    assert num_detected2+num_undetected2+num_shred2 == num_true, "Number of "\
+        "detected objects + number undetected objects must be equal to "\
+        "the total number of true objects"
+    num_matched_detections1 = true_table['num_detections1'].sum()
+    assert num_matched_detections1 + num_spurious1 == num_det, "Number of "\
         "detections match to a true object + number of spurious must be "\
         "equal to the total number of detections."
-    blend_summary = [num_true, num_detected, num_undetected,
-                     num_spurious, num_shred]
+    num_matched_detections2 = true_table['num_detections2'].sum()
+    assert num_matched_detections2 + num_spurious2 == num_det, "Number of "\
+        "detections match to a true object + number of spurious must be "\
+        "equal to the total number of detections."
+    blend_summary = [num_true, num_detected1, num_undetected1, num_spurious1,
+                     num_shred1, num_detected2, num_undetected2, num_spurious2,
+                     num_shred2]
     return blend_summary
 
 
-def evaluate_detection(true_tables, detected_tables, batch_index):
+def evaluate_detection(true_tables, detected_tables,
+                       batch_index):
     """
     Compares the true centers and detected centers to identify the
     number of true detections, number of sources that were undetected
@@ -220,12 +244,17 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
             respectively, in pixels from bottom left corner as (0, 0).
         batch_index(int): Index number of the batch.
     Returns:
+        batch_true_table: astropy.table.Table with parameters of true galaxy in
+            the batch.
+        batch_detected_table: astropy.table.Table with parameters of detected
+            objects in the batch.
+        batch_blend_list: List summarizing detection match results.
     """
     batch_true_table = astropy.table.Table()
     batch_detected_table = astropy.table.Table()
-    batch_blend_list = []
     batch_size = len(true_tables)
-    for i in range(len(true_tables)):
+    batch_blend_summary = []
+    for i in range(batch_size):
         true_table = true_tables[i]
         detected_table = detected_tables[i]
         # initialize columns to default values
@@ -235,21 +264,13 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
         get_detection_match(true_table, detected_table)
         # summarize blend detection results to table
         blend_summary = get_blend_detection_summary(true_table, detected_table)
-        batch_blend_list.append(blend_summary)
+        batch_blend_summary.append(blend_summary)
         # add results to batch table
         batch_detected_table = astropy.table.vstack(
             (batch_detected_table, detected_table))
         batch_true_table = astropy.table.vstack(
             (batch_true_table, true_table))
-    # check table
-    np.testing.assert_array_equal(batch_true_table['is_shred'] == 1,
-                                  batch_true_table['num_dectections'] > 1,
-                                  err_msg='Shredded object has less than 2'
-                                  'detections')
-    np.testing.assert_array_equal(batch_detected_table['is_spurious'] == 1,
-                                  batch_detected_table['match_id'] == -1,
-                                  err_msg='Spurious detection has match')
-    return batch_true_table, batch_detected_table, batch_blend_list
+    return batch_true_table, batch_detected_table, batch_blend_summary
 
 
 def evaluate_segmentation(segmentation, data=None, index=None):
@@ -270,7 +291,22 @@ def evaluate_shapes(shapes, data=None, index=None):
     return None
 
 
-def run(Metrics_params, test_size=1000):
+def run(Metrics_params, test_size=1000, dSigma_detection=True):
+    """Runs detection/segmentation/flux/shape measurement algorithm defined in
+    the input metrics params for input test_size number of btk runs.
+
+    Args:
+        Metrics_params(class): Class describing functions to return results of
+            detection/deblending/measurement algorithm.
+        test_size(int): Number of times Metrics_params is run and results
+            summarized.
+        dSigma_detection(bool): If true then detection match is
+            made on the size normalized distance.
+
+    Returns:
+        dict summarizing detection/deblending/measurement results.
+
+    """
     results = {'detection': [astropy.table.Table(),
                              astropy.table.Table(),
                              []],
@@ -288,14 +324,14 @@ def run(Metrics_params, test_size=1000):
                              f" Found {len(batch_detection_result[0])}, "
                              f"{len(batch_detection_result[1])}, "
                              f"{ Metrics_params.param.batch_size}")
-        true_table, detected_table, blend_detection_list = evaluate_detection(
+        true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1],
             batch_index=i)
         results['detection'][0] = astropy.table.vstack(
             [results['detection'][0], true_table])
         results['detection'][1] = astropy.table.vstack(
             [results['detection'][1], detected_table])
-        results['detection'][2].extend(blend_detection_list)
+        results['detection'][2].extend(detection_summary)
         # Evaluate segmentation algorithm
         segmentation = Metrics_params.get_segmentation()
         results['segmentation'].append(evaluate_segmentation(
