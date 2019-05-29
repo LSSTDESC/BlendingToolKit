@@ -6,14 +6,14 @@ import sys
 import numpy as np
 
 
-def comapre_basic_metric(param, user_config_dict,
+def compare_basic_metric(param, user_config_dict,
                          simulation_config_dict, btk_input):
     # Set seed
     test_metric_summary = np.array(
-        [[5, 3, 2, 0, 0],
-         [2, 1, 1, 0, 0],
-         [1, 1, 0, 0, 0],
-         [6, 2, 4, 0, 0]])
+        [[5, 3, 2, 0, 0, 3, 2, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [6, 2, 4, 0, 0, 2, 4, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
@@ -46,7 +46,7 @@ def run_metrics_basic():
     # Set parameter values in param
     param = btk_input.get_config_class(simulation_config_dict,
                                        catalog_name, args.verbose)
-    comapre_basic_metric(param, user_config_dict,
+    compare_basic_metric(param, user_config_dict,
                          simulation_config_dict, btk_input)
     pass
 
@@ -55,10 +55,22 @@ def compare_sep_group_metric(param, user_config_dict,
                              simulation_config_dict, btk_input):
     # Set seed
     test_metric_summary = np.array(
-        [[3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 2, 0, 0, 0],
-         [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [5, 2, 3, 0, 0],
-         [2, 1, 1, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [5, 2, 3, 0, 0],
-         [5, 1, 4, 0, 0], [6, 3, 3, 0, 0], [2, 1, 1, 0, 0], [6, 3, 3, 0, 0]])
+        [[3, 1, 2, 0, 0, 1, 2, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [3, 1, 2, 0, 0, 1, 2, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [3, 1, 2, 0, 0, 1, 2, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [5, 2, 3, 0, 0, 2, 3, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [3, 1, 2, 0, 0, 1, 2, 0, 0],
+         [5, 2, 3, 0, 0, 2, 3, 0, 0],
+         [5, 1, 4, 0, 0, 1, 4, 0, 0],
+         [6, 3, 3, 0, 0, 3, 3, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [6, 3, 3, 0, 0, 3, 3, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
             param, user_config_dict, simulation_config_dict)
