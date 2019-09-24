@@ -78,7 +78,7 @@ def draw_isolated(Args, galaxy, iso_obs):
         no_margin=False,
         verbose_render=False)
     iso_render_engine.render_galaxy(
-        galaxy, no_partials=True, calculate_bias=False, no_analysis=True)
+        galaxy, no_fisher=True, calculate_bias=False, no_analysis=True)
     return iso_obs
 
 
