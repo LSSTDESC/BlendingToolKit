@@ -47,7 +47,7 @@ def get_rgb_image(image, normalize_with_image=None):
         uint8 array [height, width, bands] of the input image.
     """
     try:
-        import scarlet
+        import scarlet.display
         if normalize_with_image:
             norm = scarlet.display.Asinh(img=normalize_with_image, Q=20)
         else:
