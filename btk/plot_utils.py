@@ -171,7 +171,9 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
             {len(detected_centers), len(blend_list), len(blend_images)}")
     for i in range(len(blend_list)):
         images = np.transpose(blend_images[i], axes=(2, 0, 1))
-        blend_img_rgb = get_rgb_image(images[band_indices])
+        blend_img_rgb = get_rgb_image(
+            images[band_indices],
+            normalize_with_image=images[band_indices])
         plt.figure(figsize=(2, 2))
         plt.imshow(blend_img_rgb)
         plt.title(f"{len(blend_list[i])} objects")
