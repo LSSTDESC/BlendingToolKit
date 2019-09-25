@@ -26,7 +26,7 @@ def get_rgb(image, min_val=None, max_val=None):
     if max_val is None:
         max_val = image.max(axis=-1).max(axis=-1)
     new_image = np.transpose(image, axes=(1, 2, 0))
-    new_image = (new_image - min_val) / (max_val - min_val)*255
+    new_image = (new_image - min_val) / (max_val - min_val) * 255
     new_image[new_image < 0] = 0
     new_image[new_image > 255] = 255
     return new_image.astype(np.uint8)
@@ -48,7 +48,7 @@ def get_rgb_image(image, normalize_with_image=None):
     """
     try:
         import scarlet.display
-        if normalize_with_image:
+        if normalize_with_image is not None:
             norm = scarlet.display.Asinh(img=normalize_with_image, Q=20)
         else:
             norm = None
@@ -94,7 +94,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None,
         raise ValueError(f"band_indices must be a list with 3 entries, not \
             {band_indices}")
     if detected_centers is None:
-        detected_centers = [[]]*batch_size
+        detected_centers = [[]] * batch_size
     if (len(detected_centers) != batch_size or
             blend_images.shape[0] != batch_size):
         raise ValueError(f"Length of detected_centers and length of blend_list\
@@ -163,7 +163,7 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
         raise ValueError(f"band_indices must be a list with 3 entries, not \
             {band_indices}")
     if detected_centers is None:
-        detected_centers = [[]]*b_size
+        detected_centers = [[]] * b_size
     if (len(detected_centers) != b_size or len(isolated_images) != b_size or
             blend_images.shape[0] != b_size):
         raise ValueError(f"Length of detected_centers and length of blend_list\
@@ -184,7 +184,7 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
         plt.show()
         iso_blend = isolated_images[i]
         num = iso_blend.shape[0]
-        plt.figure(figsize=(2*num, 2))
+        plt.figure(figsize=(2 * num, 2))
         for j in range(num):
             iso_images = np.transpose(iso_blend[j], axes=(2, 0, 1))
             iso_img_rgb = get_rgb_image(
@@ -256,10 +256,10 @@ def plot_metrics_summary(summary, num, ax=None):
     ax.imshow(results_table, origin='left', cmap=plt.cm.Blues)
     ax.set_xlabel("# true objects")
     # Don't print zero'th column
-    ax.set_xlim([0.5, num+0.5])
+    ax.set_xlim([0.5, num + 0.5])
     ax.set_ylabel("# correctly detected objects")
-    ax.set_xticks(np.arange(1, num+1, 1.0))
-    ax.set_yticks(np.arange(0, num+2, 1.0))
+    ax.set_xticks(np.arange(1, num + 1, 1.0))
+    ax.set_yticks(np.arange(0, num + 2, 1.0))
     for (j, i), label in np.ndenumerate(results_table):
         if i == 0:
             # Don't print efficiency for zero'th column
@@ -270,7 +270,7 @@ def plot_metrics_summary(summary, num, ax=None):
         ax.text(i, j, f"{label:.1f}%",
                 ha='center', va='center', color=color)
         if i == j:
-            rect = patches.Rectangle((i-0.5, j-0.5), 1, 1, linewidth=2,
+            rect = patches.Rectangle((i - 0.5, j - 0.5), 1, 1, linewidth=2,
                                      edgecolor='mediumpurple',
                                      facecolor='none')
             ax.add_patch(rect)
