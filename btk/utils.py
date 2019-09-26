@@ -10,6 +10,7 @@ import skimage.feature
 
 class SEP_params(measure.Measurement_params):
     """Class to perform detection and deblending with SEP"""
+
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -303,20 +304,22 @@ def group_sampling_function(Args, catalog):
     ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
     blend_catalog = astropy.table.vstack(
         [catalog[catalog['galtileid'] == i] for i in ids])
-    # Set mean x and y coordinates of the group galaxies to the center of the postage stamp.
+    # Set mean x and y coordinates of the group galaxies to the center of the
+    # postage stamp.
     blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
     blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
     # convert ra dec from degrees to arcsec
     blend_catalog['ra'] *= 3600
     blend_catalog['dec'] *= 3600
-    # Add small random shift so that center does not perfectly align with stamp center
+    # Add small random shift so that center does not perfectly align with
+    # the stamp center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=3*Args.pixel_scale)
+        Args, 1, maxshift=3 * Args.pixel_scale)
     blend_catalog['ra'] += dx
     blend_catalog['dec'] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 3
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 3
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 3
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 3
     no_boundary = blend_catalog[cond1 & cond2]
     if len(no_boundary) == 0:
         return no_boundary
@@ -329,6 +332,7 @@ def group_sampling_function(Args, catalog):
 
 class Basic_measure_params(measure.Measurement_params):
     """Class to perform detection and deblending with SEP"""
+
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -364,11 +368,11 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
 
         Returns:
             Results of the detection algorithm are returned as:
-                true_tables:  List of astropy Tables of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y coordinate
-                    values must be under columns named 'dx' and 'dy' respectively, in
-                    pixels from bottom left corner as (0, 0).
-                detected_tables: List of astropy Tables of output from detection
+                true_tables: List of astropy Table of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Table of output from detection
                     algorithm. Length of tables must be the batch size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
@@ -398,11 +402,11 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
 
         Returns:
             Results of the detection algorithm are returned as:
-                true_tables:  List of astropy Tables of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y coordinate
-                    values must be under columns named 'dx' and 'dy' respectively, in
-                    pixels from bottom left corner as (0, 0).
-                detected_tables: List of astropy Tables of output from detection
+                true_tables: List of astropy Table of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Table of output from detection
                     algorithm. Length of tables must be the batch size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
@@ -412,7 +416,10 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
         true_tables = blend_op['blend_list']
         detected_tables = []
         for i in range(len(true_tables)):
-            detected_centers = np.stack([cat[i]['base_NaiveCentroid_x'], cat[i]['base_NaiveCentroid_y']], axis=1)
+            detected_centers = np.stack(
+                [cat[i]['base_NaiveCentroid_x'],
+                 cat[i]['base_NaiveCentroid_y']],
+                axis=1)
             detected_table = astropy.table.Table(detected_centers,
                                                  names=['dx', 'dy'])
             detected_tables.append(detected_table)
@@ -435,10 +442,10 @@ def get_detection_eff_matrix(summary_table, num):
     Returns:
         numpy.ndarray of size[num+2, num-1] that shows detection efficiency.
     """
-    eff_matrix = np.zeros((num+2, num+1))
-    for i in range(0, num+1):
+    eff_matrix = np.zeros((num + 2, num + 1))
+    for i in range(0, num + 1):
         q_true, = np.where(summary_table[:, 0] == i)
-        for j in range(0, num+2):
+        for j in range(0, num + 2):
             if len(q_true) > 0:
                 q_det, = np.where(summary_table[q_true, 1] == j)
                 eff_matrix[j, i] = len(q_det)
@@ -446,5 +453,5 @@ def get_detection_eff_matrix(summary_table, num):
     # If not detections along a column, set sum to 1 to avoid dividing by zero.
     norm[norm == 0.] = 1
     # normalize over columns.
-    eff_matrix = eff_matrix/norm[np.newaxis, :]*100.
+    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.
     return eff_matrix
