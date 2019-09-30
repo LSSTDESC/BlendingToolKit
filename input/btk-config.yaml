@@ -1,5 +1,5 @@
 # This YAML file is to be used with btk_input to simulate objects with
-# BlendingTooKit and perform detection/deblending/measurement
+# BlendingTooKit and perform detection/deblending/measurements.
 
 # Modify the following values; specify directory locations and name of your function.
 # If value are set to None, then the default btk parameters are used.
@@ -9,8 +9,8 @@ user_input:
     data_dir: data
     # Enter location where btk test output should be saved
     output_dir: input
-    # Enter file name containing user function to perform detection/deblending/measurement
-    utils_filename: None
+    # Enter filename containing user function to perform detection/deblending/measurement
+    utils_filename: None # If None use btk/utils.py
     output_name: test1  # btk output will be saved in a directory with this name inside output_dir
     # Enter name of functions to perform detection/deblending/measurement.
     utils_input:
@@ -26,7 +26,7 @@ config:
     catalog: OneDegSq.fits
     max_number: 2
     batch_size: 8
-    stamp_size: 24
+    stamp_size: 25.6
     survey_name: "LSST"
     add_noise: True
     bands:
@@ -37,8 +37,8 @@ config:
         - 'z'
         - 'y'
     min_snr: 0.05
-    seed: 1
-    add: None
+    seed: 199
+    add: None  # Additional arguments for btk.config.Simulation_params
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
@@ -50,7 +50,7 @@ config:
     catalog: OneDegSq.fits
     max_number: 10
     batch_size: 8
-    stamp_size: 24
+    stamp_size: 25.6
     survey_name: "LSST"
     add_noise: True
     bands:
@@ -61,8 +61,8 @@ config:
         - 'z'
         - 'y'
     min_snr: 0.05
-    seed: 1
-    add: None
+    seed: 199
+    add: None  # Additional arguments for btk.config.Simulation_params
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
@@ -73,10 +73,9 @@ config:
 simulation: group
 config:
     catalog: OneDegSq.fits
-    wld_catalog:
-    max_number: 2
+    max_number: 6
     batch_size: 8
-    stamp_size: 24
+    stamp_size: 25.6
     survey_name: "LSST"
     add_noise: True
     bands:
@@ -87,12 +86,12 @@ config:
         - 'z'
         - 'y'
     min_snr: 0.05
-    seed: 1
+    seed: 199
     add:
         # wld processed catalog with groups: relative to where you open the yaml file
         wld_catalog_name: 'data/test_group_catalog.fits'
     selection_function: None
     sampling_function: group_sampling_function
     observe_function: None
-    test_size: 5000
+    test_size: 1000
 
