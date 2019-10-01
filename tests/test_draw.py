@@ -24,7 +24,7 @@ def get_draw_generator(batch_size=8, cpus=1,
 def match_blend_images_default(blend_images):
     """Compares the max value of blend image for each of the band along with
     the mean and std values in the batch. This is compared to the values
-    measured a proiri for the default input settings.
+    measured a priori for the default input settings.
     """
     test_batch_max = np.array([244.6290132, 2133.11614647, 8080.93459939,
                                10759.50400858, 8818.22664691, 5424.14672976])

@@ -7,10 +7,6 @@ import numpy as np
 import astropy
 import dill
 
-# TODO
-# check output dump file
-# test multiprocessing
-
 
 @pytest.mark.timeout(5)
 def test_parse_config():
@@ -21,7 +17,7 @@ def test_parse_config():
         sys.path.append(os.getcwd())
         btk_input = __import__('btk_input')
         config_dict = btk_input.read_configfile(
-            args.configfile, args.simulation,  args.verbose)
+            args.configfile, args.simulation, args.verbose)
         assert set(config_dict.keys()) == set(['user_input', 'simulation']), \
             "config_dict must have only 'user_input', 'simulation'. Found" \
             f"{config_dict.keys()}"
@@ -38,6 +34,7 @@ def test_parse_config():
 class Input_Args(object):
     """Class that returns values in the same format as argparse in btk_input.
     """
+
     def __init__(self, simulation='two_gal', name='unit_test',
                  configfile='tests/test-config.yaml', verbose=True):
         self.simulation = simulation
@@ -66,7 +63,7 @@ def test_input_draw():
     # Set seed
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     draw_output = next(draw_blend_generator)
     assert len(draw_output['blend_list']) == 8, "Default batch should return 8"
     assert len(draw_output['blend_list'][3]) < 3, "Default max_number should \
@@ -211,9 +208,9 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[57, 67], [63, 59], [49, 57]],
                            [[49, 67]],
                            [[59, 67]],
@@ -245,10 +242,10 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'SEP_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[62.633432, 58.845595], [56.823835, 66.857761],
                             [55.138673, 59.557461], [49.164199, 56.989852]],
                            [[49.245587, 67.135604]],
@@ -282,27 +279,35 @@ def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'Stack_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
-    test_detect_centers = [[[58.063703, 59.749699], [61.157868, 69.30290],
-                            [68.304245, 61.537312]],
-                           [[59.915507, 50.167592], [65.766700, 65.105297]],
-                           [[51.243380, 58.382503], [54.900160, 68.5794316]],
-                           [[70.645195, 51.627339], [63.226545, 56.1251558]]
-                           ]
+        param, user_config_dict, draw_blend_generator)
+    test_detect_dx = [[56.16308227, 62.96011953, 55.99366715, 48.97120018],
+                      [48.95804179],
+                      [58.98873963],
+                      [60.03759286, 53.9629357, 68.12901647]
+                      ]
+    test_detect_dy = [[67.09899307, 58.19916427, 59.86796513, 55.89051818],
+                      [67.0042175],
+                      [66.97054341],
+                      [47.07838961, 62.05724329, 61.94601734]
+                      ]
     output, deb, meas = next(measure_generator)
     for i in range(len(output['blend_list'])):
-        detected_centers = deb[i][1]
+        detected_center_x = meas[i]['base_NaiveCentroid_x']
+        detected_center_y = meas[i]['base_NaiveCentroid_y']
         np.testing.assert_array_almost_equal(
-            detected_centers, test_detect_centers[i], decimal=3,
+            detected_center_x, test_detect_dx[i], decimal=3,
+            err_msg="Did not get desired detected_centers")
+        np.testing.assert_array_almost_equal(
+            detected_center_y, test_detect_dy[i], decimal=3,
             err_msg="Did not get desired detected_centers")
     pass
 
 
 def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
-    """Checks if detection output from the scarlet meas generator  matches
+    """Checks if detection output from the scarlet meas generator matches
     the pre-computed value .
 
     The outputs from basic meas generator were visually checked and verified.
@@ -318,10 +323,10 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     user_config_dict['utils_input']['measure_function'] = 'Scarlet_params'
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     test_detect_centers = [[[58.063703, 59.749699], [61.157868, 69.30290],
                             [68.304245, 61.537312]],
                            [[59.915507, 50.167592], [65.766700, 65.105297]],
@@ -362,15 +367,10 @@ def test_measure():
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
     except ImportError:
         print("sep not found")
-    #try:
-        #stack_meas(param, user_config_dict, simulation_config_dict, btk_input)
-    #except ImportError:
-    #    print("stack not found")
-    #try:
-    #    scarlet_meas(param, user_config_dict,
-    #                simulation_config_dict, btk_input)
+    try:
+        stack_meas(param, user_config_dict, simulation_config_dict, btk_input)
     except ImportError:
-        print("scarlet not found")
+        print("stack not found")
     pass
 
 

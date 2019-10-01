@@ -16,11 +16,11 @@ def compare_basic_metric(param, user_config_dict,
          [6, 2, 4, 0, 0, 2, 4, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, param=param)
+        meas_generator=measure_generator, sim_param=param)
     results = btk.compute_metrics.run(metric_param, test_size=1)
     detected_metrics_summary = results['detection'][2]
     np.testing.assert_array_almost_equal(
@@ -73,11 +73,11 @@ def compare_sep_group_metric(param, user_config_dict,
          [6, 3, 3, 0, 0, 3, 3, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, param=param)
+        meas_generator=measure_generator, sim_param=param)
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results['detection'][2]
     np.testing.assert_array_almost_equal(
@@ -93,8 +93,8 @@ def run_metrics_sep():
         args = test_input.Input_Args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__('btk_input')
-        config_dict = btk_input.read_configfile(args.configfile, args.simulation,
-                                                args.verbose)
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation, args.verbose)
         simulation_config_dict = config_dict['simulation'][args.simulation]
         user_config_dict = config_dict['user_input']
         user_config_dict['utils_input']['measure_function'] = 'SEP_params'
@@ -112,18 +112,29 @@ def run_metrics_sep():
 def compare_stack_group_metric(param, user_config_dict,
                                simulation_config_dict, btk_input):
     # Set seed
-    test_metric_summary = np.array(
-        [[3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 2, 0, 0, 0],
-         [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [2, 1, 1, 0, 0], [5, 0, 5, 0, 0],
-         [2, 1, 1, 0, 0], [2, 1, 1, 0, 0], [3, 1, 2, 0, 0], [5, 2, 3, 0, 0],
-         [5, 0, 5, 1, 0], [6, 3, 3, 0, 0], [2, 1, 1, 0, 0], [6, 3, 3, 0, 0]])
+    test_metric_summary = np.array([[3, 1, 2, 0, 0, 1, 2, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [3, 1, 2, 0, 0, 1, 2, 0, 0],
+                                    [2, 2, 0, 0, 0, 2, 0, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [3, 1, 2, 0, 0, 1, 2, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [5, 0, 5, 0, 0, 0, 5, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [3, 1, 2, 0, 0, 1, 2, 0, 0],
+                                    [5, 2, 3, 0, 0, 2, 3, 0, 0],
+                                    [5, 1, 4, 0, 0, 1, 4, 0, 0],
+                                    [6, 3, 3, 0, 0, 3, 3, 0, 0],
+                                    [2, 1, 1, 0, 0, 1, 1, 0, 0],
+                                    [6, 3, 3, 0, 0, 3, 3, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+        param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
-            param, user_config_dict, draw_blend_generator)
+        param, user_config_dict, draw_blend_generator)
     metric_param = btk.utils.Stack_metric_params(
-        meas_generator=measure_generator, param=param)
+        meas_generator=measure_generator, sim_param=param)
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results['detection'][2]
     np.testing.assert_array_almost_equal(
@@ -139,8 +150,8 @@ def run_metrics_stack():
         args = test_input.Input_Args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__('btk_input')
-        config_dict = btk_input.read_configfile(args.configfile, args.simulation,
-                                                args.verbose)
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation, args.verbose)
         simulation_config_dict = config_dict['simulation'][args.simulation]
         user_config_dict = config_dict['user_input']
         user_config_dict['utils_input']['measure_function'] = 'Stack_params'

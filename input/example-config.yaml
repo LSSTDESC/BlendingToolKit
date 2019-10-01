@@ -6,15 +6,15 @@
 
 user_input:
     # Enter location to load dataset from (relative to where you open the yaml file)
-    data_dir: data
+    data_dir: ../data
     # Enter location where btk test output should be saved
-    output_dir: input
-    # Enter filename containing user function to perform detection/deblending/measurement
-    utils_filename: None # If None use btk/utils.py
-    output_name: test1  # btk output will be saved in a directory with this name inside output_dir
+    output_dir: example-output
+    # Enter file name containing user function to perform detection/deblending/measurement
+    utils_filename: None  # If None use btk/utils.py
+    output_name: trial  # btk output will be saved in a directory with this name inside output_dir
     # Enter name of functions to perform detection/deblending/measurement.
     utils_input:
-        measure_function: None
+        measure_function: SEP_params
         metrics_function: None
 
 
@@ -42,7 +42,7 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
-    test_size: 5000
+    test_size: 20
 
 ---
 simulation: multi_gal
@@ -66,9 +66,10 @@ config:
     selection_function: basic_selection_function
     sampling_function: basic_sampling_function
     observe_function: None
-    test_size: 5000
+    test_size: 20
 
 ---
+
 simulation: group
 config:
     catalog: OneDegSq.fits
@@ -92,5 +93,5 @@ config:
     selection_function: None
     sampling_function: group_sampling_function
     observe_function: None
-    test_size: 5000
+    test_size: 20
 

@@ -4,13 +4,13 @@ import scipy.spatial
 
 
 class Metrics_params(object):
-    def __init__(self, meas_generator, param):
+    def __init__(self, meas_generator, sim_param):
         """Class describing functions to return results of
          detection/deblending/measurement algorithm in meas_generator. Each
          blend results yielded by the meas_generator for a batch.
     """
         self.meas_generator = meas_generator
-        self.param = param
+        self.sim_param = sim_param
 
     def get_detections(self):
         """
@@ -31,9 +31,9 @@ class Metrics_params(object):
             and 'dy' respectively, in pixels from bottom left corner as (0, 0).
         """
         # Astropy table with entries corresponding to true sources
-        true_tables = [astropy.table.Table()] * self.param.batch_size
+        true_tables = [astropy.table.Table()] * self.config.batch_size
         # Astropy table with entries corresponding to detections
-        detected_tables = [astropy.table.Table()] * self.param.batch_size
+        detected_tables = [astropy.table.Table()] * self.config.batch_size
         return true_tables, detected_tables
 
     def get_segmentation(self):
@@ -150,19 +150,19 @@ def get_detection_match(true_table, detected_table):
     norm_dist = dist/norm_size[:, np.newaxis]
     detected_table['dSigma_min'] = np.min(norm_dist, axis=0)
     detected_table['d_min'] = np.min(dist, axis=0)
-    detection_threshold1 = 0.5
+    detection_threshold1 = 5
     condlist1 = [
-        np.min(norm_dist, axis=0) <= detection_threshold1,
-        np.min(norm_dist, axis=0) > detection_threshold1]
-    choicelist1 = [np.argmin(norm_dist, axis=0), -1]
+        np.min(dist, axis=0) <= detection_threshold1,
+        np.min(dist, axis=0) > detection_threshold1]
+    choicelist1 = [np.argmin(dist, axis=0), -1]
     match_id1 = np.select(condlist1, choicelist1)
     detected_table['match_true_id1'] = match_id1
     detected_table['match_galtileid1'] = true_table['galtileid'][match_id1]
-    detection_threshold2 = 5
+    detection_threshold2 = 0.5
     condlist2 = [
-        np.min(dist, axis=0) <= detection_threshold2,
-        np.min(dist, axis=0) > detection_threshold2]
-    choicelist2 = [np.argmin(dist, axis=0), -1]
+        np.min(norm_dist, axis=0) <= detection_threshold2,
+        np.min(norm_dist, axis=0) > detection_threshold2]
+    choicelist2 = [np.argmin(norm_dist, axis=0), -1]
     match_id2 = np.select(condlist2, choicelist2)
     detected_table['match_true_id2'] = match_id2
     detected_table['match_galtileid2'] = true_table['galtileid'][match_id2]
@@ -317,13 +317,13 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
         batch_detection_result = Metrics_params.get_detections()
         if (
             len(batch_detection_result[0]) != len(batch_detection_result[1]) or
-            len(batch_detection_result[0]) != Metrics_params.param.batch_size
+            len(batch_detection_result[0]) != Metrics_params.sim_param.batch_size
            ):
             raise ValueError("Metrics_params.get_detections output must be "
                              "two lists of astropy table of length batch size."
                              f" Found {len(batch_detection_result[0])}, "
                              f"{len(batch_detection_result[1])}, "
-                             f"{ Metrics_params.param.batch_size}")
+                             f"{ Metrics_params.sim_param.batch_size}")
         true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1],
             batch_index=i)
