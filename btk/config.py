@@ -16,6 +16,7 @@ class Simulation_params(object):
             in the sky background during a full exposure.
         verbose: If true, prints description at multiple steps.
     """
+
     def __init__(self, catalog_name, max_number=2,
                  batch_size=8, stamp_size=24,
                  survey_name="LSST",

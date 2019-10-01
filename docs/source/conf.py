@@ -20,7 +20,8 @@
 # -- Project information -----------------------------------------------------
 import os
 import sys
-import mock.Mock as MagicMock
+#import mock.Mock as MagicMock
+from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
 import sphinx_rtd_theme

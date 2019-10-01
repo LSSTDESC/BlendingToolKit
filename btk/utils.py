@@ -10,6 +10,7 @@ import skimage.feature
 
 class SEP_params(measure.Measurement_params):
     """Class to perform detection and deblending with SEP"""
+
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -34,12 +35,21 @@ class SEP_params(measure.Measurement_params):
 
 
 class Stack_params(measure.Measurement_params):
-    min_pix = 1
-    bkg_bin_size = 32
-    thr_value = 5
-    psf_stamp_size = 41
+    """Class with functions that describe how LSST science pipeline can
+    perform measurements on the input data."""
+    min_pix = 1  # Minimum size in pixels to be considered a source
+    bkg_bin_size = 32  # Binning size of the local background
+    thr_value = 5  # SNR threshold for the detection
+    psf_stamp_size = 41  # size of pstamp to draw PSF on
 
     def get_psf_sky(self, obs_cond):
+        """Returns postage stamp image of the PSF and mean background sky
+        level value saved in the input obs_cond class
+        Args:
+            obs_cond:`descwl.survey.Survey` class describing observing
+                      conditions.
+
+        """
         mean_sky_level = obs_cond.mean_sky_level
         psf = obs_cond.psf_model
         psf_image = psf.drawImage(
@@ -50,7 +60,15 @@ class Stack_params(measure.Measurement_params):
 
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
-        the blend image for input index in the batch.
+        the blend for input index entry in the batch.
+
+        Args:
+            data: Dictionary with blend images, isolated object images, blend
+                  catalog, and observing conditions.
+            index: Position of the blend to measure in the batch.
+
+        Returns:
+            astropy.Table of the measurement results.
          """
         image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
         psf_image, mean_sky_level = self.get_psf_sky(
@@ -134,14 +152,26 @@ def run_stack(image_array, variance_array, psf_array,
 
 
 class Scarlet_params(measure.Measurement_params):
-    iters = 200
-    e_rel = .015
+    """Class with functions that describe how scarlet should deblend images in
+    the input data"""
+    iters = 200  # Maximum number of iterations for scarlet to run
+    e_rel = .015  # Relative error for convergence
     detect_centers = True
 
     def make_measurement(self, data=None, index=None):
         return None
 
     def get_centers(self, image):
+        """Returns centers from SEP detection on the band averaged mean of the
+        input image.
+
+        Args:
+            image: Numpy array of multi-band image to run scarlet on
+                    [Number of bands, height, width].
+
+        Returns:
+            Array of x and y coordinate of centroids of objects in the image.
+        """
         sep = __import__('sep')
         detect = image.mean(axis=0)  # simple average for detection
         bkg = sep.Background(detect)
@@ -158,7 +188,8 @@ class Scarlet_params(measure.Measurement_params):
             peaks: Array of x and y coordinate of centroids of objects in
                    the image [number of sources, 2].
             bg_rms: Background RMS value of the images [Number of bands]
-        Returns
+
+        Returns:
             blend: scarlet.Blend object for the initialized sources
             rejected_sources: list of sources (if any) that scarlet was
                               unable to initialize the image with.
@@ -183,18 +214,19 @@ class Scarlet_params(measure.Measurement_params):
         """
         Deblend input images with scarlet
         Args:
-        images: Numpy array of multi-band image to run scarlet on
-               [Number of bands, height, width].
-        peaks: x and y coordinate of centroids of objects in the image.
-               [number of sources, 2]
-        bg_rms: Background RMS value of the images [Number of bands]
-        iters: Maximum number of iterations if scarlet doesn't converge
-               (Default: 200).
-        e_rel: Relative error for convergence (Default: 0.015)
-        Returns
-        blend: scarlet.Blend object for the initialized sources
-        rejected_sources: list of sources (if any) that scarlet was
-        unable to initialize the image with.
+            images: Numpy array of multi-band image to run scarlet on
+                   [Number of bands, height, width].
+            peaks: x and y coordinate of centroids of objects in the image.
+                   [number of sources, 2]
+            bg_rms: Background RMS value of the images [Number of bands]
+            iters: Maximum number of iterations if scarlet doesn't converge
+                   (Default: 200).
+            e_rel: Relative error for convergence (Default: 0.015)
+
+        Returns:
+            blend: scarlet.Blend object for the initialized sources
+            rejected_sources: list of sources (if any) that scarlet was
+            unable to initialize the image with.
         """
         images = np.transpose(data['blend_images'][index], axes=(2, 0, 1))
         blend_cat = data['blend_list'][index]
@@ -222,6 +254,7 @@ def make_true_seg_map(image, threshold):
         image: Image to estimate segmentation map of
         threshold: Pixels above this threshold are marked as belonging to
                    segmentation map
+
     Returns:
         Boolean segmentation map of the image
     """
@@ -303,20 +336,22 @@ def group_sampling_function(Args, catalog):
     ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
     blend_catalog = astropy.table.vstack(
         [catalog[catalog['galtileid'] == i] for i in ids])
-    # Set mean x and y coordinates of the group galaxies to the center of the postage stamp.
+    # Set mean x and y coordinates of the group galaxies to the center of the
+    # postage stamp.
     blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
     blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
     # convert ra dec from degrees to arcsec
     blend_catalog['ra'] *= 3600
     blend_catalog['dec'] *= 3600
-    # Add small random shift so that center does not perfectly align with stamp center
+    # Add small random shift so that center does not perfectly align with
+    # the stamp center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=3*Args.pixel_scale)
+        Args, 1, maxshift=3 * Args.pixel_scale)
     blend_catalog['ra'] += dx
     blend_catalog['dec'] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 3
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 3
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 3
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 3
     no_boundary = blend_catalog[cond1 & cond2]
     if len(no_boundary) == 0:
         return no_boundary
@@ -329,14 +364,15 @@ def group_sampling_function(Args, catalog):
 
 class Basic_measure_params(measure.Measurement_params):
     """Class to perform detection and deblending with SEP"""
+
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
         Args:
             image: Image (single band) of galaxy to perform measurement on.
+
         Returns:
                 centers: x and y coordinates of detected  centroids
-
         """
         # set detection threshold to 5 times std of image
         threshold = 5*np.std(image)
@@ -364,11 +400,11 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
 
         Returns:
             Results of the detection algorithm are returned as:
-                true_tables:  List of astropy Tables of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y coordinate
-                    values must be under columns named 'dx' and 'dy' respectively, in
-                    pixels from bottom left corner as (0, 0).
-                detected_tables: List of astropy Tables of output from detection
+                true_tables: List of astropy Table of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Table of output from detection
                     algorithm. Length of tables must be the batch size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
@@ -394,15 +430,15 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
     """
 
     def get_detections(self):
-        """Returns blend catalog and detection catalog for detction performed
+        """Returns blend catalog and detection catalog for detection performed
 
         Returns:
             Results of the detection algorithm are returned as:
-                true_tables:  List of astropy Tables of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y coordinate
-                    values must be under columns named 'dx' and 'dy' respectively, in
-                    pixels from bottom left corner as (0, 0).
-                detected_tables: List of astropy Tables of output from detection
+                true_tables: List of astropy Table of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Table of output from detection
                     algorithm. Length of tables must be the batch size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
@@ -412,7 +448,10 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
         true_tables = blend_op['blend_list']
         detected_tables = []
         for i in range(len(true_tables)):
-            detected_centers = np.stack([cat[i]['base_NaiveCentroid_x'], cat[i]['base_NaiveCentroid_y']], axis=1)
+            detected_centers = np.stack(
+                [cat[i]['base_NaiveCentroid_x'],
+                 cat[i]['base_NaiveCentroid_y']],
+                axis=1)
             detected_table = astropy.table.Table(detected_centers,
                                                  names=['dx', 'dy'])
             detected_tables.append(detected_table)
@@ -435,10 +474,10 @@ def get_detection_eff_matrix(summary_table, num):
     Returns:
         numpy.ndarray of size[num+2, num-1] that shows detection efficiency.
     """
-    eff_matrix = np.zeros((num+2, num+1))
-    for i in range(0, num+1):
+    eff_matrix = np.zeros((num + 2, num + 1))
+    for i in range(0, num + 1):
         q_true, = np.where(summary_table[:, 0] == i)
-        for j in range(0, num+2):
+        for j in range(0, num + 2):
             if len(q_true) > 0:
                 q_det, = np.where(summary_table[q_true, 1] == j)
                 eff_matrix[j, i] = len(q_det)
@@ -446,5 +485,5 @@ def get_detection_eff_matrix(summary_table, num):
     # If not detections along a column, set sum to 1 to avoid dividing by zero.
     norm[norm == 0.] = 1
     # normalize over columns.
-    eff_matrix = eff_matrix/norm[np.newaxis, :]*100.
+    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.
     return eff_matrix

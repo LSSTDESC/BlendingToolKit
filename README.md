@@ -2,7 +2,8 @@
 [![Documentation Status](https://readthedocs.org/projects/blendingtoolkit/badge/?version=latest)](https://blendingtoolkit.readthedocs.io/en/latest/?badge=latest)
 
 # BlendingToolKit
-Tools to create blend catalogs, produce training samples and implement blending metrics.
+Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
+producing multi-band postage stamp images of blend scenes.
 
 Documentation can be found at https://blendingtoolkit.readthedocs.io/en/latest/
 
