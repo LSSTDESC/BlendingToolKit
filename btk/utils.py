@@ -362,6 +362,64 @@ def group_sampling_function(Args, catalog):
     return no_boundary[select]
 
 
+def group_sampling_function_numbered(Args, catalog):
+    """Blends are defined from *groups* of galaxies from a CatSim-like
+    catalog previously analyzed with WLD.
+
+    This function requires a parameter, group_id_count, to be input in Args
+    along with the wld_catalog which tracks the group id returned. Each time
+    the generator is called the counter gets 1 added to it. When the count is
+    larger than the number of groups input the generator is forced to exit.
+
+    The group is centered on the middle of the postage stamp.
+    Function only draws galaxies that lie within the postage stamp size
+    determined in Args.
+
+    Note: the pre-run WLD images are not used here. We only use the pre-run
+    catalog (in i band) to identify galaxies that belong to a group.
+    """
+    if not hasattr(Args, 'wld_catalog_name'):
+        raise NameError("A pre-run WLD catalog  name should be input as "
+                        "Args.wld_catalog_name")
+    else:
+        wld_catalog = astropy.table.Table.read(Args.wld_catalog_name,
+                                               format='fits')
+    if not hasattr(Args, 'group_id_count'):
+        raise NameError("An integer specifying index of group_id to draw must"
+                        "be input as Args.group_id_count")
+    # randomly sample a group.
+    group_ids = np.unique(
+        wld_catalog['grp_id'][
+            (wld_catalog['grp_size'] >= 2) & (wld_catalog['grp_size'] <= Args.max_number)])
+    if Args.group_id_count > len(group_ids):
+        raise GeneratorExit("group_id_count is larger than number of groups \
+                            input")
+    else:
+        group_id = group_ids[Args.group_id_count]
+        Args.group_id_count += 1
+    # get all galaxies belonging to the group.
+    ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
+    blend_catalog = astropy.table.vstack(
+        [catalog[catalog['galtileid'] == i] for i in ids])
+    # Set mean x and y coordinates of the group galaxies to the center of the postage stamp.
+    blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
+    blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
+    # convert ra dec from degrees to arcsec
+    blend_catalog['ra'] *= 3600
+    blend_catalog['dec'] *= 3600
+    # Add small random shift so that center does not perfectly align with stamp center
+    dx, dy = btk.create_blend_generator.get_random_center_shift(
+        Args, 1, maxshift=3*Args.pixel_scale)
+    blend_catalog['ra'] += dx
+    blend_catalog['dec'] += dy
+    # make sure galaxy centers don't lie too close to edge
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 3
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 3
+    no_boundary = blend_catalog[cond1 & cond2]
+    if len(no_boundary) == 0:
+        return no_boundary
+
+
 class Basic_measure_params(measure.Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
