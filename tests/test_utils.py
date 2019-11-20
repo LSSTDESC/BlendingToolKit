@@ -1,4 +1,3 @@
-import os
 import pytest
 import astropy.table
 import numpy as np
@@ -6,12 +5,12 @@ import btk.utils
 import btk.config
 
 
-def get_draw_generator():
+def get_draw_generator(batch_size=3):
     """Returns draw generator with group sampling function"""
     wld_catalog_name = 'data/sample_group_catalog.fits'
     catalog_name = 'data/sample_group_input_catalog.fits'
     param = btk.config.Simulation_params(catalog_name, max_number=10,
-                                         batch_size=3)
+                                         batch_size=batch_size)
     wld_catalog = astropy.table.Table.read(wld_catalog_name,
                                            format='fits')
     param.wld_catalog = wld_catalog
@@ -24,6 +23,22 @@ def get_draw_generator():
     draw_blend_generator = btk.draw_blends.generate(
         param, blend_generator, observing_generator)
     return draw_blend_generator
+
+
+def get_meas_generator(meas_params):
+    """Returns draw generator with group sampling function"""
+    catalog_name = 'data/sample_input_catalog.fits'
+    param = btk.config.Simulation_params(catalog_name, batch_size=1,
+                                         add_noise=True)
+    np.random.seed(param.seed)
+    catalog = btk.get_input_catalog.load_catalog(param)
+    blend_generator = btk.create_blend_generator.generate(param, catalog)
+    observing_generator = btk.create_observing_generator.generate(param)
+    draw_generator = btk.draw_blends.generate(param, blend_generator,
+                                              observing_generator)
+    meas_generator = btk.measure.generate(
+        meas_params, draw_generator, param)
+    return meas_generator, param
 
 
 @pytest.mark.timeout(5)
@@ -48,3 +63,46 @@ def test_group_sampling():
     np.testing.assert_almost_equal(
         batch_std, test_batch_std, decimal=5,
         err_msg="Did not get desired std of pixel values of blend images")
+
+
+def compare_sep():
+    """Test detection with sep"""
+    meas_param = btk.utils.SEP_params()
+    meas_generator, param = get_meas_generator(meas_param)
+    output, deb, _ = next(meas_generator)
+    detected_centers = deb[0]['peaks']
+    target_detection = np.array([[64.62860131, 61.83551097]])
+    np.testing.assert_array_almost_equal(
+        detected_centers, target_detection, decimal=3,
+        err_msg="Did not get desired detections")
+    pass
+
+
+def compare_stack():
+    """Test detection with stack"""
+    pass
+
+
+def compare_scarlet():
+    """Test deblending with scarlet"""
+    pass
+
+
+@pytest.mark.timeout(15)
+def test_algorithms():
+    """Test detection/deblending/measurement algorithms if installed"""
+    try:
+        import sep
+        compare_sep()
+    except ModuleNotFoundError:
+        print("skipping sep test")
+    try:
+        import scarlet
+        compare_scarlet()
+    except ModuleNotFoundError:
+        print("skipping scarlet test")
+    try:
+        import lsst.afw.table
+        compare_stack()
+    except ModuleNotFoundError:
+        print("skipping stack test")
