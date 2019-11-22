@@ -85,6 +85,27 @@ def compare_stack():
 
 def compare_scarlet():
     """Test deblending with scarlet"""
+    meas_param = btk.utils.Scarlet_params()
+    meas_generator, param = get_meas_generator(meas_param)
+    output, deb, _ = next(meas_generator)
+    blend_list = output['blend_list']
+    deblend_images = [deb[i]['deblend_image'] for i in range(len(blend_list))]
+    batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
+    batch_mean = deblend_images[0].mean()
+    batch_std = deblend_images[0].std()
+    test_batch_max = np.array([17.97076801, 326.27323506, 1270.86668036,
+                               906.02149799, 663.97773544, 338.10833655])
+    test_batch_mean = 3.0556469040134835
+    test_batch_std = 36.01685394303528
+    np.testing.assert_array_almost_equal(
+        batch_max, test_batch_max, decimal=3,
+        err_msg="Did not get desired maximum pixel values of deblend images")
+    np.testing.assert_almost_equal(
+        batch_mean, test_batch_mean, decimal=5,
+        err_msg="Did not get desired mean pixel values of deblend images")
+    np.testing.assert_almost_equal(
+        batch_std, test_batch_std, decimal=5,
+        err_msg="Did not get desired std of pixel values of deblend images")
     pass
 
 
