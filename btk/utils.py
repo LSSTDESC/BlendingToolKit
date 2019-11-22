@@ -249,7 +249,7 @@ class Scarlet_params(measure.Measurement_params):
 
 def make_true_seg_map(image, threshold):
     """Returns a boolean segmentation map corresponding to pixels in
-    image above a certain threshold value.threshold
+    image above a certain threshold value.
     Args:
         image: Image to estimate segmentation map of
         threshold: Pixels above this threshold are marked as belonging to
@@ -269,7 +269,7 @@ def basic_selection_function(catalog):
 
     Only galaxies that satisfy the below criteria are returned:
     1) i band magnitude less than 27
-    2) Second moment size is less than 3 arcsec.
+    2) Second moment size is less than 4 arcsec.
     Second moments size (r_sec) computed as described in A1 of Chang et.al 2012
 
     Args:
@@ -286,10 +286,22 @@ def basic_selection_function(catalog):
 
 
 def basic_sampling_function(Args, catalog):
-    """Randomly picks entries from input catalog that are brighter than 25.3
-    mag in the i band. The centers are randomly distributed within 1/5 of the
-    stamp size.
-    At least one bright galaxy (i<=24) is always selected.
+    """Samples galaxies from input catalog to make blend scene.
+
+    Then number of galaxies in a blend are drawn from a uniform
+    distribution of one up to Args.max_number. Function always selects one
+    bright galaxy that is less than 24 imag. The other galaxies are selected
+    from a sample with i<25.3 90% of the times and the remaining 10% with i<28.
+    All galaxies must have semi-major axis is between 0.2 and 2 arcsec.
+    The centers are randomly distributed within 1/30 *sqrt(N) of the postage
+    stamp size, where N is the number of objects in the blend.
+
+    Args:
+        Args: Class containing input parameters.
+        catalog: CatSim-like catalog from which to sample galaxies.
+
+    Returns:
+        Catalog with entries corresponding to one blend.
     """
     number_of_objects = np.random.randint(0, Args.max_number)
     a = np.hypot(catalog['a_d'], catalog['a_b'])
@@ -318,10 +330,18 @@ def group_sampling_function(Args, catalog):
 
     The group is centered on the middle of the postage stamp.
     Function only draws galaxies that lie within the postage stamp size
-    determined in Args.
+    determined in Args. The name of the pre-run wld catalog must be defined as
+    Args.wld_catalog_name.
 
     Note: the pre-run WLD images are not used here. We only use the pre-run
     catalog (in i band) to identify galaxies that belong to a group.
+
+    Args:
+        Args: Class containing input parameters.
+        catalog: CatSim-like catalog from which to sample galaxies.
+
+    Returns:
+        Catalog with entries corresponding to one blend.
     """
     if not hasattr(Args, 'wld_catalog_name'):
         raise Exception("A pre-run WLD catalog  name should be input as "
@@ -368,16 +388,24 @@ def group_sampling_function_numbered(Args, catalog):
 
     This function requires a parameter, group_id_count, to be input in Args
     along with the wld_catalog which tracks the group id returned. Each time
-    the generator is called the counter gets 1 added to it. When the count is
-    larger than the number of groups input the generator is forced to exit.
+    the generator is called,1 gets added to the count. If the count is
+    larger than the number of groups input, the generator is forced to exit.
 
     The group is centered on the middle of the postage stamp.
     This function only draws galaxies whose centers lie within 1 arcsec the
     postage stamp edge, which may cause the number of galaxies in the blend to
-    be smaller than the group size.
+    be smaller than the group size.The pre-run wld catalog must be defined as
+    Args.wld_catalog.
 
     Note: the pre-run WLD images are not used here. We only use the pre-run
     catalog (in i band) to identify galaxies that belong to a group.
+
+    Args:
+        Args: Class containing input parameters.
+        catalog: CatSim-like catalog from which to sample galaxies.
+
+    Returns:
+        Catalog with entries corresponding to one blend.
     """
     if not hasattr(Args, 'wld_catalog'):
         raise Exception(
@@ -419,17 +447,18 @@ def group_sampling_function_numbered(Args, catalog):
     cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 1
     cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 1
     no_boundary = blend_catalog[cond1 & cond2]
-    assert len(no_boundary) < Args.max_number, "number of galaxies greater \
-        than max number of objects per blend"
+    assert len(no_boundary) <= Args.max_number, "number of galaxies greater \
+    than max number of objects per blend"
     return no_boundary
 
 
 class Basic_measure_params(measure.Measurement_params):
-    """Class to perform detection and deblending with SEP"""
+    """Class to perform detection by identifying peaks with skimage"""
 
     def get_centers(self, image):
-        """Return centers detected when object detection and photometry
-        is done on input image with SEP.
+        """Return centers detected when object detection is performed on the
+        input image with skimage.feature.peak_local_max.
+
         Args:
             image: Image (single band) of galaxy to perform measurement on.
 
@@ -453,12 +482,14 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
     def __init__(self, *args, **kwargs):
         super(Basic_metric_params, self).__init__(*args, **kwargs)
         """Class describing functions to return results of
-         detection/deblending/measurement algorithm in meas_generator. Each
-         blend results yielded by the meas_generator for a batch.
+        detection/deblending/measurement algorithm in meas_generator. Each
+        time the algorithm is called, it is run on a batch of blends yielded
+        by the meas_generator.
     """
 
     def get_detections(self):
-        """Returns blend catalog and detection catalog for detction performed
+        """Returns input blend catalog and detection catalog for
+        the detection performed.
 
         Returns:
             Results of the detection algorithm are returned as:
@@ -471,7 +502,6 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
         """
-        # Astropy table with entries corresponding to true sources
         blend_op, deblend_op, _ = next(self.meas_generator)
         true_tables = blend_op['blend_list']
         detected_tables = []
@@ -487,8 +517,9 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
     def __init__(self, *args, **kwargs):
         super(Stack_metric_params, self).__init__(*args, **kwargs)
         """Class describing functions to return results of
-         detection/deblending/measurement algorithm in meas_generator. Each
-         blend results yielded by the meas_generator for a batch.
+        detection/deblending/measurement algorithm in meas_generator.  Each
+        time the algorithm is called, it is run on a batch of blends yielded
+        by the meas_generator.
     """
 
     def get_detections(self):
@@ -521,17 +552,19 @@ class Stack_metric_params(btk.compute_metrics.Metrics_params):
 
 
 def get_detection_eff_matrix(summary_table, num):
-    """Computes the detection efficiency table for input detection summary
+    """Computes the detection efficiency matrix for the input detection summary
     table.
 
     Input argument num sets the maximum number of true detections for which the
     detection efficiency matrix is to be created for. Detection efficiency is
-    computed for number of true objects in the range (1-num).
+    computed for a number of true objects in the range (1-num) as columns and
+    the detected percentage as rows. The percentage values in a column sum to
+    100.
 
     Args:
         summary(`numpy.array`) : Detection summary as a table [N, 5].
         num(int): Maximum number of true objects to create matrix for. Number
-            of columns in matrix will be num-1.
+            of columns in efficiency matrix will be num-1.
 
     Returns:
         numpy.ndarray of size[num+2, num-1] that shows detection efficiency.
@@ -544,7 +577,7 @@ def get_detection_eff_matrix(summary_table, num):
                 q_det, = np.where(summary_table[q_true, 1] == j)
                 eff_matrix[j, i] = len(q_det)
     norm = np.sum(eff_matrix, axis=0)
-    # If not detections along a column, set sum to 1 to avoid dividing by zero.
+    # If no detections along a column, set sum to 1 to avoid dividing by zero.
     norm[norm == 0.] = 1
     # normalize over columns.
     eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.
