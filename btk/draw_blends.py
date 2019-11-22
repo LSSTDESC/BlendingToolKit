@@ -36,7 +36,7 @@ def get_size(Args, catalog, i_obs_cond):
 
     Galaxy size is estimated as second moments size (r_sec) computed as
     described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
-    is computed by galsim from the psf model in obs_cond in the i band.
+    is computed by galsim from the PSF model in obs_cond in the i band.
     The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
 
     Args:
@@ -159,7 +159,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
         Args: Class containing input parameters.
         blend_list: List of catalogs with entries corresponding to one blend.
         obs_cond (list): List of `descwl.survey.Survey` class describing
-            observing conditions in differnt bands.
+            observing conditions in different bands.
 
     Returns:
         `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -170,14 +170,15 @@ def run_mini_batch(Args, blend_list, obs_cond):
         dx, dy = get_center_in_pixels(Args, blend_list[i])
         blend_list[i].add_column(dx)
         blend_list[i].add_column(dy)
-        size = get_size(Args, blend_list[i], obs_cond[3])
+        size = get_size(Args, blend_list[i],
+                        obs_cond[Args.bands == Args.meas_band])
         blend_list[i].add_column(size)
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
         iso_image_multi = np.zeros(
             (Args.max_number, stamp_size, stamp_size,
              len(Args.bands)))
         blend_image_multi = np.zeros(
-                    (stamp_size, stamp_size, len(Args.bands)))
+            (stamp_size, stamp_size, len(Args.bands)))
         for j in range(len(Args.bands)):
             single_band_output = run_single_band(Args, blend_list[i],
                                                  obs_cond[j], Args.bands[j])
