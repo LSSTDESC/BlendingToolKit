@@ -417,9 +417,6 @@ if __name__ == '__main__':
                         'values. The content of this file will be overwritten '
                         'by any given command line options.'
                         "[Default:'input/btk-config.yaml']")
-    parser.add_argument('--name', default='test_1',
-                        help='Name of the btk run. Output will be stored in '
-                        'a directory under this name [Default: "test1"].')
     parser.add_argument('--verbose', action='store_true',
                         help='If True prints description at multiple steps')
     args = parser.parse_args()
