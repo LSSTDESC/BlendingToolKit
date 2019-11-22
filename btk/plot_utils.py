@@ -237,7 +237,7 @@ def plot_cumulative(table, column_name, ax=None, bins=40,
     ax.set_ylabel('Cumulative counts')
 
 
-def plot_metrics_summary(summary, num, ax=None):
+def plot_metrics_summary(summary, num, ax=None, wspace=0.2):
     """Plot detection summary as a matrix of detection efficiency.
 
     Input argument num sets the maximum number of true detections for which the
@@ -250,10 +250,12 @@ def plot_metrics_summary(summary, num, ax=None):
             of columns in matrix will be num-1.
         ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
             the plot. If not provided, one is created inside.
+        wspace(float): Amount of width reserved for space between subplots,
+            expressed as a fraction of the average axis width.
     """
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=(5, 5))
-    plt.subplots_adjust(wspace=0.7, hspace=0.3)
+    plt.subplots_adjust(wspace=wspace)
     results_table = btk.utils.get_detection_eff_matrix(summary, num)
     ax.imshow(results_table, origin='left', cmap=plt.cm.Blues)
     ax.set_xlabel("# true objects")
