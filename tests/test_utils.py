@@ -43,7 +43,7 @@ def get_meas_generator(meas_params):
 
 @pytest.mark.timeout(5)
 def test_group_sampling():
-    """Test blends drawn with group sampling function with count"""
+    """Test blends drawn with group sampling function"""
     draw_blend_generator = get_draw_generator()
     output = next(draw_blend_generator)
     blend_images = output['blend_images']
