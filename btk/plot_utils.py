@@ -39,8 +39,8 @@ def get_rgb_image(image, normalize_with_image=None):
     scarlet Asinh function. If not, a basic normalization is performed.
 
     Args:
-        image : Image array (float32) to convert to RGB [bands, height, width].
-        normalize_with_image: Image array (float32) to normalize input image
+        image (float32): Image array to convert to RGB [bands, height, width].
+        normalize_with_image (float32): Image array to normalize input image
             with [bands, height, width].
 
     Returns:
@@ -237,21 +237,25 @@ def plot_cumulative(table, column_name, ax=None, bins=40,
     ax.set_ylabel('Cumulative counts')
 
 
-def plot_metrics_summary(summary, num, ax=None, wspace=0.2):
+def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
     """Plot detection summary as a matrix of detection efficiency.
 
-    Input argument num sets the maximum number of true detections for which the
-    detection efficiency matrix is to be created for. Detection efficiency is
-    computed for number of true objects in the range (1-num)
+    Input argument num defines the maximum number of true objects per blend in
+    the defined test set for which the detection efficiency matrix is to be
+    computed. Detection efficiency matrix is plotted for columns 1 - num true
+    objects per blend, unless skip_zero is set to False, in which case column
+    for 0 true objects is also displayed.
 
     Args:
-        summary(`numpy.array`) : Detection summary as a table [N, 5].
-        num(int): Maximum number of true objects to create matrix for. Number
-            of columns in matrix will be num-1.
+        summary (`numpy.array`): Detection summary as a table [N, 5].
+        num (int): Maximum number of true objects to plot matrix for. Number
+            of columns in matrix will be num-1 if skip_zero is True.
         ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
             the plot. If not provided, one is created inside.
-        wspace(float): Amount of width reserved for space between subplots,
+        wspace (float): Amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
+        skip_zero (bool): If True, then column corresponding to 0 true objects
+            is not shown (default is True).
     """
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=(5, 5))
@@ -259,13 +263,17 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2):
     results_table = btk.utils.get_detection_eff_matrix(summary, num)
     ax.imshow(results_table, origin='left', cmap=plt.cm.Blues)
     ax.set_xlabel("# true objects")
-    # Don't print zero'th column
-    ax.set_xlim([0.5, num + 0.5])
+    if skip_zero:
+        # Don't print zero'th column
+        ax.set_xlim([0.5, num + 0.5])
+        ax.set_xticks(np.arange(1, num + 1, 1.0))
+    else:
+        ax.set_xlim([-0.5, num + 0.5])
+        ax.set_xticks(np.arange(0, num + 1, 1.0))
     ax.set_ylabel("# correctly detected objects")
-    ax.set_xticks(np.arange(1, num + 1, 1.0))
     ax.set_yticks(np.arange(0, num + 2, 1.0))
     for (j, i), label in np.ndenumerate(results_table):
-        if i == 0:
+        if skip_zero and i == 0:
             # Don't print efficiency for zero'th column
             continue
         color = ("white" if label > 50
