@@ -1,5 +1,5 @@
 Tutorials
-=================
+=============
 
 The following jupyter notebooks are included in the `notebooks/` directory:
 
@@ -33,7 +33,8 @@ Run btk with an input config file (*with_config_file_input.ipynb*).
 -------------------------------------------------------------------
 This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/master/notebooks/with_config_file_input.ipynb>`_ shows how to run btk with an input config yaml file. The input yaml config file contains information on how to simulate the blend scene, which detection/deblending/measurement algorithm to run and where to save the outputs. The config file is parsed by *btk_input.py* which then runs btk with the defined parameters.
 
-The tutorial shows how to run *btk_input.py* with an example config file (*input/example-config.yaml*)for three types of simulations:
+The tutorial shows how to run *btk_input.py* with an example config file (*input/example-config.yaml*) for three types of simulations:
+
 1. Two-galaxy blends sampled randomly from CatSim galaxies
 2. Up to 10 galaxy blends sampled randomly from CatSim galaxies
 3. Blends defined as galaxy "groups" from a pre-processed wld output

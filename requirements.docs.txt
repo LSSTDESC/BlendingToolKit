@@ -1,4 +1,4 @@
 sphinx>=1.8.1
 sphinx-rtd-theme>=0.4.3
 numpydoc>=0.7
-mock>=2.0.0
+mock>=3.0.5
