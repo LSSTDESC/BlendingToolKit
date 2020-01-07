@@ -49,7 +49,12 @@ def get_rgb_image(image, normalize_with_image=None):
     try:
         import scarlet.display
         if normalize_with_image is not None:
-            norm = scarlet.display.Asinh(img=normalize_with_image, Q=20)
+            Q = 0.1
+            minimum = np.ma.min(normalize_with_image)
+            maximum = np.ma.max(normalize_with_image)
+            stretch = maximum - minimum
+            norm = scarlet.display.AsinhMapping(
+                minimum=minimum, stretch=stretch, Q=Q)
         else:
             norm = None
         img_rgb = scarlet.display.img_to_rgb(image, norm=norm)
