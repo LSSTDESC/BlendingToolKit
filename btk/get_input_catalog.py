@@ -11,8 +11,8 @@ def load_catalog(Args, selection_function=None):
         sampling_function: Selection cuts (if input) to place on input catalog.
 
     Returns:
-        astropy.table: CatSim-like catalog with a selection criteria applied if
-        provided.
+        `astropy.table`: CatSim-like catalog with a selection criteria applied
+        if provided.
     """
     name, ext = os.path.splitext(Args.catalog_name)
     if ext == '.fits':

@@ -21,7 +21,7 @@ def get_center_in_pixels(Args, blend_catalog):
         blend_catalog: Catalog with entries corresponding to one blend.
 
     Returns:
-        `astropy.table.Column`s: x and y coordinates of object centroid
+        `astropy.table.Column`: x and y coordinates of object centroid
     """
     center = (Args.stamp_size/Args.pixel_scale - 1)/2
     dx = blend_catalog['ra']/Args.pixel_scale + center
@@ -46,7 +46,7 @@ def get_size(Args, catalog, i_obs_cond):
             observing conditions in i band.
 
     Returns:
-        `astropy.table.Column`s: size of the galaxy.
+        `astropy.table.Column`: size of the galaxy.
     """
     f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
     hlr_d = np.sqrt(catalog['a_d']*catalog['b_d'])
