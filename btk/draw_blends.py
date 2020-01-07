@@ -212,9 +212,6 @@ def generate(Args, blend_genrator, observing_generator,
     Yields:
         Dictionary with blend images, isolated object images, blend catalog,
         and observing conditions.
-
-    To do:
-        Add data augmentation.
     """
     while True:
         batch_blend_cat, batch_obs_cond = [], []
