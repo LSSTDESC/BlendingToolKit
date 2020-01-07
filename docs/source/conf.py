@@ -73,7 +73,7 @@ MOCK_MODULES = [
     'galsim',
     'lmfit',
     'descwl',
-    'scikit-image',
+    'skimage',
 ]
 if on_rtd:
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
