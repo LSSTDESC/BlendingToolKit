@@ -74,6 +74,7 @@ MOCK_MODULES = [
     'lmfit',
     'descwl',
     'skimage',
+    'skimage.feature',
 ]
 if on_rtd:
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
