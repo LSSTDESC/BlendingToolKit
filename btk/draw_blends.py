@@ -116,7 +116,8 @@ def run_single_band(Args, blend_catalog,
     stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
     iso_image = np.zeros(
         (Args.max_number, stamp_size, stamp_size))
-    # define temporary galsim image to hold isolated galaxy images that will be summed
+    # define temporary galsim image
+    # this will hold isolated galaxy images that will be summed
     blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)
@@ -228,9 +229,8 @@ def generate(Args, blend_genrator, observing_generator,
                         0, Args.batch_size, mini_batch_size)]
         if multiprocessing:
             if Args.verbose:
-                print("Running mini-batch of size {0} \
-                    with multiprocessing with pool {1}".format(
-                        len(in_args), cpus))
+                print("Running mini-batch of size {0} with \
+                    multiprocessing with pool {1}".format(len(in_args), cpus))
             with mp.Pool(processes=cpus) as pool:
                 mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
