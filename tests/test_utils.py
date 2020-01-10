@@ -93,10 +93,10 @@ def compare_scarlet():
     batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
     batch_mean = deblend_images[0].mean()
     batch_std = deblend_images[0].std()
-    test_batch_max = np.array([17.97076801, 326.27323506, 1270.86668036,
-                               906.02149799, 663.97773544, 338.10833655])
-    test_batch_mean = 3.0556469040134835
-    test_batch_std = 36.01685394303528
+    test_batch_max = np.array([10.39827598, 279.24613539, 1511.07999549,
+                               1083.94685111, 567.58024363, 403.28130687])
+    test_batch_mean = 4.09093024221
+    test_batch_std = 41.334411867967
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of deblend images")
