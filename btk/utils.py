@@ -468,13 +468,15 @@ def group_sampling_function_numbered(Args, catalog):
             (Args.wld_catalog['grp_size'] >= 2) &
             (Args.wld_catalog['grp_size'] <= Args.max_number)])
     if Args.group_id_count >= len(group_ids):
-        raise GeneratorExit("group_id_count is larger than number of groups \
-                            input")
+        message = "group_id_count is larger than number of groups input"
+        raise GeneratorExit(message)
     else:
         group_id = group_ids[Args.group_id_count]
         Args.group_id_count += 1
     # get all galaxies belonging to the group.
-    ids = Args.wld_catalog['db_id'][Args.wld_catalog['grp_id'] == group_id]
+    # make sure some group or glaxy was not repeated in wld_catalog
+    ids = np.unique(
+        Args.wld_catalog['db_id'][Args.wld_catalog['grp_id'] == group_id])
     blend_catalog = astropy.table.vstack(
         [catalog[catalog['galtileid'] == i] for i in ids])
     # Set mean x and y coordinates of the group galaxies to the center of the
@@ -494,8 +496,9 @@ def group_sampling_function_numbered(Args, catalog):
     cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 1
     cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 1
     no_boundary = blend_catalog[cond1 & cond2]
-    assert len(no_boundary) <= Args.max_number, "number of galaxies greater \
-    than max number of objects per blend"
+    message = ("Number of galaxies greater than max number of objects per"
+               f"blend. Found {len(no_boundary)}, expected <= {Args.max_number}")
+    assert len(no_boundary) <= Args.max_number, message
     return no_boundary
 
 
