@@ -52,8 +52,8 @@ def test_group_sampling():
     batch_std = blend_images.std()
     test_batch_max = np.array([378.6290132, 2082.11614647, 10042.93459939,
                                10939.50400858, 9472.22664691, 4909.14672976])
-    test_batch_mean = 13.587452292435493
-    test_batch_std = 719.954443492819
+    test_batch_mean = 13.589091952929321
+    test_batch_std = 719.7592990809109
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of blend images")
