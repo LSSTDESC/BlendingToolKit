@@ -11,12 +11,8 @@ def load_catalog(Args, selection_function=None):
         sampling_function: Selection cuts (if input) to place on input catalog.
 
     Returns:
-        astropy.table: CatSim-like catalog with a selection criteria applied if
-        provided.
-
-    Todo:
-        Add script to load DC2 catalog
-        Add option to load multiple catalogs(e.g. star , galaxy)
+        `astropy.table`: CatSim-like catalog with a selection criteria applied
+        if provided.
     """
     name, ext = os.path.splitext(Args.catalog_name)
     if ext == '.fits':

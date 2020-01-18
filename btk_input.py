@@ -1,3 +1,20 @@
+"""Running btk with input config file
+
+This script contains functions that can parse the input config file containing
+parameters to generate blend scene images with btk. The images are simulated
+and analyzed with the user specified detection/deblending/measurement algorithm
+specified in the config file.
+
+At present the script can be run for three kinds of simulations:
+    'two_gal': Two-galaxy blends sampled randomly from CatSim galaxies
+    'multi_gal': Up to 10 galaxy blends sampled randomly from CatSim galaxies
+    'group': Blends defined as galaxy “groups” from a pre-processed wld output
+
+An example config file (input/example-config.yaml) shows the parameters for
+these simulations.
+
+"""
+
 import yaml
 import types
 import btk
@@ -417,9 +434,6 @@ if __name__ == '__main__':
                         'values. The content of this file will be overwritten '
                         'by any given command line options.'
                         "[Default:'input/btk-config.yaml']")
-    parser.add_argument('--name', default='test_1',
-                        help='Name of the btk run. Output will be stored in '
-                        'a directory under this name [Default: "test1"].')
     parser.add_argument('--verbose', action='store_true',
                         help='If True prints description at multiple steps')
     args = parser.parse_args()

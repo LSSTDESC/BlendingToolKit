@@ -8,7 +8,9 @@ import numpy as np
 
 def compare_basic_metric(param, user_config_dict,
                          simulation_config_dict, btk_input):
-    # Set seed
+    """Compares summary table output from btk default detection to the expected
+    result test_metric_summary.
+    """
     test_metric_summary = np.array(
         [[5, 3, 2, 0, 0, 3, 2, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
@@ -30,6 +32,7 @@ def compare_basic_metric(param, user_config_dict,
 
 
 def run_metrics_basic():
+    """Test detection summary metrics with default detection algorithm."""
     test_input = imp.load_source("", 'tests/test_input.py')
     args = test_input.Input_Args()
     sys.path.append(os.getcwd())
@@ -53,7 +56,9 @@ def run_metrics_basic():
 
 def compare_sep_group_metric(param, user_config_dict,
                              simulation_config_dict, btk_input):
-    # Set seed
+    """Compares summary table output from btk sep detection to the expected
+    result, test_metric_summary.
+    """
     test_metric_summary = np.array(
         [[3, 1, 2, 0, 0, 1, 2, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
@@ -87,6 +92,7 @@ def compare_sep_group_metric(param, user_config_dict,
 
 
 def run_metrics_sep():
+    """Test detection summary metrics with SEP"""
     test_input = imp.load_source("", 'tests/test_input.py')
     simulations = ['group', ]
     for simulation in simulations:
@@ -111,7 +117,9 @@ def run_metrics_sep():
 
 def compare_stack_group_metric(param, user_config_dict,
                                simulation_config_dict, btk_input):
-    # Set seed
+    """Compares summary table output from btk stack detection to the expected
+    result, test_metric_summary.
+    """
     test_metric_summary = np.array([[3, 1, 2, 0, 0, 1, 2, 0, 0],
                                     [2, 1, 1, 0, 0, 1, 1, 0, 0],
                                     [3, 1, 2, 0, 0, 1, 2, 0, 0],
@@ -144,6 +152,7 @@ def compare_stack_group_metric(param, user_config_dict,
 
 
 def run_metrics_stack():
+    """Test detection summary metrics with stack"""
     test_input = imp.load_source("", 'tests/test_input.py')
     simulations = ['group', ]
     for simulation in simulations:
@@ -168,6 +177,8 @@ def run_metrics_stack():
 
 @pytest.mark.timeout(15)
 def test_metrics_all():
+    """Test detection summary table with default detection algorithm and SEP/
+    stack if installed"""
     run_metrics_basic()
     try:
         run_metrics_sep()

@@ -7,6 +7,7 @@ import multiprocessing as mp
 
 def get_draw_generator(batch_size=8, cpus=1,
                        multiprocessing=False, add_noise=True):
+    """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = 'data/sample_input_catalog.fits'
     param = btk.config.Simulation_params(catalog_name, batch_size=batch_size,
                                          add_noise=add_noise)
@@ -45,7 +46,7 @@ def match_blend_images_default(blend_images):
 
 
 def match_isolated_images_default(isolated_images):
-    """Compares the max value of isoalted image for each of the band along with
+    """Compares the max value of isolated image for each of the band along with
     the mean and std values in the batch. This is compared to the values
     measured a proiri for the default input settings.
     """

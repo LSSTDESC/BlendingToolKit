@@ -163,7 +163,7 @@ def test_input_output():
 
     """
     for simulation in ['two_gal', 'multi_gal', 'group']:
-        command = ['python', 'btk_input.py', '--name', 'unit_test',
+        command = ['python', 'btk_input.py',
                    '--configfile', 'tests/test-config.yaml']
         subprocess.call(command + ['--simulation', simulation])
         args = Input_Args(simulation=simulation)
@@ -410,7 +410,7 @@ def test_metrics():
     """
     simulations = ['two_gal', ]
     for simulation in simulations:
-        command = ['python', 'btk_input.py', '--name', 'unit_test',
+        command = ['python', 'btk_input.py',
                    '--configfile', 'tests/test-config.yaml']
         subprocess.call(command + ['--simulation', simulation])
         args = Input_Args(simulation=simulation)
