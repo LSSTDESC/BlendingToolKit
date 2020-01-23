@@ -65,7 +65,6 @@ def generate(Measurement_params, draw_blend_generator, Args,
         measured_results = {}
         in_args = [(Measurement_params,
                     blend_output, i) for i in range(Args.batch_size)]
-        print("in_args", len(in_args))
         if multiprocessing:
             if Args.verbose:
                 print("Running mini-batch of size {0} with \
@@ -77,7 +76,6 @@ def generate(Measurement_params, draw_blend_generator, Args,
                 print("Running mini-batch of size {0} \
                     serial {1} times".format(len(in_args), cpus))
             batch_results = list(starmap(run_batch, in_args))
-        print("batch_results", batch_results)
         for i in range(batch_size):
             deblend_results.update(
                 {i: batch_results[i][0]})
