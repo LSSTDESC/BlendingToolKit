@@ -1,5 +1,7 @@
 # This YAML file is to be used with btk_input to simulate objects with
 # BlendingTooKit and perform detection/deblending/measurements.
+# Usage:
+#    python3 ../btk_input.py --configfile ../input/example-config.yaml
 
 # Modify the following values; specify directory locations and name of your function.
 # If value are set to None, then the default btk parameters are used.

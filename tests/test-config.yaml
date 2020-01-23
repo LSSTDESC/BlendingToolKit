@@ -1,5 +1,7 @@
 # This YAML file is to be used with btk_input to simulate objects with
-# BlendingTooKit and perform detection/deblending/measurement
+# BlendingTooKit and perform detection/deblending/measurement.
+
+#This config file is to be used in the btk unit tests.
 
 # Modify the following values; specify directory locations and name of your function.
 # If value are set to None, then the default btk parameters are used.

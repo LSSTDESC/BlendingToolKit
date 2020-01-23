@@ -21,7 +21,7 @@ def get_center_in_pixels(Args, blend_catalog):
         blend_catalog: Catalog with entries corresponding to one blend.
 
     Returns:
-        `astropy.table.Column`s: x and y coordinates of object centroid
+        `astropy.table.Column`: x and y coordinates of object centroid
     """
     center = (Args.stamp_size/Args.pixel_scale - 1)/2
     dx = blend_catalog['ra']/Args.pixel_scale + center
@@ -46,7 +46,7 @@ def get_size(Args, catalog, i_obs_cond):
             observing conditions in i band.
 
     Returns:
-        `astropy.table.Column`s: size of the galaxy.
+        `astropy.table.Column`: size of the galaxy.
     """
     f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
     hlr_d = np.sqrt(catalog['a_d']*catalog['b_d'])
@@ -116,7 +116,8 @@ def run_single_band(Args, blend_catalog,
     stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
     iso_image = np.zeros(
         (Args.max_number, stamp_size, stamp_size))
-    # define temporary galsim image to hold isolated galaxy images that will be summed
+    # define temporary galsim image
+    # this will hold isolated galaxy images that will be summed
     blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)
@@ -212,9 +213,6 @@ def generate(Args, blend_genrator, observing_generator,
     Yields:
         Dictionary with blend images, isolated object images, blend catalog,
         and observing conditions.
-
-    To do:
-        Add data augmentation.
     """
     while True:
         batch_blend_cat, batch_obs_cond = [], []
@@ -231,9 +229,8 @@ def generate(Args, blend_genrator, observing_generator,
                         0, Args.batch_size, mini_batch_size)]
         if multiprocessing:
             if Args.verbose:
-                print("Running mini-batch of size {0} \
-                    with multiprocessing with pool {1}".format(
-                        len(in_args), cpus))
+                print("Running mini-batch of size {0} with \
+                    multiprocessing with pool {1}".format(len(in_args), cpus))
             with mp.Pool(processes=cpus) as pool:
                 mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
