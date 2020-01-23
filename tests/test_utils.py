@@ -25,7 +25,7 @@ def get_draw_generator(batch_size=3):
     return draw_blend_generator
 
 
-def get_meas_generator(meas_params):
+def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     """Returns draw generator with group sampling function"""
     catalog_name = 'data/sample_input_catalog.fits'
     param = btk.config.Simulation_params(catalog_name, batch_size=1,
@@ -37,7 +37,8 @@ def get_meas_generator(meas_params):
     draw_generator = btk.draw_blends.generate(param, blend_generator,
                                               observing_generator)
     meas_generator = btk.measure.generate(
-        meas_params, draw_generator, param)
+        meas_params, draw_generator, param,
+        multiprocessing=multiprocessing, cpus=cpus)
     return meas_generator, param
 
 
@@ -78,6 +79,20 @@ def compare_sep():
     pass
 
 
+def compare_sep_multiprocessing():
+    """Test detection with sep"""
+    meas_param = btk.utils.SEP_params()
+    meas_generator, param = get_meas_generator(meas_param,
+                                               multiprocessing=True, cpus=4)
+    output, deb, _ = next(meas_generator)
+    detected_centers = deb[0]['peaks']
+    target_detection = np.array([[64.62860131, 61.83551097]])
+    np.testing.assert_array_almost_equal(
+        detected_centers, target_detection, decimal=3,
+        err_msg="Did not get desired detections")
+    pass
+
+
 def compare_stack():
     """Test detection with stack"""
     pass
@@ -109,17 +124,46 @@ def compare_scarlet():
     pass
 
 
+def compare_scarlet_multiprocessing():
+    """Test deblending with scarlet"""
+    meas_param = btk.utils.Scarlet_params()
+    meas_generator, param = get_meas_generator(meas_param,
+                                               multiprocessing=True, cpus=4)
+    output, deb, _ = next(meas_generator)
+    blend_list = output['blend_list']
+    deblend_images = [deb[i]['deblend_image'] for i in range(len(blend_list))]
+    batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
+    batch_mean = deblend_images[0].mean()
+    batch_std = deblend_images[0].std()
+    test_batch_max = np.array([10.39827598, 279.24613539, 1511.07999549,
+                               1083.94685111, 567.58024363, 403.28130687])
+    test_batch_mean = 4.09093024221
+    test_batch_std = 41.334411867967
+    np.testing.assert_array_almost_equal(
+        batch_max, test_batch_max, decimal=3,
+        err_msg="Did not get desired maximum pixel values of deblend images")
+    np.testing.assert_almost_equal(
+        batch_mean, test_batch_mean, decimal=5,
+        err_msg="Did not get desired mean pixel values of deblend images")
+    np.testing.assert_almost_equal(
+        batch_std, test_batch_std, decimal=5,
+        err_msg="Did not get desired std of pixel values of deblend images")
+    pass
+
+
 @pytest.mark.timeout(15)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     try:
         import sep
         compare_sep()
+        compare_sep_multiprocessing()
     except ModuleNotFoundError:
         print("skipping sep test")
     try:
         import scarlet
-        #compare_scarlet()
+        # compare_scarlet()
+        # compare_scarlet_multiprocessing()
     except ModuleNotFoundError:
         print("skipping scarlet test")
     try:

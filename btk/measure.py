@@ -1,3 +1,7 @@
+import multiprocessing as mp
+from itertools import starmap
+
+
 class Measurement_params(object):
     """Class with functions to perform detection/deblending/measurement."""
 
@@ -32,7 +36,16 @@ class Measurement_params(object):
         return None
 
 
-def generate(Measurement_params, draw_blend_generator, Args):
+def run_batch(Measurement_params, blend_output, index):
+    deblend_results = Measurement_params.get_deblended_images(
+        data=blend_output, index=index)
+    measured_results = Measurement_params.make_measurement(
+        data=blend_output, index=index)
+    return [deblend_results, measured_results]
+
+
+def generate(Measurement_params, draw_blend_generator, Args,
+             multiprocessing=False, cpus=1):
     """Generates output of deblender and measurement algorithm.
 
     Args:
@@ -50,13 +63,24 @@ def generate(Measurement_params, draw_blend_generator, Args):
         batch_size = len(blend_output['blend_images'])
         deblend_results = {}
         measured_results = {}
+        in_args = [(Measurement_params,
+                    blend_output, i) for i in range(Args.batch_size)]
+        if multiprocessing:
+            if Args.verbose:
+                print("Running mini-batch of size {0} with \
+                    multiprocessing with pool {1}".format(len(in_args), cpus))
+            with mp.Pool(processes=cpus) as pool:
+                batch_results = pool.starmap(run_batch, in_args)
+        else:
+            if Args.verbose:
+                print("Running mini-batch of size {0} \
+                    serial {1} times".format(len(in_args), cpus))
+            batch_results = list(starmap(run_batch, in_args))
         for i in range(batch_size):
             deblend_results.update(
-                {i: Measurement_params.get_deblended_images(data=blend_output,
-                                                            index=i)})
+                {i: batch_results[i][0]})
             measured_results.update(
-                {i: Measurement_params.make_measurement(data=blend_output,
-                                                        index=i)})
+                {i: batch_results[i][1]})
             if Args.verbose:
                 print("Measurement performed on batch")
         yield blend_output, deblend_results, measured_results
