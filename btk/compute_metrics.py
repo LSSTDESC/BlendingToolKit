@@ -314,7 +314,12 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
                'flux': [], 'shapes': []}
     for i in range(test_size):
         # Evaluate detection algorithm
-        batch_detection_result = Metrics_params.get_detections()
+        try:
+            batch_detection_result = Metrics_params.get_detections()
+        except (GeneratorExit) as e:
+            print(e)
+            print("GeneratorExit encountered. Returning results")
+            return results
         if (
             len(batch_detection_result[0]) != len(batch_detection_result[1]) or
             len(batch_detection_result[0]) != Metrics_params.sim_param.batch_size
