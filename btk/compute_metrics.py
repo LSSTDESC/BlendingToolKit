@@ -78,6 +78,40 @@ def get_closest_neighbor_distance(true_table):
         true_table['min_dist'] = min_dist
 
 
+def get_m_z_r_diff(true_table, detected_true):
+    """Updtaes the input astropy.table.column with the difference in magnitude,
+    and redshift between an object and it's algorithm matches. It also computes
+    the true distance between an object and its closest detection.
+
+    Args:
+        true_table: Catalog with entries corresponding to one blend.
+    """
+    det_centers = np.stack(
+        [np.array(detected_true['dx']), np.array(detected_true['dy'])]).T
+    z_tree = scipy.spatial.KDTree(det_centers)
+    true_centers = np.stack(
+        [np.array(true_table['dx']), np.array(true_table['dy'])]).T
+    match = true_table[z_tree.query(true_centers)[1]]
+    true_table['dm_min'] = true_table['i_ab'] - match['i_ab']
+    true_table['dz_min'] = true_table['redshift'] - match['redshift']
+    dx = true_table['dx'] - match['dx']
+    dy = true_table['dy'] - match['dy']
+    true_table['dr_min'] = np.hypot(dx, dy)
+
+    #match1 = true_table[match_id1] #[true_table['closest_det_id1']]
+    #true_table['dm_min1'] = true_table['i_ab'] - match1['i_ab']
+    #true_table['dz_min1'] = true_table['redshift'] - match1['redshift']
+    ##dx = true_table['dx'] - match1['dx']
+    #dy = true_table['dy'] - match1['dy']
+    #true_table['dr_min1'] = np.hypot(dx, dy)
+    #match2 = true_table[match_id2] #[true_table['closest_det_id2']]
+    #true_table['dm_min2'] = true_table['i_ab'] - match2['i_ab']
+    #true_table['dz_min2'] = true_table['redshift'] - match2['redshift']
+    #dx = true_table['dx'] - match2['dx']
+    #dy = true_table['dy'] - match2['dy']
+    #true_table['dr_min2'] = np.hypot(dx, dy)
+
+
 def initialize_detection_tables(detected_table, true_table,
                                 batch_index, batch_size,
                                 blend_index):
@@ -105,6 +139,11 @@ def initialize_detection_tables(detected_table, true_table,
     # detection id of closest detection with 2 algorithms [0 - num_det]
     true_table['closest_det_id1'] = np.ones(num_true, dtype=int) * -1.
     true_table['closest_det_id2'] = np.ones(num_true, dtype=int) * -1.
+    # difference in centroids, i band magnitude and redshift between an object
+    # and its match with algorithm 2
+    true_table['dm_min'] = np.zeros(num_true, dtype=int)
+    true_table['dz_min'] = np.zeros(num_true, dtype=int)
+    true_table['dr_min'] = np.zeros(num_true, dtype=int)
     # find distance to nearest neighbor. If isolated then set to np.inf
     true_table['min_dist'] = np.ones(num_true)*np.inf
     get_closest_neighbor_distance(true_table)
@@ -177,6 +216,7 @@ def get_detection_match(true_table, detected_table):
     for j in detected_table['match_true_id2']:
         if j > -1:
             true_table['num_detections2'][j] += 1
+    get_m_z_r_diff(true_table, true_table[match_id1])
 
 
 def get_blend_detection_summary(true_table, det_table):
