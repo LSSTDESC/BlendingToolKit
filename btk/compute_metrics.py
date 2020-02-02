@@ -98,19 +98,6 @@ def get_m_z_r_diff(true_table, detected_true):
     dy = true_table['dy'] - match['dy']
     true_table['dr_min'] = np.hypot(dx, dy)
 
-    #match1 = true_table[match_id1] #[true_table['closest_det_id1']]
-    #true_table['dm_min1'] = true_table['i_ab'] - match1['i_ab']
-    #true_table['dz_min1'] = true_table['redshift'] - match1['redshift']
-    ##dx = true_table['dx'] - match1['dx']
-    #dy = true_table['dy'] - match1['dy']
-    #true_table['dr_min1'] = np.hypot(dx, dy)
-    #match2 = true_table[match_id2] #[true_table['closest_det_id2']]
-    #true_table['dm_min2'] = true_table['i_ab'] - match2['i_ab']
-    #true_table['dz_min2'] = true_table['redshift'] - match2['redshift']
-    #dx = true_table['dx'] - match2['dx']
-    #dy = true_table['dy'] - match2['dy']
-    #true_table['dr_min2'] = np.hypot(dx, dy)
-
 
 def initialize_detection_tables(detected_table, true_table,
                                 batch_index, batch_size,
