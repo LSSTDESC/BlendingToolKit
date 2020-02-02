@@ -137,12 +137,15 @@ def get_catalog(param, selection_function_name, verbose):
     return catalog
 
 
-def get_blend_generator(param, catalog, sampling_function_name, verbose):
+def get_blend_generator(param, user_config_dict, catalog,
+                        sampling_function_name, verbose):
     """Returns generator object that generates catalog describing blended
     objects.
 
     Args:
         param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
         catalog: `astropy.table.Table` with parameters corresponding to objects
                  being simulated.
         sampling_function_name (str): Name of the sampling function in
@@ -154,9 +157,15 @@ def get_blend_generator(param, catalog, sampling_function_name, verbose):
         Generator objects that draws the blend scene.
     """
     if sampling_function_name != "None":
-        btk_utils = os.path.join(os.path.dirname(btk.__file__), 'utils.py')
-        utils = imp.load_source("", btk_utils)
-        sampling_function = getattr(utils, sampling_function_name)
+        try:
+            utils_filename = user_config_dict['utils_filename']
+            utils = imp.load_source("", utils_filename)
+            sampling_function = getattr(utils, sampling_function_name)
+        except(AttributeError) as e:
+            utils_filename = os.path.join(
+                os.path.dirname(btk.__file__), 'utils.py')
+            utils = imp.load_source("", utils_filename)
+            sampling_function = getattr(utils, sampling_function_name)
     else:
         sampling_function = None
     blend_generator = btk.create_blend_generator.generate(param, catalog,
@@ -164,16 +173,18 @@ def get_blend_generator(param, catalog, sampling_function_name, verbose):
     if verbose:
         print(f"Blend generator draws from {param.catalog_name} catalog "
               f"with {sampling_function_name} sampling function defined "
-              " in btk/utils.py")
+              " in {utils_filename}")
     return blend_generator
 
 
-def get_obs_generator(param, observe_function_name, verbose):
+def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     """Returns generator object that generates class describing the observing
     conditions.
 
     Args:
         param (class): Parameter values for btk simulations.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
         catalog: `astropy.table.Table` with parameters corresponding to objects
                  being simulated.
         observe_function_name (str): Name of the function in btk/utils.py to
@@ -184,16 +195,23 @@ def get_obs_generator(param, observe_function_name, verbose):
         Generator objects that generates class with the observing conditions.
     """
     if observe_function_name != "None":
-        btk_utils = os.path.join(os.path.dirname(btk.__file__), 'utils.py')
-        utils = imp.load_source("", btk_utils)
-        observe_function = getattr(utils, observe_function_name)
+        # search for obs function in user input utils, else in btk.utils
+        try:
+            utils_filename = user_config_dict['utils_filename']
+            utils = imp.load_source("", utils_filename)
+            observe_function = getattr(utils, observe_function_name)
+        except(AttributeError) as e:
+            utils_filename = os.path.join(
+                os.path.dirname(btk.__file__), 'utils.py')
+            utils = imp.load_source("", utils_filename)
+            observe_function = getattr(utils, observe_function_name)
     else:
         observe_function = None
     observing_generator = btk.create_observing_generator.generate(
         param, observe_function)
     if verbose:
         print(f"Observing conditions generated using {observe_function_name}"
-              " function defined in btk/utils.py")
+              " function defined in {utils_filename}")
     return observing_generator
 
 
@@ -217,11 +235,13 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict):
         param.verbose)
     # Generate catalogs of blended objects
     blend_genrator = get_blend_generator(
-        param, catalog, str(simulation_config_dict['sampling_function']),
+        param, user_config_dict, catalog,
+        str(simulation_config_dict['sampling_function']),
         param.verbose)
     # Generate observing conditions
     observing_genrator = get_obs_generator(
-        param, str(simulation_config_dict['observe_function']),
+        param, user_config_dict,
+        str(simulation_config_dict['observe_function']),
         param.verbose)
     # Generate images of blends in all the observing bands
     draw_blend_generator = btk.draw_blends.generate(param, blend_genrator,
