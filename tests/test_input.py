@@ -163,7 +163,7 @@ def test_input_output():
 
     """
     for simulation in ['two_gal', 'multi_gal', 'group']:
-        command = ['python', 'btk_input.py',
+        command = ['python3', 'btk_input.py',
                    '--configfile', 'tests/test-config.yaml']
         subprocess.call(command + ['--simulation', simulation])
         args = Input_Args(simulation=simulation)
@@ -402,7 +402,35 @@ def basic_metric_two_gal(output_name):
     pass
 
 
-@pytest.mark.timeout(15)
+def basic_metric_two_gal_multi(output_name):
+    """Loads metric results dill file and compares it to target value"""
+    with open(output_name, 'rb') as handle:
+        results = dill.load(handle)
+    detected_metrics = np.array(results['detection'][2])
+    test_metric_summary = np.array(
+        [[1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0]])
+    np.testing.assert_array_almost_equal(
+        detected_metrics, test_metric_summary, decimal=3,
+        err_msg="Did not get desired detection metrics summary")
+    pass
+
+
+@pytest.mark.timeout(25)
 def test_metrics():
     """Btk measure is run for input config yaml file for different measure
     functions and simulations. The measure outputs written to file are compared
@@ -410,7 +438,7 @@ def test_metrics():
     """
     simulations = ['two_gal', ]
     for simulation in simulations:
-        command = ['python', 'btk_input.py',
+        command = ['python3', 'btk_input.py',
                    '--configfile', 'tests/test-config.yaml']
         subprocess.call(command + ['--simulation', simulation])
         args = Input_Args(simulation=simulation)
@@ -425,6 +453,35 @@ def test_metrics():
                                    simulation + '_metrics_results.dill')
         try:
             basic_metric_two_gal(output_name)
+        except FileNotFoundError as e:
+            print("btk output files not found")
+            raise e
+        except ValueError as e:
+            print("btk output files were not in correct format")
+            raise e
+        finally:
+            delete_output_file(user_config_dict, simulation)
+            print("deleted files")
+        pass
+
+    # TEST MULTIPROCESSING
+    for simulation in simulations:
+        command = ['python3', 'btk_input.py',
+                   '--configfile', 'tests/test-config.yaml', '--multiprocess',
+                   '--cpus', '4']
+        subprocess.call(command + ['--simulation', simulation])
+        args = Input_Args(simulation=simulation)
+        sys.path.append(os.getcwd())
+        btk_input = __import__('btk_input')
+        config_dict = btk_input.read_configfile(
+            args.configfile, args.simulation, args.verbose)
+        user_config_dict = config_dict['user_input']
+        ouput_path = os.path.join(user_config_dict['output_dir'],
+                                  user_config_dict['output_name'])
+        output_name = os.path.join(ouput_path,
+                                   simulation + '_metrics_results.dill')
+        try:
+            basic_metric_two_gal_multi(output_name)
         except FileNotFoundError as e:
             print("btk output files not found")
             raise e
