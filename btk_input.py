@@ -20,9 +20,11 @@ import types
 import btk
 import os
 import numpy as np
-import imp
 import dill
 import subprocess
+import multiprocessing
+import importlib.util
+import sys
 
 
 def parse_config(config_gen, simulation, verbose):
@@ -109,11 +111,14 @@ def get_config_class(config_dict, catalog_name, verbose):
     return config
 
 
-def get_catalog(param, selection_function_name, verbose):
+def get_catalog(param, user_config_dict,
+                selection_function_name, verbose):
     """Returns catalog from which objects are simulated by btk
 
     Args:
         param: Class with btk simulation parameters.
+        user_config_dict: Dictionary with information to run user defined
+            functions (filenames, file location of user algorithms).
         selection_function_name (str): Name of the selection function in
             btk/utils.py.
         verbose (bool): If True prints description at multiple steps.
@@ -123,17 +128,34 @@ def get_catalog(param, selection_function_name, verbose):
         simulated.
     """
     if selection_function_name != "None":
-        btk_utils = os.path.join(os.path.dirname(btk.__file__), 'utils.py')
-        utils = imp.load_source("", btk_utils)
-        selection_function = getattr(utils, selection_function_name)
+        try:
+            utils_filename = user_config_dict['utils_filename']
+            spec = importlib.util.spec_from_file_location(
+                'select_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['select_utils'] = module
+            spec.loader.exec_module(module)
+            selection_function = getattr(module, selection_function_name)
+        except(AttributeError) as e:
+            print(e)
+            utils_filename = os.path.join(
+                os.path.dirname(btk.__file__), 'utils.py')
+            spec = importlib.util.spec_from_file_location(
+                'select_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['select_utils'] = module
+            spec.loader.exec_module(module)
+            selection_function = getattr(module, selection_function_name)
     else:
+        utils_filename = os.path.join(
+            os.path.dirname(btk.__file__), 'utils.py')
         selection_function = None
     catalog = btk.get_input_catalog.load_catalog(
         param, selection_function=selection_function)
     if verbose:
         print(f"Loaded {param.catalog_name} catalog with "
               f"{selection_function_name} selection "
-              "function defined in btk/utils.py")
+              f"function defined in {utils_filename}")
     return catalog
 
 
@@ -159,21 +181,32 @@ def get_blend_generator(param, user_config_dict, catalog,
     if sampling_function_name != "None":
         try:
             utils_filename = user_config_dict['utils_filename']
-            utils = imp.load_source("", utils_filename)
-            sampling_function = getattr(utils, sampling_function_name)
+            spec = importlib.util.spec_from_file_location(
+                'blend_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['blend_utils'] = module
+            spec.loader.exec_module(module)
+            sampling_function = getattr(module, sampling_function_name)
         except(AttributeError) as e:
+            print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')
-            utils = imp.load_source("", utils_filename)
-            sampling_function = getattr(utils, sampling_function_name)
+            spec = importlib.util.spec_from_file_location(
+                'blend_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['blend_utils'] = module
+            spec.loader.exec_module(module)
+            sampling_function = getattr(module, sampling_function_name)
     else:
+        utils_filename = os.path.join(
+            os.path.dirname(btk.__file__), 'utils.py')
         sampling_function = None
     blend_generator = btk.create_blend_generator.generate(param, catalog,
                                                           sampling_function)
     if verbose:
         print(f"Blend generator draws from {param.catalog_name} catalog "
               f"with {sampling_function_name} sampling function defined "
-              " in {utils_filename}")
+              f" in {utils_filename}")
     return blend_generator
 
 
@@ -198,13 +231,22 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
         # search for obs function in user input utils, else in btk.utils
         try:
             utils_filename = user_config_dict['utils_filename']
-            utils = imp.load_source("", utils_filename)
-            observe_function = getattr(utils, observe_function_name)
+            spec = importlib.util.spec_from_file_location(
+                'obs_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['obs_utils'] = module
+            spec.loader.exec_module(module)
+            observe_function = getattr(module, observe_function_name)
         except(AttributeError) as e:
+            print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')
-            utils = imp.load_source("", utils_filename)
-            observe_function = getattr(utils, observe_function_name)
+            spec = importlib.util.spec_from_file_location(
+                'obs_utils', utils_filename)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules['obs_utils'] = module
+            spec.loader.exec_module(module)
+            observe_function = getattr(module, observe_function_name)
     else:
         observe_function = None
     observing_generator = btk.create_observing_generator.generate(
@@ -215,7 +257,8 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     return observing_generator
 
 
-def make_draw_generator(param, user_config_dict, simulation_config_dict):
+def make_draw_generator(param, user_config_dict, simulation_config_dict,
+                        multiprocess=False, cpus=1):
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
@@ -224,6 +267,9 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict):
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
             values of simulations of the blend scene.
+        multiprocess: If true, performs multiprocessing of measurement.
+        cpus: If multiprocessing is True, then number of parallel processes to
+             run on [Default :1].
 
     Returns:
         Generator objects that generates output of blend scene.
@@ -231,8 +277,8 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict):
     """
     # Load catalog to simulate objects from
     catalog = get_catalog(
-        param, str(simulation_config_dict['selection_function']),
-        param.verbose)
+        param, user_config_dict,
+        str(simulation_config_dict['selection_function']), param.verbose)
     # Generate catalogs of blended objects
     blend_genrator = get_blend_generator(
         param, user_config_dict, catalog,
@@ -243,9 +289,12 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict):
         param, user_config_dict,
         str(simulation_config_dict['observe_function']),
         param.verbose)
+    if multiprocess:
+        print(f"Multiprocess draw over {cpus} cpus")
     # Generate images of blends in all the observing bands
-    draw_blend_generator = btk.draw_blends.generate(param, blend_genrator,
-                                                    observing_genrator)
+    draw_blend_generator = btk.draw_blends.generate(
+        param, blend_genrator, observing_genrator,
+        multiprocessing=multiprocess, cpus=cpus)
     return draw_blend_generator
 
 
@@ -276,16 +325,19 @@ def get_measurement_class(user_config_dict, verbose):
                                       'utils.py')
     else:
         utils_filename = user_config_dict['utils_filename']
-    utils = imp.load_source("", utils_filename)
-    measure_class = getattr(utils, measure_class_name)
+    spec = importlib.util.spec_from_file_location('meas_utils',
+                                                  utils_filename)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['meas_utils'] = module
+    spec.loader.exec_module(module)
     if verbose:
         print(f"Measurement class set as {measure_class_name} defined in "
               f"{utils_filename}")
-    return measure_class
+    return getattr(module, measure_class_name)
 
 
-def make_measure_generator(param, user_config_dict,
-                           draw_blend_generator):
+def make_measure_generator(param, user_config_dict, draw_blend_generator,
+                           multiprocess=False, cpus=1):
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
@@ -294,6 +346,9 @@ def make_measure_generator(param, user_config_dict,
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend
             scenes.
+        multiprocess: If true, performs multiprocessing of measurement.
+        cpus: If multiprocessing is True, then number of parallel processes to
+             run on [Default :1].
 
     Returns:
         Generator objects that yields measured values by the measurement
@@ -303,9 +358,12 @@ def make_measure_generator(param, user_config_dict,
     # get class that describes how measurement algorithm performs measurement
     measure_class = get_measurement_class(user_config_dict,
                                           param.verbose)
+    if multiprocess:
+        print(f"Multiprocess measurement over {cpus} cpus")
     # get generator that yields measured values.
     measure_generator = btk.measure.generate(
-            measure_class(), draw_blend_generator, param)
+        measure_class(), draw_blend_generator, param,
+        multiprocessing=multiprocess, cpus=cpus)
     return measure_generator
 
 
@@ -318,7 +376,7 @@ def get_metrics_class(user_config_dict, verbose):
     btk.measure.Measurement_params class. If metrics_function is 'None', then
     default_metrics_function from btk.utils is returned as measurement class.
     The metrics class determines how detected/deblended/measured output
-    performance can be assesed.
+    performance can be assessed.
 
     Args:
         user_config_dict: Dict with information to run user defined functions.
@@ -336,12 +394,15 @@ def get_metrics_class(user_config_dict, verbose):
                                       'utils.py')
     else:
         utils_filename = user_config_dict['utils_filename']
-    utils = imp.load_source("", utils_filename)
-    metrics_class = getattr(utils, metrics_class_name)
+    spec = importlib.util.spec_from_file_location('metrics_utils',
+                                                  utils_filename)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['metrics_utils'] = module
+    spec.loader.exec_module(module)
     if verbose:
         print(f"Measurement class set as {metrics_class_name} defined in "
               f"{utils_filename}")
-    return metrics_class
+    return getattr(module, metrics_class_name)
 
 
 def get_ouput_path(user_config_dict, verbose):
@@ -421,12 +482,22 @@ def main(args):
                                  catalog_name, args.verbose)
         # Set seed
         np.random.seed(int(param.seed))
+        if args.multiprocess:
+            if args.cpus is None:
+                cpus = multiprocessing.cpu_count()
+            else:
+                cpus = args.cpus
+        else:
+            cpus = 1
         # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
-            param, user_config_dict, simulation_config_dict)
+            param, user_config_dict, simulation_config_dict,
+            args.multiprocess, cpus=cpus)
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(param, user_config_dict,
-                                                   draw_blend_generator)
+                                                   draw_blend_generator,
+                                                   args.multiprocess,
+                                                   cpus=cpus)
         # get metrics class that can generate metrics
         metrics_class = get_metrics_class(user_config_dict,
                                           param.verbose)
@@ -454,6 +525,11 @@ if __name__ == '__main__':
                         'values. The content of this file will be overwritten '
                         'by any given command line options.'
                         "[Default:'input/btk-config.yaml']")
+    parser.add_argument('--multiprocess', action='store_true',
+                        help='If True multiprocess is performed for '
+                        'measurement in the batch')
+    parser.add_argument('--cpus', nargs='?', const=1, type=int,
+                        help='Number of cpus. Must be int or None [Default:1]')
     parser.add_argument('--verbose', action='store_true',
                         help='If True prints description at multiple steps')
     args = parser.parse_args()
