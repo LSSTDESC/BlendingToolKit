@@ -55,6 +55,9 @@ def generate(Measurement_params, draw_blend_generator, Args,
                               isolated images, observing conditions and blend
                               catalog.
         Args: Class containing input parameters.
+        multiprocessing: If true performs multiprocessing of measurement.
+        cpus: If multiprocessing is True, then number of parallel processes to
+             run [Default :1].
     Returns:
         draw_blend_generator output, deblender output and measurement output.
     """
@@ -67,14 +70,14 @@ def generate(Measurement_params, draw_blend_generator, Args,
                     blend_output, i) for i in range(Args.batch_size)]
         if multiprocessing:
             if Args.verbose:
-                print("Running mini-batch of size {0} with \
-                    multiprocessing with pool {1}".format(len(in_args), cpus))
+                print(f"Running mini-batch of size {len(in_args)} with",
+                      f"multiprocessing with pool {cpus}")
             with mp.Pool(processes=cpus) as pool:
                 batch_results = pool.starmap(run_batch, in_args)
         else:
             if Args.verbose:
-                print("Running mini-batch of size {0} \
-                    serial {1} times".format(len(in_args), cpus))
+                print(f"Running mini-batch of size {len(in_args)} in",
+                      f"serial with pool {cpus}")
             batch_results = list(starmap(run_batch, in_args))
         for i in range(batch_size):
             deblend_results.update(
