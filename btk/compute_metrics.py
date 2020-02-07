@@ -8,7 +8,7 @@ class Metrics_params(object):
         """Class describing functions to return results of
          detection/deblending/measurement algorithm in meas_generator. Each
          blend results yielded by the meas_generator for a batch.
-    """
+        """
         self.meas_generator = meas_generator
         self.sim_param = sim_param
 
