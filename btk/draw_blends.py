@@ -223,7 +223,7 @@ def generate(Args, blend_genrator, observing_generator,
                                     stamp_size, stamp_size, len(Args.bands)))
         in_batch_blend_cat = next(blend_genrator)
         obs_cond = next(observing_generator)
-        mini_batch_size = Args.batch_size//cpus
+        mini_batch_size = np.max([Args.batch_size//cpus, 1])
         in_args = [(Args, in_batch_blend_cat[i:i+mini_batch_size],
                     copy.deepcopy(obs_cond)) for i in range(
                         0, Args.batch_size, mini_batch_size)]
