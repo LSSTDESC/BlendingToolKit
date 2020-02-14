@@ -84,6 +84,6 @@ def generate(Measurement_params, draw_blend_generator, Args,
                 {i: batch_results[i][0]})
             measured_results.update(
                 {i: batch_results[i][1]})
-            if Args.verbose:
-                print("Measurement performed on batch")
+        if Args.verbose:
+            print("Measurement performed on batch")
         yield blend_output, deblend_results, measured_results

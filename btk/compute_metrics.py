@@ -345,6 +345,7 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
                'segmentation': [],
                'flux': [], 'shapes': []}
     for i in range(test_size):
+        print(f"Running test {i}")
         # Evaluate detection algorithm
         try:
             batch_detection_result = Metrics_params.get_detections()
