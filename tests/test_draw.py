@@ -27,10 +27,10 @@ def match_blend_images_default(blend_images):
     the mean and std values in the batch. This is compared to the values
     measured a priori for the default input settings.
     """
-    test_batch_max = np.array([244.6290132, 2133.11614647, 8080.93459939,
-                               10759.50400858, 8818.22664691, 5424.14672976])
-    test_batch_mean = 7.345121563268825
-    test_batch_std = 486.57733801008953
+    test_batch_max = np.array([215.6290132, 2394.11614647, 8480.93459939,
+                               11069.50400858, 8686.22664691, 5538.14672976])
+    test_batch_mean = 7.354362014657712
+    test_batch_std = 404.1066833449062
     batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
@@ -68,6 +68,18 @@ def match_isolated_images_default(isolated_images):
         err_msg="Did not get desired std of pixel values of isolated images")
 
 
+def match_background_noise(blend_images):
+    """Computes the background noise value of second blend scene image for in
+    the i band . This is compared to the values measured a priori for the
+    default input settings.
+    """
+    test_batch_noise = 176958.46899032593
+    batch_noise = np.var(blend_images[1, 0:32, 0:32, 3])
+    np.testing.assert_almost_equal(
+        batch_noise, test_batch_noise, decimal=5,
+        err_msg="Did not get desired mean pixel values of blend images")
+
+
 @pytest.mark.timeout(5)
 def test_default():
     default_draw_generator = get_draw_generator()
@@ -79,6 +91,7 @@ def test_default():
         observing survey is LSST."
     match_blend_images_default(draw_output['blend_images'])
     match_isolated_images_default(draw_output['isolated_images'])
+    match_background_noise(draw_output['blend_images'])
     pass
 
 

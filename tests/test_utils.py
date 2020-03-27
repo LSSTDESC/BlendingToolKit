@@ -51,18 +51,18 @@ def test_group_sampling():
     batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
-    test_batch_max = np.array([378.6290132, 2082.11614647, 10042.93459939,
-                               10939.50400858, 9472.22664691, 4909.14672976])
-    test_batch_mean = 13.589091952929321
-    test_batch_std = 719.7592990809109
+    test_batch_max = np.array([259.6290132, 1809.11614647, 9402.93459939,
+                               10838.50400858, 9817.22664691, 4773.14672976])
+    test_batch_mean = 15.168285625768823
+    test_batch_std = 421.9246142042583
     np.testing.assert_array_almost_equal(
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of blend images")
     np.testing.assert_almost_equal(
-        batch_mean, test_batch_mean, decimal=5,
+        batch_mean, test_batch_mean, decimal=3,
         err_msg="Did not get desired mean pixel values of blend images")
     np.testing.assert_almost_equal(
-        batch_std, test_batch_std, decimal=5,
+        batch_std, test_batch_std, decimal=3,
         err_msg="Did not get desired std of pixel values of blend images")
 
 
@@ -143,10 +143,10 @@ def compare_scarlet_multiprocessing():
         batch_max, test_batch_max, decimal=3,
         err_msg="Did not get desired maximum pixel values of deblend images")
     np.testing.assert_almost_equal(
-        batch_mean, test_batch_mean, decimal=5,
+        batch_mean, test_batch_mean, decimal=3,
         err_msg="Did not get desired mean pixel values of deblend images")
     np.testing.assert_almost_equal(
-        batch_std, test_batch_std, decimal=5,
+        batch_std, test_batch_std, decimal=3,
         err_msg="Did not get desired std of pixel values of deblend images")
     pass
 

@@ -134,15 +134,15 @@ def run_single_band(Args, blend_catalog,
                 print("Source not visible")
             blend_catalog['not_drawn_' + band][k] = 1
             continue
-        if Args.add_noise:
-            if Args.verbose:
-                print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(
-                seed=np.random.randint(99999999))
-            noise = galsim.PoissonNoise(
-                rng=generator,
-                sky_level=iso_obs.mean_sky_level)
-            blend_image_temp.addNoise(noise)
+    if Args.add_noise:
+        if Args.verbose:
+            print("Noise added to blend image")
+        generator = galsim.random.BaseDeviate(
+            seed=np.random.randint(99999999))
+        noise = galsim.PoissonNoise(
+            rng=generator,
+            sky_level=iso_obs.mean_sky_level)
+        blend_image_temp.addNoise(noise)
     blend_image = blend_image_temp.array
     return blend_image, iso_image
 

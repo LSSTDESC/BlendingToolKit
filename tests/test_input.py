@@ -211,10 +211,10 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
         param, user_config_dict, simulation_config_dict)
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator)
-    test_detect_centers = [[[57, 67], [63, 59], [49, 57]],
+    test_detect_centers = [[[57, 67], [56, 60], [62, 59], [50, 57]],
                            [[49, 67]],
                            [[59, 67]],
-                           [[54, 63], [60, 49]],
+                           [[54, 62], [60, 48]],
                            ]
     output, deb, _ = next(measure_generator)
     for i in range(len(output['blend_list'])):
@@ -246,12 +246,11 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
     user_config_dict['utils_input']['measure_function'] = 'SEP_params'
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator)
-    test_detect_centers = [[[62.633432, 58.845595], [56.823835, 66.857761],
-                            [55.138673, 59.557461], [49.164199, 56.989852]],
-                           [[49.245587, 67.135604]],
-                           [[58.834318, 66.726691]],
-                           [[68.389972, 61.936116], [60.043505, 47.8969331],
-                            [54.581039, 61.718651]]
+    test_detect_centers = [[[61.053514, 59.036174], [56.75570, 66.828738]],
+                           [[49.122160, 67.083341]],
+                           [[58.860925, 66.717095]],
+                           [[60.001894, 48.028837], [54.59445, 61.779338],
+                            [68.154231, 61.524448]]
                            ]
     output, deb, _ = next(measure_generator)
     for i in range(len(output['blend_list'])):
@@ -385,17 +384,17 @@ def basic_metric_two_gal(output_name):
          [1, 1, 0, 0, 0, 1, 0, 0, 0],
          [1, 1, 0, 0, 0, 1, 0, 0, 0],
          [2, 2, 0, 0, 0, 2, 0, 0, 0],
-         [2, 2, 0, 0, 0, 2, 0, 0, 0],
-         [2, 2, 0, 0, 0, 2, 0, 0, 0],
-         [1, 1, 0, 0, 0, 1, 0, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [2, 2, 0, 0, 0, 2, 0, 0, 0],
          [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [2, 2, 0, 0, 0, 2, 0, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [1, 1, 0, 0, 0, 1, 0, 0, 0]])
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [1, 1, 0, 0, 0, 1, 0, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0]])
     np.testing.assert_array_almost_equal(
         detected_metrics, test_metric_summary, decimal=3,
         err_msg="Did not get desired detection metrics summary")
@@ -422,7 +421,7 @@ def basic_metric_two_gal_multi(output_name):
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [2, 2, 0, 0, 0, 2, 0, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
+         [2, 2, 0, 0, 0, 2, 0, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0]])
     np.testing.assert_array_almost_equal(
         detected_metrics, test_metric_summary, decimal=3,

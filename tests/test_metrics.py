@@ -12,7 +12,7 @@ def compare_basic_metric(param, user_config_dict,
     result test_metric_summary.
     """
     test_metric_summary = np.array(
-        [[5, 3, 2, 0, 0, 3, 2, 0, 0],
+        [[5, 4, 1, 0, 0, 4, 1, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [1, 1, 0, 0, 0, 1, 0, 0, 0],
          [6, 2, 4, 0, 0, 2, 4, 0, 0]])
@@ -68,14 +68,14 @@ def compare_sep_group_metric(param, user_config_dict,
          [3, 1, 2, 0, 0, 1, 2, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
          [5, 2, 3, 0, 0, 2, 3, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [3, 1, 2, 0, 0, 1, 2, 0, 0],
          [5, 2, 3, 0, 0, 2, 3, 0, 0],
-         [5, 1, 4, 0, 0, 1, 4, 0, 0],
-         [6, 3, 3, 0, 0, 3, 3, 0, 0],
+         [3, 1, 2, 0, 0, 1, 2, 0, 0],
+         [3, 2, 1, 0, 0, 2, 1, 0, 0],
+         [4, 2, 2, 0, 0, 2, 2, 0, 0],
+         [5, 2, 3, 0, 0, 2, 3, 0, 0],
+         [3, 1, 2, 0, 0, 1, 2, 0, 0],
          [2, 1, 1, 0, 0, 1, 1, 0, 0],
-         [6, 3, 3, 0, 0, 3, 3, 0, 0]])
+         [2, 1, 1, 0, 0, 1, 1, 0, 0]])
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
         param, user_config_dict, simulation_config_dict)
