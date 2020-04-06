@@ -14,6 +14,19 @@ The following dependencies are pip installable:
 * scipy
 * lmfit
 
+Install fitsio and lmfit
+-----------------------------
+These two uncommon packages can be installed via:
+::
+    # in conda.
+    conda install -c conda-forge fitsio
+    conda install -c conda-forge lmfit
+
+    # in pip.
+    pip install fitsio
+    pip install lmfit
+
+
 Install GalSim
 -------------------------------
 

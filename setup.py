@@ -12,6 +12,9 @@ setup(
     # scripts = [ ],
     # include_package_data=True,
     # zip_safe=False,
-    # install_requires=[ ], #requirements,
+    install_requires=[
+        'lmfit',
+        'fitsio'
+    ],
     license='MIT',
 )
