@@ -49,7 +49,7 @@ def parse_config(config_gen, simulation, verbose):
                     os.path.dirname(btk.__file__), 'utils.py')
             continue
         if 'simulation' in doc.keys():
-            if (simulation == doc['simulation'] or simulation == 'all'):
+            if simulation == doc['simulation'] or simulation == 'all':
                 config_dict['simulation'][doc['simulation']] = doc['config']
                 if verbose:
                     print(f"{doc['simulation']} parameter values loaded to "

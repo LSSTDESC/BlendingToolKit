@@ -284,7 +284,7 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
             continue
         color = ("white" if label > 50
                  else "black" if label > 0
-                 else "grey")
+        else "grey")
         ax.text(i, j, f"{label:.1f}%",
                 ha='center', va='center', color=color)
         if i == j:
@@ -295,7 +295,7 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
 
 
 def show_scarlet_residual(sources, observation, limits=(30, 90)):
-        """Plot scarlet model and residual image in rgb and i band.
+    """Plot scarlet model and residual image in rgb and i band.
 
         Note: this requires scrlet to be installed.
         Args:
@@ -305,51 +305,51 @@ def show_scarlet_residual(sources, observation, limits=(30, 90)):
             display image within. Note: limits are applied to both height and
             width dimensions.
         """
-        import scarlet
-        import scarlet.display
-        figsize1 = (8, 2 * len(list(sources)))
-        figsize2 = (9.5, 2 * len(list(sources)))
-        fig, ax = plt.subplots(1, 4, figsize=figsize1)
-        fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
-        tree = scarlet.component.ComponentTree(sources)
-        model = tree.get_model()
-        ax[0].imshow(scarlet.display.img_to_rgb(model))
-        ax[0].set_title("Model")
-        cbar = ax2[0].imshow(model[4]/10**3)
-        divider1 = make_axes_locatable(ax2[0])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title('$10^3$', size=8)
-        model = observation.render(model)
-        ax[1].imshow(scarlet.display.img_to_rgb(model))
-        ax[1].set_title("Model Rendered")
-        cbar = ax2[1].imshow(model[4]/10**3)
-        divider1 = make_axes_locatable(ax2[1])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title('$10^3$', size=8)
-        ax[2].imshow(scarlet.display.img_to_rgb(observation.images))
-        ax[2].set_title("Observation")
-        cbar = ax2[2].imshow(observation.images[4]/10**3)
-        divider1 = make_axes_locatable(ax2[2])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title('$10^3$', size=8)
-        residual = observation.images - model
-        norm_ = scarlet.display.LinearPercentileNorm(residual)
-        ax[3].imshow(scarlet.display.img_to_rgb(residual))
-        ax[3].set_title("Residual")
-        cbar = ax2[3].imshow(residual[4]/10**3)
-        divider1 = make_axes_locatable(ax2[3])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title('$10^3$', size=8)
-        fig.tight_layout()
-        for a in ax:
-            a.set_xlim(limits)
-            a.set_ylim(limits)
-        for a in ax2:
-            a.axis('off')
-            a.set_xlim(limits)
-            a.set_ylim(limits)
-        plt.show()
+    import scarlet
+    import scarlet.display
+    figsize1 = (8, 2 * len(list(sources)))
+    figsize2 = (9.5, 2 * len(list(sources)))
+    fig, ax = plt.subplots(1, 4, figsize=figsize1)
+    fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
+    tree = scarlet.component.ComponentTree(sources)
+    model = tree.get_model()
+    ax[0].imshow(scarlet.display.img_to_rgb(model))
+    ax[0].set_title("Model")
+    cbar = ax2[0].imshow(model[4] / 10 ** 3)
+    divider1 = make_axes_locatable(ax2[0])
+    cax = divider1.append_axes("right", size="4%", pad=0.05)
+    clb = plt.colorbar(cbar, cax=cax)
+    clb.ax.set_title('$10^3$', size=8)
+    model = observation.render(model)
+    ax[1].imshow(scarlet.display.img_to_rgb(model))
+    ax[1].set_title("Model Rendered")
+    cbar = ax2[1].imshow(model[4] / 10 ** 3)
+    divider1 = make_axes_locatable(ax2[1])
+    cax = divider1.append_axes("right", size="4%", pad=0.05)
+    clb = plt.colorbar(cbar, cax=cax)
+    clb.ax.set_title('$10^3$', size=8)
+    ax[2].imshow(scarlet.display.img_to_rgb(observation.images))
+    ax[2].set_title("Observation")
+    cbar = ax2[2].imshow(observation.images[4] / 10 ** 3)
+    divider1 = make_axes_locatable(ax2[2])
+    cax = divider1.append_axes("right", size="4%", pad=0.05)
+    clb = plt.colorbar(cbar, cax=cax)
+    clb.ax.set_title('$10^3$', size=8)
+    residual = observation.images - model
+    norm_ = scarlet.display.LinearPercentileNorm(residual)
+    ax[3].imshow(scarlet.display.img_to_rgb(residual))
+    ax[3].set_title("Residual")
+    cbar = ax2[3].imshow(residual[4] / 10 ** 3)
+    divider1 = make_axes_locatable(ax2[3])
+    cax = divider1.append_axes("right", size="4%", pad=0.05)
+    clb = plt.colorbar(cbar, cax=cax)
+    clb.ax.set_title('$10^3$', size=8)
+    fig.tight_layout()
+    for a in ax:
+        a.set_xlim(limits)
+        a.set_ylim(limits)
+    for a in ax2:
+        a.axis('off')
+        a.set_xlim(limits)
+        a.set_ylim(limits)
+    plt.show()

@@ -1,7 +1,9 @@
 """Contains functions to perform detection, deblending and measurement
     on images.
 """
-from btk import measure
+
+# REVIEW: You were shadowing this import inside of another function, but I noticed you only use Measurement_params
+from btk.measure import Measurement_params
 from btk import plot_utils
 import btk.create_blend_generator
 import numpy as np
@@ -10,7 +12,7 @@ import skimage.feature
 from functools import partial
 
 
-class SEP_params(measure.Measurement_params):
+class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
     def get_centers(self, image):
@@ -70,7 +72,7 @@ def get_psf_sky(obs_cond, psf_stamp_size):
     return psf_image, mean_sky_level
 
 
-class Stack_params(measure.Measurement_params):
+class Stack_params(Measurement_params):
     """Class with functions that describe how LSST science pipeline can
     perform measurements on the input data."""
     min_pix = 1  # Minimum size in pixels to be considered a source
@@ -124,6 +126,7 @@ def run_stack(image_array, variance_array, psf_array,
     Returns:
         catalog: AstroPy table of detected sources
     """
+    # REVIEW: Why do you import all of the stack packages individually?
     # Convert to stack Image object
     import lsst.afw.table
     import lsst.afw.image
@@ -171,7 +174,7 @@ def run_stack(image_array, variance_array, psf_array,
     return catalog
 
 
-class Scarlet_params(measure.Measurement_params):
+class Scarlet_params(Measurement_params):
     """"""
     iters = 200  # Maximum number of iterations for scarlet to run
     e_rel = 1e-4  # Relative error for convergence
@@ -435,13 +438,13 @@ def group_sampling_function_numbered(Args, catalog):
 
     This function requires a parameter, group_id_count, to be input in Args
     along with the wld_catalog which tracks the group id returned. Each time
-    the generator is called,1 gets added to the count. If the count is
+    the generator is called, 1 gets added to the count. If the count is
     larger than the number of groups input, the generator is forced to exit.
 
     The group is centered on the middle of the postage stamp.
     This function only draws galaxies whose centers lie within 1 arcsec the
     postage stamp edge, which may cause the number of galaxies in the blend to
-    be smaller than the group size.The pre-run wld catalog must be defined as
+    be smaller than the group size. The pre-run wld catalog must be defined as
     Args.wld_catalog.
 
     Note: the pre-run WLD images are not used here. We only use the pre-run
@@ -502,7 +505,7 @@ def group_sampling_function_numbered(Args, catalog):
     return no_boundary
 
 
-class Basic_measure_params(measure.Measurement_params):
+class Basic_measure_params(Measurement_params):
     """Class to perform detection by identifying peaks with skimage"""
 
     def get_centers(self, image):
