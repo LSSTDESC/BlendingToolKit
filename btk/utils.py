@@ -3,6 +3,7 @@
 """
 
 # REVIEW: You were shadowing this import inside of another function, but I noticed you only use Measurement_params
+#         so I just changed it to that.
 from btk.measure import Measurement_params
 from btk import plot_utils
 import btk.create_blend_generator
