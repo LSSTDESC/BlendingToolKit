@@ -16,6 +16,7 @@ from functools import partial
 class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
+    # REVIEW: Hmm, it's a bit weird to define attributes outside an __init__
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -32,7 +33,8 @@ class SEP_params(Measurement_params):
         centers = np.stack((self.catalog['x'], self.catalog['y']), axis=1)
         return centers
 
-    def get_deblended_images(self, data, index):
+    # REVIEW: match original signature
+    def get_deblended_images(self, data=None, index=None):
         """Performs SEP detection on the band-coadd image and returns the
         detected peaks.
 

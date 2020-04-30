@@ -42,6 +42,7 @@ class Measurement_params(ABC):
 
 
 # REVIEW: avoid shadowing names from outer scope?
+# REVIEW: Purpose of this function? also what is blend_output?
 def run_batch(measurement_params, blend_output, index):
     deblend_results = measurement_params.get_deblended_images(
         data=blend_output, index=index)
@@ -50,6 +51,8 @@ def run_batch(measurement_params, blend_output, index):
     return [deblend_results, measured_results]
 
 
+# REVIEW: is multiprocessing here only used to draw blends from the generator in batches?
+#         the network results might live in a GPU?
 def generate(measurement_params, draw_blend_generator, Args,
              multiprocessing=False, cpus=1):
     """Generates output of deblender and measurement algorithm.
