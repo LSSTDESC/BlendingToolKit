@@ -2,9 +2,11 @@
     on images.
 """
 
-# REVIEW: You were shadowing this import inside of another function, but I noticed you only use Measurement_params
-#         so I just changed it to that.
+# REVIEW:
+#  You were shadowing this import inside of another function, but I noticed you only use Measurement_params
+#  so I just changed it to that.
 from btk.measure import Measurement_params
+from btk.compute_metrics import Metrics_params
 from btk import plot_utils
 import btk.create_blend_generator
 import numpy as np
@@ -16,7 +18,8 @@ from functools import partial
 class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
-    # REVIEW: Hmm, it's a bit weird to define attributes outside an __init__
+    # REVIEW:
+    #  Hmm, it's a bit weird to define attributes outside an __init__
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -33,8 +36,9 @@ class SEP_params(Measurement_params):
         centers = np.stack((self.catalog['x'], self.catalog['y']), axis=1)
         return centers
 
-    # REVIEW: match original signature
-    def get_deblended_images(self, data=None, index=None):
+    # REVIEW:
+    #  match original signature
+    def get_deblended_images(self, data, index):
         """Performs SEP detection on the band-coadd image and returns the
         detected peaks.
 
@@ -81,8 +85,10 @@ class Stack_params(Measurement_params):
     min_pix = 1  # Minimum size in pixels to be considered a source
     bkg_bin_size = 32  # Binning size of the local background
     thr_value = 5  # SNR threshold for the detection
-    psf_stamp_size = 41  # size of pstamp to draw PSF on
+    psf_stamp_size = 41  # size of psf stamp to draw PSF on
 
+    # REVIEW:
+    #  This does not return a dict?
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
         the blend for input index entry in the batch.
@@ -107,7 +113,9 @@ class Stack_params(Measurement_params):
         cat_chldrn = cat_chldrn.copy(deep=True)
         return cat_chldrn.asAstropy()
 
-    def get_deblended_images(self, data=None, index=None):
+    # REVIEW:
+    #  make arguments not optional to be consistent with parent.
+    def get_deblended_images(self, data, index):
         return None
 
 
@@ -129,7 +137,8 @@ def run_stack(image_array, variance_array, psf_array,
     Returns:
         catalog: AstroPy table of detected sources
     """
-    # REVIEW: Why do you import all of the stack packages individually?
+    # REVIEW:
+    #  Why do you import all of the stack packages individually? Is that part of the stack setup?
     # Convert to stack Image object
     import lsst.afw.table
     import lsst.afw.image
@@ -534,14 +543,19 @@ class Basic_measure_params(Measurement_params):
         return {'deblend_image': None, 'peaks': peaks}
 
 
-class Basic_metric_params(btk.compute_metrics.Metrics_params):
+class Basic_metric_params(Metrics_params):
+
+    # REVIEW:
+    #  We don't need to call super if we are not modifying the __init__ I believe. But maybe you just wanted
+    #  the __init__ to add a docstring to the class?
+
     def __init__(self, *args, **kwargs):
-        super(Basic_metric_params, self).__init__(*args, **kwargs)
         """Class describing functions to return results of
         detection/deblending/measurement algorithm in meas_generator. Each
         time the algorithm is called, it is run on a batch of blends yielded
         by the meas_generator.
-    """
+        """
+        super(Basic_metric_params, self).__init__(*args, **kwargs)
 
     def get_detections(self):
         """Returns input blend catalog and detection catalog for
@@ -569,7 +583,9 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
         return true_tables, detected_tables
 
 
-class Stack_metric_params(btk.compute_metrics.Metrics_params):
+# REVIEW:
+#  Just for consistency.
+class Stack_metric_params(Metrics_params):
     def __init__(self, *args, **kwargs):
         super(Stack_metric_params, self).__init__(*args, **kwargs)
         """Class describing functions to return results of

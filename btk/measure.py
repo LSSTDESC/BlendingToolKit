@@ -3,13 +3,23 @@ from itertools import starmap
 from abc import ABC, abstractmethod
 
 
-# REVIEW: Make into abstract data class? This enforces that children need to overwrite new methods and
-#         Measurement_params can't instantiated directly.
+# REVIEW:
+#  Make into abstract data class? This enforces that children need to overwrite new methods and
+#  Measurement_params class can't instantiated directly.
 class Measurement_params(ABC):
     """Class with functions to perform detection/deblending/measurement."""
 
+    # REVIEW:
+    #  Same as function below with optional arguments.
+    # REVIEW:
+    #  I have a little trouble understanding the difference between make_measurement and get_deblended_images.
+    #   This is just because there is only one example of this in the `utils.py` file and it returns a catalog
+    #   not a dict?
+    # REVIEW:
+    #  Also was your idea that both of these methods will eventually be implemented for all children or just
+    #  sometimes?
     @abstractmethod
-    def make_measurement(self, data=None, index=None):
+    def make_measurement(self, data, index):
         """Function describing how the measurement algorithm is run.
 
         Args:
@@ -24,8 +34,12 @@ class Measurement_params(ABC):
         """
         return None
 
+    # REVIEW:
+    #  abstract method to enforce replacement by children classes.
+    # REVIEW:
+    #  made arguments not optional, because no example where they should be?
     @abstractmethod
-    def get_deblended_images(self, data=None, index=None):
+    def get_deblended_images(self, data, index):
         """Function describing how the deblending algorithm is run.
 
         Args:
@@ -41,8 +55,10 @@ class Measurement_params(ABC):
         return None
 
 
-# REVIEW: avoid shadowing names from outer scope?
-# REVIEW: Purpose of this function? also what is blend_output?
+# REVIEW:
+#  avoid shadowing names from outer scope? measurement_params is an object right?
+# REVIEW:
+#  Purpose of this function? also what is blend_output?
 def run_batch(measurement_params, blend_output, index):
     deblend_results = measurement_params.get_deblended_images(
         data=blend_output, index=index)
@@ -51,8 +67,9 @@ def run_batch(measurement_params, blend_output, index):
     return [deblend_results, measured_results]
 
 
-# REVIEW: is multiprocessing here only used to draw blends from the generator in batches?
-#         the network results might live in a GPU?
+# REVIEW:
+#  is multiprocessing here only used to draw blends from the generator in batches?
+#  the network results might live in a GPU?
 def generate(measurement_params, draw_blend_generator, Args,
              multiprocessing=False, cpus=1):
     """Generates output of deblender and measurement algorithm.

@@ -1,9 +1,13 @@
-import numpy as np
+from abc import ABC, abstractmethod
+
 import astropy.table
+import numpy as np
 import scipy.spatial
 
 
-class Metrics_params(object):
+# REVIEW:
+#  Also make it an abstract class.
+class Metrics_params(ABC):
     def __init__(self, meas_generator, sim_param):
         """Class describing functions to return results of
          detection/deblending/measurement algorithm in meas_generator. Each
@@ -12,6 +16,7 @@ class Metrics_params(object):
         self.meas_generator = meas_generator
         self.sim_param = sim_param
 
+    @abstractmethod
     def get_detections(self):
         """
         Returns detection results as two catalogs one with entries of true
@@ -100,7 +105,7 @@ def get_m_z_diff(true_table, detected_true):
     dx = true_table['dx'] - match['dx']
     dy = true_table['dy'] - match['dy']
     true_table['ddist_match'] = np.hypot(dx, dy)
-    true_table['dnorm_dist_match'] = np.hypot(dx, dy)/match['size']
+    true_table['dnorm_dist_match'] = np.hypot(dx, dy) / match['size']
 
 
 def initialize_detection_tables(detected_table, true_table,
@@ -120,10 +125,10 @@ def initialize_detection_tables(detected_table, true_table,
     true_table['true_id'] = range(num_true)  # id in blend [0-num_true]
     # index of blend in test size [0 - len(blend_summary)]
     true_table['blend_index'] = np.ones(
-        num_true, dtype=int)*(batch_index*batch_size + blend_index)
+        num_true, dtype=int) * (batch_index * batch_size + blend_index)
     # index of batch in test size [0 - batch_size]
     true_table['batch_index'] = np.ones(
-        num_true, dtype=int)*batch_index
+        num_true, dtype=int) * batch_index
     # number of times object was detected [0 - num_det]
     true_table['num_detections1'] = np.zeros(num_true, dtype=int)
     true_table['num_detections2'] = np.zeros(num_true, dtype=int)
@@ -137,26 +142,26 @@ def initialize_detection_tables(detected_table, true_table,
     true_table['ddist_match'] = np.zeros(num_true, dtype=int)
     true_table['dnorm_dist_match'] = np.zeros(num_true, dtype=int)
     # find distance to nearest neighbor. If isolated then set to np.inf
-    true_table['min_dist'] = np.ones(num_true)*np.inf
+    true_table['min_dist'] = np.ones(num_true) * np.inf
     get_closest_neighbor_distance(true_table)
     # initialize detected objects table columns
     num_det = len(detected_table)
     detected_table['detection_id'] = range(num_det)  # id in blend [0-num_det]
     # index of blend in test size [0 - len(blend_summary)]
     detected_table['blend_index'] = np.ones(
-        num_det, dtype=int)*(batch_index*batch_size + blend_index)
+        num_det, dtype=int) * (batch_index * batch_size + blend_index)
     # index of batch in test size [0 - batch_size]
     detected_table['batch_index'] = np.ones(
-        num_det, dtype=int)*batch_index
+        num_det, dtype=int) * batch_index
     # id of closest true object; [0 - num_true] if detected, else -1
     detected_table['match_true_id1'] = np.ones(
-        num_det, dtype=int)*-1
+        num_det, dtype=int) * -1
     detected_table['match_true_id2'] = np.ones(
-        num_det, dtype=int)*-1
+        num_det, dtype=int) * -1
     detected_table['match_galtileid1'] = np.ones(
-        num_det, dtype=int)*-1
+        num_det, dtype=int) * -1
     detected_table['match_galtileid2'] = np.ones(
-        num_det, dtype=int)*-1
+        num_det, dtype=int) * -1
 
 
 def get_detection_match(true_table, detected_table):
@@ -171,14 +176,14 @@ def get_detection_match(true_table, detected_table):
         detected_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
     """
-    if (len(detected_table) == 0 or len(true_table) == 0):
+    if len(detected_table) == 0 or len(true_table) == 0:
         # No match since either no detection or no true objects
         return
     t_x = true_table['dx'][:, np.newaxis] - detected_table['dx']
     t_y = true_table['dy'][:, np.newaxis] - detected_table['dy']
     dist = np.hypot(t_x, t_y)
     norm_size = true_table['size']
-    norm_dist = dist/norm_size[:, np.newaxis]
+    norm_dist = dist / norm_size[:, np.newaxis]
     detected_table['dSigma_min'] = np.min(norm_dist, axis=0)
     detected_table['d_min'] = np.min(dist, axis=0)
     detection_threshold1 = 5
@@ -239,20 +244,20 @@ def get_blend_detection_summary(true_table, det_table):
     num_undetected2 = len(np.where(true_table['num_detections2'] == 0)[0])
     num_spurious2 = len(np.where(det_table['match_true_id2'] == -1)[0])
     num_shred2 = len(np.where(true_table['num_detections2'] > 1)[0])
-    assert num_detected1+num_undetected1+num_shred1 == num_true, "Number of "\
-        "detected objects + number undetected objects must be equal to "\
-        "the total number of true objects"
-    assert num_detected2+num_undetected2+num_shred2 == num_true, "Number of "\
-        "detected objects + number undetected objects must be equal to "\
-        "the total number of true objects"
+    assert num_detected1 + num_undetected1 + num_shred1 == num_true, "Number of " \
+                                                                     "detected objects + number undetected objects must be equal to " \
+                                                                     "the total number of true objects"
+    assert num_detected2 + num_undetected2 + num_shred2 == num_true, "Number of " \
+                                                                     "detected objects + number undetected objects must be equal to " \
+                                                                     "the total number of true objects"
     num_matched_detections1 = true_table['num_detections1'].sum()
-    assert num_matched_detections1 + num_spurious1 == num_det, "Number of "\
-        "detections match to a true object + number of spurious must be "\
-        "equal to the total number of detections."
+    assert num_matched_detections1 + num_spurious1 == num_det, "Number of " \
+                                                               "detections match to a true object + number of spurious must be " \
+                                                               "equal to the total number of detections."
     num_matched_detections2 = true_table['num_detections2'].sum()
-    assert num_matched_detections2 + num_spurious2 == num_det, "Number of "\
-        "detections match to a true object + number of spurious must be "\
-        "equal to the total number of detections."
+    assert num_matched_detections2 + num_spurious2 == num_det, "Number of " \
+                                                               "detections match to a true object + number of spurious must be " \
+                                                               "equal to the total number of detections."
     blend_summary = [num_true, num_detected1, num_undetected1, num_spurious1,
                      num_shred1, num_detected2, num_undetected2, num_spurious2,
                      num_shred2]
@@ -323,6 +328,8 @@ def evaluate_shapes(shapes, data=None, index=None):
     return None
 
 
+# REVIEW:
+#  Avoid shadowing Metrics_param
 def run(Metrics_params, test_size=1000, dSigma_detection=True):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
     the input metrics params for input test_size number of btk runs.
@@ -354,14 +361,14 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
             print("GeneratorExit encountered. Returning results")
             return results
         if (
-            len(batch_detection_result[0]) != len(batch_detection_result[1]) or
-            len(batch_detection_result[0]) != Metrics_params.sim_param.batch_size
-           ):
+                len(batch_detection_result[0]) != len(batch_detection_result[1]) or
+                len(batch_detection_result[0]) != Metrics_params.sim_param.batch_size
+        ):
             raise ValueError("Metrics_params.get_detections output must be "
                              "two lists of astropy table of length batch size."
                              f" Found {len(batch_detection_result[0])}, "
                              f"{len(batch_detection_result[1])}, "
-                             f"{ Metrics_params.sim_param.batch_size}")
+                             f"{Metrics_params.sim_param.batch_size}")
         true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1],
             batch_index=i)
