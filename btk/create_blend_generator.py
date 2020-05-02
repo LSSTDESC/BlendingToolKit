@@ -58,6 +58,7 @@ def generate(Args, catalog, sampling_function=None):
 
     Args:
         Args: Class containing input parameters.
+        catalog:
         sampling_function: Function to sample input catalog from which to draw
                            blends.
 
@@ -79,10 +80,10 @@ def generate(Args, catalog, sampling_function=None):
                     raise ValueError("Number of objects per blend must be less \
                                      than max_number: {0} <= {1}".format(
                         len(blend_catalog), Args.max_number))
-                if (np.any(blend_catalog['ra'] > Args.stamp_size/2.) or
-                        np.any(blend_catalog['dec'] > Args.stamp_size/2.)):
+                if (np.any(blend_catalog['ra'] > Args.stamp_size / 2.) or
+                        np.any(blend_catalog['dec'] > Args.stamp_size / 2.)):
                     warnings.warn('Object center lies outside the stamp')
                 blend_catalogs.append(blend_catalog)
             yield blend_catalogs
         except (GeneratorExit, KeyboardInterrupt):
-                raise
+            raise

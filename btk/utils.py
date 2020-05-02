@@ -88,7 +88,7 @@ class Stack_params(Measurement_params):
     psf_stamp_size = 41  # size of psf stamp to draw PSF on
 
     # REVIEW:
-    #  This does not return a dict?
+    #  This does not return a dict like specified in the doc of make_measurement?
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
         the blend for input index entry in the batch.
@@ -114,7 +114,7 @@ class Stack_params(Measurement_params):
         return cat_chldrn.asAstropy()
 
     # REVIEW:
-    #  make arguments not optional to be consistent with parent.
+    #  made arguments not optional to be consistent with parent.
     def get_deblended_images(self, data, index):
         return None
 

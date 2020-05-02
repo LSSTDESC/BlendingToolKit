@@ -45,19 +45,19 @@ class Metrics_params(ABC):
         """Define function here to return results from the segmentation
         algorithm.
         """
-        return None
+        pass
 
     def get_flux(self):
         """Define function here to return results from the flux measurement
          algorithm.
         """
-        return None
+        pass
 
     def get_shapes(self):
         """Define function here to return results from the shape measurement
          algorithm.
         """
-        return None
+        pass
 
 
 def get_closest_neighbor_distance(true_table):
@@ -91,7 +91,7 @@ def get_m_z_diff(true_table, detected_true):
     Args:
         true_table: Catalog with entries corresponding to one blend.
     """
-    if (len(detected_true) == 0 or len(true_table) == 0):
+    if len(detected_true) == 0 or len(true_table) == 0:
         # No match since either no true or no matched true objects
         return
     det_centers = np.stack(
@@ -222,7 +222,7 @@ def get_blend_detection_summary(true_table, det_table):
     Args:
         true_table (astropy.table.Table): Table with entries corresponding to
             the true object parameter values in one blend.
-        detected_table(astropy.table.Table): Table with entries corresponding
+        det_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
 
     Returns:
@@ -245,18 +245,22 @@ def get_blend_detection_summary(true_table, det_table):
     num_spurious2 = len(np.where(det_table['match_true_id2'] == -1)[0])
     num_shred2 = len(np.where(true_table['num_detections2'] > 1)[0])
     assert num_detected1 + num_undetected1 + num_shred1 == num_true, "Number of " \
-                                                                     "detected objects + number undetected objects must be equal to " \
+                                                                     "detected objects + number undetected objects " \
+                                                                     "must be equal to " \
                                                                      "the total number of true objects"
     assert num_detected2 + num_undetected2 + num_shred2 == num_true, "Number of " \
-                                                                     "detected objects + number undetected objects must be equal to " \
+                                                                     "detected objects + number undetected objects " \
+                                                                     "must be equal to " \
                                                                      "the total number of true objects"
     num_matched_detections1 = true_table['num_detections1'].sum()
     assert num_matched_detections1 + num_spurious1 == num_det, "Number of " \
-                                                               "detections match to a true object + number of spurious must be " \
+                                                               "detections match to a true object + number of " \
+                                                               "spurious must be " \
                                                                "equal to the total number of detections."
     num_matched_detections2 = true_table['num_detections2'].sum()
     assert num_matched_detections2 + num_spurious2 == num_det, "Number of " \
-                                                               "detections match to a true object + number of spurious must be " \
+                                                               "detections match to a true object + number of " \
+                                                               "spurious must be " \
                                                                "equal to the total number of detections."
     blend_summary = [num_true, num_detected1, num_undetected1, num_spurious1,
                      num_shred1, num_detected2, num_undetected2, num_spurious2,
@@ -310,6 +314,8 @@ def evaluate_detection(true_tables, detected_tables,
     return batch_true_table, batch_detected_table, batch_blend_summary
 
 
+# REVIEW:
+# Not implemented yet?
 def evaluate_segmentation(segmentation, data=None, index=None):
     if segmentation is None:
         return None
@@ -329,13 +335,14 @@ def evaluate_shapes(shapes, data=None, index=None):
 
 
 # REVIEW:
-#  Avoid shadowing Metrics_param
-def run(Metrics_params, test_size=1000, dSigma_detection=True):
+#  Avoid shadowing Metrics_params
+#  Metrics_params in the docstring refers to a class object right ?
+def run(metrics_params, test_size=1000, dSigma_detection=True):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
     the input metrics params for input test_size number of btk runs.
 
     Args:
-        Metrics_params(class): Class describing functions to return results of
+        metrics_params(class): Class describing functions to return results of
             detection/deblending/measurement algorithm.
         test_size(int): Number of times Metrics_params is run and results
             summarized.
@@ -355,20 +362,20 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
         print(f"Running test {i}")
         # Evaluate detection algorithm
         try:
-            batch_detection_result = Metrics_params.get_detections()
-        except (GeneratorExit) as e:
+            batch_detection_result = metrics_params.get_detections()
+        except GeneratorExit as e:
             print(e)
             print("GeneratorExit encountered. Returning results")
             return results
         if (
                 len(batch_detection_result[0]) != len(batch_detection_result[1]) or
-                len(batch_detection_result[0]) != Metrics_params.sim_param.batch_size
+                len(batch_detection_result[0]) != metrics_params.sim_param.batch_size
         ):
             raise ValueError("Metrics_params.get_detections output must be "
                              "two lists of astropy table of length batch size."
                              f" Found {len(batch_detection_result[0])}, "
                              f"{len(batch_detection_result[1])}, "
-                             f"{Metrics_params.sim_param.batch_size}")
+                             f"{metrics_params.sim_param.batch_size}")
         true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1],
             batch_index=i)
@@ -378,7 +385,7 @@ def run(Metrics_params, test_size=1000, dSigma_detection=True):
             [results['detection'][1], detected_table])
         results['detection'][2].extend(detection_summary)
         # Evaluate segmentation algorithm
-        segmentation = Metrics_params.get_segmentation()
+        segmentation = metrics_params.get_segmentation()
         results['segmentation'].append(evaluate_segmentation(
             segmentation, index=i))
         # Evaluate flux measurement algorithm

@@ -24,7 +24,7 @@ class Simulation_params(object):
                  bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
                  verbose=False, **kwargs):
         """Inits Simulation_params with input observing conditions and image
-        parametrs."""
+        parameters."""
         self.__dict__.update(kwargs)
         self.catalog_name = catalog_name
         self.max_number = max_number
