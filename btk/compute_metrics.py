@@ -60,11 +60,13 @@ class Metrics_params(ABC):
         pass
 
 
+# REVIEW:
+#  Did you mean `closet_dist` in the docstring?
 def get_closest_neighbor_distance(true_table):
     """Returns a astropy.table.column with the distance to the closest object.
 
     Function uses scipy.spatial to compute distance between the object centers.
-    If object is the only one in the blend then the cosest_dist value is set to
+    If object is the only one in the blend then the closest_dist value is set to
     np.inf.
 
     Args:
@@ -84,11 +86,12 @@ def get_closest_neighbor_distance(true_table):
 
 
 def get_m_z_diff(true_table, detected_true):
-    """Updtaes the input astropy.table.column with the difference in magnitude,
+    """Updates the input astropy.table.column with the difference in magnitude,
     and redshift between an object and it's algorithm matches. It also computes
     the true distance between an object and its closest detection.
 
     Args:
+        detected_true:
         true_table: Catalog with entries corresponding to one blend.
     """
     if len(detected_true) == 0 or len(true_table) == 0:
@@ -315,7 +318,7 @@ def evaluate_detection(true_tables, detected_tables,
 
 
 # REVIEW:
-# Not implemented yet?
+#  Not implemented yet?
 def evaluate_segmentation(segmentation, data=None, index=None):
     if segmentation is None:
         return None
@@ -337,6 +340,7 @@ def evaluate_shapes(shapes, data=None, index=None):
 # REVIEW:
 #  Avoid shadowing Metrics_params
 #  Metrics_params in the docstring refers to a class object right ?
+#  Should the functions below be methods of Metrics_params or why not?
 def run(metrics_params, test_size=1000, dSigma_detection=True):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
     the input metrics params for input test_size number of btk runs.

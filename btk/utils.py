@@ -3,6 +3,12 @@
 """
 
 # REVIEW:
+#  Maybe a better name for this file, also should we separate the Measurement_params and Metric_params
+#  subclasses? It seems that there are also general purpose functions like `make_true_seg_map`,
+#  `basic_selection_function` here, I think those do belong in an `utils.py` file but we could move
+#  the other ones? Why not use put below the parent class?
+
+# REVIEW:
 #  You were shadowing this import inside of another function, but I noticed you only use Measurement_params
 #  so I just changed it to that.
 from btk.measure import Measurement_params
@@ -20,6 +26,8 @@ class SEP_params(Measurement_params):
 
     # REVIEW:
     #  Hmm, it's a bit weird to define attributes outside an __init__
+    #  Maybe have separate function returning these two parameters, or a function returning all 3 of these?
+    #  alternatively added them to the init and create functions like `set_centers`, `set_catalog`,...
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
@@ -58,6 +66,8 @@ class SEP_params(Measurement_params):
         return {'deblend_image': None, 'peaks': peaks}
 
 
+# REVIEW:
+#  Seems a little random to put this here.
 def get_psf_sky(obs_cond, psf_stamp_size):
     """Returns postage stamp image of the PSF and mean background sky
     level value saved in the input obs_cond class
@@ -251,7 +261,7 @@ class Scarlet_params(Measurement_params):
         observation = scarlet.Observation(
             images,
             psfs=scarlet.PSF(psfs),
-            weights=1./variances,
+            weights=1. / variances,
             channels=bands).match(model_frame)
         sources = []
         for n, peak in enumerate(peaks):
@@ -340,9 +350,9 @@ def basic_selection_function(catalog):
     Returns:
         CatSim-like catalog after applying selection cuts.
     """
-    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
-    r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
-                     catalog['a_b']*f**0.5*1.46)
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] + catalog['fluxnorm_bulge'])
+    r_sec = np.hypot(catalog['a_d'] * (1 - f) ** 0.5 * 4.66,
+                     catalog['a_b'] * f ** 0.5 * 1.46)
     q, = np.where((r_sec <= 4) & (catalog['i_ab'] <= 27))
     return catalog[q]
 
@@ -378,7 +388,7 @@ def basic_sampling_function(Args, catalog):
          catalog[np.random.choice(q, size=number_of_objects)]])
     blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
     # keep number density of objects constant
-    maxshift = Args.stamp_size/30.*number_of_objects**0.5
+    maxshift = Args.stamp_size / 30. * number_of_objects ** 0.5
     dx, dy = btk.create_blend_generator.get_random_center_shift(
         Args, number_of_objects + 1, maxshift=maxshift)
     blend_catalog['ra'] += dx
@@ -504,12 +514,12 @@ def group_sampling_function_numbered(Args, catalog):
     # Add small random shift so that center does not perfectly align with stamp
     # center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=5*Args.pixel_scale)
+        Args, 1, maxshift=5 * Args.pixel_scale)
     blend_catalog['ra'] += dx
     blend_catalog['dec'] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 1
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 1
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 1
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 1
     no_boundary = blend_catalog[cond1 & cond2]
     message = ("Number of galaxies greater than max number of objects per"
                f"blend. Found {len(no_boundary)}, expected <= {Args.max_number}")
@@ -531,7 +541,7 @@ class Basic_measure_params(Measurement_params):
                 centers: x and y coordinates of detected  centroids
         """
         # set detection threshold to 5 times std of image
-        threshold = 5*np.std(image)
+        threshold = 5 * np.std(image)
         coordinates = skimage.feature.peak_local_max(image, min_distance=2,
                                                      threshold_abs=threshold)
         return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
