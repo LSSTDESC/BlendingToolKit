@@ -109,7 +109,7 @@ def run_single_band(Args, blend_catalog,
 
     """
     blend_catalog.add_column(Column(np.zeros(len(blend_catalog)),
-                             name='not_drawn_' + band))
+                                    name='not_drawn_' + band))
     galaxy_builder = descwl.model.GalaxyBuilder(
         obs_cond, no_disk=False, no_bulge=False,
         no_agn=False, verbose_model=False)
@@ -119,6 +119,13 @@ def run_single_band(Args, blend_catalog,
     # define temporary galsim image
     # this will hold isolated galaxy images that will be summed
     blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
+
+    # REVIEW:
+    #  * I think this makes it a little more clear that mean_sky_level is the same for all obs_cond.
+    #  * On a different note, you are deep-copying, obs_cond but there is a lot of redundancy in the setup for it
+    #  right? You could get way by just resetting the stamp inside obs_cond ?
+
+    mean_sky_level = obs_cond.mean_sky_level
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)
         try:
@@ -141,7 +148,7 @@ def run_single_band(Args, blend_catalog,
             seed=np.random.randint(99999999))
         noise = galsim.PoissonNoise(
             rng=generator,
-            sky_level=iso_obs.mean_sky_level)
+            sky_level=mean_sky_level)
         blend_image_temp.addNoise(noise)
     blend_image = blend_image_temp.array
     return blend_image, iso_image
@@ -190,7 +197,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
     return mini_batch_outputs
 
 
-def generate(Args, blend_genrator, observing_generator,
+def generate(Args, blend_generator, observing_generator,
              multiprocessing=False, cpus=1):
     """Generates images of blended objects, individual isolated objects, for
     each blend in the batch.
@@ -203,8 +210,8 @@ def generate(Args, blend_genrator, observing_generator,
 
     Args:
         Args: Class containing parameters to create blends
-        blend_genrator: Generator to create blended object
-        observing_genrator: Creates observing conditions for each entry in
+        blend_generator: Generator to create blended object
+        observing_generator: Creates observing conditions for each entry in
             batch.
         multiprocessing: Divides batch of blends to draw into mini-batches and
             runs each on different core
@@ -221,7 +228,7 @@ def generate(Args, blend_genrator, observing_generator,
                                  len(Args.bands)))
         isolated_images = np.zeros((Args.batch_size, Args.max_number,
                                     stamp_size, stamp_size, len(Args.bands)))
-        in_batch_blend_cat = next(blend_genrator)
+        in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
         mini_batch_size = np.max([Args.batch_size//cpus, 1])
         in_args = [(Args, in_batch_blend_cat[i:i+mini_batch_size],
