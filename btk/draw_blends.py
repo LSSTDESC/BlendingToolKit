@@ -23,14 +23,17 @@ def get_center_in_pixels(Args, blend_catalog):
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    center = (Args.stamp_size/Args.pixel_scale - 1)/2
-    dx = blend_catalog['ra']/Args.pixel_scale + center
-    dy = blend_catalog['dec']/Args.pixel_scale + center
+    center = (Args.stamp_size / Args.pixel_scale - 1) / 2
+    dx = blend_catalog['ra'] / Args.pixel_scale + center
+    dy = blend_catalog['dec'] / Args.pixel_scale + center
     dx_col = Column(dx, name='dx')
     dy_col = Column(dy, name='dy')
     return dx_col, dy_col
 
 
+# REVIEW:
+#  Since Args is only used to pass in pixel_scale, I would just pass in pixel_scale directly to make
+#  dependence explicit.
 def get_size(Args, catalog, i_obs_cond):
     """Returns a astropy.table.column with the size of the galaxy.
 
@@ -48,14 +51,14 @@ def get_size(Args, catalog, i_obs_cond):
     Returns:
         `astropy.table.Column`: size of the galaxy.
     """
-    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
-    hlr_d = np.sqrt(catalog['a_d']*catalog['b_d'])
-    hlr_b = np.sqrt(catalog['a_b']*catalog['b_b'])
-    r_sec = np.hypot(hlr_d*(1-f)**0.5*4.66,
-                     hlr_b*f**0.5*1.46)
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] + catalog['fluxnorm_bulge'])
+    hlr_d = np.sqrt(catalog['a_d'] * catalog['b_d'])
+    hlr_b = np.sqrt(catalog['a_b'] * catalog['b_b'])
+    r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66,
+                     hlr_b * f ** 0.5 * 1.46)
     psf = i_obs_cond.psf_model
     psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec**2 + psf_r_sec**2) / Args.pixel_scale
+    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / Args.pixel_scale
     return Column(size, name='size')
 
 
@@ -122,7 +125,7 @@ def run_single_band(Args, blend_catalog,
 
     # REVIEW:
     #  * I think this makes it a little more clear that mean_sky_level is the same for all obs_cond.
-    #  * On a different note, you are deep-copying, obs_cond but there is a lot of redundancy in the setup for it
+    #  * On a different note, you are deep-copying, `obs_cond` but there is a lot of redundancy in the setup for it
     #  right? You could get way by just resetting the stamp inside obs_cond ?
 
     mean_sky_level = obs_cond.mean_sky_level
@@ -156,7 +159,6 @@ def run_single_band(Args, blend_catalog,
 
 def run_mini_batch(Args, blend_list, obs_cond):
     """Returns isolated and blended images for bend catalogs in blend_list
-
 
     Function loops over blend_list and draws blend and isolated images in each
     band. Even though blend_list was input to the function, we return it since,
@@ -197,6 +199,12 @@ def run_mini_batch(Args, blend_list, obs_cond):
     return mini_batch_outputs
 
 
+# REVIEW:
+#  * This might be a good place to start our transition to pytorch, a lot of the functionality
+#  here can be automatized with torch.Dataset and include things like caching if later turn out to be useful.
+#  This will also make the running in parallel a bit smoother.
+#  * Another question I had for speedup, right now we are generating images in the cpus. But what if we
+#   simulate them on the gpus after copying the copying part of the catalog over. Will that be slower?
 def generate(Args, blend_generator, observing_generator,
              multiprocessing=False, cpus=1):
     """Generates images of blended objects, individual isolated objects, for
@@ -230,10 +238,10 @@ def generate(Args, blend_generator, observing_generator,
                                     stamp_size, stamp_size, len(Args.bands)))
         in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
-        mini_batch_size = np.max([Args.batch_size//cpus, 1])
-        in_args = [(Args, in_batch_blend_cat[i:i+mini_batch_size],
+        mini_batch_size = np.max([Args.batch_size // cpus, 1])
+        in_args = [(Args, in_batch_blend_cat[i:i + mini_batch_size],
                     copy.deepcopy(obs_cond)) for i in range(
-                        0, Args.batch_size, mini_batch_size)]
+            0, Args.batch_size, mini_batch_size)]
         if multiprocessing:
             if Args.verbose:
                 print("Running mini-batch of size {0} with \
