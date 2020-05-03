@@ -86,8 +86,10 @@ def draw_isolated(Args, galaxy, iso_obs):
     return iso_obs
 
 
-def run_single_band(Args, blend_catalog,
-                    obs_cond, band):
+# REVIEW:
+#  In line with not depending on catalog necessary for blends, this function is almost catalog independent.
+#  User could provide a function to draw images from blend_catalog (generalized in some way).
+def run_single_band(Args, blend_catalog, obs_cond, band):
     """Draws image of isolated galaxies along with the blend image in the
     single input band.
 

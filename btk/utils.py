@@ -6,7 +6,8 @@
 #  Maybe a better name for this file, also should we separate the Measurement_params and Metric_params
 #  subclasses? It seems that there are also general purpose functions like `make_true_seg_map`,
 #  `basic_selection_function` here, I think those do belong in an `utils.py` file but we could move
-#  the other ones? Why not use put below the parent class?
+#  the other ones? Why not use put below the parent class? We could also make a folder that only has
+#  'user-defined` inputs.
 
 # REVIEW:
 #  You were shadowing this import inside of another function, but I noticed you only use Measurement_params
