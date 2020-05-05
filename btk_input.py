@@ -343,7 +343,7 @@ def get_measurement_class(user_config_dict, verbose):
 
 
 # REVIEW:
-#  * Specified that param is a config.Simulation_params object, correct?
+#  * Specified that param is a config.Simulation_params object not a class, correct?
 #  * Is this the correct way of specifying a class object in a docstring?
 def make_measure_generator(param, user_config_dict, draw_blend_generator,
                            multiprocess=False, cpus=1):

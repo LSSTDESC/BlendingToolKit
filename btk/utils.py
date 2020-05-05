@@ -6,8 +6,8 @@
 #  Maybe a better name for this file, also should we separate the Measurement_params and Metric_params
 #  subclasses? It seems that there are also general purpose functions like `make_true_seg_map`,
 #  `basic_selection_function` here, I think those do belong in an `utils.py` file but we could move
-#  the other ones? Why not use put below the parent class? We could also make a folder that only has
-#  'user-defined` inputs.
+#  the other ones? Why not use put below the parent class? We could also make an additional folder for
+#  "additional algorithms" that includes children classes.
 
 # REVIEW:
 #  You were shadowing this import inside of another function, but I noticed you only use Measurement_params
@@ -558,7 +558,7 @@ class Basic_metric_params(Metrics_params):
 
     # REVIEW:
     #  We don't need to call super if we are not modifying the __init__ I believe. But maybe you just wanted
-    #  the __init__ to add a docstring to the class?
+    #  the __init__ to add a docstring to the class? Is this the standard way to do it in python?
 
     def __init__(self, *args, **kwargs):
         """Class describing functions to return results of

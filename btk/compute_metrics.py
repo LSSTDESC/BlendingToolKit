@@ -61,12 +61,12 @@ class Metrics_params(ABC):
 
 
 # REVIEW:
-#  Did you mean `closet_dist` in the docstring?
+#  Did you mean `min_dist` in the docstring?
 def get_closest_neighbor_distance(true_table):
     """Returns a astropy.table.column with the distance to the closest object.
 
     Function uses scipy.spatial to compute distance between the object centers.
-    If object is the only one in the blend then the closest_dist value is set to
+    If object is the only one in the blend then the `min_dist` value is set to
     np.inf.
 
     Args:

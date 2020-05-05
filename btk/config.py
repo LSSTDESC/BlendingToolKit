@@ -47,8 +47,9 @@ class Simulation_params(object):
             self.pixel_scale = 0.17
         else:
             raise Exception(
-                "survey_name should be LSST, DES, CFHT or HSC. Input name was \
-                 {0}".format(self.survey_name))
+                f"survey_name should be LSST, DES, CFHT or HSC. Input name was \
+                 {self.survey_name}"
+            )
         if self.meas_band not in self.bands:
             raise ValueError("meas band must be one of the input bands")
 

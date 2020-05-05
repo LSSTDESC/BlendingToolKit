@@ -128,7 +128,7 @@ def run_single_band(Args, blend_catalog, obs_cond, band):
     # REVIEW:
     #  * I think this makes it a little more clear that mean_sky_level is the same for all obs_cond.
     #  * On a different note, you are deep-copying, `obs_cond` but there is a lot of redundancy in the setup for it
-    #  right? You could get way by just resetting the stamp inside obs_cond ?
+    #  right? You could get way by just resetting the stamp inside obs_cond ? Although not sure if worth it.
 
     mean_sky_level = obs_cond.mean_sky_level
     for k, entry in enumerate(blend_catalog):

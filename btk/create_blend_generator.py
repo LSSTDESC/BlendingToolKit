@@ -3,12 +3,18 @@ import warnings
 
 
 # REVIEW:
-#  * It would be nice to incorporate stars as well. This could be done via a 'stars_catalog', but also it would
-#  nice to provide a framework where images for either galaxies or stars can be provided without a catalog.
-#  I think this approach would have to start here, we need to change the blend generator to
-#  not be based around a catalog. In other words, we could just provide images. (follow-up investigation needed)
+#  * It would be nice to incorporate stars eventually as well. This could be done via a 'stars_catalog',
+#  but also it would nice to provide a framework where images for either galaxies or stars can be provided
+#  without a relying specifically on a catalog formatted for WLD, observing conditions from WLD, PSF from WLD, and
+#  galaxy drawn from descwl. This would allow for more general PSF, more general blends (not only groups from WLD),
+#  maybe input other realistic image galaxy catalogs?, among other things. (PS. this idea still needs to be fleshed out
+#  and still vague, also is this even useful?)
+#  * An idea for now would be to move to put all functions that require a catsim-like catalog together, make a
+#    boiler-plate class for more general blends. Catalog will still need to be provided (need truth), but could be a
+#    more general type.
 #  * ALSO, if we restructure to pytorch this might be easier later (just have functions in some file creating
-#  torch.datasets in different ways)
+#  torch.datasets in different ways). BTK could provide a pytorch dataset or data loader that could be used
+#  for training of neural networks / ML models as well.
 
 def get_random_center_shift(Args, number_of_objects, maxshift=None):
     """Returns random shifts in x and y coordinates between + and - max-shift
