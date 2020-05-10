@@ -48,7 +48,7 @@ def get_rgb_image(image, normalize_with_image=None):
         uint8 array [height, width, bands] of the input image.
     """
     try:
-        import scarlet.display
+        import scarlet
         if normalize_with_image is not None:
             Q = 0.1
             minimum = np.ma.min(normalize_with_image)
@@ -59,7 +59,9 @@ def get_rgb_image(image, normalize_with_image=None):
         else:
             norm = None
         img_rgb = scarlet.display.img_to_rgb(image, norm=norm)
+
     except ImportError:
+        scarlet = None
         # scarlet not installed, basic normalize image to 0-255
         if normalize_with_image is None:
             min_val = None
@@ -72,7 +74,7 @@ def get_rgb_image(image, normalize_with_image=None):
 
 
 def plot_blends(blend_images, blend_list, detected_centers=None,
-                limits=None, band_indices=[1, 2, 3]):
+                limits=None, band_indices=None):
     """Plots blend images as RGB image, sum in all bands, and RGB image with
     centers of objects marked.
 
@@ -95,6 +97,8 @@ def plot_blends(blend_images, blend_list, detected_centers=None,
         band_indices (list, default=[1,2,3]): list of length 3 with indices of
             bands that are to be plotted in the RGB image.
     """
+    if band_indices is None:
+        band_indices = [1, 2, 3]
     batch_size = len(blend_list)
     if len(band_indices) != 3:
         raise ValueError(f"band_indices must be a list with 3 entries, not \
@@ -139,7 +143,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None,
 
 def plot_with_isolated(blend_images, isolated_images, blend_list,
                        detected_centers=None, limits=None,
-                       band_indices=[1, 2, 3]):
+                       band_indices=None):
     """Plots blend images and isolated images of all objects in the blend as
     RGB images.
 
@@ -164,6 +168,10 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
         band_indices (list, default=[1,2,3]): list of length 3 with indices of
             bands that are to be plotted in the RGB image.
     """
+    # REVIEW:
+    #  avoid mutable default arguments.
+    if band_indices is None:
+        band_indices = [1, 2, 3]
     b_size = len(blend_list)
     if len(band_indices) != 3:
         raise ValueError(f"band_indices must be a list with 3 entries, not \
@@ -297,7 +305,7 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
 def show_scarlet_residual(sources, observation, limits=(30, 90)):
     """Plot scarlet model and residual image in rgb and i band.
 
-        Note: this requires scrlet to be installed.
+        Note: this requires scarlet to be installed.
         Args:
             sources: list of source models
             observation: `~scarlet.Observation`
@@ -305,51 +313,55 @@ def show_scarlet_residual(sources, observation, limits=(30, 90)):
             display image within. Note: limits are applied to both height and
             width dimensions.
         """
-    import scarlet
-    import scarlet.display
-    figsize1 = (8, 2 * len(list(sources)))
-    figsize2 = (9.5, 2 * len(list(sources)))
-    fig, ax = plt.subplots(1, 4, figsize=figsize1)
-    fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
-    tree = scarlet.component.ComponentTree(sources)
-    model = tree.get_model()
-    ax[0].imshow(scarlet.display.img_to_rgb(model))
-    ax[0].set_title("Model")
-    cbar = ax2[0].imshow(model[4] / 10 ** 3)
-    divider1 = make_axes_locatable(ax2[0])
-    cax = divider1.append_axes("right", size="4%", pad=0.05)
-    clb = plt.colorbar(cbar, cax=cax)
-    clb.ax.set_title('$10^3$', size=8)
-    model = observation.render(model)
-    ax[1].imshow(scarlet.display.img_to_rgb(model))
-    ax[1].set_title("Model Rendered")
-    cbar = ax2[1].imshow(model[4] / 10 ** 3)
-    divider1 = make_axes_locatable(ax2[1])
-    cax = divider1.append_axes("right", size="4%", pad=0.05)
-    clb = plt.colorbar(cbar, cax=cax)
-    clb.ax.set_title('$10^3$', size=8)
-    ax[2].imshow(scarlet.display.img_to_rgb(observation.images))
-    ax[2].set_title("Observation")
-    cbar = ax2[2].imshow(observation.images[4] / 10 ** 3)
-    divider1 = make_axes_locatable(ax2[2])
-    cax = divider1.append_axes("right", size="4%", pad=0.05)
-    clb = plt.colorbar(cbar, cax=cax)
-    clb.ax.set_title('$10^3$', size=8)
-    residual = observation.images - model
-    norm_ = scarlet.display.LinearPercentileNorm(residual)
-    ax[3].imshow(scarlet.display.img_to_rgb(residual))
-    ax[3].set_title("Residual")
-    cbar = ax2[3].imshow(residual[4] / 10 ** 3)
-    divider1 = make_axes_locatable(ax2[3])
-    cax = divider1.append_axes("right", size="4%", pad=0.05)
-    clb = plt.colorbar(cbar, cax=cax)
-    clb.ax.set_title('$10^3$', size=8)
-    fig.tight_layout()
-    for a in ax:
-        a.set_xlim(limits)
-        a.set_ylim(limits)
-    for a in ax2:
-        a.axis('off')
-        a.set_xlim(limits)
-        a.set_ylim(limits)
-    plt.show()
+    try:
+        import scarlet
+        import scarlet.display
+        figsize1 = (8, 2 * len(list(sources)))
+        figsize2 = (9.5, 2 * len(list(sources)))
+        fig, ax = plt.subplots(1, 4, figsize=figsize1)
+        fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
+        tree = scarlet.component.ComponentTree(sources)
+        model = tree.get_model()
+        ax[0].imshow(scarlet.display.img_to_rgb(model))
+        ax[0].set_title("Model")
+        cbar = ax2[0].imshow(model[4] / 10 ** 3)
+        divider1 = make_axes_locatable(ax2[0])
+        cax = divider1.append_axes("right", size="4%", pad=0.05)
+        clb = plt.colorbar(cbar, cax=cax)
+        clb.ax.set_title('$10^3$', size=8)
+        model = observation.render(model)
+        ax[1].imshow(scarlet.display.img_to_rgb(model))
+        ax[1].set_title("Model Rendered")
+        cbar = ax2[1].imshow(model[4] / 10 ** 3)
+        divider1 = make_axes_locatable(ax2[1])
+        cax = divider1.append_axes("right", size="4%", pad=0.05)
+        clb = plt.colorbar(cbar, cax=cax)
+        clb.ax.set_title('$10^3$', size=8)
+        ax[2].imshow(scarlet.display.img_to_rgb(observation.images))
+        ax[2].set_title("Observation")
+        cbar = ax2[2].imshow(observation.images[4] / 10 ** 3)
+        divider1 = make_axes_locatable(ax2[2])
+        cax = divider1.append_axes("right", size="4%", pad=0.05)
+        clb = plt.colorbar(cbar, cax=cax)
+        clb.ax.set_title('$10^3$', size=8)
+        residual = observation.images - model
+        norm_ = scarlet.display.LinearPercentileNorm(residual)
+        ax[3].imshow(scarlet.display.img_to_rgb(residual))
+        ax[3].set_title("Residual")
+        cbar = ax2[3].imshow(residual[4] / 10 ** 3)
+        divider1 = make_axes_locatable(ax2[3])
+        cax = divider1.append_axes("right", size="4%", pad=0.05)
+        clb = plt.colorbar(cbar, cax=cax)
+        clb.ax.set_title('$10^3$', size=8)
+        fig.tight_layout()
+        for a in ax:
+            a.set_xlim(limits)
+            a.set_ylim(limits)
+        for a in ax2:
+            a.axis('off')
+            a.set_xlim(limits)
+            a.set_ylim(limits)
+        plt.show()
+
+    except ImportError:
+        print("Scarlet is needed to use this function.")

@@ -1,6 +1,6 @@
 import multiprocessing as mp
 from itertools import starmap
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 # REVIEW:
@@ -9,16 +9,6 @@ from abc import ABC, abstractmethod
 class Measurement_params(ABC):
     """Class with functions to perform detection/deblending/measurement."""
 
-    # REVIEW:
-    #  Same as function below with optional arguments.
-    # REVIEW:
-    #  I have a little trouble understanding the difference between make_measurement and get_deblended_images.
-    #   This is just because there is only one example of this in the `utils.py` file and it returns a catalog
-    #   not a dict?
-    # REVIEW:
-    #  Also was your idea that both of these methods will eventually be implemented for all children or just
-    #  sometimes?
-    @abstractmethod
     def make_measurement(self, data, index):
         """Function describing how the measurement algorithm is run.
 
@@ -30,15 +20,12 @@ class Measurement_params(ABC):
                          measurement on.
 
         Returns:
-            output of measurement algorithm as a dict.
+            output of measurement algorithm (fluxes, shapes, size, etc.) as a dict.
         """
         return None
 
     # REVIEW:
-    #  abstract method to enforce replacement by children classes.
-    # REVIEW:
     #  made arguments not optional, because no example where they should be?
-    @abstractmethod
     def get_deblended_images(self, data, index):
         """Function describing how the deblending algorithm is run.
 

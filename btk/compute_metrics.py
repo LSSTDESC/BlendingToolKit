@@ -5,8 +5,6 @@ import numpy as np
 import scipy.spatial
 
 
-# REVIEW:
-#  Also make it an abstract class.
 class Metrics_params(ABC):
     def __init__(self, meas_generator, sim_param):
         """Class describing functions to return results of
@@ -16,7 +14,8 @@ class Metrics_params(ABC):
         self.meas_generator = meas_generator
         self.sim_param = sim_param
 
-    @abstractmethod
+    # REVIEW:
+    #  Did you want self.config to also be part of the metrics_params or just to show in the example?
     def get_detections(self):
         """
         Returns detection results as two catalogs one with entries of true
