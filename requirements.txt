@@ -1,4 +1,4 @@
-numpy>=1.12
+numpy==1.12
 astropy>=2.0
 fitsio>=0.9.8
 cython>=0.29.6

@@ -587,8 +587,6 @@ class Basic_metric_params(Metrics_params):
         return true_tables, detected_tables
 
 
-# REVIEW:
-#  Just for consistency.
 class Stack_metric_params(Metrics_params):
     def __init__(self, *args, **kwargs):
         super(Stack_metric_params, self).__init__(*args, **kwargs)

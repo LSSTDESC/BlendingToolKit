@@ -336,15 +336,12 @@ def get_measurement_class(user_config_dict, verbose):
     return getattr(module, measure_class_name)
 
 
-# REVIEW:
-#  * Specified that param is a config.Simulation_params object not a class, correct?
-#  * Is this the correct way of specifying a class object in a docstring?
 def make_measure_generator(param, user_config_dict, draw_blend_generator,
                            multiprocess=False, cpus=1):
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param (:obj:`config.Simulation_params`): Parameter values for btk simulations.
+        param: Instance from class `config.Simulation_params`, parameter values from simulation.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend

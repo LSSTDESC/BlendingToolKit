@@ -335,8 +335,6 @@ def evaluate_shapes(shapes, data=None, index=None):
 
 
 # REVIEW:
-#  Avoid shadowing Metrics_params
-#  Metrics_params in the docstring refers to a class object right ?
 #  Should the functions below be methods of Metrics_params or why not?
 def run(metrics_params, test_size=1000, dSigma_detection=True):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
