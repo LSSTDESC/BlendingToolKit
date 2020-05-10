@@ -9,9 +9,6 @@
 #  the other ones? Why not use put below the parent class? We could also make an additional folder for
 #  "additional algorithms" that includes children classes.
 
-# REVIEW:
-#  You were shadowing this import inside of another function, but I noticed you only use Measurement_params
-#  so I just changed it to that.
 from btk.measure import Measurement_params
 from btk.compute_metrics import Metrics_params
 from btk import plot_utils
@@ -45,8 +42,6 @@ class SEP_params(Measurement_params):
         centers = np.stack((self.catalog['x'], self.catalog['y']), axis=1)
         return centers
 
-    # REVIEW:
-    #  match original signature
     def get_deblended_images(self, data, index):
         """Performs SEP detection on the band-coadd image and returns the
         detected peaks.
@@ -67,8 +62,6 @@ class SEP_params(Measurement_params):
         return {'deblend_image': None, 'peaks': peaks}
 
 
-# REVIEW:
-#  Seems a little random to put this here.
 def get_psf_sky(obs_cond, psf_stamp_size):
     """Returns postage stamp image of the PSF and mean background sky
     level value saved in the input obs_cond class

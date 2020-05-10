@@ -1,11 +1,8 @@
 import multiprocessing as mp
-from itertools import starmap
 from abc import ABC
+from itertools import starmap
 
 
-# REVIEW:
-#  Make into abstract data class? This enforces that children need to overwrite new methods and
-#  Measurement_params class can't instantiated directly.
 class Measurement_params(ABC):
     """Class with functions to perform detection/deblending/measurement."""
 
@@ -42,10 +39,6 @@ class Measurement_params(ABC):
         return None
 
 
-# REVIEW:
-#  avoid shadowing names from outer scope? measurement_params is an object right?
-# REVIEW:
-#  Purpose of this function? also what is blend_output?
 def run_batch(measurement_params, blend_output, index):
     deblend_results = measurement_params.get_deblended_images(
         data=blend_output, index=index)
@@ -62,8 +55,7 @@ def generate(measurement_params, draw_blend_generator, Args,
     """Generates output of deblender and measurement algorithm.
 
     Args:
-        measurement_params: Class containing functions to perform deblending
-                            and or measurement.
+        measurement_params: Instance from class `btk.measure.Measurement_params`.
         draw_blend_generator: Generator that outputs dict with blended images,
                               isolated images, observing conditions and blend
                               catalog.

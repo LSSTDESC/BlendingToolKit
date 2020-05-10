@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import astropy.table
 import numpy as np
@@ -59,8 +59,6 @@ class Metrics_params(ABC):
         pass
 
 
-# REVIEW:
-#  Did you mean `min_dist` in the docstring?
 def get_closest_neighbor_distance(true_table):
     """Returns a astropy.table.column with the distance to the closest object.
 
@@ -345,8 +343,8 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
     the input metrics params for input test_size number of btk runs.
 
     Args:
-        metrics_params(class): Class describing functions to return results of
-            detection/deblending/measurement algorithm.
+        metrics_params: Instance from class `btk.compute_metrics.Metrics_params`
+                        describing functions to return results of detection/deblending/measurement algorithm.
         test_size(int): Number of times Metrics_params is run and results
             summarized.
         dSigma_detection(bool): If true then detection match is
@@ -392,11 +390,11 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
         results['segmentation'].append(evaluate_segmentation(
             segmentation, index=i))
         # Evaluate flux measurement algorithm
-        flux = Metrics_params.get_flux()
+        flux = metrics_params.get_flux()
         results['flux'].append(evaluate_flux(
             flux, index=i))
         # Evaluate shape measurement algorithm
-        shapes = Metrics_params.get_shapes()
+        shapes = metrics_params.get_shapes()
         results['shapes'].append(evaluate_shapes(
             shapes, index=i))
     return results

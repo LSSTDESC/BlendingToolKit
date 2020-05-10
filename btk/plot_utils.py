@@ -168,8 +168,6 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
         band_indices (list, default=[1,2,3]): list of length 3 with indices of
             bands that are to be plotted in the RGB image.
     """
-    # REVIEW:
-    #  avoid mutable default arguments.
     if band_indices is None:
         band_indices = [1, 2, 3]
     b_size = len(blend_list)

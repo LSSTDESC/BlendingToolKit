@@ -212,9 +212,6 @@ def get_blend_generator(param, user_config_dict, catalog,
     return blend_generator
 
 
-# REVIEW:
-#  * Removed unused argument in docstring.
-#  * Specified that param is a config.Simulation_params object, correct?
 def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     """Returns generator object that generates class describing the observing
     conditions.
@@ -260,9 +257,6 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     return observing_generator
 
 
-# REVIEW:
-#  * Specified that param is a config.Simulation_params object, correct?
-#  * generator typo
 def make_draw_generator(param, user_config_dict, simulation_config_dict,
                         multiprocess=False, cpus=1):
     """Returns a generator that yields simulations of blend scenes.
@@ -414,8 +408,6 @@ def get_metrics_class(user_config_dict, verbose):
     return getattr(module, metrics_class_name)
 
 
-# REVIEW:
-#  Fixed a few typos.
 def get_output_path(user_config_dict, verbose):
     """Returns path where btk output will be stored to disk.
 
@@ -445,8 +437,6 @@ def get_output_path(user_config_dict, verbose):
     return output_path
 
 
-# REVIEW:
-#  Typo in output_path
 def save_config_file(param, user_config_dict, simulation_config_dict,
                      simulation, output_path):
     """Saves all parameter values to a yaml file and writes it to disk.
@@ -546,7 +536,6 @@ if __name__ == '__main__':
                         help='Number of cpus. Must be int or None [Default:1]')
     parser.add_argument('--verbose', action='store_true',
                         help='If True prints description at multiple steps')
-    # REVIEW:
-    #  avoid shadowing name in function above.
+
     Args = parser.parse_args()
     main(Args)

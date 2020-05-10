@@ -2,8 +2,6 @@ import os
 import astropy.table
 
 
-# REVIEW:
-#  Had wrong argument name in the docstring.
 def load_catalog(Args, selection_function=None):
     """Returns astropy table with catalog name from input class.
 
