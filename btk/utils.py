@@ -144,13 +144,7 @@ def run_stack(image_array, variance_array, psf_array,
     # REVIEW:
     #  Why do you import all of the stack packages individually? Is that part of the stack setup?
     # Convert to stack Image object
-    import lsst.afw.table
-    import lsst.afw.image
-    import lsst.afw.math
-    import lsst.meas.algorithms
-    import lsst.meas.base
-    import lsst.meas.deblender
-    import lsst.meas.extensions.shapeHSM
+    import lsst
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
     # Generate a masked image, i.e., an image+mask+variance image (mask=None)
