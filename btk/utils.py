@@ -110,8 +110,6 @@ class Stack_params(Measurement_params):
         cat_chldrn = cat_chldrn.copy(deep=True)
         return cat_chldrn.asAstropy()
 
-    # REVIEW:
-    #  made arguments not optional to be consistent with parent.
     def get_deblended_images(self, data, index):
         return None
 
@@ -134,8 +132,6 @@ def run_stack(image_array, variance_array, psf_array,
     Returns:
         catalog: AstroPy table of detected sources
     """
-    # REVIEW:
-    #  Why do you import all of the stack packages individually? Is that part of the stack setup?
     # Convert to stack Image object
     import lsst
     image = lsst.afw.image.ImageF(image_array)
@@ -535,11 +531,11 @@ class Basic_measure_params(Measurement_params):
 
 
 class Basic_metric_params(Metrics_params):
-        """Class describing functions to return results of
-        detection/deblending/measurement algorithm in meas_generator. Each
-        time the algorithm is called, it is run on a batch of blends yielded
-        by the meas_generator.
-        """
+    """Class describing functions to return results of
+    detection/deblending/measurement algorithm in meas_generator. Each
+    time the algorithm is called, it is run on a batch of blends yielded
+    by the meas_generator.
+    """
 
     def get_detections(self):
         """Returns input blend catalog and detection catalog for
