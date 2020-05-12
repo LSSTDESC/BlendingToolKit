@@ -2,13 +2,6 @@
     on images.
 """
 
-# REVIEW:
-#  Maybe a better name for this file, also should we separate the Measurement_params and Metric_params
-#  subclasses? It seems that there are also general purpose functions like `make_true_seg_map`,
-#  `basic_selection_function` here, I think those do belong in an `utils.py` file but we could move
-#  the other ones? Why not use put below the parent class? We could also make an additional folder for
-#  "additional algorithms" that includes children classes.
-
 from btk.measure import Measurement_params
 from btk.compute_metrics import Metrics_params
 from btk import plot_utils
@@ -542,18 +535,11 @@ class Basic_measure_params(Measurement_params):
 
 
 class Basic_metric_params(Metrics_params):
-
-    # REVIEW:
-    #  We don't need to call super if we are not modifying the __init__ I believe. But maybe you just wanted
-    #  the __init__ to add a docstring to the class? Is this the standard way to do it in python?
-
-    def __init__(self, *args, **kwargs):
         """Class describing functions to return results of
         detection/deblending/measurement algorithm in meas_generator. Each
         time the algorithm is called, it is run on a batch of blends yielded
         by the meas_generator.
         """
-        super(Basic_metric_params, self).__init__(*args, **kwargs)
 
     def get_detections(self):
         """Returns input blend catalog and detection catalog for
@@ -582,13 +568,11 @@ class Basic_metric_params(Metrics_params):
 
 
 class Stack_metric_params(Metrics_params):
-    def __init__(self, *args, **kwargs):
-        super(Stack_metric_params, self).__init__(*args, **kwargs)
-        """Class describing functions to return results of
-        detection/deblending/measurement algorithm in meas_generator.  Each
-        time the algorithm is called, it is run on a batch of blends yielded
-        by the meas_generator.
-        """
+    """Class describing functions to return results of
+    detection/deblending/measurement algorithm in meas_generator.  Each
+    time the algorithm is called, it is run on a batch of blends yielded
+    by the meas_generator.
+    """
 
     def get_detections(self):
         """Returns blend catalog and detection catalog for detection performed.
