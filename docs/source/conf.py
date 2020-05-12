@@ -69,7 +69,6 @@ MOCK_MODULES = [
     'astropy.table',
     'astropy.io',
     'astropy.io.fits',
-    'fitsio',
     'galsim',
     'lmfit',
     'descwl',

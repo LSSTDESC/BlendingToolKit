@@ -14,7 +14,6 @@ setup(
     # zip_safe=False,
     install_requires=[
         'lmfit',
-        'fitsio'
     ],
     license='MIT',
 )
