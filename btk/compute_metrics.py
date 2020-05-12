@@ -314,8 +314,6 @@ def evaluate_detection(true_tables, detected_tables,
     return batch_true_table, batch_detected_table, batch_blend_summary
 
 
-# REVIEW:
-#  Not implemented yet?
 def evaluate_segmentation(segmentation, data=None, index=None):
     if segmentation is None:
         return None
