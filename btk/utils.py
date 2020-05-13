@@ -84,8 +84,6 @@ class Stack_params(Measurement_params):
     thr_value = 5  # SNR threshold for the detection
     psf_stamp_size = 41  # size of psf stamp to draw PSF on
 
-    # REVIEW:
-    #  This does not return a dict like specified in the doc of make_measurement?
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
         the blend for input index entry in the batch.

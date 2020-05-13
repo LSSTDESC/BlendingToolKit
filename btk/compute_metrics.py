@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import astropy.table
 import numpy as np
@@ -14,8 +14,7 @@ class Metrics_params(ABC):
         self.meas_generator = meas_generator
         self.sim_param = sim_param
 
-    # REVIEW:
-    #  Did you want self.config to also be part of the metrics_params or just to show in the example?
+    @abstractmethod
     def get_detections(self):
         """
         Returns detection results as two catalogs one with entries of true
@@ -34,11 +33,7 @@ class Metrics_params(ABC):
             size. x and y coordinate values must be under columns named 'dx'
             and 'dy' respectively, in pixels from bottom left corner as (0, 0).
         """
-        # Astropy table with entries corresponding to true sources
-        true_tables = [astropy.table.Table()] * self.config.batch_size
-        # Astropy table with entries corresponding to detections
-        detected_tables = [astropy.table.Table()] * self.config.batch_size
-        return true_tables, detected_tables
+        pass
 
     def get_segmentation(self):
         """Define function here to return results from the segmentation

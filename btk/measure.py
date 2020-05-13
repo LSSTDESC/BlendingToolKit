@@ -17,7 +17,7 @@ class Measurement_params(ABC):
                          measurement on.
 
         Returns:
-            output of measurement algorithm (fluxes, shapes, size, etc.) as a dict.
+            output of measurement algorithm (fluxes, shapes, size, etc.) as an astropy catalog.
         """
         return None
 
