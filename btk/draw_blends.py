@@ -31,10 +31,7 @@ def get_center_in_pixels(Args, blend_catalog):
     return dx_col, dy_col
 
 
-# REVIEW:
-#  Since Args is only used to pass in pixel_scale, I would just pass in pixel_scale directly to make
-#  dependence explicit.
-def get_size(Args, catalog, i_obs_cond):
+def get_size(pixel_scale, catalog, i_obs_cond):
     """Returns a astropy.table.column with the size of the galaxy.
 
     Galaxy size is estimated as second moments size (r_sec) computed as
@@ -43,7 +40,7 @@ def get_size(Args, catalog, i_obs_cond):
     The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
 
     Args:
-        Args: Class containing input parameters.
+        pixel_scale: arcseconds per pixel
         catalog: Catalog with entries corresponding to one blend.
         i_obs_cond: `descwl.survey.Survey` class describing
             observing conditions in i band.
@@ -58,7 +55,7 @@ def get_size(Args, catalog, i_obs_cond):
                      hlr_b * f ** 0.5 * 1.46)
     psf = i_obs_cond.psf_model
     psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / Args.pixel_scale
+    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name='size')
 
 
@@ -173,7 +170,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
         dx, dy = get_center_in_pixels(Args, blend_list[i])
         blend_list[i].add_column(dx)
         blend_list[i].add_column(dy)
-        size = get_size(Args, blend_list[i],
+        size = get_size(Args.pixel_scale, blend_list[i],
                         obs_cond[Args.bands == Args.meas_band])
         blend_list[i].add_column(size)
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
@@ -192,12 +189,6 @@ def run_mini_batch(Args, blend_list, obs_cond):
     return mini_batch_outputs
 
 
-# REVIEW:
-#  * This might be a good place to start our transition to pytorch, a lot of the functionality
-#  here can be automatized with torch.Dataset and include things like caching if later turn out to be useful.
-#  This will also make the running in parallel a bit smoother.
-#  * Another question I had for speedup, right now we are generating images in the cpus. But what if we
-#   simulate them on the gpus after copying the copying part of the catalog over. Will that be slower?
 def generate(Args, blend_generator, observing_generator,
              multiprocessing=False, cpus=1):
     """Generates images of blended objects, individual isolated objects, for
