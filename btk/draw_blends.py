@@ -86,9 +86,6 @@ def draw_isolated(Args, galaxy, iso_obs):
     return iso_obs
 
 
-# REVIEW:
-#  In line with not depending on catalog necessary for blends, this function is almost catalog independent.
-#  User could provide a function to draw images from blend_catalog (generalized in some way).
 def run_single_band(Args, blend_catalog, obs_cond, band):
     """Draws image of isolated galaxies along with the blend image in the
     single input band.
@@ -124,12 +121,6 @@ def run_single_band(Args, blend_catalog, obs_cond, band):
     # define temporary galsim image
     # this will hold isolated galaxy images that will be summed
     blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
-
-    # REVIEW:
-    #  * I think this makes it a little more clear that mean_sky_level is the same for all obs_cond.
-    #  * On a different note, you are deep-copying, `obs_cond` but there is a lot of redundancy in the setup for it
-    #  right? You could get way by just resetting the stamp inside obs_cond ? Although not sure if worth it.
-
     mean_sky_level = obs_cond.mean_sky_level
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)

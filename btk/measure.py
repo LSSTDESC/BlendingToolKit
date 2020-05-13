@@ -21,8 +21,6 @@ class Measurement_params(ABC):
         """
         return None
 
-    # REVIEW:
-    #  made arguments not optional, because no example where they should be?
     def get_deblended_images(self, data, index):
         """Function describing how the deblending algorithm is run.
 
@@ -47,9 +45,6 @@ def run_batch(measurement_params, blend_output, index):
     return [deblend_results, measured_results]
 
 
-# REVIEW:
-#  is multiprocessing here only used to draw blends from the generator in batches?
-#  the network results might live in a GPU?
 def generate(measurement_params, draw_blend_generator, Args,
              multiprocessing=False, cpus=1):
     """Generates output of deblender and measurement algorithm.

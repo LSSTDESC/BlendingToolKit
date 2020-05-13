@@ -332,8 +332,6 @@ def evaluate_shapes(shapes, data=None, index=None):
     return None
 
 
-# REVIEW:
-#  Should the functions below be methods of Metrics_params or why not?
 def run(metrics_params, test_size=1000, dSigma_detection=True):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
     the input metrics params for input test_size number of btk runs.
