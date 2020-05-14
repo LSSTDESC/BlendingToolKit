@@ -61,7 +61,7 @@ def get_size(pixel_scale, catalog, i_obs_cond):
 
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
-    object for an isolated galaxy.
+    object for an isolated galaxy in its '.image' attribute.
 
     Args:
         Args: Class containing input parameters.
