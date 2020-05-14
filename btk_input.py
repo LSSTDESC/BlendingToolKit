@@ -189,7 +189,7 @@ def get_blend_generator(param, user_config_dict, catalog,
             sys.modules['blend_utils'] = module
             spec.loader.exec_module(module)
             sampling_function = getattr(module, sampling_function_name)
-        except(AttributeError) as e:
+        except AttributeError as e:
             print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')

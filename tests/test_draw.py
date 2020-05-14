@@ -70,7 +70,7 @@ def match_isolated_images_default(isolated_images):
 
 def match_background_noise(blend_images):
     """Computes the background noise value of second blend scene image for in
-    the i band . This is compared to the values measured a priori for the
+    the i band. This is compared to the values measured a priori for the
     default input settings.
     """
     test_batch_noise = 176958.46899032593
