@@ -15,13 +15,15 @@ from functools import partial
 class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
-    # REVIEW:
-    #  Hmm, it's a bit weird to define attributes outside an __init__
-    #  Maybe have separate function returning these two parameters, or a function returning all 3 of these?
-    #  alternatively added them to the init and create functions like `set_centers`, `set_catalog`,...
+    def __init__(self):
+        self.catalog = None
+        self.segmentation = None
+
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
+
+        It also initializes the self.catalog and self.segmentation attributes of the class object.
         Args:
             image: Image (single band) of galaxy to perform measurement on.
         Returns:
