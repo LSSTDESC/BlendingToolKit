@@ -1,11 +1,12 @@
-import pytest
-import subprocess
 import imp
 import os
+import subprocess
 import sys
-import numpy as np
+
 import astropy
 import dill
+import numpy as np
+import pytest
 
 
 @pytest.mark.timeout(5)
@@ -80,11 +81,10 @@ def check_output_file(user_config_dict, simulation):
     """Check if metrics output is correctly written to file.
 
     Args:
-        simulation:
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
-            values of simulations of the blend scene.
     """
     output_path = os.path.join(user_config_dict['output_dir'],
                                user_config_dict['output_name'])
@@ -107,10 +107,10 @@ def check_output_values(user_config_dict, simulation):
     format.
 
     Args:
-        simulation:
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
     """
     output_path = os.path.join(user_config_dict['output_dir'],
                                user_config_dict['output_name'])
@@ -137,10 +137,10 @@ def delete_output_file(user_config_dict, simulation):
     """Deletes metric output results written to file.
 
     Args:
-        simulation: 
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
     """
     output_path = os.path.join(user_config_dict['output_dir'],
                                user_config_dict['output_name'])
