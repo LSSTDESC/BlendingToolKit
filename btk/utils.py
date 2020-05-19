@@ -2,14 +2,16 @@
     on images.
 """
 
-from btk.measure import Measurement_params
-from btk.compute_metrics import Metrics_params
-from btk import plot_utils
-import btk.create_blend_generator
-import numpy as np
-import astropy.table
-import skimage.feature
 from functools import partial
+
+import astropy.table
+import numpy as np
+import skimage.feature
+
+import btk.create_blend_generator
+from btk import plot_utils
+from btk.compute_metrics import Metrics_params
+from btk.measure import Measurement_params
 
 
 class SEP_params(Measurement_params):
@@ -23,7 +25,8 @@ class SEP_params(Measurement_params):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
 
-        It also initializes the self.catalog and self.segmentation attributes of the class object.
+        It also initializes the self.catalog and self.segmentation attributes
+        of the class object.
         Args:
             image: Image (single band) of galaxy to perform measurement on.
         Returns:
@@ -181,8 +184,8 @@ class Scarlet_params(Measurement_params):
     detect_centers = True
 
     def __init__(self, show_scene=False):
-        """Class with functions that describe how scarlet should deblend images in
-        the input data
+        """Class with functions that describe how scarlet should deblend
+        images in the input data
 
         Args:
             show_scene: If True plot the scarlet deblended model and residual
@@ -327,7 +330,8 @@ def basic_selection_function(catalog):
     Returns:
         CatSim-like catalog after applying selection cuts.
     """
-    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] + catalog['fluxnorm_bulge'])
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] +
+                                     catalog['fluxnorm_bulge'])
     r_sec = np.hypot(catalog['a_d'] * (1 - f) ** 0.5 * 4.66,
                      catalog['a_b'] * f ** 0.5 * 1.46)
     q, = np.where((r_sec <= 4) & (catalog['i_ab'] <= 27))

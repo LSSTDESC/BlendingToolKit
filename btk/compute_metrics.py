@@ -239,24 +239,28 @@ def get_blend_detection_summary(true_table, det_table):
     num_undetected2 = len(np.where(true_table['num_detections2'] == 0)[0])
     num_spurious2 = len(np.where(det_table['match_true_id2'] == -1)[0])
     num_shred2 = len(np.where(true_table['num_detections2'] > 1)[0])
-    assert num_detected1 + num_undetected1 + num_shred1 == num_true, "Number of " \
-                                                                     "detected objects + number undetected objects " \
-                                                                     "must be equal to " \
-                                                                     "the total number of true objects"
-    assert num_detected2 + num_undetected2 + num_shred2 == num_true, "Number of " \
-                                                                     "detected objects + number undetected objects " \
-                                                                     "must be equal to " \
-                                                                     "the total number of true objects"
+    if not num_detected1 + num_undetected1 + num_shred1 == num_true:
+        raise ValueError("Number of detected objects + number undetected "
+                         "objects must be equal to the total number of true "
+                         "objects")
+
+    if not num_detected2 + num_undetected2 + num_shred2 == num_true:
+        raise ValueError("Number of detected objects + number undetected "
+                         "objects must be equal to the total number "
+                         "of true objects.")
+
     num_matched_detections1 = true_table['num_detections1'].sum()
-    assert num_matched_detections1 + num_spurious1 == num_det, "Number of " \
-                                                               "detections match to a true object + number of " \
-                                                               "spurious must be " \
-                                                               "equal to the total number of detections."
+    if not num_matched_detections1 + num_spurious1 == num_det:
+        raise ValueError("Number of detections match to a true object + "
+                         "number of spurious must be equal to the "
+                         "total number of detections.")
+
     num_matched_detections2 = true_table['num_detections2'].sum()
-    assert num_matched_detections2 + num_spurious2 == num_det, "Number of " \
-                                                               "detections match to a true object + number of " \
-                                                               "spurious must be " \
-                                                               "equal to the total number of detections."
+    if not num_matched_detections2 + num_spurious2 == num_det:
+        raise ValueError("Number of detections match to a true object + "
+                         "number of spurious must be equal to the total "
+                         "number of detections.")
+
     blend_summary = [num_true, num_detected1, num_undetected1, num_spurious1,
                      num_shred1, num_detected2, num_undetected2, num_spurious2,
                      num_shred2]
@@ -332,8 +336,9 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
     the input metrics params for input test_size number of btk runs.
 
     Args:
-        metrics_params: Instance from class `btk.compute_metrics.Metrics_params`
-                        describing functions to return results of detection/deblending/measurement algorithm.
+        metrics_params: Instance from class
+        `btk.compute_metrics.Metrics_params` describing functions to return
+        results of detection/deblending/measurement algorithm.
         test_size(int): Number of times Metrics_params is run and results
             summarized.
         dSigma_detection(bool): If true then detection match is
@@ -358,8 +363,10 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
             print("GeneratorExit encountered. Returning results")
             return results
         if (
-                len(batch_detection_result[0]) != len(batch_detection_result[1]) or
-                len(batch_detection_result[0]) != metrics_params.sim_param.batch_size
+                len(batch_detection_result[0]) != len(
+            batch_detection_result[1]) or
+                len(batch_detection_result[
+                        0]) != metrics_params.sim_param.batch_size
         ):
             raise ValueError("Metrics_params.get_detections output must be "
                              "two lists of astropy table of length batch size."

@@ -217,7 +217,8 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     conditions.
 
     Args:
-        param (:obj:`config.Simulation_params`): Parameter values for btk simulations.
+        param (:obj:`config.Simulation_params`): Parameter values for btk
+                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         observe_function_name (str): Name of the function in btk/utils.py to
@@ -262,7 +263,8 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict,
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param (:obj:`config.Simulation_params`): Parameter values for btk simulations.
+        param (:obj:`config.Simulation_params`): Parameter values for btk
+                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -341,7 +343,8 @@ def make_measure_generator(param, user_config_dict, draw_blend_generator,
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param: Instance from class `config.Simulation_params`, parameter values from simulation.
+        param: Instance from class `config.Simulation_params`, parameter
+               values from simulation.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend
@@ -523,8 +526,8 @@ if __name__ == '__main__':
                              'your configuration file [Default:"two_gal"]')
     parser.add_argument('--configfile', default='input/btk-config.yaml',
                         help='Configuration file containing a set of option '
-                             'values. The content of this file will be overwritten '
-                             'by any given command line options.'
+                             'values. The content of this file will be '
+                             'overwritten by any given command line options.'
                              "[Default:'input/btk-config.yaml']")
     parser.add_argument('--multiprocess', action='store_true',
                         help='If True multiprocess is performed for '

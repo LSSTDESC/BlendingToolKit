@@ -17,7 +17,8 @@ class Measurement_params(ABC):
                          measurement on.
 
         Returns:
-            output of measurement algorithm (fluxes, shapes, size, etc.) as an astropy catalog.
+            output of measurement algorithm (fluxes, shapes, size, etc.) as
+            an astropy catalog.
         """
         return None
 
@@ -50,7 +51,8 @@ def generate(measurement_params, draw_blend_generator, Args,
     """Generates output of deblender and measurement algorithm.
 
     Args:
-        measurement_params: Instance from class `btk.measure.Measurement_params`.
+        measurement_params: Instance from class
+                            `btk.measure.Measurement_params`.
         draw_blend_generator: Generator that outputs dict with blended images,
                               isolated images, observing conditions and blend
                               catalog.

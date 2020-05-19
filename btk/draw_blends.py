@@ -1,10 +1,11 @@
-import descwl
 import copy
+import multiprocessing as mp
+from itertools import chain, starmap
+
+import descwl
 import galsim
 import numpy as np
-import multiprocessing as mp
 from astropy.table import Column
-from itertools import chain, starmap
 
 
 def get_center_in_pixels(Args, blend_catalog):
@@ -48,7 +49,8 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     Returns:
         `astropy.table.Column`: size of the galaxy.
     """
-    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] + catalog['fluxnorm_bulge'])
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] +
+                                     catalog['fluxnorm_bulge'])
     hlr_d = np.sqrt(catalog['a_d'] * catalog['b_d'])
     hlr_b = np.sqrt(catalog['a_b'] * catalog['b_b'])
     r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66,
