@@ -1,11 +1,12 @@
-import pytest
-import subprocess
 import imp
 import os
+import subprocess
 import sys
-import numpy as np
+
 import astropy
 import dill
+import numpy as np
+import pytest
 
 
 @pytest.mark.timeout(5)
@@ -18,16 +19,20 @@ def test_parse_config():
         btk_input = __import__('btk_input')
         config_dict = btk_input.read_configfile(
             args.configfile, args.simulation, args.verbose)
-        assert set(config_dict.keys()) == set(['user_input', 'simulation']), \
+        assert set(config_dict.keys()) == {'user_input', 'simulation'}, \
             "config_dict must have only 'user_input', 'simulation'. Found" \
             f"{config_dict.keys()}"
         set_keys = set(config_dict['simulation'].keys())
         if simulation == 'all':
-            assert set(simulations[1:]) == set_keys, "Invalid simulation keys"\
-                f" .Expected {simulations[1:]} found {set_keys}"
+            assert set(simulations[1:]) == set_keys, "Invalid simulation " \
+                                                     "keys.Expected " \
+                                                     "{simulations[1:]} " \
+                                                     "found {set_keys}"
         else:
-            assert set([simulation]) == set_keys, "Invalid "\
-                f"simulation name. Expected {simulation}. Got {set_keys}"
+            assert {simulation} == set_keys, "Invalid " \
+                                             f"simulation name. " \
+                                             f"Expected {simulation}. " \
+                                             f"Got {set_keys}"
     pass
 
 
@@ -80,23 +85,23 @@ def check_output_file(user_config_dict, simulation):
     """Check if metrics output is correctly written to file.
 
     Args:
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
-            values of simulations of the blend scene.
     """
-    ouput_path = os.path.join(user_config_dict['output_dir'],
-                              user_config_dict['output_name'])
-    if not os.path.isdir(ouput_path):
-        raise FileNotFoundError(f"btk output must be saved at {ouput_path}")
-    output_name = os.path.join(ouput_path,
+    output_path = os.path.join(user_config_dict['output_dir'],
+                               user_config_dict['output_name'])
+    if not os.path.isdir(output_path):
+        raise FileNotFoundError(f"btk output must be saved at {output_path}")
+    output_name = os.path.join(output_path,
                                simulation + '_metrics_results.dill')
     if not os.path.isfile(output_name):
         raise FileNotFoundError(f"btk output must be saved at {output_name}")
-    output_configfile = os.path.join(ouput_path,
+    output_configfile = os.path.join(output_path,
                                      simulation + '_config.yaml')
     if not os.path.isfile(output_configfile):
-        raise FileNotFoundError(f"cofig values to run btk must be saved at \
+        raise FileNotFoundError(f"config values to run btk must be saved at \
                                 {output_name}")
     pass
 
@@ -106,19 +111,22 @@ def check_output_values(user_config_dict, simulation):
     format.
 
     Args:
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
     """
-    ouput_path = os.path.join(user_config_dict['output_dir'],
-                              user_config_dict['output_name'])
-    output_name = os.path.join(ouput_path,
+    output_path = os.path.join(user_config_dict['output_dir'],
+                               user_config_dict['output_name'])
+    output_name = os.path.join(output_path,
                                simulation + '_metrics_results.dill')
     with open(output_name, 'rb') as handle:
         results = dill.load(handle)
     result_keys = ['detection', 'segmentation', 'flux', 'shapes']
-    assert set(results.keys()) == set(result_keys), "Results have incorrect"\
-        f"keys. Found {results.keys()}, expected {result_keys}"
+    assert set(results.keys()) == set(result_keys), "Results have incorrect" \
+                                                    f"keys. Found " \
+                                                    f"{results.keys()}, " \
+                                                    f"expected {result_keys}"
     if not isinstance(results['detection'][0], astropy.table.Table):
         raise ValueError("Expected astropy table in results['detection'][0],  "
                          f"got {type(results['detection'][0])} ")
@@ -135,22 +143,23 @@ def delete_output_file(user_config_dict, simulation):
     """Deletes metric output results written to file.
 
     Args:
+        simulation: is a string indicating name of simulated blend scene
+                    like "two_gal" or "group".
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        simulation_config_dict (dict): Dictionary which sets the parameter
     """
-    ouput_path = os.path.join(user_config_dict['output_dir'],
-                              user_config_dict['output_name'])
-    output_name = os.path.join(ouput_path,
+    output_path = os.path.join(user_config_dict['output_dir'],
+                               user_config_dict['output_name'])
+    output_name = os.path.join(output_path,
                                simulation + '_metrics_results.dill')
-    yaml_output_name = os.path.join(ouput_path,
+    yaml_output_name = os.path.join(output_path,
                                     simulation + '_config.yaml')
     if os.path.isfile(yaml_output_name):
         subprocess.call(['rm', yaml_output_name])
     if os.path.isfile(output_name):
         subprocess.call(['rm', output_name])
-    if os.path.isdir(ouput_path):
-        subprocess.call(['rmdir', ouput_path])
+    if os.path.isdir(output_path):
+        subprocess.call(['rmdir', output_path])
     return
 
 
@@ -446,9 +455,9 @@ def test_metrics():
         config_dict = btk_input.read_configfile(
             args.configfile, args.simulation, args.verbose)
         user_config_dict = config_dict['user_input']
-        ouput_path = os.path.join(user_config_dict['output_dir'],
-                                  user_config_dict['output_name'])
-        output_name = os.path.join(ouput_path,
+        output_path = os.path.join(user_config_dict['output_dir'],
+                                   user_config_dict['output_name'])
+        output_name = os.path.join(output_path,
                                    simulation + '_metrics_results.dill')
         try:
             basic_metric_two_gal(output_name)
@@ -475,9 +484,9 @@ def test_metrics():
         config_dict = btk_input.read_configfile(
             args.configfile, args.simulation, args.verbose)
         user_config_dict = config_dict['user_input']
-        ouput_path = os.path.join(user_config_dict['output_dir'],
-                                  user_config_dict['output_name'])
-        output_name = os.path.join(ouput_path,
+        output_path = os.path.join(user_config_dict['output_dir'],
+                                   user_config_dict['output_name'])
+        output_name = os.path.join(output_path,
                                    simulation + '_metrics_results.dill')
         try:
             basic_metric_two_gal_multi(output_name)

@@ -15,16 +15,18 @@ these simulations.
 
 """
 
-import yaml
-import types
-import btk
-import os
-import numpy as np
-import dill
-import subprocess
-import multiprocessing
 import importlib.util
+import multiprocessing
+import os
+import subprocess
 import sys
+import types
+
+import dill
+import numpy as np
+import yaml
+
+import btk
 
 
 def parse_config(config_gen, simulation, verbose):
@@ -49,7 +51,7 @@ def parse_config(config_gen, simulation, verbose):
                     os.path.dirname(btk.__file__), 'utils.py')
             continue
         if 'simulation' in doc.keys():
-            if (simulation == doc['simulation'] or simulation == 'all'):
+            if simulation == doc['simulation'] or simulation == 'all':
                 config_dict['simulation'][doc['simulation']] = doc['config']
                 if verbose:
                     print(f"{doc['simulation']} parameter values loaded to "
@@ -107,7 +109,7 @@ def get_config_class(config_dict, catalog_name, verbose):
         for key, value in config_dict['add'].items():
             setattr(config, key, value)
     if verbose:
-            config.display()
+        config.display()
     return config
 
 
@@ -136,7 +138,7 @@ def get_catalog(param, user_config_dict,
             sys.modules['select_utils'] = module
             spec.loader.exec_module(module)
             selection_function = getattr(module, selection_function_name)
-        except(AttributeError) as e:
+        except AttributeError as e:
             print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')
@@ -187,7 +189,7 @@ def get_blend_generator(param, user_config_dict, catalog,
             sys.modules['blend_utils'] = module
             spec.loader.exec_module(module)
             sampling_function = getattr(module, sampling_function_name)
-        except(AttributeError) as e:
+        except AttributeError as e:
             print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')
@@ -215,11 +217,10 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     conditions.
 
     Args:
-        param (class): Parameter values for btk simulations.
+        param (:obj:`config.Simulation_params`): Parameter values for btk
+                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        catalog: `astropy.table.Table` with parameters corresponding to objects
-                 being simulated.
         observe_function_name (str): Name of the function in btk/utils.py to
             set the observing conditions under which the galaxies are drawn.
         verbose (bool): If True prints description at multiple steps.
@@ -237,7 +238,7 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
             sys.modules['obs_utils'] = module
             spec.loader.exec_module(module)
             observe_function = getattr(module, observe_function_name)
-        except(AttributeError) as e:
+        except AttributeError as e:
             print(e)
             utils_filename = os.path.join(
                 os.path.dirname(btk.__file__), 'utils.py')
@@ -262,7 +263,8 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict,
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param (class): Parameter values for btk simulations.
+        param (:obj:`config.Simulation_params`): Parameter values for btk
+                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -280,12 +282,12 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict,
         param, user_config_dict,
         str(simulation_config_dict['selection_function']), param.verbose)
     # Generate catalogs of blended objects
-    blend_genrator = get_blend_generator(
+    blend_generator = get_blend_generator(
         param, user_config_dict, catalog,
         str(simulation_config_dict['sampling_function']),
         param.verbose)
     # Generate observing conditions
-    observing_genrator = get_obs_generator(
+    observing_generator = get_obs_generator(
         param, user_config_dict,
         str(simulation_config_dict['observe_function']),
         param.verbose)
@@ -293,7 +295,7 @@ def make_draw_generator(param, user_config_dict, simulation_config_dict,
         print(f"Multiprocess draw over {cpus} cpus")
     # Generate images of blends in all the observing bands
     draw_blend_generator = btk.draw_blends.generate(
-        param, blend_genrator, observing_genrator,
+        param, blend_generator, observing_generator,
         multiprocessing=multiprocess, cpus=cpus)
     return draw_blend_generator
 
@@ -341,7 +343,8 @@ def make_measure_generator(param, user_config_dict, draw_blend_generator,
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param (class): Parameter values for btk simulations.
+        param: Instance from class `config.Simulation_params`, parameter
+               values from simulation.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend
@@ -405,7 +408,7 @@ def get_metrics_class(user_config_dict, verbose):
     return getattr(module, metrics_class_name)
 
 
-def get_ouput_path(user_config_dict, verbose):
+def get_output_path(user_config_dict, verbose):
     """Returns path where btk output will be stored to disk.
 
     If output folder does not exist it will be created
@@ -424,18 +427,18 @@ def get_ouput_path(user_config_dict, verbose):
         subprocess.call(['mkdir', output_dir])
         if verbose:
             print(f"Output directory created at {output_dir}")
-    ouput_path = os.path.join(output_dir, output_name)
-    if not os.path.isdir(ouput_path):
-        subprocess.call(['mkdir', ouput_path])
+    output_path = os.path.join(output_dir, output_name)
+    if not os.path.isdir(output_path):
+        subprocess.call(['mkdir', output_path])
         if verbose:
-            print(f"Test output directory created at {ouput_path}")
+            print(f"Test output directory created at {output_path}")
     if verbose:
-        print(f"Output will be saved at {ouput_path}")
-    return ouput_path
+        print(f"Output will be saved at {output_path}")
+    return output_path
 
 
 def save_config_file(param, user_config_dict, simulation_config_dict,
-                     simulation, ouput_path):
+                     simulation, output_path):
     """Saves all parameter values to a yaml file and writes it to disk.
 
     Args:
@@ -455,7 +458,7 @@ def save_config_file(param, user_config_dict, simulation_config_dict,
     save_config_dict.update({'simulation_config': simulation_config_dict})
     # save user defined function and file names.
     save_config_dict.update({'user_config': user_config_dict})
-    output_name = os.path.join(ouput_path, simulation + '_config.yaml')
+    output_name = os.path.join(output_path, simulation + '_config.yaml')
     with open(output_name, 'w') as outfile:
         yaml.dump(save_config_dict, outfile)
     print("Configuration file saved at", output_name)
@@ -503,34 +506,36 @@ def main(args):
                                           param.verbose)
         test_size = int(simulation_config_dict['test_size'])
         metrics_param = metrics_class(measure_generator, param)
-        ouput_path = get_ouput_path(user_config_dict, param.verbose)
-        output_name = os.path.join(ouput_path, s + '_metrics_results.dill')
+        output_path = get_output_path(user_config_dict, param.verbose)
+        output_name = os.path.join(output_path, s + '_metrics_results.dill')
         results = btk.compute_metrics.run(metrics_param, test_size=test_size)
         with open(output_name, 'wb') as handle:
             dill.dump(results, handle)
         print("BTK outputs saved at ", output_name)
         save_config_file(param, user_config_dict, simulation_config_dict,
-                         s, ouput_path)
+                         s, output_path)
 
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--simulation', default='two_gal',
                         choices=['two_gal', 'multi_gal', 'group', 'all'],
                         help='Name of the simulation to use, taken from '
-                        'your configuration file [Default:"two_gal"]')
+                             'your configuration file [Default:"two_gal"]')
     parser.add_argument('--configfile', default='input/btk-config.yaml',
                         help='Configuration file containing a set of option '
-                        'values. The content of this file will be overwritten '
-                        'by any given command line options.'
-                        "[Default:'input/btk-config.yaml']")
+                             'values. The content of this file will be '
+                             'overwritten by any given command line options.'
+                             "[Default:'input/btk-config.yaml']")
     parser.add_argument('--multiprocess', action='store_true',
                         help='If True multiprocess is performed for '
-                        'measurement in the batch')
+                             'measurement in the batch')
     parser.add_argument('--cpus', nargs='?', const=1, type=int,
                         help='Number of cpus. Must be int or None [Default:1]')
     parser.add_argument('--verbose', action='store_true',
                         help='If True prints description at multiple steps')
-    args = parser.parse_args()
-    main(args)
+
+    Args = parser.parse_args()
+    main(Args)

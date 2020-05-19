@@ -1,10 +1,11 @@
-import descwl
 import copy
+import multiprocessing as mp
+from itertools import chain, starmap
+
+import descwl
 import galsim
 import numpy as np
-import multiprocessing as mp
 from astropy.table import Column
-from itertools import chain, starmap
 
 
 def get_center_in_pixels(Args, blend_catalog):
@@ -23,15 +24,15 @@ def get_center_in_pixels(Args, blend_catalog):
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    center = (Args.stamp_size/Args.pixel_scale - 1)/2
-    dx = blend_catalog['ra']/Args.pixel_scale + center
-    dy = blend_catalog['dec']/Args.pixel_scale + center
+    center = (Args.stamp_size / Args.pixel_scale - 1) / 2
+    dx = blend_catalog['ra'] / Args.pixel_scale + center
+    dy = blend_catalog['dec'] / Args.pixel_scale + center
     dx_col = Column(dx, name='dx')
     dy_col = Column(dy, name='dy')
     return dx_col, dy_col
 
 
-def get_size(Args, catalog, i_obs_cond):
+def get_size(pixel_scale, catalog, i_obs_cond):
     """Returns a astropy.table.column with the size of the galaxy.
 
     Galaxy size is estimated as second moments size (r_sec) computed as
@@ -40,7 +41,7 @@ def get_size(Args, catalog, i_obs_cond):
     The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
 
     Args:
-        Args: Class containing input parameters.
+        pixel_scale: arcseconds per pixel
         catalog: Catalog with entries corresponding to one blend.
         i_obs_cond: `descwl.survey.Survey` class describing
             observing conditions in i band.
@@ -48,20 +49,21 @@ def get_size(Args, catalog, i_obs_cond):
     Returns:
         `astropy.table.Column`: size of the galaxy.
     """
-    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
-    hlr_d = np.sqrt(catalog['a_d']*catalog['b_d'])
-    hlr_b = np.sqrt(catalog['a_b']*catalog['b_b'])
-    r_sec = np.hypot(hlr_d*(1-f)**0.5*4.66,
-                     hlr_b*f**0.5*1.46)
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] +
+                                     catalog['fluxnorm_bulge'])
+    hlr_d = np.sqrt(catalog['a_d'] * catalog['b_d'])
+    hlr_b = np.sqrt(catalog['a_b'] * catalog['b_b'])
+    r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66,
+                     hlr_b * f ** 0.5 * 1.46)
     psf = i_obs_cond.psf_model
     psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec**2 + psf_r_sec**2) / Args.pixel_scale
+    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name='size')
 
 
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
-    object for an isolated galaxy.
+    object for an isolated galaxy in its '.image' attribute.
 
     Args:
         Args: Class containing input parameters.
@@ -83,8 +85,7 @@ def draw_isolated(Args, galaxy, iso_obs):
     return iso_obs
 
 
-def run_single_band(Args, blend_catalog,
-                    obs_cond, band):
+def run_single_band(Args, blend_catalog, obs_cond, band):
     """Draws image of isolated galaxies along with the blend image in the
     single input band.
 
@@ -109,7 +110,7 @@ def run_single_band(Args, blend_catalog,
 
     """
     blend_catalog.add_column(Column(np.zeros(len(blend_catalog)),
-                             name='not_drawn_' + band))
+                                    name='not_drawn_' + band))
     galaxy_builder = descwl.model.GalaxyBuilder(
         obs_cond, no_disk=False, no_bulge=False,
         no_agn=False, verbose_model=False)
@@ -119,6 +120,7 @@ def run_single_band(Args, blend_catalog,
     # define temporary galsim image
     # this will hold isolated galaxy images that will be summed
     blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
+    mean_sky_level = obs_cond.mean_sky_level
     for k, entry in enumerate(blend_catalog):
         iso_obs = copy.deepcopy(obs_cond)
         try:
@@ -141,7 +143,7 @@ def run_single_band(Args, blend_catalog,
             seed=np.random.randint(99999999))
         noise = galsim.PoissonNoise(
             rng=generator,
-            sky_level=iso_obs.mean_sky_level)
+            sky_level=mean_sky_level)
         blend_image_temp.addNoise(noise)
     blend_image = blend_image_temp.array
     return blend_image, iso_image
@@ -149,7 +151,6 @@ def run_single_band(Args, blend_catalog,
 
 def run_mini_batch(Args, blend_list, obs_cond):
     """Returns isolated and blended images for bend catalogs in blend_list
-
 
     Function loops over blend_list and draws blend and isolated images in each
     band. Even though blend_list was input to the function, we return it since,
@@ -171,7 +172,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
         dx, dy = get_center_in_pixels(Args, blend_list[i])
         blend_list[i].add_column(dx)
         blend_list[i].add_column(dy)
-        size = get_size(Args, blend_list[i],
+        size = get_size(Args.pixel_scale, blend_list[i],
                         obs_cond[Args.bands == Args.meas_band])
         blend_list[i].add_column(size)
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
@@ -190,7 +191,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
     return mini_batch_outputs
 
 
-def generate(Args, blend_genrator, observing_generator,
+def generate(Args, blend_generator, observing_generator,
              multiprocessing=False, cpus=1):
     """Generates images of blended objects, individual isolated objects, for
     each blend in the batch.
@@ -203,8 +204,8 @@ def generate(Args, blend_genrator, observing_generator,
 
     Args:
         Args: Class containing parameters to create blends
-        blend_genrator: Generator to create blended object
-        observing_genrator: Creates observing conditions for each entry in
+        blend_generator: Generator to create blended object
+        observing_generator: Creates observing conditions for each entry in
             batch.
         multiprocessing: Divides batch of blends to draw into mini-batches and
             runs each on different core
@@ -221,12 +222,12 @@ def generate(Args, blend_genrator, observing_generator,
                                  len(Args.bands)))
         isolated_images = np.zeros((Args.batch_size, Args.max_number,
                                     stamp_size, stamp_size, len(Args.bands)))
-        in_batch_blend_cat = next(blend_genrator)
+        in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
-        mini_batch_size = np.max([Args.batch_size//cpus, 1])
-        in_args = [(Args, in_batch_blend_cat[i:i+mini_batch_size],
+        mini_batch_size = np.max([Args.batch_size // cpus, 1])
+        in_args = [(Args, in_batch_blend_cat[i:i + mini_batch_size],
                     copy.deepcopy(obs_cond)) for i in range(
-                        0, Args.batch_size, mini_batch_size)]
+            0, Args.batch_size, mini_batch_size)]
         if multiprocessing:
             if Args.verbose:
                 print("Running mini-batch of size {0} with \

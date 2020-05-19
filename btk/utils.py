@@ -1,21 +1,32 @@
 """Contains functions to perform detection, deblending and measurement
     on images.
 """
-from btk import measure
-from btk import plot_utils
-import btk.create_blend_generator
-import numpy as np
-import astropy.table
-import skimage.feature
+
 from functools import partial
 
+import astropy.table
+import numpy as np
+import skimage.feature
 
-class SEP_params(measure.Measurement_params):
+import btk.create_blend_generator
+from btk import plot_utils
+from btk.compute_metrics import Metrics_params
+from btk.measure import Measurement_params
+
+
+class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
+
+    def __init__(self):
+        self.catalog = None
+        self.segmentation = None
 
     def get_centers(self, image):
         """Return centers detected when object detection and photometry
         is done on input image with SEP.
+
+        It also initializes the self.catalog and self.segmentation attributes
+        of the class object.
         Args:
             image: Image (single band) of galaxy to perform measurement on.
         Returns:
@@ -70,13 +81,13 @@ def get_psf_sky(obs_cond, psf_stamp_size):
     return psf_image, mean_sky_level
 
 
-class Stack_params(measure.Measurement_params):
+class Stack_params(Measurement_params):
     """Class with functions that describe how LSST science pipeline can
     perform measurements on the input data."""
     min_pix = 1  # Minimum size in pixels to be considered a source
     bkg_bin_size = 32  # Binning size of the local background
     thr_value = 5  # SNR threshold for the detection
-    psf_stamp_size = 41  # size of pstamp to draw PSF on
+    psf_stamp_size = 41  # size of psf stamp to draw PSF on
 
     def make_measurement(self, data, index):
         """Perform detection, deblending and measurement on the i band image of
@@ -102,7 +113,7 @@ class Stack_params(measure.Measurement_params):
         cat_chldrn = cat_chldrn.copy(deep=True)
         return cat_chldrn.asAstropy()
 
-    def get_deblended_images(self, data=None, index=None):
+    def get_deblended_images(self, data, index):
         return None
 
 
@@ -125,13 +136,7 @@ def run_stack(image_array, variance_array, psf_array,
         catalog: AstroPy table of detected sources
     """
     # Convert to stack Image object
-    import lsst.afw.table
-    import lsst.afw.image
-    import lsst.afw.math
-    import lsst.meas.algorithms
-    import lsst.meas.base
-    import lsst.meas.deblender
-    import lsst.meas.extensions.shapeHSM
+    import lsst
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
     # Generate a masked image, i.e., an image+mask+variance image (mask=None)
@@ -171,7 +176,7 @@ def run_stack(image_array, variance_array, psf_array,
     return catalog
 
 
-class Scarlet_params(measure.Measurement_params):
+class Scarlet_params(Measurement_params):
     """"""
     iters = 200  # Maximum number of iterations for scarlet to run
     e_rel = 1e-4  # Relative error for convergence
@@ -179,8 +184,8 @@ class Scarlet_params(measure.Measurement_params):
     detect_centers = True
 
     def __init__(self, show_scene=False):
-        """Class with functions that describe how scarlet should deblend images in
-        the input data
+        """Class with functions that describe how scarlet should deblend
+        images in the input data
 
         Args:
             show_scene: If True plot the scarlet deblended model and residual
@@ -236,7 +241,7 @@ class Scarlet_params(measure.Measurement_params):
         observation = scarlet.Observation(
             images,
             psfs=scarlet.PSF(psfs),
-            weights=1./variances,
+            weights=1. / variances,
             channels=bands).match(model_frame)
         sources = []
         for n, peak in enumerate(peaks):
@@ -325,9 +330,10 @@ def basic_selection_function(catalog):
     Returns:
         CatSim-like catalog after applying selection cuts.
     """
-    f = catalog['fluxnorm_bulge']/(catalog['fluxnorm_disk']+catalog['fluxnorm_bulge'])
-    r_sec = np.hypot(catalog['a_d']*(1-f)**0.5*4.66,
-                     catalog['a_b']*f**0.5*1.46)
+    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] +
+                                     catalog['fluxnorm_bulge'])
+    r_sec = np.hypot(catalog['a_d'] * (1 - f) ** 0.5 * 4.66,
+                     catalog['a_b'] * f ** 0.5 * 1.46)
     q, = np.where((r_sec <= 4) & (catalog['i_ab'] <= 27))
     return catalog[q]
 
@@ -363,7 +369,7 @@ def basic_sampling_function(Args, catalog):
          catalog[np.random.choice(q, size=number_of_objects)]])
     blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
     # keep number density of objects constant
-    maxshift = Args.stamp_size/30.*number_of_objects**0.5
+    maxshift = Args.stamp_size / 30. * number_of_objects ** 0.5
     dx, dy = btk.create_blend_generator.get_random_center_shift(
         Args, number_of_objects + 1, maxshift=maxshift)
     blend_catalog['ra'] += dx
@@ -435,13 +441,13 @@ def group_sampling_function_numbered(Args, catalog):
 
     This function requires a parameter, group_id_count, to be input in Args
     along with the wld_catalog which tracks the group id returned. Each time
-    the generator is called,1 gets added to the count. If the count is
+    the generator is called, 1 gets added to the count. If the count is
     larger than the number of groups input, the generator is forced to exit.
 
     The group is centered on the middle of the postage stamp.
     This function only draws galaxies whose centers lie within 1 arcsec the
     postage stamp edge, which may cause the number of galaxies in the blend to
-    be smaller than the group size.The pre-run wld catalog must be defined as
+    be smaller than the group size. The pre-run wld catalog must be defined as
     Args.wld_catalog.
 
     Note: the pre-run WLD images are not used here. We only use the pre-run
@@ -489,12 +495,12 @@ def group_sampling_function_numbered(Args, catalog):
     # Add small random shift so that center does not perfectly align with stamp
     # center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=5*Args.pixel_scale)
+        Args, 1, maxshift=5 * Args.pixel_scale)
     blend_catalog['ra'] += dx
     blend_catalog['dec'] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size/2. - 1
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size/2. - 1
+    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 1
+    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 1
     no_boundary = blend_catalog[cond1 & cond2]
     message = ("Number of galaxies greater than max number of objects per"
                f"blend. Found {len(no_boundary)}, expected <= {Args.max_number}")
@@ -502,7 +508,7 @@ def group_sampling_function_numbered(Args, catalog):
     return no_boundary
 
 
-class Basic_measure_params(measure.Measurement_params):
+class Basic_measure_params(Measurement_params):
     """Class to perform detection by identifying peaks with skimage"""
 
     def get_centers(self, image):
@@ -516,7 +522,7 @@ class Basic_measure_params(measure.Measurement_params):
                 centers: x and y coordinates of detected  centroids
         """
         # set detection threshold to 5 times std of image
-        threshold = 5*np.std(image)
+        threshold = 5 * np.std(image)
         coordinates = skimage.feature.peak_local_max(image, min_distance=2,
                                                      threshold_abs=threshold)
         return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
@@ -528,13 +534,11 @@ class Basic_measure_params(measure.Measurement_params):
         return {'deblend_image': None, 'peaks': peaks}
 
 
-class Basic_metric_params(btk.compute_metrics.Metrics_params):
-    def __init__(self, *args, **kwargs):
-        super(Basic_metric_params, self).__init__(*args, **kwargs)
-        """Class describing functions to return results of
-        detection/deblending/measurement algorithm in meas_generator. Each
-        time the algorithm is called, it is run on a batch of blends yielded
-        by the meas_generator.
+class Basic_metric_params(Metrics_params):
+    """Class describing functions to return results of
+    detection/deblending/measurement algorithm in meas_generator. Each
+    time the algorithm is called, it is run on a batch of blends yielded
+    by the meas_generator.
     """
 
     def get_detections(self):
@@ -563,14 +567,12 @@ class Basic_metric_params(btk.compute_metrics.Metrics_params):
         return true_tables, detected_tables
 
 
-class Stack_metric_params(btk.compute_metrics.Metrics_params):
-    def __init__(self, *args, **kwargs):
-        super(Stack_metric_params, self).__init__(*args, **kwargs)
-        """Class describing functions to return results of
-        detection/deblending/measurement algorithm in meas_generator.  Each
-        time the algorithm is called, it is run on a batch of blends yielded
-        by the meas_generator.
-        """
+class Stack_metric_params(Metrics_params):
+    """Class describing functions to return results of
+    detection/deblending/measurement algorithm in meas_generator.  Each
+    time the algorithm is called, it is run on a batch of blends yielded
+    by the meas_generator.
+    """
 
     def get_detections(self):
         """Returns blend catalog and detection catalog for detection performed.

@@ -1,5 +1,6 @@
-import numpy as np
 import warnings
+
+import numpy as np
 
 
 def get_random_center_shift(Args, number_of_objects, maxshift=None):
@@ -58,6 +59,7 @@ def generate(Args, catalog, sampling_function=None):
 
     Args:
         Args: Class containing input parameters.
+        catalog:
         sampling_function: Function to sample input catalog from which to draw
                            blends.
 
@@ -76,13 +78,13 @@ def generate(Args, catalog, sampling_function=None):
                         print("Blends sampled from the catalog with the \
                               default random sampling function")
                 if len(blend_catalog) > Args.max_number:
-                    raise ValueError("Number of objects per blend must be less \
-                                     than max_number: {0} <= {1}".format(
-                        len(blend_catalog), Args.max_number))
-                if (np.any(blend_catalog['ra'] > Args.stamp_size/2.) or
-                        np.any(blend_catalog['dec'] > Args.stamp_size/2.)):
+                    raise ValueError("Number of objects per blend must be "
+                                     "less than max_number: {0} <= {1}".format(
+                                      len(blend_catalog), Args.max_number))
+                if (np.any(blend_catalog['ra'] > Args.stamp_size / 2.) or
+                        np.any(blend_catalog['dec'] > Args.stamp_size / 2.)):
                     warnings.warn('Object center lies outside the stamp')
                 blend_catalogs.append(blend_catalog)
             yield blend_catalogs
         except (GeneratorExit, KeyboardInterrupt):
-                raise
+            raise
