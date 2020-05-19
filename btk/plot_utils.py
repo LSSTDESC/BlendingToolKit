@@ -1,8 +1,9 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import btk
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+import btk
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -290,7 +291,7 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
             continue
         color = ("white" if label > 50
                  else "black" if label > 0
-        else "grey")
+                 else "grey")
         ax.text(i, j, f"{label:.1f}%",
                 ha='center', va='center', color=color)
         if i == j:
