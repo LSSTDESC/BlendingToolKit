@@ -95,8 +95,9 @@ def plot_blends(blend_images, blend_list, detected_centers=None,
         limits(list, default=`None`): List of start and end coordinates to
             display image within. Note: limits are applied to both height and
             width dimensions.
-        band_indices (list, default=[1,2,3]): list of length 3 with indices of
-            bands that are to be plotted in the RGB image.
+        band_indices (list, default=None): list of length 3 with indices of
+            bands that are to be plotted in the RGB image. If pass in None,
+            then default value of [1, 2, 3] is used.
     """
     if band_indices is None:
         band_indices = [1, 2, 3]
@@ -166,8 +167,9 @@ def plot_with_isolated(blend_images, isolated_images, blend_list,
         limits(list, default=`None`): List of start and end coordinates to
             display image within. Note: limits are applied to both height and
             width dimensions.
-        band_indices (list, default=[1,2,3]): list of length 3 with indices of
-            bands that are to be plotted in the RGB image.
+        band_indices (list, default=None): list of length 3 with indices of
+            bands that are to be plotted in the RGB image. If pass in None,
+            then default value of [1, 2, 3] is used.
     """
     if band_indices is None:
         band_indices = [1, 2, 3]
