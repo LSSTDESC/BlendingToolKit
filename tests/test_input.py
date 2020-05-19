@@ -19,16 +19,20 @@ def test_parse_config():
         btk_input = __import__('btk_input')
         config_dict = btk_input.read_configfile(
             args.configfile, args.simulation, args.verbose)
-        assert set(config_dict.keys()) == set(['user_input', 'simulation']), \
+        assert set(config_dict.keys()) == {'user_input', 'simulation'}, \
             "config_dict must have only 'user_input', 'simulation'. Found" \
             f"{config_dict.keys()}"
         set_keys = set(config_dict['simulation'].keys())
         if simulation == 'all':
-            assert set(simulations[1:]) == set_keys, "Invalid simulation keys" \
-                                                     f" .Expected {simulations[1:]} found {set_keys}"
+            assert set(simulations[1:]) == set_keys, "Invalid simulation " \
+                                                     "keys.Expected " \
+                                                     "{simulations[1:]} " \
+                                                     "found {set_keys}"
         else:
             assert {simulation} == set_keys, "Invalid " \
-                                             f"simulation name. Expected {simulation}. Got {set_keys}"
+                                             f"simulation name. " \
+                                             f"Expected {simulation}. " \
+                                             f"Got {set_keys}"
     pass
 
 
@@ -97,7 +101,7 @@ def check_output_file(user_config_dict, simulation):
     output_configfile = os.path.join(output_path,
                                      simulation + '_config.yaml')
     if not os.path.isfile(output_configfile):
-        raise FileNotFoundError(f"cofig values to run btk must be saved at \
+        raise FileNotFoundError(f"config values to run btk must be saved at \
                                 {output_name}")
     pass
 
@@ -120,7 +124,9 @@ def check_output_values(user_config_dict, simulation):
         results = dill.load(handle)
     result_keys = ['detection', 'segmentation', 'flux', 'shapes']
     assert set(results.keys()) == set(result_keys), "Results have incorrect" \
-                                                    f"keys. Found {results.keys()}, expected {result_keys}"
+                                                    f"keys. Found " \
+                                                    f"{results.keys()}, " \
+                                                    f"expected {result_keys}"
     if not isinstance(results['detection'][0], astropy.table.Table):
         raise ValueError("Expected astropy table in results['detection'][0],  "
                          f"got {type(results['detection'][0])} ")
