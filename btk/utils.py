@@ -480,7 +480,7 @@ def group_sampling_function_numbered(Args, catalog):
         group_id = group_ids[Args.group_id_count]
         Args.group_id_count += 1
     # get all galaxies belonging to the group.
-    # make sure some group or glaxy was not repeated in wld_catalog
+    # make sure some group or galaxy was not repeated in wld_catalog
     ids = np.unique(
         Args.wld_catalog['db_id'][Args.wld_catalog['grp_id'] == group_id])
     blend_catalog = astropy.table.vstack(
