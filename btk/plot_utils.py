@@ -303,12 +303,13 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
             ax.add_patch(rect)
 
 
-def show_scarlet_residual(sources, observation, limits=(30, 90)):
+def show_scarlet_residual(n_sources, blend, observation, limits=(30,90)):
     """Plot scarlet model and residual image in rgb and i band.
 
         Note: this requires scarlet to be installed.
         Args:
-            sources: list of source models
+            n_sources: number of source models
+            blend: output of scarlet containing blend fit.
             observation: `~scarlet.Observation`
             limits(list, default=`None`): List of start and end coordinates to
             display image within. Note: limits are applied to both height and
@@ -317,12 +318,11 @@ def show_scarlet_residual(sources, observation, limits=(30, 90)):
     try:
         import scarlet
         import scarlet.display
-        figsize1 = (8, 2 * len(list(sources)))
-        figsize2 = (9.5, 2 * len(list(sources)))
+        figsize1 = (8, 2 * n_sources)
+        figsize2 = (9.5, 2 * n_sources)
         fig, ax = plt.subplots(1, 4, figsize=figsize1)
         fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
-        tree = scarlet.component.ComponentTree(sources)
-        model = tree.get_model()
+        model = blend.get_model()
         ax[0].imshow(scarlet.display.img_to_rgb(model))
         ax[0].set_title("Model")
         cbar = ax2[0].imshow(model[4] / 10 ** 3)

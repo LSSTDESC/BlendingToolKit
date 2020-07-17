@@ -180,7 +180,6 @@ class Scarlet_params(Measurement_params):
     """"""
     iters = 200  # Maximum number of iterations for scarlet to run
     e_rel = 1e-4  # Relative error for convergence
-    f_rel = 1e-6
     detect_centers = True
 
     def __init__(self, show_scene=False):
@@ -251,10 +250,12 @@ class Scarlet_params(Measurement_params):
                 thresh=1, shifting=True)
             sources.append(result)
         blend = scarlet.Blend(sources, observation)
-        blend.fit(self.iters, e_rel=self.e_rel, f_rel=self.f_rel)
+        blend.fit(self.iters, e_rel=self.e_rel)
         if self.show_scene:
+            n_sources = len(list(sources))
+
             plot_utils.show_scarlet_residual(
-                sources, observation=observation, limits=(30, 90))
+                len(sources), observation=observation, limits=(30, 90))
         return blend, observation
 
     def get_deblended_images(self, data, index):
@@ -276,7 +277,8 @@ class Scarlet_params(Measurement_params):
         psfs = np.zeros((len(images), psf_stamp_size, psf_stamp_size),
                         dtype=np.float32)
         variances = np.zeros_like(images)
-        for i in range(len(images)):
+        n_bands = images.shape[0]
+        for i in range(n_bands):
             bands.append(data['obs_condition'][index][i].filter_band)
             psf, mean_sky_level = get_psf_sky(
                 data['obs_condition'][index][i], psf_stamp_size)
