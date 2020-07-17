@@ -136,6 +136,12 @@ def run_stack(image_array, variance_array, psf_array,
         catalog: AstroPy table of detected sources
     """
     # Convert to stack Image object
+    import lsst
+    import lsst.afw.image
+    import lsst.afw.math
+    import lsst.meas.base
+    import lsst.meas.algorithms
+    import lsst.afw.table
     import lsst.afw.table.SourceTable
 
     image = lsst.afw.image.ImageF(image_array)

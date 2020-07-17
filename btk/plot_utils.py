@@ -318,8 +318,8 @@ def show_scarlet_residual(n_sources, blend, observation, limits=(30, 90)):
     try:
         import scarlet
         import scarlet.display
-        figsize1 = (8, 2 * n_sources)
-        figsize2 = (9.5, 2 * n_sources)
+        figsize1 = (12, 12)
+        figsize2 = (16, 16)
         fig, ax = plt.subplots(1, 4, figsize=figsize1)
         fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
         model = blend.get_model()
