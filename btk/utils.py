@@ -142,7 +142,7 @@ def run_stack(image_array, variance_array, psf_array,
     import lsst.meas.base
     import lsst.meas.algorithms
     import lsst.afw.table
-    import lsst.afw.table.SourceTable
+    import lsst.afw.table
 
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
