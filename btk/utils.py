@@ -136,8 +136,8 @@ def run_stack(image_array, variance_array, psf_array,
         catalog: AstroPy table of detected sources
     """
     # Convert to stack Image object
-
     import lsst.afw.table.SourceTable
+
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
     # Generate a masked image, i.e., an image+mask+variance image (mask=None)
