@@ -303,7 +303,7 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
             ax.add_patch(rect)
 
 
-def show_scarlet_residual(n_sources, blend, observation, limits=(30,90)):
+def show_scarlet_residual(n_sources, blend, observation, limits=(30, 90)):
     """Plot scarlet model and residual image in rgb and i band.
 
         Note: this requires scarlet to be installed.
@@ -346,7 +346,6 @@ def show_scarlet_residual(n_sources, blend, observation, limits=(30,90)):
         clb = plt.colorbar(cbar, cax=cax)
         clb.ax.set_title('$10^3$', size=8)
         residual = observation.images - model
-        norm_ = scarlet.display.LinearPercentileNorm(residual)
         ax[3].imshow(scarlet.display.img_to_rgb(residual))
         ax[3].set_title("Residual")
         cbar = ax2[3].imshow(residual[4] / 10 ** 3)
