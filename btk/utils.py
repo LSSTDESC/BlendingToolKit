@@ -137,6 +137,14 @@ def run_stack(image_array, variance_array, psf_array,
     """
     # Convert to stack Image object
     import lsst
+    import lsst.afw.image
+    import lsst.afw.math
+    import lsst.meas.base
+    import lsst.meas.algorithms
+    import lsst.afw.table
+    import lsst.meas.deblender
+    import lsst.afw.table
+
     image = lsst.afw.image.ImageF(image_array)
     variance = lsst.afw.image.ImageF(variance_array)
     # Generate a masked image, i.e., an image+mask+variance image (mask=None)
@@ -162,9 +170,9 @@ def run_stack(image_array, variance_array, psf_array,
                                                       config=config1)
     deblend = lsst.meas.deblender.SourceDeblendTask(schema=schema)
     config1 = lsst.meas.base.SingleFrameMeasurementConfig()
-    config1.plugins.names.add('ext_shapeHSM_HsmShapeRegauss')
-    config1.plugins.names.add('ext_shapeHSM_HsmSourceMoments')
-    config1.plugins.names.add('ext_shapeHSM_HsmPsfMoments')
+    # config1.plugins.names.add('ext_shapeHSM_HsmShapeRegauss')
+    # config1.plugins.names.add('ext_shapeHSM_HsmSourceMoments')
+    # config1.plugins.names.add('ext_shapeHSM_HsmPsfMoments')
     measure = lsst.meas.base.SingleFrameMeasurementTask(schema=schema,
                                                         config=config1)
     table = lsst.afw.table.SourceTable.make(schema)
@@ -180,7 +188,6 @@ class Scarlet_params(Measurement_params):
     """"""
     iters = 200  # Maximum number of iterations for scarlet to run
     e_rel = 1e-4  # Relative error for convergence
-    f_rel = 1e-6
     detect_centers = True
 
     def __init__(self, show_scene=False):
@@ -251,10 +258,10 @@ class Scarlet_params(Measurement_params):
                 thresh=1, shifting=True)
             sources.append(result)
         blend = scarlet.Blend(sources, observation)
-        blend.fit(self.iters, e_rel=self.e_rel, f_rel=self.f_rel)
+        blend.fit(self.iters, e_rel=self.e_rel)
         if self.show_scene:
             plot_utils.show_scarlet_residual(
-                sources, observation=observation, limits=(30, 90))
+                blend, observation=observation, limits=(30, 90))
         return blend, observation
 
     def get_deblended_images(self, data, index):
@@ -276,7 +283,8 @@ class Scarlet_params(Measurement_params):
         psfs = np.zeros((len(images), psf_stamp_size, psf_stamp_size),
                         dtype=np.float32)
         variances = np.zeros_like(images)
-        for i in range(len(images)):
+        n_bands = images.shape[0]
+        for i in range(n_bands):
             bands.append(data['obs_condition'][index][i].filter_band)
             psf, mean_sky_level = get_psf_sky(
                 data['obs_condition'][index][i], psf_stamp_size)
@@ -480,7 +488,7 @@ def group_sampling_function_numbered(Args, catalog):
         group_id = group_ids[Args.group_id_count]
         Args.group_id_count += 1
     # get all galaxies belonging to the group.
-    # make sure some group or glaxy was not repeated in wld_catalog
+    # make sure some group or galaxy was not repeated in wld_catalog
     ids = np.unique(
         Args.wld_catalog['db_id'][Args.wld_catalog['grp_id'] == group_id])
     blend_catalog = astropy.table.vstack(
