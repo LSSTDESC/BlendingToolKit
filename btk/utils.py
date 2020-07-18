@@ -142,6 +142,7 @@ def run_stack(image_array, variance_array, psf_array,
     import lsst.meas.base
     import lsst.meas.algorithms
     import lsst.afw.table
+    import lsst.meas.deblender
     import lsst.afw.table
 
     image = lsst.afw.image.ImageF(image_array)
@@ -169,9 +170,9 @@ def run_stack(image_array, variance_array, psf_array,
                                                       config=config1)
     deblend = lsst.meas.deblender.SourceDeblendTask(schema=schema)
     config1 = lsst.meas.base.SingleFrameMeasurementConfig()
-    config1.plugins.names.add('ext_shapeHSM_HsmShapeRegauss')
-    config1.plugins.names.add('ext_shapeHSM_HsmSourceMoments')
-    config1.plugins.names.add('ext_shapeHSM_HsmPsfMoments')
+    # config1.plugins.names.add('ext_shapeHSM_HsmShapeRegauss')
+    # config1.plugins.names.add('ext_shapeHSM_HsmSourceMoments')
+    # config1.plugins.names.add('ext_shapeHSM_HsmPsfMoments')
     measure = lsst.meas.base.SingleFrameMeasurementTask(schema=schema,
                                                         config=config1)
     table = lsst.afw.table.SourceTable.make(schema)
