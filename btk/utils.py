@@ -260,9 +260,8 @@ class Scarlet_params(Measurement_params):
         blend = scarlet.Blend(sources, observation)
         blend.fit(self.iters, e_rel=self.e_rel)
         if self.show_scene:
-            n_sources = len(list(sources))
             plot_utils.show_scarlet_residual(
-                n_sources, blend, observation=observation, limits=(30, 90))
+                blend, observation=observation, limits=(30, 90))
         return blend, observation
 
     def get_deblended_images(self, data, index):

@@ -303,12 +303,11 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
             ax.add_patch(rect)
 
 
-def show_scarlet_residual(n_sources, blend, observation, limits=(30, 90)):
+def show_scarlet_residual(blend, observation, limits=(30, 90)):
     """Plot scarlet model and residual image in rgb and i band.
 
         Note: this requires scarlet to be installed.
         Args:
-            n_sources: number of source models
             blend: output of scarlet containing blend fit.
             observation: `~scarlet.Observation`
             limits(list, default=`None`): List of start and end coordinates to
