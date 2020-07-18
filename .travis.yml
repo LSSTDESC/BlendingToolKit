@@ -4,9 +4,10 @@ python:
 
 # command to install dependencies
 install:
-  - pip install --upgrade pip==19.3.1
-  - pip install -U setuptools pip==9.0
+  - pip install --upgrade pip==20.1.1
+  - pip install -U setuptools
   - sudo apt-get install libfftw3-dev libeigen3-dev
+  - sudo pip install --upgrade uncertainties
   - pip install -r requirements.txt
   - pip install galsim
   - pip install git+https://github.com/pmelchior/scarlet
