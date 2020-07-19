@@ -12,8 +12,8 @@ def default_obs_conditions(Args, band):
         `descwl.survey.Survey`: WLD survey class with observing conditions.
     """
     survey = descwl.survey.Survey.get_defaults(
-        survey_name=Args.survey_name,
-        filter_band=band)
+        survey_name=Args.survey_name, filter_band=band
+    )
     return survey
 
 
@@ -39,18 +39,27 @@ def generate(Args, obs_function=None):
                 survey = default_obs_conditions(Args, band)
                 if Args.verbose:
                     print("Default observing conditions selected")
-            survey['image_width'] = Args.stamp_size / survey['pixel_scale']
-            survey['image_height'] = Args.stamp_size / survey['pixel_scale']
-            descwl_survey = descwl.survey.Survey(no_analysis=True,
-                                                 survey_name=Args.survey_name,
-                                                 filter_band=band, **survey)
+            survey["image_width"] = Args.stamp_size / survey["pixel_scale"]
+            survey["image_height"] = Args.stamp_size / survey["pixel_scale"]
+            descwl_survey = descwl.survey.Survey(
+                no_analysis=True,
+                survey_name=Args.survey_name,
+                filter_band=band,
+                **survey
+            )
             if descwl_survey.pixel_scale != Args.pixel_scale:
-                raise ValueError("observing condition pixel scale does not \
+                raise ValueError(
+                    "observing condition pixel scale does not \
                     match input pixel scale: {0} == {1}".format(
-                        descwl_survey.pixel_scale, Args.pixel_scale))
+                        descwl_survey.pixel_scale, Args.pixel_scale
+                    )
+                )
             if descwl_survey.filter_band != band:
-                raise ValueError("observing condition band does not \
+                raise ValueError(
+                    "observing condition band does not \
                     match input band: {0} == {1}".format(
-                        descwl_survey.filter_band, band))
+                        descwl_survey.filter_band, band
+                    )
+                )
             observing_generator.append(descwl_survey)
         yield observing_generator
