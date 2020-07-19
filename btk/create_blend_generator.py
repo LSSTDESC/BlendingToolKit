@@ -14,11 +14,9 @@ def get_random_center_shift(Args, number_of_objects, maxshift=None):
             is set as one-tenth the stamp size.
     """
     if not maxshift:
-        maxshift = Args.stamp_size / 10.  # in arcseconds
-    dx = np.random.uniform(-maxshift, maxshift,
-                           size=number_of_objects)
-    dy = np.random.uniform(-maxshift, maxshift,
-                           size=number_of_objects)
+        maxshift = Args.stamp_size / 10.0  # in arcseconds
+    dx = np.random.uniform(-maxshift, maxshift, size=number_of_objects)
+    dy = np.random.uniform(-maxshift, maxshift, size=number_of_objects)
     return dx, dy
 
 
@@ -43,12 +41,12 @@ def default_sampling(Args, catalog):
         Catalog with entries corresponding to one blend.
     """
     number_of_objects = np.random.randint(1, Args.max_number + 1)
-    q, = np.where(catalog['i_ab'] <= 25.3)
+    (q,) = np.where(catalog["i_ab"] <= 25.3)
     blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
-    blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
+    blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
     dx, dy = get_random_center_shift(Args, number_of_objects)
-    blend_catalog['ra'] += dx
-    blend_catalog['dec'] += dy
+    blend_catalog["ra"] += dx
+    blend_catalog["dec"] += dy
     return blend_catalog
 
 
@@ -75,15 +73,21 @@ def generate(Args, catalog, sampling_function=None):
                 else:
                     blend_catalog = default_sampling(Args, catalog)
                     if Args.verbose:
-                        print("Blends sampled from the catalog with the \
-                              default random sampling function")
+                        print(
+                            "Blends sampled from the catalog with the \
+                              default random sampling function"
+                        )
                 if len(blend_catalog) > Args.max_number:
-                    raise ValueError("Number of objects per blend must be "
-                                     "less than max_number: {0} <= {1}".format(
-                                      len(blend_catalog), Args.max_number))
-                if (np.any(blend_catalog['ra'] > Args.stamp_size / 2.) or
-                        np.any(blend_catalog['dec'] > Args.stamp_size / 2.)):
-                    warnings.warn('Object center lies outside the stamp')
+                    raise ValueError(
+                        "Number of objects per blend must be "
+                        "less than max_number: {0} <= {1}".format(
+                            len(blend_catalog), Args.max_number
+                        )
+                    )
+                if np.any(blend_catalog["ra"] > Args.stamp_size / 2.0) or np.any(
+                    blend_catalog["dec"] > Args.stamp_size / 2.0
+                ):
+                    warnings.warn("Object center lies outside the stamp")
                 blend_catalogs.append(blend_catalog)
             yield blend_catalogs
         except (GeneratorExit, KeyboardInterrupt):

@@ -33,11 +33,12 @@ class SEP_params(Measurement_params):
             centers: x and y coordinates of detected  centroids
 
         """
-        sep = __import__('sep')
+        sep = __import__("sep")
         bkg = sep.Background(image)
         self.catalog, self.segmentation = sep.extract(
-            image, 1.5, err=bkg.globalrms, segmentation_map=True)
-        centers = np.stack((self.catalog['x'], self.catalog['y']), axis=1)
+            image, 1.5, err=bkg.globalrms, segmentation_map=True
+        )
+        centers = np.stack((self.catalog["x"], self.catalog["y"]), axis=1)
         return centers
 
     def get_deblended_images(self, data, index):
@@ -55,9 +56,9 @@ class SEP_params(Measurement_params):
             dict with the centers of sources detected by SEP detection
             algorithm.
         """
-        image = np.mean(data['blend_images'][index], axis=2)
+        image = np.mean(data["blend_images"][index], axis=2)
         peaks = self.get_centers(image)
-        return {'deblend_image': None, 'peaks': peaks}
+        return {"deblend_image": None, "peaks": peaks}
 
 
 def get_psf_sky(obs_cond, psf_stamp_size):
@@ -75,15 +76,15 @@ def get_psf_sky(obs_cond, psf_stamp_size):
     mean_sky_level = obs_cond.mean_sky_level
     psf = obs_cond.psf_model
     psf_image = psf.drawImage(
-        scale=obs_cond.pixel_scale,
-        nx=psf_stamp_size,
-        ny=psf_stamp_size).array
+        scale=obs_cond.pixel_scale, nx=psf_stamp_size, ny=psf_stamp_size
+    ).array
     return psf_image, mean_sky_level
 
 
 class Stack_params(Measurement_params):
     """Class with functions that describe how LSST science pipeline can
     perform measurements on the input data."""
+
     min_pix = 1  # Minimum size in pixels to be considered a source
     bkg_bin_size = 32  # Binning size of the local background
     thr_value = 5  # SNR threshold for the detection
@@ -101,15 +102,21 @@ class Stack_params(Measurement_params):
         Returns:
             astropy.Table of the measurement results.
          """
-        image_array = data['blend_images'][index, :, :, 3].astype(np.float32)
+        image_array = data["blend_images"][index, :, :, 3].astype(np.float32)
         psf_image, mean_sky_level = get_psf_sky(
-            data['obs_condition'][index][3], self.psf_stamp_size)
+            data["obs_condition"][index][3], self.psf_stamp_size
+        )
         variance_array = image_array + mean_sky_level
         psf_array = psf_image.astype(np.float64)
-        cat = run_stack(image_array, variance_array, psf_array,
-                        min_pix=self.min_pix, bkg_bin_size=self.bkg_bin_size,
-                        thr_value=self.thr_value)
-        cat_chldrn = cat[cat['deblend_nChild'] == 0]
+        cat = run_stack(
+            image_array,
+            variance_array,
+            psf_array,
+            min_pix=self.min_pix,
+            bkg_bin_size=self.bkg_bin_size,
+            thr_value=self.thr_value,
+        )
+        cat_chldrn = cat[cat["deblend_nChild"] == 0]
         cat_chldrn = cat_chldrn.copy(deep=True)
         return cat_chldrn.asAstropy()
 
@@ -117,8 +124,9 @@ class Stack_params(Measurement_params):
         return None
 
 
-def run_stack(image_array, variance_array, psf_array,
-              min_pix=1, bkg_bin_size=32, thr_value=5):
+def run_stack(
+    image_array, variance_array, psf_array, min_pix=1, bkg_bin_size=32, thr_value=5
+):
     """
     Function to setup the DM stack and perform detection, deblending and
     measurement
@@ -166,15 +174,13 @@ def run_stack(image_array, variance_array, psf_array,
     config1.minPixels = min_pix
     config1.thresholdValue = thr_value
     #####
-    detect = lsst.meas.algorithms.SourceDetectionTask(schema=schema,
-                                                      config=config1)
+    detect = lsst.meas.algorithms.SourceDetectionTask(schema=schema, config=config1)
     deblend = lsst.meas.deblender.SourceDeblendTask(schema=schema)
     config1 = lsst.meas.base.SingleFrameMeasurementConfig()
     # config1.plugins.names.add('ext_shapeHSM_HsmShapeRegauss')
     # config1.plugins.names.add('ext_shapeHSM_HsmSourceMoments')
     # config1.plugins.names.add('ext_shapeHSM_HsmPsfMoments')
-    measure = lsst.meas.base.SingleFrameMeasurementTask(schema=schema,
-                                                        config=config1)
+    measure = lsst.meas.base.SingleFrameMeasurementTask(schema=schema, config=config1)
     table = lsst.afw.table.SourceTable.make(schema)
     detect_result = detect.run(table, exposure)  # run detection task
     catalog = detect_result.sources
@@ -186,6 +192,7 @@ def run_stack(image_array, variance_array, psf_array,
 
 class Scarlet_params(Measurement_params):
     """"""
+
     iters = 200  # Maximum number of iterations for scarlet to run
     e_rel = 1e-4  # Relative error for convergence
     detect_centers = True
@@ -211,14 +218,13 @@ class Scarlet_params(Measurement_params):
         Returns:
             Array of x and y coordinate of centroids of objects in the image.
         """
-        sep = __import__('sep')
+        sep = __import__("sep")
         detect = image.mean(axis=0)  # simple average for detection
         bkg = sep.Background(detect)
         catalog = sep.extract(detect, 1.5, err=bkg.globalrms)
-        return np.stack((catalog['x'], catalog['y']), axis=1)
+        return np.stack((catalog["x"], catalog["y"]), axis=1)
 
-    def scarlet_initialize(self, images, peaks, psfs,
-                           variances, bands):
+    def scarlet_initialize(self, images, peaks, psfs, variances, bands):
         """ Initializes scarlet ExtendedSource at locations specified as
         peaks in the (multi-band) input images.
         Args:
@@ -239,29 +245,30 @@ class Scarlet_params(Measurement_params):
         """
         scarlet = __import__("scarlet")
         model_psf = scarlet.PSF(
-            partial(scarlet.psf.gaussian, sigma=0.8),
-            shape=(None, 41, 41))
-        model_frame = scarlet.Frame(
-            images.shape,
-            psfs=model_psf,
-            channels=bands)
+            partial(scarlet.psf.gaussian, sigma=0.8), shape=(None, 41, 41)
+        )
+        model_frame = scarlet.Frame(images.shape, psfs=model_psf, channels=bands)
         observation = scarlet.Observation(
-            images,
-            psfs=scarlet.PSF(psfs),
-            weights=1. / variances,
-            channels=bands).match(model_frame)
+            images, psfs=scarlet.PSF(psfs), weights=1.0 / variances, channels=bands
+        ).match(model_frame)
         sources = []
         for n, peak in enumerate(peaks):
             result = scarlet.ExtendedSource(
-                model_frame, (peak[1], peak[0]), observation,
-                symmetric=True, monotonic=True,
-                thresh=1, shifting=True)
+                model_frame,
+                (peak[1], peak[0]),
+                observation,
+                symmetric=True,
+                monotonic=True,
+                thresh=1,
+                shifting=True,
+            )
             sources.append(result)
         blend = scarlet.Blend(sources, observation)
         blend.fit(self.iters, e_rel=self.e_rel)
         if self.show_scene:
             plot_utils.show_scarlet_residual(
-                blend, observation=observation, limits=(30, 90))
+                blend, observation=observation, limits=(30, 90)
+            )
         return blend, observation
 
     def get_deblended_images(self, data, index):
@@ -277,26 +284,27 @@ class Scarlet_params(Measurement_params):
         Returns:
             a dict with the scarlet deblended images and peaks of the sources.
         """
-        images = np.transpose(data['blend_images'][index], axes=(2, 0, 1))
+        images = np.transpose(data["blend_images"][index], axes=(2, 0, 1))
         bands = []
         psf_stamp_size = 41
-        psfs = np.zeros((len(images), psf_stamp_size, psf_stamp_size),
-                        dtype=np.float32)
+        psfs = np.zeros((len(images), psf_stamp_size, psf_stamp_size), dtype=np.float32)
         variances = np.zeros_like(images)
         n_bands = images.shape[0]
         for i in range(n_bands):
-            bands.append(data['obs_condition'][index][i].filter_band)
+            bands.append(data["obs_condition"][index][i].filter_band)
             psf, mean_sky_level = get_psf_sky(
-                data['obs_condition'][index][i], psf_stamp_size)
+                data["obs_condition"][index][i], psf_stamp_size
+            )
             psfs[i] = psf
             variances[i] = images[i] + mean_sky_level
-        blend_cat = data['blend_list'][index]
+        blend_cat = data["blend_list"][index]
         if self.detect_centers:
             peaks = self.get_centers(images)
         else:
-            peaks = np.stack((blend_cat['dx'], blend_cat['dy']), axis=1)
+            peaks = np.stack((blend_cat["dx"], blend_cat["dy"]), axis=1)
         blend, observation = self.scarlet_initialize(
-            images, peaks, psfs, variances, np.array(bands, dtype=str))
+            images, peaks, psfs, variances, np.array(bands, dtype=str)
+        )
         im, selected_peaks = [], []
         for k, component in enumerate(blend):
             y, x = component.center
@@ -304,7 +312,7 @@ class Scarlet_params(Measurement_params):
             model = component.get_model()
             model_ = observation.render(model)
             im.append(np.transpose(model_, axes=(1, 2, 0)))
-        return {'deblend_image': np.array(im), 'peaks': selected_peaks}
+        return {"deblend_image": np.array(im), "peaks": selected_peaks}
 
 
 def make_true_seg_map(image, threshold):
@@ -338,11 +346,13 @@ def basic_selection_function(catalog):
     Returns:
         CatSim-like catalog after applying selection cuts.
     """
-    f = catalog['fluxnorm_bulge'] / (catalog['fluxnorm_disk'] +
-                                     catalog['fluxnorm_bulge'])
-    r_sec = np.hypot(catalog['a_d'] * (1 - f) ** 0.5 * 4.66,
-                     catalog['a_b'] * f ** 0.5 * 1.46)
-    q, = np.where((r_sec <= 4) & (catalog['i_ab'] <= 27))
+    f = catalog["fluxnorm_bulge"] / (
+        catalog["fluxnorm_disk"] + catalog["fluxnorm_bulge"]
+    )
+    r_sec = np.hypot(
+        catalog["a_d"] * (1 - f) ** 0.5 * 4.66, catalog["a_b"] * f ** 0.5 * 1.46
+    )
+    (q,) = np.where((r_sec <= 4) & (catalog["i_ab"] <= 27))
     return catalog[q]
 
 
@@ -365,23 +375,27 @@ def basic_sampling_function(Args, catalog):
         Catalog with entries corresponding to one blend.
     """
     number_of_objects = np.random.randint(0, Args.max_number)
-    a = np.hypot(catalog['a_d'], catalog['a_b'])
+    a = np.hypot(catalog["a_d"], catalog["a_b"])
     cond = (a <= 2) & (a > 0.2)
-    q_bright, = np.where(cond & (catalog['i_ab'] <= 24))
+    (q_bright,) = np.where(cond & (catalog["i_ab"] <= 24))
     if np.random.random() >= 0.9:
-        q, = np.where(cond & (catalog['i_ab'] < 28))
+        (q,) = np.where(cond & (catalog["i_ab"] < 28))
     else:
-        q, = np.where(cond & (catalog['i_ab'] <= 25.3))
+        (q,) = np.where(cond & (catalog["i_ab"] <= 25.3))
     blend_catalog = astropy.table.vstack(
-        [catalog[np.random.choice(q_bright, size=1)],
-         catalog[np.random.choice(q, size=number_of_objects)]])
-    blend_catalog['ra'], blend_catalog['dec'] = 0., 0.
+        [
+            catalog[np.random.choice(q_bright, size=1)],
+            catalog[np.random.choice(q, size=number_of_objects)],
+        ]
+    )
+    blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
     # keep number density of objects constant
-    maxshift = Args.stamp_size / 30. * number_of_objects ** 0.5
+    maxshift = Args.stamp_size / 30.0 * number_of_objects ** 0.5
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, number_of_objects + 1, maxshift=maxshift)
-    blend_catalog['ra'] += dx
-    blend_catalog['dec'] += dy
+        Args, number_of_objects + 1, maxshift=maxshift
+    )
+    blend_catalog["ra"] += dx
+    blend_catalog["dec"] += dy
     return blend_catalog
 
 
@@ -404,35 +418,37 @@ def group_sampling_function(Args, catalog):
     Returns:
         Catalog with entries corresponding to one blend.
     """
-    if not hasattr(Args, 'wld_catalog_name'):
-        raise Exception("A pre-run WLD catalog  name should be input as "
-                        "Args.wld_catalog_name")
+    if not hasattr(Args, "wld_catalog_name"):
+        raise Exception(
+            "A pre-run WLD catalog  name should be input as " "Args.wld_catalog_name"
+        )
     else:
-        wld_catalog = astropy.table.Table.read(Args.wld_catalog_name,
-                                               format='fits')
+        wld_catalog = astropy.table.Table.read(Args.wld_catalog_name, format="fits")
     # randomly sample a group.
-    group_ids = np.unique(wld_catalog['grp_id'][wld_catalog['grp_size'] >= 2])
+    group_ids = np.unique(wld_catalog["grp_id"][wld_catalog["grp_size"] >= 2])
     group_id = np.random.choice(group_ids, replace=False)
     # get all galaxies belonging to the group.
-    ids = wld_catalog['db_id'][wld_catalog['grp_id'] == group_id]
+    ids = wld_catalog["db_id"][wld_catalog["grp_id"] == group_id]
     blend_catalog = astropy.table.vstack(
-        [catalog[catalog['galtileid'] == i] for i in ids])
+        [catalog[catalog["galtileid"] == i] for i in ids]
+    )
     # Set mean x and y coordinates of the group galaxies to the center of the
     # postage stamp.
-    blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
-    blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
+    blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
+    blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
     # convert ra dec from degrees to arcsec
-    blend_catalog['ra'] *= 3600
-    blend_catalog['dec'] *= 3600
+    blend_catalog["ra"] *= 3600
+    blend_catalog["dec"] *= 3600
     # Add small random shift so that center does not perfectly align with
     # the stamp center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=3 * Args.pixel_scale)
-    blend_catalog['ra'] += dx
-    blend_catalog['dec'] += dy
+        Args, 1, maxshift=3 * Args.pixel_scale
+    )
+    blend_catalog["ra"] += dx
+    blend_catalog["dec"] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 3
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 3
+    cond1 = np.abs(blend_catalog["ra"]) < Args.stamp_size / 2.0 - 3
+    cond2 = np.abs(blend_catalog["dec"]) < Args.stamp_size / 2.0 - 3
     no_boundary = blend_catalog[cond1 & cond2]
     if len(no_boundary) == 0:
         return no_boundary
@@ -468,19 +484,22 @@ def group_sampling_function_numbered(Args, catalog):
     Returns:
         Catalog with entries corresponding to one blend.
     """
-    if not hasattr(Args, 'wld_catalog'):
-        raise Exception(
-            "A pre-run WLD catalog should be input as Args.wld_catalog")
-    if not hasattr(Args, 'group_id_count'):
-        raise NameError("An integer specifying index of group_id to draw must"
-                        "be input as Args.group_id_count")
+    if not hasattr(Args, "wld_catalog"):
+        raise Exception("A pre-run WLD catalog should be input as Args.wld_catalog")
+    if not hasattr(Args, "group_id_count"):
+        raise NameError(
+            "An integer specifying index of group_id to draw must"
+            "be input as Args.group_id_count"
+        )
     elif not isinstance(Args.group_id_count, int):
         raise ValueError("group_id_count must be an integer")
     # randomly sample a group.
     group_ids = np.unique(
-        Args.wld_catalog['grp_id'][
-            (Args.wld_catalog['grp_size'] >= 2) &
-            (Args.wld_catalog['grp_size'] <= Args.max_number)])
+        Args.wld_catalog["grp_id"][
+            (Args.wld_catalog["grp_size"] >= 2)
+            & (Args.wld_catalog["grp_size"] <= Args.max_number)
+        ]
+    )
     if Args.group_id_count >= len(group_ids):
         message = "group_id_count is larger than number of groups input"
         raise GeneratorExit(message)
@@ -489,29 +508,32 @@ def group_sampling_function_numbered(Args, catalog):
         Args.group_id_count += 1
     # get all galaxies belonging to the group.
     # make sure some group or galaxy was not repeated in wld_catalog
-    ids = np.unique(
-        Args.wld_catalog['db_id'][Args.wld_catalog['grp_id'] == group_id])
+    ids = np.unique(Args.wld_catalog["db_id"][Args.wld_catalog["grp_id"] == group_id])
     blend_catalog = astropy.table.vstack(
-        [catalog[catalog['galtileid'] == i] for i in ids])
+        [catalog[catalog["galtileid"] == i] for i in ids]
+    )
     # Set mean x and y coordinates of the group galaxies to the center of the
     # postage stamp.
-    blend_catalog['ra'] -= np.mean(blend_catalog['ra'])
-    blend_catalog['dec'] -= np.mean(blend_catalog['dec'])
+    blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
+    blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
     # convert ra dec from degrees to arcsec
-    blend_catalog['ra'] *= 3600
-    blend_catalog['dec'] *= 3600
+    blend_catalog["ra"] *= 3600
+    blend_catalog["dec"] *= 3600
     # Add small random shift so that center does not perfectly align with stamp
     # center
     dx, dy = btk.create_blend_generator.get_random_center_shift(
-        Args, 1, maxshift=5 * Args.pixel_scale)
-    blend_catalog['ra'] += dx
-    blend_catalog['dec'] += dy
+        Args, 1, maxshift=5 * Args.pixel_scale
+    )
+    blend_catalog["ra"] += dx
+    blend_catalog["dec"] += dy
     # make sure galaxy centers don't lie too close to edge
-    cond1 = np.abs(blend_catalog['ra']) < Args.stamp_size / 2. - 1
-    cond2 = np.abs(blend_catalog['dec']) < Args.stamp_size / 2. - 1
+    cond1 = np.abs(blend_catalog["ra"]) < Args.stamp_size / 2.0 - 1
+    cond2 = np.abs(blend_catalog["dec"]) < Args.stamp_size / 2.0 - 1
     no_boundary = blend_catalog[cond1 & cond2]
-    message = ("Number of galaxies greater than max number of objects per"
-               f"blend. Found {len(no_boundary)}, expected <= {Args.max_number}")
+    message = (
+        "Number of galaxies greater than max number of objects per"
+        f"blend. Found {len(no_boundary)}, expected <= {Args.max_number}"
+    )
     assert len(no_boundary) <= Args.max_number, message
     return no_boundary
 
@@ -531,15 +553,16 @@ class Basic_measure_params(Measurement_params):
         """
         # set detection threshold to 5 times std of image
         threshold = 5 * np.std(image)
-        coordinates = skimage.feature.peak_local_max(image, min_distance=2,
-                                                     threshold_abs=threshold)
+        coordinates = skimage.feature.peak_local_max(
+            image, min_distance=2, threshold_abs=threshold
+        )
         return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
 
     def get_deblended_images(self, data, index):
         """Returns scarlet modeled blend and centers for the given blend"""
-        image = np.mean(data['blend_images'][index], axis=2)
+        image = np.mean(data["blend_images"][index], axis=2)
         peaks = self.get_centers(image)
-        return {'deblend_image': None, 'peaks': peaks}
+        return {"deblend_image": None, "peaks": peaks}
 
 
 class Basic_metric_params(Metrics_params):
@@ -565,12 +588,11 @@ class Basic_metric_params(Metrics_params):
                     respectively, in pixels from bottom left corner as (0, 0).
         """
         blend_op, deblend_op, _ = next(self.meas_generator)
-        true_tables = blend_op['blend_list']
+        true_tables = blend_op["blend_list"]
         detected_tables = []
         for i in range(len(true_tables)):
-            detected_centers = deblend_op[i]['peaks']
-            detected_table = astropy.table.Table(detected_centers,
-                                                 names=['dx', 'dy'])
+            detected_centers = deblend_op[i]["peaks"]
+            detected_table = astropy.table.Table(detected_centers, names=["dx", "dy"])
             detected_tables.append(detected_table)
         return true_tables, detected_tables
 
@@ -598,15 +620,13 @@ class Stack_metric_params(Metrics_params):
         """
         blend_op, _, cat = next(self.meas_generator)
         # Get astropy table with entries corresponding to true sources
-        true_tables = blend_op['blend_list']
+        true_tables = blend_op["blend_list"]
         detected_tables = []
         for i in range(len(true_tables)):
             detected_centers = np.stack(
-                [cat[i]['base_NaiveCentroid_x'],
-                 cat[i]['base_NaiveCentroid_y']],
-                axis=1)
-            detected_table = astropy.table.Table(detected_centers,
-                                                 names=['dx', 'dy'])
+                [cat[i]["base_NaiveCentroid_x"], cat[i]["base_NaiveCentroid_y"]], axis=1
+            )
+            detected_table = astropy.table.Table(detected_centers, names=["dx", "dy"])
             detected_tables.append(detected_table)
         return true_tables, detected_tables
 
@@ -638,14 +658,14 @@ def get_detection_eff_matrix(summary_table, num):
     """
     eff_matrix = np.zeros((num + 2, num + 1))
     for i in range(0, num + 1):
-        q_true, = np.where(summary_table[:, 0] == i)
+        (q_true,) = np.where(summary_table[:, 0] == i)
         for j in range(0, num + 2):
             if len(q_true) > 0:
-                q_det, = np.where(summary_table[q_true, 1] == j)
+                (q_det,) = np.where(summary_table[q_true, 1] == j)
                 eff_matrix[j, i] = len(q_det)
     norm = np.sum(eff_matrix, axis=0)
     # If no detections along a column, set sum to 1 to avoid dividing by zero.
-    norm[norm == 0.] = 1
+    norm[norm == 0.0] = 1
     # normalize over columns.
-    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.
+    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.0
     return eff_matrix

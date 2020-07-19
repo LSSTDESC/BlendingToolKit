@@ -18,11 +18,21 @@ class Simulation_params(object):
         verbose: If true, prints description at multiple steps.
     """
 
-    def __init__(self, catalog_name, max_number=2,
-                 batch_size=8, stamp_size=24, survey_name="LSST",
-                 seed=0, add_noise=True, meas_band='i',
-                 bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
-                 verbose=False, **kwargs):
+    def __init__(
+        self,
+        catalog_name,
+        max_number=2,
+        batch_size=8,
+        stamp_size=24,
+        survey_name="LSST",
+        seed=0,
+        add_noise=True,
+        meas_band="i",
+        bands=("u", "g", "r", "i", "z", "y"),
+        min_snr=0.05,
+        verbose=False,
+        **kwargs,
+    ):
         """Inits Simulation_params with input observing conditions and image
         parameters."""
         self.__dict__.update(kwargs)
