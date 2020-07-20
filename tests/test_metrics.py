@@ -212,7 +212,7 @@ def run_metrics_stack(input_args):
     pass
 
 
-@pytest.mark.timeout(15)
+@pytest.mark.timeout(25)
 def test_metrics_all(input_args):
     """Test detection summary table with default detection algorithm and SEP/
     stack if installed"""
@@ -222,7 +222,7 @@ def test_metrics_all(input_args):
     except ImportError:
         print("sep not found")
     try:
-        run_metrics_stack()
+        run_metrics_stack(input_args)
     except ImportError:
         print("stack not found")
 
