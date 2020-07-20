@@ -38,10 +38,9 @@ def compare_basic_metric(param, user_config_dict, simulation_config_dict, btk_in
     pass
 
 
-def run_metrics_basic():
+def run_metrics_basic(input_args):
     """Test detection summary metrics with default detection algorithm."""
-    test_input = imp.load_source("", "tests/test_input.py")
-    args = test_input.Input_Args()
+    args = input_args()
     sys.path.append(os.getcwd())
     btk_input = __import__("btk_input")
     config_dict = btk_input.read_configfile(
@@ -109,14 +108,14 @@ def compare_sep_group_metric(
     pass
 
 
-def run_metrics_sep():
+def run_metrics_sep(input_args):
     """Test detection summary metrics with SEP"""
-    test_input = imp.load_source("", "tests/test_input.py")
+
     simulations = [
         "group",
     ]
     for simulation in simulations:
-        args = test_input.Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
@@ -185,14 +184,13 @@ def compare_stack_group_metric(
     pass
 
 
-def run_metrics_stack():
+def run_metrics_stack(input_args):
     """Test detection summary metrics with stack"""
-    test_input = imp.load_source("", "tests/test_input.py")
     simulations = [
         "group",
     ]
     for simulation in simulations:
-        args = test_input.Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
@@ -215,12 +213,12 @@ def run_metrics_stack():
 
 
 @pytest.mark.timeout(15)
-def test_metrics_all():
+def test_metrics_all(input_args):
     """Test detection summary table with default detection algorithm and SEP/
     stack if installed"""
-    run_metrics_basic()
+    run_metrics_basic(input_args)
     try:
-        run_metrics_sep()
+        run_metrics_sep(input_args)
     except ImportError:
         print("sep not found")
     try:

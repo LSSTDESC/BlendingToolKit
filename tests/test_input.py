@@ -1,20 +1,19 @@
-import imp
 import os
 import subprocess
 import sys
 
-import astropy
+from astropy.table import Table
 import dill
 import numpy as np
 import pytest
 
 
 @pytest.mark.timeout(5)
-def test_parse_config():
+def test_parse_config(input_args):
     """Checks if input config files are parsed correctly"""
     simulations = ["all", "two_gal", "multi_gal", "group"]
     for simulation in simulations:
-        args = Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
@@ -42,28 +41,11 @@ def test_parse_config():
     pass
 
 
-class Input_Args(object):
-    """Class that returns values in the same format as argparse in btk_input.
-    """
-
-    def __init__(
-        self,
-        simulation="two_gal",
-        name="unit_test",
-        configfile="tests/test-config.yaml",
-        verbose=True,
-    ):
-        self.simulation = simulation
-        self.configfile = configfile
-        self.name = name
-        self.verbose = verbose
-
-
 @pytest.mark.timeout(5)
-def test_input_draw():
+def test_input_draw(input_args, match_images):
     """Tests that objects are drawn correctly when btk is run with input config
     yaml file."""
-    args = Input_Args()
+    args = input_args()
     sys.path.append(os.getcwd())
     btk_input = __import__("btk_input")
     config_dict = btk_input.read_configfile(
@@ -93,9 +75,8 @@ def test_input_draw():
         draw_output["obs_condition"][5][0].survey_name == "LSST"
     ), "Default \
         observing survey is LSST."
-    test_draw = imp.load_source("", "tests/test_draw.py")
-    test_draw.match_blend_images_default(draw_output["blend_images"])
-    test_draw.match_isolated_images_default(draw_output["isolated_images"])
+    match_images.match_blend_images_default(draw_output["blend_images"])
+    match_images.match_isolated_images_default(draw_output["isolated_images"])
     pass
 
 
@@ -148,12 +129,12 @@ def check_output_values(user_config_dict, simulation):
         f"{results.keys()}, "
         f"expected {result_keys}"
     )
-    if not isinstance(results["detection"][0], astropy.table.Table):
+    if not isinstance(results["detection"][0], Table):
         raise ValueError(
             "Expected astropy table in results['detection'][0],  "
             f"got {type(results['detection'][0])} "
         )
-    if not isinstance(results["detection"][1], astropy.table.Table):
+    if not isinstance(results["detection"][1], Table):
         raise ValueError(
             "Expected astropy table in results['detection'][1],  "
             f"got {type(results['detection'][1])} "
@@ -190,7 +171,7 @@ def delete_output_file(user_config_dict, simulation):
 
 
 @pytest.mark.timeout(45)
-def test_input_output():
+def test_input_output(input_args):
     """Checks output of btk called in test_input for input simulation.
 
     Checks that the output files have correct values and are saved in correct
@@ -200,7 +181,7 @@ def test_input_output():
     for simulation in ["two_gal", "multi_gal", "group"]:
         command = ["python3", "btk_input.py", "--configfile", "tests/test-config.yaml"]
         subprocess.call(command + ["--simulation", simulation])
-        args = Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
@@ -403,11 +384,11 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
 
 
 @pytest.mark.timeout(25)
-def test_measure():
+def test_measure(input_args):
     """Performs measurements for different measurement functions and
     simulations, and checks that the output matches previously measured values.
     """
-    args = Input_Args()
+    args = input_args()
     sys.path.append(os.getcwd())
     btk_input = __import__("btk_input")
     config_dict = btk_input.read_configfile(
