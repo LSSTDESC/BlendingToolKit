@@ -170,7 +170,7 @@ def delete_output_file(user_config_dict, simulation):
     return
 
 
-@pytest.mark.timeout(45)
+@pytest.mark.timeout(55)
 def test_input_output(input_args):
     """Checks output of btk called in test_input for input simulation.
 
@@ -486,7 +486,7 @@ def basic_metric_two_gal_multi(output_name):
 
 
 @pytest.mark.timeout(25)
-def test_metrics():
+def test_metrics(input_args):
     """Btk measure is run for input config yaml file for different measure
     functions and simulations. The measure outputs written to file are compared
     to the values they are supposed to get.
@@ -497,7 +497,7 @@ def test_metrics():
     for simulation in simulations:
         command = ["python3", "btk_input.py", "--configfile", "tests/test-config.yaml"]
         subprocess.call(command + ["--simulation", simulation])
-        args = Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
@@ -533,7 +533,7 @@ def test_metrics():
             "4",
         ]
         subprocess.call(command + ["--simulation", simulation])
-        args = Input_Args(simulation=simulation)
+        args = input_args(simulation=simulation)
         sys.path.append(os.getcwd())
         btk_input = __import__("btk_input")
         config_dict = btk_input.read_configfile(
