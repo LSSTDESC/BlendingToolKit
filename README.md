@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/LSSTDESC/BlendingToolKit.svg?branch=master)](https://travis-ci.org/LSSTDESC/BlendingToolKit)
 [![Documentation Status](https://readthedocs.org/projects/blendingtoolkit/badge/?version=latest)](https://blendingtoolkit.readthedocs.io/en/latest/?badge=latest)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of

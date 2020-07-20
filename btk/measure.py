@@ -40,14 +40,17 @@ class Measurement_params(ABC):
 
 def run_batch(measurement_params, blend_output, index):
     deblend_results = measurement_params.get_deblended_images(
-        data=blend_output, index=index)
+        data=blend_output, index=index
+    )
     measured_results = measurement_params.make_measurement(
-        data=blend_output, index=index)
+        data=blend_output, index=index
+    )
     return [deblend_results, measured_results]
 
 
-def generate(measurement_params, draw_blend_generator, Args,
-             multiprocessing=False, cpus=1):
+def generate(
+    measurement_params, draw_blend_generator, Args, multiprocessing=False, cpus=1
+):
     """Generates output of deblender and measurement algorithm.
 
     Args:
@@ -65,27 +68,30 @@ def generate(measurement_params, draw_blend_generator, Args,
     """
     while True:
         blend_output = next(draw_blend_generator)
-        batch_size = len(blend_output['blend_images'])
+        batch_size = len(blend_output["blend_images"])
         deblend_results = {}
         measured_results = {}
-        in_args = [(measurement_params,
-                    blend_output, i) for i in range(Args.batch_size)]
+        in_args = [
+            (measurement_params, blend_output, i) for i in range(Args.batch_size)
+        ]
         if multiprocessing:
             if Args.verbose:
-                print(f"Running mini-batch of size {len(in_args)} with",
-                      f"multiprocessing with pool {cpus}")
+                print(
+                    f"Running mini-batch of size {len(in_args)} with",
+                    f"multiprocessing with pool {cpus}",
+                )
             with mp.Pool(processes=cpus) as pool:
                 batch_results = pool.starmap(run_batch, in_args)
         else:
             if Args.verbose:
-                print(f"Running mini-batch of size {len(in_args)} in",
-                      f"serial with pool {cpus}")
+                print(
+                    f"Running mini-batch of size {len(in_args)} in",
+                    f"serial with pool {cpus}",
+                )
             batch_results = list(starmap(run_batch, in_args))
         for i in range(batch_size):
-            deblend_results.update(
-                {i: batch_results[i][0]})
-            measured_results.update(
-                {i: batch_results[i][1]})
+            deblend_results.update({i: batch_results[i][0]})
+            measured_results.update({i: batch_results[i][1]})
         if Args.verbose:
             print("Measurement performed on batch")
         yield blend_output, deblend_results, measured_results
