@@ -381,7 +381,6 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
     pass
 
 
-@pytest.mark.skip(reason="Code change makes setting np.seed output different results.")
 def test_measure(input_args):
     """Performs measurements for different measurement functions and
     simulations, and checks that the output matches previously measured values.
