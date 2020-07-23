@@ -3,9 +3,8 @@ Installation
 
 *BlendingToolKit* (btk) is essentially a wrapper around the
 `WeakLensingDeblending <https://weaklensingdeblending.readthedocs.io/en/latest/>`_
-package, which uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. 
-These packages along with
-their dependencies need to be installed first.
+package, which uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images.
+These packages along with their dependencies need to be installed first.
 
 The following dependencies are pip installable:
 
@@ -15,6 +14,19 @@ The following dependencies are pip installable:
 * scipy
 * lmfit
 
+Install fitsio and lmfit
+-----------------------------
+These two uncommon packages can be installed via:
+::
+    # in conda.
+    conda install -c conda-forge fitsio
+    conda install -c conda-forge lmfit
+
+    # in pip.
+    pip install fitsio
+    pip install lmfit
+
+
 Install GalSim
 -------------------------------
 
@@ -23,7 +35,7 @@ improved computational efficiency. It can be installed with
 ::
     pip install galsim
 
-However you may have to install FFTW and Eigen manually. Refer to 
+However you may have to install FFTW and Eigen manually. Refer to
 `this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
 for more details.
 
@@ -56,9 +68,9 @@ Optional Packages
 -------------------------------
 
 *BlendingToolKit* is meant to perform detection/deblending/measurement with any
-user input algorithm; therefore, no algorithm is hard-coded into the basic
-framework. However, the tutorial notebooks include several examples of detection/deblending/measurement 
-algoritms that can be performed with btk.
+user input algorithm; therefore, no detection/deblending/measurement algorithm is hard-coded into the basic
+framework. However, the tutorial notebooks include several examples of detection/deblending/measurement
+algorithms that can be performed with btk.
 These tutorial notebooks require:
 
 #. scarlet_ (multi-band deblender)

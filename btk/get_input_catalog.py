@@ -8,23 +8,17 @@ def load_catalog(Args, selection_function=None):
     Args:
         Args: Class containing input parameters.
         Args.catalog_name: Name of CatSim-like catalog to draw galaxies from.
-        sampling_function: Selection cuts (if input) to place on input catalog.
+        selection_function: Selection cuts (if input) to place on input catalog.
 
     Returns:
-        astropy.table: CatSim-like catalog with a selection criteria applied if
-        provided.
-
-    Todo:
-        Add script to load DC2 catalog
-        Add option to load multiple catalogs(e.g. star , galaxy)
+        `astropy.table`: CatSim-like catalog with a selection criteria applied
+        if provided.
     """
     name, ext = os.path.splitext(Args.catalog_name)
-    if ext == '.fits':
-        table = astropy.table.Table.read(Args.catalog_name,
-                                         format='fits')
+    if ext == ".fits":
+        table = astropy.table.Table.read(Args.catalog_name, format="fits")
     else:
-        table = astropy.table.Table.read(Args.catalog_name,
-                                         format='ascii.basic')
+        table = astropy.table.Table.read(Args.catalog_name, format="ascii.basic")
     if Args.verbose:
         print("Catalog loaded")
     if selection_function:

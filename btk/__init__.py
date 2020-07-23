@@ -1,14 +1,14 @@
 """Toolkit for fast simulation and analysis of overlapping objects for the
 LSST Dark Energy Science Collaboration.
 
-The code generates on the fly images of overlapping parametric galaxies while
-providing framework to test user defined detection/deblending/measurement
+The code generates on the fly images of overlapping parametric galaxies, while
+providing a framework to test user defined detection/deblending/measurement
 algorithms.
 """
 
-__author__ = 'btk developers'
-__email__ = 'sowmyak@stanford.edu'
-__version__ = '0.1'
+__author__ = "btk developers"
+__email__ = "sowmyak@stanford.edu"
+__version__ = "0.1"
 
 from . import get_input_catalog
 from . import create_blend_generator

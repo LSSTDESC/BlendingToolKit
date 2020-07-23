@@ -9,6 +9,7 @@ class Simulation_params(object):
         survey_name: Name of survey to select observing conditions.
         seed: random seed.
         add_noise: If True, adds noise to output blended images.
+        meas_band: Band in which the size is measured.
         bands: Filters in which to simulate images.
         min_snr(float): Simulate signals from individual sources down to this
             S/N threshold, where the signal N is calculated for the full
@@ -17,14 +18,23 @@ class Simulation_params(object):
         verbose: If true, prints description at multiple steps.
     """
 
-    def __init__(self, catalog_name, max_number=2,
-                 batch_size=8, stamp_size=24,
-                 survey_name="LSST",
-                 seed=0, add_noise=True,
-                 bands=('u', 'g', 'r', 'i', 'z', 'y'), min_snr=0.05,
-                 verbose=False, **kwargs):
+    def __init__(
+        self,
+        catalog_name,
+        max_number=2,
+        batch_size=8,
+        stamp_size=24,
+        survey_name="LSST",
+        seed=0,
+        add_noise=True,
+        meas_band="i",
+        bands=("u", "g", "r", "i", "z", "y"),
+        min_snr=0.05,
+        verbose=False,
+        **kwargs,
+    ):
         """Inits Simulation_params with input observing conditions and image
-        parametrs."""
+        parameters."""
         self.__dict__.update(kwargs)
         self.catalog_name = catalog_name
         self.max_number = max_number
@@ -33,10 +43,11 @@ class Simulation_params(object):
         self.survey_name = survey_name
         self.add_noise = add_noise
         self.seed = seed
+        self.meas_band = meas_band
         self.bands = bands
         self.min_snr = min_snr
         self.verbose = verbose
-        if survey_name is "LSST":
+        if self.survey_name is "LSST":
             self.pixel_scale = 0.2
         elif survey_name is "DES":
             self.pixel_scale = 0.263
@@ -46,8 +57,11 @@ class Simulation_params(object):
             self.pixel_scale = 0.17
         else:
             raise Exception(
-                "survey_name should be LSST, DES, CFHT or HSC. Input name was \
-                 {0}".format(survey_name))
+                f"survey_name should be LSST, DES, CFHT or HSC. Input name "
+                f"was {self.survey_name}"
+            )
+        if self.meas_band not in self.bands:
+            raise ValueError("meas band must be one of the input bands")
 
     def display(self):
         """Display configuration parameter values."""
