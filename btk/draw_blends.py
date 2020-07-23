@@ -159,7 +159,8 @@ class GalsimRealDraw(object):
     def __init__(self):
         pass
 
-    def draw(self, blend_list, obs_cond):
+    def draw(self, Args, blend_list, obs_cond):
+        # Args has the stamp size, any global features you want.
         # blend list is a sample from the catalog.
         # obs_cond can be psf, whether to do hst/hsc, etc.
         pass
@@ -242,10 +243,13 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
         mini_batch_size = np.max([Args.batch_size // cpus, 1])
+        # TODO: Specify class you want to draw with here.
         in_args = [
             (Args, in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_cond))
             for i in range(0, Args.batch_size, mini_batch_size)
         ]
+
+        # TODO: encapsulate multiprocessing functions into a class.
         if multiprocessing:
             if Args.verbose:
                 print(
@@ -255,6 +259,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
                     )
                 )
             with mp.Pool(processes=cpus) as pool:
+                # TODO: Specify class you want
                 mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
             if Args.verbose:
@@ -264,6 +269,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
                         len(in_args), cpus
                     )
                 )
+            # TODO: Specify class you want
             mini_batch_results = list(starmap(run_mini_batch, in_args))
         batch_results = list(chain(*mini_batch_results))
         for i in range(Args.batch_size):
