@@ -62,29 +62,11 @@ def mk_sim(k, dir, shape, npsf, cat, shift=(0, 0), gal_type='real'):
     psf = psf_int.drawImage(nx=npsf, ny=npsf, method='real_space',
                                   use_true_center=True, scale=pix_hr).array
 
-    ## Make sure it goes to 0
-    psf = psf_lr - psf_lr[0, int(npsf / 2)] * 2
-    psf[psf < 0] = 0
-    psf_lr = psf / np.sum(psf)
-    ## Interpolate the 0-ed PSF
-    psf_lr_int = galsim.InterpolatedImage(galsim.Image(psf_lr), scale=pix_lr).withFlux(1.)
-    ## Draw it with the right flux
-    psf_lr = psf_lr_int.drawImage(nx=npsf, ny=npsf, method='real_space',
-                                  use_true_center=True, scale=pix_lr).array
-
     # Convolve galaxy profile by PSF, rotate and sample at high resolution
-    im_hr = galsim.Convolve(gal, psf_hr_int).drawImage(nx=shape_hr[0], ny=shape_hr[1],
+    im = galsim.Convolve(gal, psf_int).drawImage(nx=shape[0], ny=shape[1],
                                                        use_true_center=True, method='no_pixel',
-                                                       scale=pix_hr, dtype=np.float64)
-    # Convolve galaxy profile by PSF, rotate and sample at low resolution
-    im_lr = galsim.Convolve(gal.rotate(angle), psf_lr_int).drawImage(nx=shape_lr[0], ny=shape_lr[1],
-                                                                     use_true_center=True, method='no_pixel',
-                                                                     scale=pix_lr, dtype=np.float64)
-    # Make WCSs
-    im_hr.wcs = mk_wcs(0, pix_hr, galsim.PositionD(im_hr.true_center), shape_hr)
-    im_lr.wcs = mk_wcs(0, pix_lr, galsim.PositionD(im_lr.true_center), shape_lr)
-
-    return im_hr, im_lr, psf_hr[None, :, :], psf_lr[None, :, :], theta
+                                                       scale=pix, dtype=np.float64)
+    return im
 
 
 def mk_scene(hr_dict, lr_dict, cat, shape_hr, shape_lr, n_gal, gal_type):
