@@ -61,93 +61,108 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     return Column(size, name="size")
 
 
-def draw_isolated(Args, galaxy, iso_obs):
-    """Returns `descwl.survey.Survey` class object that includes the rendered
-    object for an isolated galaxy in its '.image' attribute.
+class WLD_draw(object):
+    def __init__(self):
+        pass
 
-    Args:
-        Args: Class containing input parameters.
-        galaxy: `descwl.model.Galaxy` class that models galaxies.
-        iso_obs: `descwl.survey.Survey` class describing observing conditions.
-            The input galaxy is rendered and stored in here.
-    """
-    if Args.verbose:
-        print("Draw isolated object")
-    iso_render_engine = descwl.render.Engine(
-        survey=iso_obs,
-        min_snr=Args.min_snr,
-        truncate_radius=30,
-        no_margin=False,
-        verbose_render=False,
-    )
-    iso_render_engine.render_galaxy(
-        galaxy,
-        variations_x=None,
-        variations_s=None,
-        variations_g=None,
-        no_fisher=True,
-        calculate_bias=False,
-        no_analysis=True,
-    )
-    return iso_obs
+    def draw_isolated(Args, galaxy, iso_obs):
+        """Returns `descwl.survey.Survey` class object that includes the rendered
+        object for an isolated galaxy in its '.image' attribute.
 
-
-def run_single_band(Args, blend_catalog, obs_cond, band):
-    """Draws image of isolated galaxies along with the blend image in the
-    single input band.
-
-    The WLDeblending package (descwl) renders galaxies corresponding to the
-    blend_catalog entries and with observing conditions determined by
-    obs_cond. The rendered objects are stored in the the observing conditions
-    class. So as to not overwrite images across different blends, we make a
-    copies of the obs_cond while drawing each galaxy. Images of isolated
-    galaxies are drawn with the WLDeblending and them summed to produce the
-    blend image.
-
-    A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
-    If a galaxy was not drawn by descwl, then this flag is set to 1.
-    Args:
-        Args: Class containing input parameters.
-        blend_catalog: Catalog with entries corresponding to one blend.
-        obs_cond: `descwl.survey.Survey` class describing observing conditions.
-        band(string): Name of band to draw images in.
-
-    Returns:
-        Images of blend and isolated galaxies as `numpy.ndarray`.
-
-    """
-    blend_catalog.add_column(
-        Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
-    )
-    galaxy_builder = descwl.model.GalaxyBuilder(
-        obs_cond, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
-    )
-    stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
-    iso_image = np.zeros((Args.max_number, stamp_size, stamp_size))
-    # define temporary galsim image
-    # this will hold isolated galaxy images that will be summed
-    blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
-    mean_sky_level = obs_cond.mean_sky_level
-    for k, entry in enumerate(blend_catalog):
-        iso_obs = copy.deepcopy(obs_cond)
-        try:
-            galaxy = galaxy_builder.from_catalog(entry, entry["ra"], entry["dec"], band)
-            iso_render = draw_isolated(Args, galaxy, iso_obs)
-            iso_image[k] = iso_render.image.array
-            blend_image_temp += iso_render.image
-        except descwl.render.SourceNotVisible:
-            if Args.verbose:
-                print("Source not visible")
-            blend_catalog["not_drawn_" + band][k] = 1
-            continue
-    if Args.add_noise:
+        Args:
+            Args: Class containing input parameters.
+            galaxy: `descwl.model.Galaxy` class that models galaxies.
+            iso_obs: `descwl.survey.Survey` class describing observing conditions.
+                The input galaxy is rendered and stored in here.
+        """
         if Args.verbose:
-            print("Noise added to blend image")
-        generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
-        noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
-        blend_image_temp.addNoise(noise)
-    blend_image = blend_image_temp.array
-    return blend_image, iso_image
+            print("Draw isolated object")
+        iso_render_engine = descwl.render.Engine(
+            survey=iso_obs,
+            min_snr=Args.min_snr,
+            truncate_radius=30,
+            no_margin=False,
+            verbose_render=False,
+        )
+        iso_render_engine.render_galaxy(
+            galaxy,
+            variations_x=None,
+            variations_s=None,
+            variations_g=None,
+            no_fisher=True,
+            calculate_bias=False,
+            no_analysis=True,
+        )
+        return iso_obs
+
+    def run_single_band(Args, blend_catalog, obs_cond, band):
+        """Draws image of isolated galaxies along with the blend image in the
+        single input band.
+
+        The WLDeblending package (descwl) renders galaxies corresponding to the
+        blend_catalog entries and with observing conditions determined by
+        obs_cond. The rendered objects are stored in the the observing conditions
+        class. So as to not overwrite images across different blends, we make a
+        copies of the obs_cond while drawing each galaxy. Images of isolated
+        galaxies are drawn with the WLDeblending and them summed to produce the
+        blend image.
+
+        A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
+        If a galaxy was not drawn by descwl, then this flag is set to 1.
+        Args:
+            Args: Class containing input parameters.
+            blend_catalog: Catalog with entries corresponding to one blend.
+            obs_cond: `descwl.survey.Survey` class describing observing conditions.
+            band(string): Name of band to draw images in.
+
+        Returns:
+            Images of blend and isolated galaxies as `numpy.ndarray`.
+
+        """
+        blend_catalog.add_column(
+            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
+        )
+        galaxy_builder = descwl.model.GalaxyBuilder(
+            obs_cond, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
+        )
+        stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
+        iso_image = np.zeros((Args.max_number, stamp_size, stamp_size))
+        # define temporary galsim image
+        # this will hold isolated galaxy images that will be summed
+        blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
+        mean_sky_level = obs_cond.mean_sky_level
+        for k, entry in enumerate(blend_catalog):
+            iso_obs = copy.deepcopy(obs_cond)
+            try:
+                galaxy = galaxy_builder.from_catalog(
+                    entry, entry["ra"], entry["dec"], band
+                )
+                iso_render = draw_isolated(Args, galaxy, iso_obs)
+                iso_image[k] = iso_render.image.array
+                blend_image_temp += iso_render.image
+            except descwl.render.SourceNotVisible:
+                if Args.verbose:
+                    print("Source not visible")
+                blend_catalog["not_drawn_" + band][k] = 1
+                continue
+        if Args.add_noise:
+            if Args.verbose:
+                print("Noise added to blend image")
+            generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
+            noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
+            blend_image_temp.addNoise(noise)
+        blend_image = blend_image_temp.array
+        return blend_image, iso_image
+
+
+class GalsimRealDraw(object):
+    def __init__(self):
+        pass
+
+    def draw(self, blend_list, obs_cond):
+        # blend list is a sample from the catalog.
+        # obs_cond can be psf, whether to do hst/hsc, etc.
+        pass
 
 
 def run_mini_batch(Args, blend_list, obs_cond):
