@@ -165,6 +165,57 @@ class GalsimRealDraw(object):
         # obs_cond can be psf, whether to do hst/hsc, etc.
         pass
 
+    def draw_single(self, k, pix, sigma, shape, npsf, cat, shift=(0, 0), gal_type='real'):
+        '''creates low and high resolution images of a galaxy profile with different psfs from the list of galaxies in the COSMOS catalog
+
+        Parameters
+        ----------
+        k: int
+            index of the galaxy to draw from the COSMOS catalog
+        dir: dictionary
+            dictionary that contains the information for the high resolution survey
+        shape_lr: tuple of ints
+            shape of the lr image
+        npsf: int
+            size on-a-side of a psf (in pixels)
+        cat: list
+            catalog where to draw galaxies from
+
+        Returns
+        -------
+        im_hr: galsim Image
+            galsim Image object with the high resolution simulated image and its WCS
+        im_lr: galsim Image
+            galsim Image object with the low resolution simulated image and its WCS
+        psf_hr: numpy array
+            psf of the high resolution image
+        psf_lr: numpy array
+            psf of the low resolution image
+        '''
+        # Galaxy profile
+        gal = cat.makeGalaxy(k, gal_type=gal_type, noise_pad_size=shape[0] * pix)
+        gal = gal.shift(dx=shift[0], dy=shift[1])
+        ## PSF is a Moffat profile dilated to the sigma of the corresponding survey
+        psf_int = galsim.Moffat(2, HST['pixel']).dilate(sigma / HST['psf']).withFlux(1.)
+        ## Draw PSF
+        psf = psf_int.drawImage(nx=npsf, ny=npsf, method='real_space',
+                                use_true_center=True, scale=pix_hr).array
+        ## Make sure PSF vanishes on the edges of a patch that has the shape of the initial npsf
+        psf = psf - psf[0, int(npsf / 2)] * 2
+        psf[psf < 0] = 0
+        psf = psf / np.sum(psf)
+        ## Interpolate the new 0-ed psf
+        psf_int = galsim.InterpolatedImage(galsim.Image(psf), scale=pix).withFlux(1.)
+        ## Re-draw it (with the correct fulx)
+        psf = psf_int.drawImage(nx=npsf, ny=npsf, method='real_space',
+                                use_true_center=True, scale=pix_hr).array
+
+        # Convolve galaxy profile by PSF, rotate and sample at high resolution
+        im = galsim.Convolve(gal, psf).drawImage(nx=shape[0], ny=shape[1],
+                                                     use_true_center=True, method='no_pixel',
+                                                     scale=pix, dtype=np.float64)
+        return im
+
 
 def run_mini_batch(Args, blend_list, obs_cond):
     """Returns isolated and blended images for bend catalogs in blend_list
