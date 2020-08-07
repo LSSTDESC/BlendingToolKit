@@ -1,6 +1,4 @@
 import copy
-import multiprocessing as mp
-from itertools import chain, starmap
 
 from astropy import wcs
 import descwl
@@ -205,7 +203,6 @@ class GalsimRealDraw:
             else:
                 self.psf_args = psf_args
 
-
         if psf_size %2 == 0:
             psf_size+=1
             print(f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}")
@@ -355,8 +352,6 @@ class GalsimRealDraw:
         return cube
 
 
-
-
 def run_mini_batch(Args, blend_list, obs_cond):
     """Returns isolated and blended images for bend catalogs in blend_list
 
@@ -434,10 +429,13 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
         mini_batch_size = np.max([Args.batch_size // cpus, 1])
+        # TODO: Specify class you want to draw with here.
         in_args = [
             (Args, in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_cond))
             for i in range(0, Args.batch_size, mini_batch_size)
         ]
+
+        # TODO: encapsulate multiprocessing functions into a class.
         if multiprocessing:
             if Args.verbose:
                 print(
@@ -447,6 +445,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
                     )
                 )
             with mp.Pool(processes=cpus) as pool:
+                # TODO: Specify class you want
                 mini_batch_results = pool.starmap(run_mini_batch, in_args)
         else:
             if Args.verbose:
@@ -456,6 +455,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
                         len(in_args), cpus
                     )
                 )
+            # TODO: Specify class you want
             mini_batch_results = list(starmap(run_mini_batch, in_args))
         batch_results = list(chain(*mini_batch_results))
         for i in range(Args.batch_size):
