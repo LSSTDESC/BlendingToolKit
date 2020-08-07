@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: btk
+Version: 0.1
+Summary: Toolkit for on the fly genration of blend images.
+Home-page: https://github.com/LSSTDESC/BlendingToolKit
+Author: btk developers
+Author-email: sowmyak@stanford.edu
+License: MIT
+Description: Weak lensing fast simulations and analysis for the LSST DESC
+Platform: UNKNOWN

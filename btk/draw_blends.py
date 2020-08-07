@@ -2,6 +2,7 @@ import copy
 import multiprocessing as mp
 from itertools import chain, starmap
 
+from astropy import wcs
 import descwl
 import galsim
 import numpy as np
@@ -63,23 +64,25 @@ def get_size(pixel_scale, catalog, i_obs_cond):
 
 class WLD_draw(object):
     def __init__(self):
+        #The inputs should really be given in the __init__ and explained
         pass
 
-    def draw_isolated(Args, galaxy, iso_obs):
+    def draw_isolated(self, galaxy, iso_obs):
         """Returns `descwl.survey.Survey` class object that includes the rendered
         object for an isolated galaxy in its '.image' attribute.
 
         Args:
             Args: Class containing input parameters.
             galaxy: `descwl.model.Galaxy` class that models galaxies.
+        Returns:
             iso_obs: `descwl.survey.Survey` class describing observing conditions.
                 The input galaxy is rendered and stored in here.
         """
-        if Args.verbose:
+        if self.verbose:
             print("Draw isolated object")
         iso_render_engine = descwl.render.Engine(
             survey=iso_obs,
-            min_snr=Args.min_snr,
+            min_snr=self.min_snr,
             truncate_radius=30,
             no_margin=False,
             verbose_render=False,
@@ -95,7 +98,7 @@ class WLD_draw(object):
         )
         return iso_obs
 
-    def run_single_band(Args, blend_catalog, obs_cond, band):
+    def run_single_band(self, blend_catalog, obs_cond, band):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -109,8 +112,8 @@ class WLD_draw(object):
 
         A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
         If a galaxy was not drawn by descwl, then this flag is set to 1.
-        Args:
-            Args: Class containing input parameters.
+        self:
+            self: Class containing input parameters.
             blend_catalog: Catalog with entries corresponding to one blend.
             obs_cond: `descwl.survey.Survey` class describing observing conditions.
             band(string): Name of band to draw images in.
@@ -125,8 +128,8 @@ class WLD_draw(object):
         galaxy_builder = descwl.model.GalaxyBuilder(
             obs_cond, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
         )
-        stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
-        iso_image = np.zeros((Args.max_number, stamp_size, stamp_size))
+        stamp_size = np.int(self.stamp_size / self.pixel_scale)
+        iso_image = np.zeros((self.max_number, stamp_size, stamp_size))
         # define temporary galsim image
         # this will hold isolated galaxy images that will be summed
         blend_image_temp = galsim.Image(np.zeros((stamp_size, stamp_size)))
@@ -137,16 +140,16 @@ class WLD_draw(object):
                 galaxy = galaxy_builder.from_catalog(
                     entry, entry["ra"], entry["dec"], band
                 )
-                iso_render = draw_isolated(Args, galaxy, iso_obs)
+                iso_render = self.draw_isolated(self, galaxy, iso_obs)
                 iso_image[k] = iso_render.image.array
                 blend_image_temp += iso_render.image
             except descwl.render.SourceNotVisible:
-                if Args.verbose:
+                if self.verbose:
                     print("Source not visible")
                 blend_catalog["not_drawn_" + band][k] = 1
                 continue
-        if Args.add_noise:
-            if Args.verbose:
+        if self.add_noise:
+            if self.verbose:
                 print("Noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
@@ -155,65 +158,203 @@ class WLD_draw(object):
         return blend_image, iso_image
 
 
-class GalsimRealDraw(object):
-    def __init__(self):
-        pass
+class GalsimRealDraw:
+    """Class that instanciates a blend from real galsim images
 
-    def draw(self, blend_list, obs_cond):
-        # blend list is a sample from the catalog.
-        # obs_cond can be psf, whether to do hst/hsc, etc.
-        pass
+    Parameters
+    ----------
+    cat:
+        galsim catalog of galaxies
+    pix: `float`
+        pixel scale in arcseconds
+    stamp_size: `int`
+        number of pixels on a side for the stamp
+    channels: `array`
+        array of names for each band in the blend
+    sky_center: `array`
+        coordinate of a reference pixel in ra-dec
+    pixe_center: `array`
+        pixel coordinates of a reference pixel
+    psf_function: function
+        function to generate a 2-dimensional psf profile
+    psf_args: `list`
+        list of arguments for the psf function
+    """
+    def __init__(self,
+                 cat,
+                 pix,
+                 stamp_size,
+                 channels = ['u','g','r','i','z','y'],
+                 sky_center=(0*galsim.degrees, 0*galsim.degrees),
+                 pix_center = None,
+                 psf_function=None,
+                 psf_size=41,
+                 psf_args=None):
+        self.cat = cat
+        self.pix = pix
+        self.stamp_size = stamp_size
+        self.channels = channels
+        if psf_function is None:
+            def psf_function(r):
+                return galsim.Moffat(2, r)
+            if (psf_args is None):
+                self.psf_args = 3*pix
+        else:
+            if (psf_args is None):
+                raise InputError('Input arguments for psf not provided')
+            else:
+                self.psf_args = psf_args
 
-    def draw_single(self, k, pix, sigma, shape, npsf, cat, shift=(0, 0), gal_type='real'):
-        '''creates low and high resolution images of a galaxy profile with different psfs from the list of galaxies in the COSMOS catalog
+
+        if psf_size %2 == 0:
+            psf_size+=1
+            print(f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}")
+        self.psf_size = psf_size
+
+        self.psf = self.get_psf(psf_function)
+
+        if pix_center is None:
+            pix_center = (stamp_size//2, stamp_size//2)
+        self.wcs = self.get_wcs(self.pix, pix_center, sky_center, (stamp_size, stamp_size))
+        self.seds = None
+        self.singles = None
+        self.locs = None
+        self.blend = None
+
+    def get_wcs(self, theta, pix, pix_center, sky_center, shape):
+        '''Creates wcs for an image
 
         Parameters
         ----------
-        k: int
-            index of the galaxy to draw from the COSMOS catalog
-        dir: dictionary
-            dictionary that contains the information for the high resolution survey
-        shape_lr: tuple of ints
-            shape of the lr image
-        npsf: int
-            size on-a-side of a psf (in pixels)
-        cat: list
-            catalog where to draw galaxies from
+        theta: float
+            rotation angle for the image
+        pix: float
+            pixel size in arcseconds
+        pix_center: tuple
+            position of the reference pixel used as the center of the affine transform for the wcs
+        shape: tuple
+            shape of the image
 
         Returns
         -------
-        im_hr: galsim Image
-            galsim Image object with the high resolution simulated image and its WCS
-        im_lr: galsim Image
-            galsim Image object with the low resolution simulated image and its WCS
-        psf_hr: numpy array
-            psf of the high resolution image
-        psf_lr: numpy array
-            psf of the low resolution image
+        wcs: WCS
         '''
-        # Galaxy profile
-        gal = cat.makeGalaxy(k, gal_type=gal_type, noise_pad_size=shape[0] * pix)
-        gal = gal.shift(dx=shift[0], dy=shift[1])
-        ## PSF is a Moffat profile dilated to the sigma of the corresponding survey
-        psf_int = galsim.Moffat(2, HST['pixel']).dilate(sigma / HST['psf']).withFlux(1.)
+        # Affine transformation
+        dudx = np.cos(theta) * pix
+        if theta == 0:
+            dudy = 0
+            dvdx = 0
+        else:
+            dudy = -np.sin(theta) * pix
+            dvdx = np.sin(theta) * pix
+        dvdy = np.cos(theta) * pix
+
+        affine = galsim.AffineTransform(dudx, dudy, dvdx, dvdy, origin=pix_center)
+        # Image center
+        sky_center = galsim.CelestialCoord(ra=sky_center[0], dec=sky_center[1])
+        # Creating WCS
+        w = wcs.WCS(naxis=2)
+        galsim_wcs = galsim.TanWCS(affine, sky_center, units=galsim.arcsec)
+
+        w.wcs.ctype = ["RA---AIR", "DEC--AIR"]
+        w.wcs.crpix = galsim_wcs.crpix
+        w.wcs.pc = galsim_wcs.cd
+        w.wcs.crval = [galsim_wcs.center._ra._rad, galsim_wcs.center._dec._rad]
+        w.array_shape = shape
+        return w
+
+    def get_psf(self):
+        '''
+        Draw psf image
+
+        '''
+        psf_int = self.psf_function(self.psf_args).withFlux(1.)
+
         ## Draw PSF
-        psf = psf_int.drawImage(nx=npsf, ny=npsf, method='real_space',
-                                use_true_center=True, scale=pix_hr).array
+        psf = psf_int.drawImage(nx=self.psf_size, ny=self.psf_size, method='real_space',
+                                use_true_center=True, scale=self.pix).array
         ## Make sure PSF vanishes on the edges of a patch that has the shape of the initial npsf
-        psf = psf - psf[0, int(npsf / 2)] * 2
+        psf = psf - psf[0, int(self.psf_size / 2)] * 2
         psf[psf < 0] = 0
         psf = psf / np.sum(psf)
-        ## Interpolate the new 0-ed psf
-        psf_int = galsim.InterpolatedImage(galsim.Image(psf), scale=pix).withFlux(1.)
-        ## Re-draw it (with the correct fulx)
-        psf = psf_int.drawImage(nx=npsf, ny=npsf, method='real_space',
-                                use_true_center=True, scale=pix_hr).array
 
-        # Convolve galaxy profile by PSF, rotate and sample at high resolution
-        im = galsim.Convolve(gal, psf).drawImage(nx=shape[0], ny=shape[1],
-                                                     use_true_center=True, method='no_pixel',
-                                                     scale=pix, dtype=np.float64)
-        return im
+        return psf
+
+    def draw_single(self, shift):
+        """ Draws a single random galaxy profile in a random location of the image
+
+        Parameter
+        ---------
+        shift: `array`
+            pixel center of the single galaxy in the postage stamp with size self.stamp_size
+        Returns
+        gal: `galsim.InterpolatedImage`
+            The galsim profile of a single galaxy
+        """
+
+        k = np.int(np.random.randn(1)*self.cat.size)
+        gal = self.cat.makeGalaxy(k, gal_type='real', noise_pad_size=self.stamp_size * self.pix)
+
+        gal = gal.shift(dx=shift[0], dy=shift[1])
+
+        return gal
+
+    @property
+    def psf(self):
+        return self.psf
+
+    @property
+    def wcs(self):
+        return self.wcs
+
+    @property
+    def seds(self):
+        return self.seds
+
+    @property
+    def singles(self):
+        return self.singles
+
+    @property
+    def locs(self):
+        return self.locs
+
+    def draw_blend(self, ngal):
+        """ Creates multi-band scenes
+
+        Parameters
+        ----------
+        ngal: `int`
+            Number of galaxies in the stamp
+        """
+        singles = []
+        seds = []
+        locs = []
+        cube = np.zeros((self.channels.size, self.stamp_size, self.stamp_size))
+        for i in range(ngal):
+            shift =(np.random.rand(2)-0.5) * self.stamp_size * self.pix / 2
+            gal = self.draw_single(shift)
+            singles.append(gal)
+            sed = np.random.rand(self.channels.size) * 0.8 + 0.2
+            seds.appends(sed)
+
+            im = galsim.Convolve(gal, self.psf).drawImage(nx=self.stamp_size,
+                                                          ny=self.stamp_size,
+                                                          use_true_center=True,
+                                                          method='no_pixel',
+                                                          scale=self.pix,
+                                                          dtype=np.float64)
+            locs.append([shift[0] / self.pix + self.stamp_size[0] / 2,
+                        shift[1] / self.pix + self.stamp_size[1] / 2])
+            cube += im[None, :, :] * sed[:, None, None]
+
+        self.singles = singles
+        self.locs = locs
+        self.seds = seds
+
+        return cube
+
+
 
 
 def run_mini_batch(Args, blend_list, obs_cond):
@@ -329,3 +470,15 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
             "obs_condition": batch_obs_cond,
         }
         yield output
+
+
+class InputError(Exception):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
