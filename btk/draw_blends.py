@@ -62,7 +62,7 @@ def get_size(pixel_scale, catalog, i_obs_cond):
 
 class WLD_draw(object):
     def __init__(self):
-        #The inputs should really be given in the __init__ and explained
+        # The inputs should really be given in the __init__ and explained
         pass
 
     def draw_isolated(self, galaxy, iso_obs):
@@ -178,48 +178,57 @@ class GalsimRealDraw:
     psf_args: `list`
         list of arguments for the psf function
     """
-    def __init__(self,
-                 cat,
-                 pix,
-                 stamp_size,
-                 channels = ['u','g','r','i','z','y'],
-                 sky_center=(0*galsim.degrees, 0*galsim.degrees),
-                 pix_center = None,
-                 psf_function=None,
-                 psf_size=41,
-                 psf_args=None):
+
+    def __init__(
+        self,
+        cat,
+        pix,
+        stamp_size,
+        channels=["u", "g", "r", "i", "z", "y"],
+        sky_center=(0 * galsim.degrees, 0 * galsim.degrees),
+        pix_center=None,
+        psf_function=None,
+        psf_size=41,
+        psf_args=None,
+    ):
         self.cat = cat
         self.pix = pix
         self.stamp_size = stamp_size
         self.channels = channels
         if psf_function is None:
+
             def psf_function(r):
                 return galsim.Moffat(2, r)
-            if (psf_args is None):
-                self.psf_args = 3*pix
+
+            if psf_args is None:
+                self.psf_args = 3 * pix
         else:
-            if (psf_args is None):
-                raise InputError('Input arguments for psf not provided')
+            if psf_args is None:
+                raise InputError("Input arguments for psf not provided")
             else:
                 self.psf_args = psf_args
 
-        if psf_size %2 == 0:
-            psf_size+=1
-            print(f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}")
+        if psf_size % 2 == 0:
+            psf_size += 1
+            print(
+                f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}"
+            )
         self.psf_size = psf_size
 
         self.psf = self.get_psf(psf_function)
 
         if pix_center is None:
-            pix_center = (stamp_size//2, stamp_size//2)
-        self.wcs = self.get_wcs(self.pix, pix_center, sky_center, (stamp_size, stamp_size))
+            pix_center = (stamp_size // 2, stamp_size // 2)
+        self.wcs = self.get_wcs(
+            self.pix, pix_center, sky_center, (stamp_size, stamp_size)
+        )
         self.seds = None
         self.singles = None
         self.locs = None
         self.blend = None
 
     def get_wcs(self, theta, pix, pix_center, sky_center, shape):
-        '''Creates wcs for an image
+        """Creates wcs for an image
 
         Parameters
         ----------
@@ -235,7 +244,7 @@ class GalsimRealDraw:
         Returns
         -------
         wcs: WCS
-        '''
+        """
         # Affine transformation
         dudx = np.cos(theta) * pix
         if theta == 0:
@@ -261,15 +270,20 @@ class GalsimRealDraw:
         return w
 
     def get_psf(self):
-        '''
+        """
         Draw psf image
 
-        '''
-        psf_int = self.psf_function(self.psf_args).withFlux(1.)
+        """
+        psf_int = self.psf_function(self.psf_args).withFlux(1.0)
 
         ## Draw PSF
-        psf = psf_int.drawImage(nx=self.psf_size, ny=self.psf_size, method='real_space',
-                                use_true_center=True, scale=self.pix).array
+        psf = psf_int.drawImage(
+            nx=self.psf_size,
+            ny=self.psf_size,
+            method="real_space",
+            use_true_center=True,
+            scale=self.pix,
+        ).array
         ## Make sure PSF vanishes on the edges of a patch that has the shape of the initial npsf
         psf = psf - psf[0, int(self.psf_size / 2)] * 2
         psf[psf < 0] = 0
@@ -289,8 +303,10 @@ class GalsimRealDraw:
             The galsim profile of a single galaxy
         """
 
-        k = np.int(np.random.randn(1)*self.cat.size)
-        gal = self.cat.makeGalaxy(k, gal_type='real', noise_pad_size=self.stamp_size * self.pix)
+        k = np.int(np.random.randn(1) * self.cat.size)
+        gal = self.cat.makeGalaxy(
+            k, gal_type="real", noise_pad_size=self.stamp_size * self.pix
+        )
 
         gal = gal.shift(dx=shift[0], dy=shift[1])
 
@@ -329,20 +345,26 @@ class GalsimRealDraw:
         locs = []
         cube = np.zeros((self.channels.size, self.stamp_size, self.stamp_size))
         for i in range(ngal):
-            shift =(np.random.rand(2)-0.5) * self.stamp_size * self.pix / 2
+            shift = (np.random.rand(2) - 0.5) * self.stamp_size * self.pix / 2
             gal = self.draw_single(shift)
             singles.append(gal)
             sed = np.random.rand(self.channels.size) * 0.8 + 0.2
             seds.appends(sed)
 
-            im = galsim.Convolve(gal, self.psf).drawImage(nx=self.stamp_size,
-                                                          ny=self.stamp_size,
-                                                          use_true_center=True,
-                                                          method='no_pixel',
-                                                          scale=self.pix,
-                                                          dtype=np.float64)
-            locs.append([shift[0] / self.pix + self.stamp_size[0] / 2,
-                        shift[1] / self.pix + self.stamp_size[1] / 2])
+            im = galsim.Convolve(gal, self.psf).drawImage(
+                nx=self.stamp_size,
+                ny=self.stamp_size,
+                use_true_center=True,
+                method="no_pixel",
+                scale=self.pix,
+                dtype=np.float64,
+            )
+            locs.append(
+                [
+                    shift[0] / self.pix + self.stamp_size[0] / 2,
+                    shift[1] / self.pix + self.stamp_size[1] / 2,
+                ]
+            )
             cube += im[None, :, :] * sed[:, None, None]
 
         self.singles = singles

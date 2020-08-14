@@ -19,12 +19,10 @@ def load_catalog(Args, selection_function=None):
         Add option to load multiple catalogs(e.g. star , galaxy)
     """
     name, ext = os.path.splitext(Args.catalog_name)
-    if ext == '.fits':
-        table = astropy.table.Table.read(Args.catalog_name,
-                                         format='fits')
+    if ext == ".fits":
+        table = astropy.table.Table.read(Args.catalog_name, format="fits")
     else:
-        table = astropy.table.Table.read(Args.catalog_name,
-                                         format='ascii.basic')
+        table = astropy.table.Table.read(Args.catalog_name, format="ascii.basic")
     if Args.verbose:
         print("Catalog loaded")
     if selection_function:

@@ -6,9 +6,9 @@ providing framework to test user defined detection/deblending/measurement
 algorithms.
 """
 
-__author__ = 'btk developers'
-__email__ = 'sowmyak@stanford.edu'
-__version__ = '0.1'
+__author__ = "btk developers"
+__email__ = "sowmyak@stanford.edu"
+__version__ = "0.1"
 
 from . import get_input_catalog
 from . import create_blend_generator
