@@ -61,6 +61,35 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name="size")
 
+def make_wcs(pix, shape, center_pix=None, center_sky=None, naxis = 2):
+    '''Creates wcs for an image
+
+    Parameters
+    ----------
+    theta: float
+        rotation angle for the image
+    pix: float
+        pixel size in arcseconds
+    center: tuple
+        position of the reference pixel used as the center of the affin transform for the wcs
+    shape: tuple
+        shape of the image
+
+    Returns
+    -------
+    wcs: WCS
+    '''
+    if center_pix == None:
+        center_pix = [(s+1)/2 for s in shape]
+    if center_sky == None:
+        center_sky = [0 for i in range(naxis)]
+    w = WCS.WCS(naxis=2)
+    w.wcs.ctype = ["RA---AIR", "DEC--AIR"]
+    w.wcs.crpix = center_pix
+    w.wcs.cdelt = np.array([pix for i in range(naxis)])
+    w.wcs.crval = center_sky
+    w.array_shape = shape
+    return w
 
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
@@ -189,7 +218,8 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
-        mini_batch_outputs.append([blend_image_multi, iso_image_multi, blend_list[i]])
+        wcs = make_wcs(pix=Args.pixel_scale,shape=(stamp_size, stamp_size))
+        mini_batch_outputs.append([blend_image_multi, iso_image_multi, blend_list[i],wcs])
     return mini_batch_outputs
 
 
@@ -217,7 +247,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         and observing conditions.
     """
     while True:
-        batch_blend_cat, batch_obs_cond = [], []
+        batch_blend_cat, batch_obs_cond, batch_wcs = [], [], []
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
         blend_images = np.zeros(
             (Args.batch_size, stamp_size, stamp_size, len(Args.bands))
@@ -245,10 +275,12 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
             isolated_images[i] = batch_results[i][1]
             batch_blend_cat.append(batch_results[i][2])
             batch_obs_cond.append(obs_cond)
+            batch_wcs.append(batch_results[i][3])
         output = {
             "blend_images": blend_images,
             "isolated_images": isolated_images,
             "blend_list": batch_blend_cat,
             "obs_condition": batch_obs_cond,
+            "wcs": batch_wcs,
         }
         yield output
