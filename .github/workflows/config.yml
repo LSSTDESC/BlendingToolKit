@@ -68,7 +68,6 @@ jobs:
 
     - name: Run Tests
       run: |
-        black --check .
         pytest --cov=./bliss --cov-report=xml --durations=0
 
     - name: Upload coverage to Codecov
