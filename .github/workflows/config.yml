@@ -68,7 +68,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest --cov=./bliss --cov-report=xml --durations=0
+        pytest --cov=./btk --cov-report=xml --durations=0
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
