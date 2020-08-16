@@ -68,6 +68,7 @@ jobs:
 
     - name: Run Tests
       run: |
+        black --check ./btk ./tests btk_input.py
         pytest --cov=./btk --cov-report=xml --durations=0
 
     - name: Upload coverage to Codecov
