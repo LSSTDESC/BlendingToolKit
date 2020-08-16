@@ -9,6 +9,7 @@ from astropy.table import Column
 from btk.multiprocess import multiprocess
 
 
+
 def get_center_in_pixels(Args, blend_catalog):
     """Returns center of objects in blend_catalog in pixel coordinates of
     postage stamp.
@@ -61,35 +62,33 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name="size")
 
-def make_wcs(pix, shape, center_pix=None, center_sky=None, naxis = 2):
-    '''Creates wcs for an image
 
-    Parameters
-    ----------
-    theta: float
-        rotation angle for the image
-    pix: float
-        pixel size in arcseconds
-    center: tuple
-        position of the reference pixel used as the center of the affin transform for the wcs
-    shape: tuple
-        shape of the image
+def make_wcs(pix, shape, center_pix=None, center_sky=None, naxis=2):
+    """Creates wcs for an image
 
-    Returns
-    -------
-    wcs: WCS
-    '''
-    if center_pix == None:
-        center_pix = [(s+1)/2 for s in shape]
-    if center_sky == None:
-        center_sky = [0 for i in range(naxis)]
+    Args:
+        pix (float): pixel size in arcseconds
+        shape (tuple): shape of the image
+        center_pix (tuple): position of the reference pixel used as the center of the
+                            affine transform for the wcs.
+        center_sky (float):
+        naxis (int):
+
+    Returns:
+        wcs: WCS
+    """
+    if center_pix is None:
+        center_pix = [(s + 1) / 2 for s in shape]
+    if center_sky is None:
+        center_sky = [0 for _ in range(naxis)]
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---AIR", "DEC--AIR"]
     w.wcs.crpix = center_pix
-    w.wcs.cdelt = np.array([pix for i in range(naxis)])
+    w.wcs.cdelt = np.array([pix for _ in range(naxis)])
     w.wcs.crval = center_sky
     w.array_shape = shape
     return w
+
 
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
@@ -218,8 +217,10 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
-        wcs = make_wcs(pix=Args.pixel_scale,shape=(stamp_size, stamp_size))
-        mini_batch_outputs.append([blend_image_multi, iso_image_multi, blend_list[i],wcs])
+        wcs = make_wcs(pix=Args.pixel_scale, shape=(stamp_size, stamp_size))
+        mini_batch_outputs.append(
+            [blend_image_multi, iso_image_multi, blend_list[i], wcs]
+        )
     return mini_batch_outputs
 
 
