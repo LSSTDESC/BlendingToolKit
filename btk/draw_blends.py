@@ -7,6 +7,8 @@ import galsim
 import numpy as np
 from astropy.table import Column
 
+from btk.utils import multiprocess
+
 
 def get_center_in_pixels(Args, blend_catalog):
     """Returns center of objects in blend_catalog in pixel coordinates of
@@ -227,30 +229,16 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         in_batch_blend_cat = next(blend_generator)
         obs_cond = next(observing_generator)
         mini_batch_size = np.max([Args.batch_size // cpus, 1])
-        in_args = [
+        input_args = [
             (Args, in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_cond))
             for i in range(0, Args.batch_size, mini_batch_size)
         ]
-        if multiprocessing:
-            if Args.verbose:
-                print(
-                    "Running mini-batch of size {0} with \
-                    multiprocessing with pool {1}".format(
-                        len(in_args), cpus
-                    )
-                )
-            with mp.Pool(processes=cpus) as pool:
-                mini_batch_results = pool.starmap(run_mini_batch, in_args)
-        else:
-            if Args.verbose:
-                print(
-                    "Running mini-batch of size {0} \
-                    serial {1} times".format(
-                        len(in_args), cpus
-                    )
-                )
-            mini_batch_results = list(starmap(run_mini_batch, in_args))
+
+        # multiprocess and join results
+        mini_batch_results = multiprocess(run_mini_batch, input_args, cpus)
         batch_results = list(chain(*mini_batch_results))
+
+        # organize results.
         for i in range(Args.batch_size):
             blend_images[i] = batch_results[i][0]
             isolated_images[i] = batch_results[i][1]

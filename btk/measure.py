@@ -2,6 +2,8 @@ import multiprocessing as mp
 from abc import ABC
 from itertools import starmap
 
+from btk.utils import multiprocess
+
 
 class Measurement_params(ABC):
     """Class with functions to perform detection/deblending/measurement."""
@@ -71,24 +73,10 @@ def generate(
         batch_size = len(blend_output["blend_images"])
         deblend_results = {}
         measured_results = {}
-        in_args = [
+        input_args = [
             (measurement_params, blend_output, i) for i in range(Args.batch_size)
         ]
-        if multiprocessing:
-            if Args.verbose:
-                print(
-                    f"Running mini-batch of size {len(in_args)} with",
-                    f"multiprocessing with pool {cpus}",
-                )
-            with mp.Pool(processes=cpus) as pool:
-                batch_results = pool.starmap(run_batch, in_args)
-        else:
-            if Args.verbose:
-                print(
-                    f"Running mini-batch of size {len(in_args)} in",
-                    f"serial with pool {cpus}",
-                )
-            batch_results = list(starmap(run_batch, in_args))
+        batch_results = multiprocess(input_args, run_batch, cpus)
         for i in range(batch_size):
             deblend_results.update({i: batch_results[i][0]})
             measured_results.update({i: batch_results[i][1]})
