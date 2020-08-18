@@ -1,6 +1,7 @@
 import btk.survey
 import descwl
 
+
 def default_obs_conditions(Args, band):
     """Returns the default observing conditions from the WLD package
     for a given survey_name and band.
@@ -9,7 +10,7 @@ def default_obs_conditions(Args, band):
         Args: Class containing parameters to generate blends
         band: filter name to get observing conditions for.
     Returns:
-        `survey`: Dictionnary containing the observing conditions and WCS information.
+        `survey`: Dictionary containing the observing conditions and WCS information.
     """
     survey = descwl.survey.Survey.get_defaults(
         survey_name=Args.survey_name, filter_band=band
@@ -44,25 +45,23 @@ def generate(Args, obs_function=None):
                     print("Default observing conditions selected")
             survey["image_width"] = Args.stamp_size / survey["pixel_scale"]
             survey["image_height"] = Args.stamp_size / survey["pixel_scale"]
-            descwl_survey = btk.survey.Survey(
+            btk_survey = btk.survey.Survey(
                 no_analysis=True,
                 survey_name=Args.survey_name,
                 filter_band=band,
                 **survey
             )
-            if descwl_survey.pixel_scale != Args.pixel_scale:
+            if btk_survey.pixel_scale != Args.pixel_scale:
                 raise ValueError(
-                    "observing condition pixel scale does not \
-                    match input pixel scale: {0} == {1}".format(
-                        descwl_survey.pixel_scale, Args.pixel_scale
+                    "observing condition pixel scale does not "
+                    "match input pixel scale: {0} == {1}".format(
+                        btk_survey.pixel_scale, Args.pixel_scale
                     )
                 )
-            if descwl_survey.filter_band != band:
+            if btk_survey.filter_band != band:
                 raise ValueError(
-                    "observing condition band does not \
-                    match input band: {0} == {1}".format(
-                        descwl_survey.filter_band, band
-                    )
+                    "observing condition band does not "
+                    "match input band: {0} == {1}".format(btk_survey.filter_band, band)
                 )
-            observing_generator.append(descwl_survey)
+            observing_generator.append(btk_survey)
         yield observing_generator
