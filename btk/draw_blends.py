@@ -1,13 +1,13 @@
 import copy
 import multiprocessing as mp
-from itertools import chain, starmap
+from itertools import chain
 
 import descwl
 import galsim
 import numpy as np
 from astropy.table import Column
 
-from btk.utils import multiprocess
+from btk.multiprocess import multiprocess
 
 
 def get_center_in_pixels(Args, blend_catalog):

@@ -1,8 +1,6 @@
 import multiprocessing as mp
 from abc import ABC
-from itertools import starmap
-
-from btk.utils import multiprocess
+from btk.multiprocess import multiprocess
 
 
 class Measurement_params(ABC):

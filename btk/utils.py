@@ -14,22 +14,6 @@ from btk.compute_metrics import Metrics_params
 from btk.measure import Measurement_params
 
 
-def multiprocess(func, input_args, cpus, multiprocessing=False, verbose=False):
-    if multiprocessing:
-        if verbose:
-            print(
-                f"Running mini-batch of size {len(input_args)} with multiprocessing with "
-                f"pool {cpus}"
-            )
-        with mp.Pool(processes=cpus) as pool:
-            results = pool.starmap(func, input_args)
-    else:
-        if verbose:
-            print(f"Running mini-batch of size {len(input_args)} serial {cpus} times")
-        results = list(starmap(func, input_args))
-    return results
-
-
 class SEP_params(Measurement_params):
     """Class to perform detection and deblending with SEP"""
 
