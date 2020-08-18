@@ -1,5 +1,4 @@
 import copy
-import multiprocessing as mp
 from itertools import chain
 
 import descwl
@@ -236,7 +235,11 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
 
         # multiprocess and join results
         mini_batch_results = multiprocess(
-            run_mini_batch, input_args, cpus, multiprocessing=multiprocessing
+            run_mini_batch,
+            input_args,
+            cpus,
+            multiprocessing=multiprocessing,
+            verbose=Args.verbose,
         )
         batch_results = list(chain(*mini_batch_results))
 

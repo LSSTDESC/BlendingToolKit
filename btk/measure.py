@@ -1,4 +1,3 @@
-import multiprocessing as mp
 from abc import ABC
 from btk.multiprocess import multiprocess
 
