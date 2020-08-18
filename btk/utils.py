@@ -207,7 +207,8 @@ class Scarlet_params(Measurement_params):
         """
         self.show_scene = show_scene
 
-    def get_centers(self, image):
+    @staticmethod
+    def get_centers(image):
         """Returns centers from SEP detection on the band averaged mean of the
         input image.
 
@@ -541,7 +542,8 @@ def group_sampling_function_numbered(Args, catalog):
 class Basic_measure_params(Measurement_params):
     """Class to perform detection by identifying peaks with skimage"""
 
-    def get_centers(self, image):
+    @staticmethod
+    def get_centers(image):
         """Return centers detected when object detection is performed on the
         input image with skimage.feature.peak_local_max.
 
