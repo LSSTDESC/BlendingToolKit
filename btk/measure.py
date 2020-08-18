@@ -74,7 +74,9 @@ def generate(
         input_args = [
             (measurement_params, blend_output, i) for i in range(Args.batch_size)
         ]
-        batch_results = multiprocess(run_batch, input_args, cpus)
+        batch_results = multiprocess(
+            run_batch, input_args, cpus, multiprocessing=multiprocessing
+        )
         for i in range(batch_size):
             deblend_results.update({i: batch_results[i][0]})
             measured_results.update({i: batch_results[i][1]})

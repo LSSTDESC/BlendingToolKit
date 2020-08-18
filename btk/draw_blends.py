@@ -235,7 +235,9 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         ]
 
         # multiprocess and join results
-        mini_batch_results = multiprocess(run_mini_batch, input_args, cpus)
+        mini_batch_results = multiprocess(
+            run_mini_batch, input_args, cpus, multiprocessing=multiprocessing
+        )
         batch_results = list(chain(*mini_batch_results))
 
         # organize results.
