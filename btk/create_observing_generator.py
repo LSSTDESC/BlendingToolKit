@@ -1,5 +1,5 @@
+import btk.survey
 import descwl
-
 
 def default_obs_conditions(Args, band):
     """Returns the default observing conditions from the WLD package
@@ -9,11 +9,13 @@ def default_obs_conditions(Args, band):
         Args: Class containing parameters to generate blends
         band: filter name to get observing conditions for.
     Returns:
-        `descwl.survey.Survey`: WLD survey class with observing conditions.
+        `survey`: Dictionnary containing the observing conditions and WCS information.
     """
     survey = descwl.survey.Survey.get_defaults(
         survey_name=Args.survey_name, filter_band=band
     )
+    survey["center_sky"] = None
+    survey["center_pix"] = None
     return survey
 
 
@@ -28,7 +30,7 @@ def generate(Args, obs_function=None):
             observing_generator.
 
     Yields:
-        Generator with `descwl.survey.Survey` class for each band.
+        Generator with `btk.survey.Survey` class for each band.
     """
     while True:
         observing_generator = []
@@ -41,7 +43,7 @@ def generate(Args, obs_function=None):
                     print("Default observing conditions selected")
             survey["image_width"] = Args.stamp_size / survey["pixel_scale"]
             survey["image_height"] = Args.stamp_size / survey["pixel_scale"]
-            descwl_survey = descwl.survey.Survey(
+            descwl_survey = btk.survey.Survey(
                 no_analysis=True,
                 survey_name=Args.survey_name,
                 filter_band=band,

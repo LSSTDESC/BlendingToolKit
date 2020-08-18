@@ -217,7 +217,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
-        wcs = make_wcs(pix=Args.pixel_scale, shape=(stamp_size, stamp_size))
+        wcs = make_wcs(pix=Args.pixel_scale, center_pix=obs_cond[j].center_pix,center_sky=obs_cond[j].center_sky, shape=(stamp_size, stamp_size))
         mini_batch_outputs.append(
             [blend_image_multi, iso_image_multi, blend_list[i], wcs]
         )
