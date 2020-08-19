@@ -16,6 +16,7 @@ def default_obs_conditions(Args, band):
     )
     survey["center_sky"] = None
     survey["center_pix"] = None
+    survey["projection"] = "TAN"
     return survey
 
 

@@ -63,7 +63,7 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     return Column(size, name="size")
 
 
-def make_wcs(pix, shape, center_pix=None, center_sky=None, naxis=2):
+def make_wcs(pix, shape, center_pix=None, center_sky=None, projection=None, naxis=2):
     """Creates wcs for an image
 
     Args:
@@ -81,8 +81,10 @@ def make_wcs(pix, shape, center_pix=None, center_sky=None, naxis=2):
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
         center_sky = [0 for _ in range(naxis)]
+    if projection is None:
+        projection = "TAN"
     w = WCS.WCS(naxis=2)
-    w.wcs.ctype = ["RA---AIR", "DEC--AIR"]
+    w.wcs.ctype = ["RA---"+projection, "DEC--"+projection]
     w.wcs.crpix = center_pix
     w.wcs.cdelt = np.array([pix for _ in range(naxis)])
     w.wcs.crval = center_sky
@@ -217,7 +219,7 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
-        wcs = make_wcs(pix=Args.pixel_scale, center_pix=obs_cond[j].center_pix,center_sky=obs_cond[j].center_sky, shape=(stamp_size, stamp_size))
+        wcs = make_wcs(pix=Args.pixel_scale, center_pix=obs_cond[j].center_pix,center_sky=obs_cond[j].center_sky,projection=obs_cond[j].projection, shape=(stamp_size, stamp_size))
         mini_batch_outputs.append(
             [blend_image_multi, iso_image_multi, blend_list[i], wcs]
         )
