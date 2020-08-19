@@ -11,8 +11,11 @@ class Survey(descwl.survey.Survey):
             **kwargs : any arguments given to a descwl survey
     """
 
-    def __init__(self, center_pix=None, center_sky=None, projection=None, **kwargs):
+    def __init__(
+        self, center_pix=None, center_sky=None, projection=None, wcs=None, **kwargs
+    ):
         super(Survey, self).__init__(**kwargs)
         self.center_pix = center_pix
         self.center_sky = center_sky
         self.projection = projection
+        self.wcs = wcs

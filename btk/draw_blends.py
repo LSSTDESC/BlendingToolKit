@@ -5,9 +5,12 @@ import descwl
 import galsim
 import numpy as np
 from astropy.table import Column
+<<<<<<< HEAD
 
 from btk.multiprocess import multiprocess
 
+=======
+>>>>>>> Moving the WCS creation to the observing generator
 
 
 def get_center_in_pixels(Args, blend_catalog):
@@ -63,6 +66,7 @@ def get_size(pixel_scale, catalog, i_obs_cond):
     return Column(size, name="size")
 
 
+<<<<<<< HEAD
 def make_wcs(
     pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
 ):
@@ -95,6 +99,8 @@ def make_wcs(
     return w
 
 
+=======
+>>>>>>> Moving the WCS creation to the observing generator
 def draw_isolated(Args, galaxy, iso_obs):
     """Returns `descwl.survey.Survey` class object that includes the rendered
     object for an isolated galaxy in its '.image' attribute.
@@ -222,12 +228,17 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
+<<<<<<< HEAD
         wcs = make_wcs(
             pixel_scale=Args.pixel_scale,
             center_pix=obs_cond[j].center_pix,
             center_sky=obs_cond[j].center_sky,
             shape=(stamp_size, stamp_size),
         )
+=======
+
+        wcs = obs_cond[0].wcs
+>>>>>>> Moving the WCS creation to the observing generator
         mini_batch_outputs.append(
             [blend_image_multi, iso_image_multi, blend_list[i], wcs]
         )
