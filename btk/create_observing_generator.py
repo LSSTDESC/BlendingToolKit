@@ -40,7 +40,7 @@ def default_obs_conditions(Args, band):
     for a given survey_name and band.
 
     Args:
-        Args: Class containing parameters to generate blends
+        Args: A `btk.config.SimulationParams` object containing parameters to generate blends
         band: filter name to get observing conditions for.
     Returns:
         `survey`: Dictionary containing the observing conditions and WCS information.
