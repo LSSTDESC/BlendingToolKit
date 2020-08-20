@@ -189,7 +189,11 @@ def run_mini_batch(Args, blend_list, obs_cond):
             )
             blend_image_multi[:, :, j] = single_band_output[0]
             iso_image_multi[:, :, :, j] = single_band_output[1]
-        mini_batch_outputs.append([blend_image_multi, iso_image_multi, blend_list[i]])
+
+        wcs = obs_cond[0].wcs
+        mini_batch_outputs.append(
+            [blend_image_multi, iso_image_multi, blend_list[i], wcs]
+        )
     return mini_batch_outputs
 
 
@@ -217,7 +221,7 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
         and observing conditions.
     """
     while True:
-        batch_blend_cat, batch_obs_cond = [], []
+        batch_blend_cat, batch_obs_cond, batch_wcs = [], [], []
         stamp_size = np.int(Args.stamp_size / Args.pixel_scale)
         blend_images = np.zeros(
             (Args.batch_size, stamp_size, stamp_size, len(Args.bands))
@@ -245,10 +249,12 @@ def generate(Args, blend_generator, observing_generator, multiprocessing=False, 
             isolated_images[i] = batch_results[i][1]
             batch_blend_cat.append(batch_results[i][2])
             batch_obs_cond.append(obs_cond)
+            batch_wcs.append(batch_results[i][3])
         output = {
             "blend_images": blend_images,
             "isolated_images": isolated_images,
             "blend_list": batch_blend_cat,
             "obs_condition": batch_obs_cond,
+            "wcs": batch_wcs,
         }
         yield output
