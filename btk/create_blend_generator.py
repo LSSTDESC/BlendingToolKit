@@ -15,7 +15,7 @@ class SamplingFunction(ABC):
         self.max_number = max_number
 
     @abstractmethod
-    def sample(self, catalog):
+    def __call__(self, catalog):
         """Returns a sample from the catalog with at most self.max_number of objects."""
         pass
 
