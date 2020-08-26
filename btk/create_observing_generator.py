@@ -54,20 +54,24 @@ def default_obs_conditions(Args, band):
     return survey
 
 
-def generate(Args, obs_function=None):
-    """Generates class with observing conditions in each band.
+class ObservingGenerator:
+    def __init__(self, survey_name, stamp_size):
+        # TODO: obtain bands and pixel_scale from survey_name
+        pass
 
-    Args:
-        Args: Class containing input parameters.
-        obs_function: Function that outputs dict of observing conditions. If
-            not provided then the default `descwl.survey.Survey` values for the
-            corresponding Args.survey_name are used to create the
-            observing_generator.
+    def __next__(self):
+        """Generates class with observing conditions in each band.
 
-    Yields:
-        Generator with `btk.survey.Survey` class for each band.
-    """
-    while True:
+        Args:
+            Args: Class containing input parameters.
+            obs_function: Function that outputs dict of observing conditions. If
+                not provided then the default `descwl.survey.Survey` values for the
+                corresponding Args.survey_name are used to create the
+                observing_generator.
+
+        Yields:
+            Generator with `btk.survey.Survey` class for each band.
+        """
         observing_generator = []
         for band in Args.bands:
             if obs_function:
@@ -106,4 +110,7 @@ def generate(Args, obs_function=None):
                     "match input band: {0} == {1}".format(btk_survey.filter_band, band)
                 )
             observing_generator.append(btk_survey)
-        yield observing_generator
+        return observing_generator
+
+    def __iter__(self):
+        return self
