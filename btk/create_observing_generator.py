@@ -35,18 +35,18 @@ def make_wcs(
     return w
 
 
-def default_obs_conditions(Args, band):
+def default_obs_conditions(survey_name, band):
     """Returns the default observing conditions from the WLD package
     for a given survey_name and band.
 
     Args:
-        Args: A `btk.config.SimulationParams` object containing parameters to generate blends
+        survey_name: Name of the survey which should be available in descwl
         band: filter name to get observing conditions for.
     Returns:
         `survey`: Dictionary containing the observing conditions and WCS information.
     """
     survey = descwl.survey.Survey.get_defaults(
-        survey_name=Args.survey_name, filter_band=band
+        survey_name=survey_name, filter_band=band
     )
     survey["center_sky"] = None
     survey["center_pix"] = None
@@ -56,14 +56,16 @@ def default_obs_conditions(Args, band):
 
 class ObservingGenerator:
     def __init__(self, survey_name, stamp_size):
-        # TODO: obtain bands and pixel_scale from survey_name
-        pass
+        if survey_name not in btk.survey.surveys:
+            raise KeyError("Survey not implemented.")
+        self.bands = btk.survey.surveys["survey_name"]["bands"]
+        self.pixel_scale = btk.survey.surveys["survey_name"]["pixel_scale"]
+        self.stamp_size = stamp_size
 
     def __next__(self):
         """Generates class with observing conditions in each band.
 
         Args:
-            Args: Class containing input parameters.
             obs_function: Function that outputs dict of observing conditions. If
                 not provided then the default `descwl.survey.Survey` values for the
                 corresponding Args.survey_name are used to create the
@@ -73,7 +75,7 @@ class ObservingGenerator:
             Generator with `btk.survey.Survey` class for each band.
         """
         observing_generator = []
-        for band in Args.bands:
+        for band in self.bands:
             if obs_function:
                 survey = obs_function(Args, band)
             else:
