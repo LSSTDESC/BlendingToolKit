@@ -69,6 +69,7 @@ class ObservingGenerator:
                            not provided, then the default `descwl.survey.Survey` values
                            for the corresponding survey_name are used to create the
                            observing_generator.
+             stamp_size: In arcseconds.
         """
         if survey_name not in btk.survey.surveys:
             raise KeyError("Survey not implemented.")
@@ -79,6 +80,9 @@ class ObservingGenerator:
         self.obs_function = obs_function
         self.verbose = verbose
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         observing_generator = []
         for band in self.bands:
@@ -86,13 +90,13 @@ class ObservingGenerator:
             survey = self.obs_function(self.survey_name, band)
             survey["image_width"] = self.stamp_size / survey["pixel_scale"]
             survey["image_height"] = self.stamp_size / survey["pixel_scale"]
-            stamp_size = int(self.stamp_size / self.pixel_scale)
+            pix_stamp_size = int(self.stamp_size / self.pixel_scale)
             wcs = make_wcs(
                 pixel_scale=self.pixel_scale,
                 center_pix=survey["center_pix"],
                 center_sky=survey["center_sky"],
                 projection=survey["projection"],
-                shape=(stamp_size, stamp_size),
+                shape=(pix_stamp_size, pix_stamp_size),
             )
             btk_survey = btk.survey.Survey(
                 no_analysis=True,
@@ -115,6 +119,3 @@ class ObservingGenerator:
                 )
             observing_generator.append(btk_survey)
         return observing_generator
-
-    def __iter__(self):
-        return self
