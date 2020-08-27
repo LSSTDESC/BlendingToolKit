@@ -55,38 +55,40 @@ def default_obs_conditions(survey_name, band):
 
 
 class ObservingGenerator:
-    def __init__(self, survey_name, stamp_size):
-        if survey_name not in btk.survey.surveys:
-            raise KeyError("Survey not implemented.")
-        self.bands = btk.survey.surveys["survey_name"]["bands"]
-        self.pixel_scale = btk.survey.surveys["survey_name"]["pixel_scale"]
-        self.stamp_size = stamp_size
-
-    def __next__(self):
+    def __init__(
+        self,
+        survey_name,
+        stamp_size,
+        obs_function=default_obs_conditions,
+        verbose=False,
+    ):
         """Generates class with observing conditions in each band.
 
         Args:
-            obs_function: Function that outputs dict of observing conditions. If
-                not provided then the default `descwl.survey.Survey` values for the
-                corresponding Args.survey_name are used to create the
-                observing_generator.
-
-        Yields:
-            Generator with `btk.survey.Survey` class for each band.
+             obs_function: Function that outputs dict of observing conditions. If
+                           not provided, then the default `descwl.survey.Survey` values
+                           for the corresponding survey_name are used to create the
+                           observing_generator.
         """
+        if survey_name not in btk.survey.surveys:
+            raise KeyError("Survey not implemented.")
+        self.survey_name = survey_name
+        self.bands = btk.survey.surveys["survey_name"]["bands"]
+        self.pixel_scale = btk.survey.surveys["survey_name"]["pixel_scale"]
+        self.stamp_size = stamp_size
+        self.obs_function = obs_function
+        self.verbose = verbose
+
+    def __next__(self):
         observing_generator = []
         for band in self.bands:
-            if obs_function:
-                survey = obs_function(Args, band)
-            else:
-                survey = default_obs_conditions(Args, band)
-                if Args.verbose:
-                    print("Default observing conditions selected")
-            survey["image_width"] = Args.stamp_size / survey["pixel_scale"]
-            survey["image_height"] = Args.stamp_size / survey["pixel_scale"]
-            stamp_size = int(Args.stamp_size / Args.pixel_scale)
+            # TODO: Add verbose if we used default observing conditions.
+            survey = self.obs_function(self.survey_name, band)
+            survey["image_width"] = self.stamp_size / survey["pixel_scale"]
+            survey["image_height"] = self.stamp_size / survey["pixel_scale"]
+            stamp_size = int(self.stamp_size / self.pixel_scale)
             wcs = make_wcs(
-                pixel_scale=Args.pixel_scale,
+                pixel_scale=self.pixel_scale,
                 center_pix=survey["center_pix"],
                 center_sky=survey["center_sky"],
                 projection=survey["projection"],
@@ -94,16 +96,16 @@ class ObservingGenerator:
             )
             btk_survey = btk.survey.Survey(
                 no_analysis=True,
-                survey_name=Args.survey_name,
+                survey_name=self.survey_name,
                 filter_band=band,
                 wcs=wcs,
                 **survey
             )
-            if btk_survey.pixel_scale != Args.pixel_scale:
+            if btk_survey.pixel_scale != self.pixel_scale:
                 raise ValueError(
                     "observing condition pixel scale does not "
                     "match input pixel scale: {0} == {1}".format(
-                        btk_survey.pixel_scale, Args.pixel_scale
+                        btk_survey.pixel_scale, self.pixel_scale
                     )
                 )
             if btk_survey.filter_band != band:
