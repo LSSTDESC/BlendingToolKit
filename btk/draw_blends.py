@@ -22,7 +22,7 @@ def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
     Args:
         blend_catalog: Catalog with entries corresponding to one blend.
         stamp_size: In arcseconds.
-        pixel_scale:
+        pixel_scale: Number of pixels per arcsecond.
 
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
@@ -76,9 +76,8 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         min_snr=0.05,
     ):
-        """Generates images of blended objects, individual isolated objects, for
-        each blend in the batch.
-
+        """Class that generates images of blended objects, individual isolated
+        objects, for each blend in the batch.
 
         Batch is divided into mini batches of size blend_generator.batch_size//cpus and
         each mini-batch analyzed separately. The results are then combined to output a
@@ -91,11 +90,9 @@ class DrawBlendsGenerator(ABC):
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core
             cpus: If multiprocessing, then number of parallel processes to run.
-
-        Yields:
-            Dictionary with blend images, isolated object images, blend catalog,
-            and observing conditions.
+            meas_band:
         """
+
         self.blend_generator = blend_generator
         self.observing_generator = observing_generator
         self.multiprocessing = multiprocessing
@@ -117,6 +114,11 @@ class DrawBlendsGenerator(ABC):
         return self
 
     def __next__(self):
+        """
+        Returns:
+            Dictionary with blend images, isolated object images, blend catalog,
+            and observing conditions.
+        """
         batch_blend_cat, batch_obs_cond, batch_wcs = [], [], []
         pix_stamp_size = int(self.stamp_size / self.pixel_scale)
 
