@@ -20,7 +20,7 @@ class SamplingFunction(ABC):
 
 
 class DefaultSampling(SamplingFunction):
-    def __init__(self, max_number, stamp_size, maxshift=None):
+    def __init__(self, max_number=4, stamp_size=24, maxshift=None):
         """
         Default sampling function used for producing blend catalogs.
         Args:

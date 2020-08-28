@@ -1,29 +1,25 @@
-from .sampling_functions import DefaultSampling
-
-
 class BlendGenerator:
-    def __init__(self, catalog, batch_size=8, sampling_function=None, verbose=False):
+    def __init__(self, catalog, sampling_function, batch_size=8, verbose=False):
         """Generates a list of blend catalogs of length batch_size. Each blend
-           catalog has entries numbered between 1 and max_number, corresponding
-           to overlapping objects in the blend.
+        catalog has entries numbered between 1 and max_number, corresponding
+        to overlapping objects in the blend.
+
+        Args:
+            catalog (astropy.Table.table): CatSim-like catalog.
+            sampling_function (btk.sampling_functions.SamplingFunction): An object that
+                                                                         return samples
+                                                                         from the catalog.
+            batch_size (int): Size of batches returned.
+            verbose: Whether to print additional information.
         """
         self.catalog = catalog
         self.batch_size = batch_size
-        self.sampling_function = self.get_sampling_function(sampling_function)
-        self.max_number = self.sampling_function.max_number
         self.verbose = verbose
+        self.sampling_function = sampling_function
 
-    def get_sampling_function(self, sampling_function):
-        if not sampling_function:
-            if self.verbose:
-                print(
-                    "Blends sampled from the catalog with the default random sampling "
-                    "function "
-                )
-            sampling_function = DefaultSampling(max_number=4, stamp_size=24)
         if not hasattr(sampling_function, "max_number"):
             raise AttributeError("Sampling function must have attribute 'max_number'.")
-        return sampling_function
+        self.max_number = self.sampling_function.max_number
 
     def __iter__(self):
         return self
