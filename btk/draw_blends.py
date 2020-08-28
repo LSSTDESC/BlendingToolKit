@@ -208,9 +208,9 @@ class WLDGenerator(DrawBlendsGenerator):
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
         blend_catalog entries and with observing conditions determined by
-        obs_cond. The rendered objects are stored in the the observing conditions
+        obs_cond. The rendered objects are stored in the observing conditions
         class. So as to not overwrite images across different blends, we make a
-        copies of the obs_cond while drawing each galaxy. Images of isolated
+        copy of the obs_cond while drawing each galaxy. Images of isolated
         galaxies are drawn with the WLDeblending and them summed to produce the
         blend image.
 
