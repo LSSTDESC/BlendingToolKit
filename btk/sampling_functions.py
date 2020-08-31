@@ -20,12 +20,12 @@ class SamplingFunction(ABC):
 
 
 class DefaultSampling(SamplingFunction):
-    def __init__(self, max_number=4, stamp_size=24, maxshift=None):
+    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
         """
         Default sampling function used for producing blend catalogs.
         Args:
             max_number (int): Defined in parent class
-            stamp_size:
+            stamp_size (float):
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. In arcseconds.
         """

@@ -216,6 +216,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
         If a galaxy was not drawn by descwl, then this flag is set to 1.
+
         Args:
             blend_catalog: Catalog with entries corresponding to one blend.
             obs_cond: `descwl.survey.Survey` class describing observing conditions.
