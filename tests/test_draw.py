@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import btk
+import btk.sampling_functions
 import btk.config
 import multiprocessing as mp
 
@@ -12,11 +13,12 @@ def get_draw_generator(batch_size=8, cpus=1, multiprocessing=False, add_noise=Tr
         catalog_name, batch_size=batch_size, add_noise=add_noise
     )
     np.random.seed(param.seed)
-    catalog = btk.get_input_catalog.load_catalog(param)
-    blend_generator = btk.create_blend_generator.generate(param, catalog)
-    observing_generator = btk.create_observing_generator.generate(param)
-    draw_generator = btk.draw_blends.generate(
-        param,
+    stamp_size = 24.
+    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    blend_generator = btk.create_blend_generator.BlendGenerator(catalog,sampling_function,batch_size)
+    observing_generator = btk.create_observing_generator.ObservingGenerator(survey_name="LSST",stamp_size=stamp_size)
+    draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
         observing_generator,
         multiprocessing=multiprocessing,

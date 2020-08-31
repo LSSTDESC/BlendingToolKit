@@ -51,7 +51,7 @@ class WLDObsConditions(ABC):
         self.survey_name = survey_name
         self.band = band
         self.stamp_size = stamp_size
-        self.pixel_scale = btk.survey.surveys["survey_name"]["pixel_scale"]
+        self.pixel_scale = btk.survey.surveys[survey_name]["pixel_scale"]
         self.pix_stamp_size = int(self.stamp_size / self.pixel_scale)
 
     @abstractmethod

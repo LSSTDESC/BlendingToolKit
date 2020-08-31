@@ -7,7 +7,7 @@ class ObservingGenerator:
         self,
         survey_name,
         stamp_size,
-        obs_conditions=DefaultObsConditions,
+        obs_conditions=None,
         verbose=False,
     ):
         """Generates class with observing conditions in each band.
@@ -23,8 +23,10 @@ class ObservingGenerator:
         if survey_name not in btk.survey.surveys:
             raise KeyError("Survey not implemented.")
 
+        if obs_conditions == None:
+            obs_conditions = DefaultObsConditions(survey_name,"i",stamp_size)
         self.survey_name = survey_name
-        self.bands = btk.survey.surveys["survey_name"]["bands"]
+        self.bands = btk.survey.surveys[survey_name]["bands"]
         self.stamp_size = stamp_size
 
         self.obs_conditions = obs_conditions
@@ -36,7 +38,6 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = []
         for band in self.bands:
-            obs_function = self.obs_conditions(self.survey_name, band)
-            btk_survey = obs_function()
+            btk_survey = self.obs_conditions()
             observing_generator.append(btk_survey)
         return observing_generator
