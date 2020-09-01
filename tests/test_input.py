@@ -65,7 +65,12 @@ def test_input_draw(input_args, match_images):
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size
+        user_config_dict,
+        simulation_config_dict,
+        catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -208,7 +213,15 @@ def test_input_output(input_args):
         pass
 
 
-def basic_meas(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size):
+def basic_meas(
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
+    catalog_name,
+    batch_size,
+    survey_name,
+    stamp_size,
+):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
 
@@ -225,7 +238,12 @@ def basic_meas(user_config_dict, simulation_config_dict, btk_input, catalog_name
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size
+        user_config_dict,
+        simulation_config_dict,
+        catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -409,7 +427,15 @@ def test_measure(input_args):
     # param = btk_input.get_config_class(
     #     simulation_config_dict, catalog_name, args.verbose
     # )
-    basic_meas(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size)
+    basic_meas(
+        user_config_dict,
+        simulation_config_dict,
+        btk_input,
+        catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
+    )
     try:
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
     except ImportError:

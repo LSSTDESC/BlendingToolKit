@@ -24,7 +24,7 @@ class ObservingGenerator:
             raise KeyError("Survey not implemented.")
 
         if obs_conditions == None:
-            obs_conditions = DefaultObsConditions(survey_name,"i",stamp_size)
+            obs_conditions = DefaultObsConditions(survey_name, "i", stamp_size)
         self.survey_name = survey_name
         self.bands = btk.survey.surveys[survey_name]["bands"]
         self.stamp_size = stamp_size

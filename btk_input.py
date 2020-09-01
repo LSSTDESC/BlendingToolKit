@@ -121,7 +121,7 @@ def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose
     """Returns catalog from which objects are simulated by btk
 
     Args:
-        catalog_name (str): Contains the catalog name. 
+        catalog_name (str): Contains the catalog name.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         selection_function_name (str): Name of the selection function in
@@ -197,7 +197,9 @@ def get_blend_generator(
             sampling_function = getattr(module, sampling_function_name)
         except AttributeError as e:
             print(e)
-            utils_filename = os.path.join(os.path.dirname(btk.__file__), "sampling_functions.py")
+            utils_filename = os.path.join(
+                os.path.dirname(btk.__file__), "sampling_functions.py"
+            )
             spec = importlib.util.spec_from_file_location("blend_utils", utils_filename)
             module = importlib.util.module_from_spec(spec)
             sys.modules["blend_utils"] = module
@@ -218,7 +220,9 @@ def get_blend_generator(
     return blend_generator
 
 
-def get_obs_generator(user_config_dict, survey_name, stamp_size, obs_conditions_name, verbose):
+def get_obs_generator(
+    user_config_dict, survey_name, stamp_size, obs_conditions_name, verbose
+):
     """Returns generator object that generates class describing the observing
     conditions.
 
@@ -245,7 +249,9 @@ def get_obs_generator(user_config_dict, survey_name, stamp_size, obs_conditions_
             observe_function = getattr(module, obs_conditions_name)
         except AttributeError as e:
             print(e)
-            utils_filename = os.path.join(os.path.dirname(btk.__file__), "obs_conditions.py")
+            utils_filename = os.path.join(
+                os.path.dirname(btk.__file__), "obs_conditions.py"
+            )
             spec = importlib.util.spec_from_file_location("obs_utils", utils_filename)
             module = importlib.util.module_from_spec(spec)
             sys.modules["obs_utils"] = module
@@ -265,7 +271,15 @@ def get_obs_generator(user_config_dict, survey_name, stamp_size, obs_conditions_
 
 
 def make_draw_generator(
-    user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size, multiprocess=False, cpus=1, verbose=False
+    user_config_dict,
+    simulation_config_dict,
+    catalog_name,
+    batch_size,
+    survey_name,
+    stamp_size,
+    multiprocess=False,
+    cpus=1,
+    verbose=False,
 ):
     """Returns a generator that yields simulations of blend scenes.
 
