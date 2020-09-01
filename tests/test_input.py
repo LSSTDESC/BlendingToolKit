@@ -56,13 +56,16 @@ def test_input_draw(input_args, match_images):
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
     # Set parameter values in param
-    param = btk_input.get_config_class(
-        simulation_config_dict, catalog_name, args.verbose
-    )
+    # param = btk_input.get_config_class(
+    #     simulation_config_dict, catalog_name, args.verbose
+    # )
+    batch_size = simulation_config_dict["batch_size"]
+    stamp_size = simulation_config_dict["stamp_size"]
+    survey_name = simulation_config_dict["survey_name"]
     # Set seed
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -205,7 +208,7 @@ def test_input_output(input_args):
         pass
 
 
-def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
+def basic_meas(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
 
@@ -222,10 +225,10 @@ def basic_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size
     )
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     test_detect_centers = [
         [[57, 67], [56, 60], [62, 59], [50, 57]],
@@ -394,15 +397,19 @@ def test_measure(input_args):
     simulation_config_dict = config_dict["simulation"][args.simulation]
     simulation_config_dict["max_number"] = 6
     simulation_config_dict["batch_size"] = 4
+    batch_size = simulation_config_dict["batch_size"]
+    stamp_size = simulation_config_dict["stamp_size"]
+    survey_name = simulation_config_dict["survey_name"]
+
     user_config_dict = config_dict["user_input"]
     catalog_name = os.path.join(
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
     # Set parameter values in param
-    param = btk_input.get_config_class(
-        simulation_config_dict, catalog_name, args.verbose
-    )
-    basic_meas(param, user_config_dict, simulation_config_dict, btk_input)
+    # param = btk_input.get_config_class(
+    #     simulation_config_dict, catalog_name, args.verbose
+    # )
+    basic_meas(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size)
     try:
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
     except ImportError:

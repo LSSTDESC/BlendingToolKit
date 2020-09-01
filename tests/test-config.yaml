@@ -41,7 +41,7 @@ config:
     add: None
     selection_function: None
     sampling_function: None
-    observe_function: None
+    obs_conditions: None
     test_size: 2
 
 ---
@@ -64,8 +64,8 @@ config:
     seed: 1
     add: None
     selection_function: basic_selection_function
-    sampling_function: basic_sampling_function
-    observe_function: None
+    sampling_function: DefaultSampling
+    obs_conditions: None
     test_size: 2
 
 ---
@@ -92,5 +92,5 @@ config:
         wld_catalog_name: 'data/sample_group_catalog.fits'
     selection_function: None
     sampling_function: group_sampling_function
-    observe_function: None
+    obs_conditions: None
     test_size: 2

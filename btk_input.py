@@ -117,11 +117,11 @@ def get_config_class(config_dict, catalog_name, verbose):
     return config
 
 
-def get_catalog(param, user_config_dict, selection_function_name, verbose):
+def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose):
     """Returns catalog from which objects are simulated by btk
 
     Args:
-        param: Class with btk simulation parameters.
+        catalog_name (str): Contains the catalog name. 
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         selection_function_name (str): Name of the selection function in
@@ -156,7 +156,7 @@ def get_catalog(param, user_config_dict, selection_function_name, verbose):
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         selection_function = None
     catalog = btk.get_input_catalog.load_catalog(
-        param, selection_function=selection_function
+        catalog_name, selection_function=selection_function
     )
     if verbose:
         print(
@@ -168,7 +168,7 @@ def get_catalog(param, user_config_dict, selection_function_name, verbose):
 
 
 def get_blend_generator(
-    param, user_config_dict, catalog, sampling_function_name, verbose
+    user_config_dict, catalog, batch_size, sampling_function_name, verbose
 ):
     """Returns generator object that generates catalog describing blended
     objects.
@@ -197,7 +197,7 @@ def get_blend_generator(
             sampling_function = getattr(module, sampling_function_name)
         except AttributeError as e:
             print(e)
-            utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
+            utils_filename = os.path.join(os.path.dirname(btk.__file__), "sampling_functions.py")
             spec = importlib.util.spec_from_file_location("blend_utils", utils_filename)
             module = importlib.util.module_from_spec(spec)
             sys.modules["blend_utils"] = module
@@ -205,9 +205,9 @@ def get_blend_generator(
             sampling_function = getattr(module, sampling_function_name)
     else:
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
-        sampling_function = None
-    blend_generator = btk.create_blend_generator.generate(
-        param, catalog, sampling_function
+        sampling_function = btk.sampling_functions.DefaultSampling
+    blend_generator = btk.create_blend_generator.BlendGenerator(
+        catalog, sampling_function(), batch_size
     )
     if verbose:
         print(
@@ -218,7 +218,7 @@ def get_blend_generator(
     return blend_generator
 
 
-def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
+def get_obs_generator(user_config_dict, survey_name, stamp_size, obs_conditions_name, verbose):
     """Returns generator object that generates class describing the observing
     conditions.
 
@@ -234,7 +234,7 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
     Returns:
         Generator objects that generates class with the observing conditions.
     """
-    if observe_function_name != "None":
+    if obs_conditions_name != "None":
         # search for obs function in user input utils, else in btk.utils
         try:
             utils_filename = user_config_dict["utils_filename"]
@@ -242,19 +242,19 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
             module = importlib.util.module_from_spec(spec)
             sys.modules["obs_utils"] = module
             spec.loader.exec_module(module)
-            observe_function = getattr(module, observe_function_name)
+            observe_function = getattr(module, obs_conditions_name)
         except AttributeError as e:
             print(e)
-            utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
+            utils_filename = os.path.join(os.path.dirname(btk.__file__), "obs_conditions.py")
             spec = importlib.util.spec_from_file_location("obs_utils", utils_filename)
             module = importlib.util.module_from_spec(spec)
             sys.modules["obs_utils"] = module
             spec.loader.exec_module(module)
-            observe_function = getattr(module, observe_function_name)
+            obs_conditions = getattr(module, obs_conditions_name)
     else:
-        observe_function = None
-    observing_generator = btk.create_observing_generator.generate(
-        param, observe_function
+        obs_conditions = None
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name, stamp_size, obs_conditions, verbose
     )
     if verbose:
         print(
@@ -265,7 +265,7 @@ def get_obs_generator(param, user_config_dict, observe_function_name, verbose):
 
 
 def make_draw_generator(
-    param, user_config_dict, simulation_config_dict, multiprocess=False, cpus=1
+    user_config_dict, simulation_config_dict, catalog_name, batch_size, survey_name, stamp_size, multiprocess=False, cpus=1, verbose=False
 ):
     """Returns a generator that yields simulations of blend scenes.
 
@@ -286,31 +286,31 @@ def make_draw_generator(
     """
     # Load catalog to simulate objects from
     catalog = get_catalog(
-        param,
         user_config_dict,
+        catalog_name,
         str(simulation_config_dict["selection_function"]),
-        param.verbose,
+        verbose,
     )
     # Generate catalogs of blended objects
     blend_generator = get_blend_generator(
-        param,
         user_config_dict,
         catalog,
+        batch_size,
         str(simulation_config_dict["sampling_function"]),
-        param.verbose,
+        verbose,
     )
     # Generate observing conditions
     observing_generator = get_obs_generator(
-        param,
         user_config_dict,
-        str(simulation_config_dict["observe_function"]),
-        param.verbose,
+        survey_name,
+        stamp_size,
+        str(simulation_config_dict["obs_conditions"]),
+        verbose,
     )
     if multiprocess:
         print(f"Multiprocess draw over {cpus} cpus")
     # Generate images of blends in all the observing bands
-    draw_blend_generator = btk.draw_blends.generate(
-        param,
+    draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
         observing_generator,
         multiprocessing=multiprocess,
