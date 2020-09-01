@@ -47,38 +47,58 @@ def run_batch(measurement_params, blend_output, index):
     return [deblend_results, measured_results]
 
 
-def generate(
-    measurement_params, draw_blend_generator, Args, multiprocessing=False, cpus=1
-):
-    """Generates output of deblender and measurement algorithm.
+class MeasureGenerator:
+    def __init__(
+        self,
+        measurement_params,
+        draw_blend_generator,
+        multiprocessing=False,
+        cpus=1,
+        verbose=False,
+    ):
+        """Generates output of deblender and measurement algorithm.
 
-    Args:
-        measurement_params: Instance from class
-                            `btk.measure.Measurement_params`.
-        draw_blend_generator: Generator that outputs dict with blended images,
-                              isolated images, observing conditions and blend
-                              catalog.
-        Args: Class containing input parameters.
-        multiprocessing: If true performs multiprocessing of measurement.
-        cpus: If multiprocessing is True, then number of parallel processes to
-             run [Default :1].
-    Returns:
-        draw_blend_generator output, deblender output and measurement output.
-    """
-    while True:
-        blend_output = next(draw_blend_generator)
-        batch_size = len(blend_output["blend_images"])
+        Args:
+            measurement_params: Instance from class
+                                `btk.measure.Measurement_params`.
+            draw_blend_generator: Generator that outputs dict with blended images,
+                                  isolated images, observing conditions and blend
+                                  catalog.
+            multiprocessing: If true performs multiprocessing of measurement.
+            cpus: If multiprocessing is True, then number of parallel processes to
+                 run [Default :1].
+        Returns:
+            draw_blend_generator output, deblender output and measurement output.
+        """
+        self.measurement_params = measurement_params
+        self.draw_blend_generator = draw_blend_generator
+        self.multiprocessing = multiprocessing
+        self.cpus = cpus
+
+        self.batch_size = self.draw_blend_generator.batch_size
+
+        self.verbose = verbose
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        blend_output = next(self.draw_blend_generator)
         deblend_results = {}
         measured_results = {}
         input_args = [
-            (measurement_params, blend_output, i) for i in range(Args.batch_size)
+            (self.measurement_params, blend_output, i) for i in range(self.batch_size)
         ]
         batch_results = multiprocess(
-            run_batch, input_args, cpus, multiprocessing, Args.verbose,
+            run_batch,
+            input_args,
+            self.cpus,
+            self.multiprocessing,
+            self.verbose,
         )
-        for i in range(batch_size):
+        for i in range(self.batch_size):
             deblend_results.update({i: batch_results[i][0]})
             measured_results.update({i: batch_results[i][1]})
-        if Args.verbose:
+        if self.verbose:
             print("Measurement performed on batch")
-        yield blend_output, deblend_results, measured_results
