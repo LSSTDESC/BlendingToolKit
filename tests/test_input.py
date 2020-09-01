@@ -236,7 +236,7 @@ def basic_meas(
         simulation_config_dict (dict): Dictionary which sets the parameter
         btk_input : Module that runs btk for an input config file.
     """
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict,
         simulation_config_dict,
@@ -266,7 +266,10 @@ def basic_meas(
     pass
 
 
-def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
+def sep_meas(param, user_config_dict, simulation_config_dict, btk_input,catalog_name,
+    batch_size,
+    survey_name,
+    stamp_size,):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
 
@@ -281,13 +284,16 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
         simulation_config_dict (dict): Dictionary which sets the parameter
         btk_input : Module that runs btk for an input config file.
     """
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict,catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size
     )
     user_config_dict["utils_input"]["measure_function"] = "SEP_params"
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     test_detect_centers = [
         [[61.053514, 59.036174], [56.75570, 66.828738]],
@@ -307,7 +313,10 @@ def sep_meas(param, user_config_dict, simulation_config_dict, btk_input):
     pass
 
 
-def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
+def stack_meas(user_config_dict, simulation_config_dict, btk_input,catalog_name,
+    batch_size,
+    survey_name,
+    stamp_size,):
     """Checks if detection output from the stack meas generator  matches
     the pre-computed value .
 
@@ -322,13 +331,16 @@ def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
         simulation_config_dict (dict): Dictionary which sets the parameter
         btk_input : Module that runs btk for an input config file.
     """
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict,catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     user_config_dict["utils_input"]["measure_function"] = "Stack_params"
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     test_detect_dx = [
         [56.16308227, 62.96011953, 55.99366715, 48.97120018],
@@ -361,7 +373,7 @@ def stack_meas(param, user_config_dict, simulation_config_dict, btk_input):
     pass
 
 
-def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
+def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
     """Checks if detection output from the scarlet meas generator matches
     the pre-computed value .
 
@@ -378,11 +390,11 @@ def scarlet_meas(param, user_config_dict, simulation_config_dict, btk_input):
     """
     np.random.seed(int(param.seed))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict
     )
     user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     test_detect_centers = [
         [[58.063703, 59.749699], [61.157868, 69.30290], [68.304245, 61.537312]],

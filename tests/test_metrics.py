@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 
-def compare_basic_metric(param, user_config_dict, simulation_config_dict, btk_input):
+def compare_basic_metric(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size):
     """Compares summary table output from btk default detection to the expected
     result test_metric_summary.
     """
@@ -17,15 +17,18 @@ def compare_basic_metric(param, user_config_dict, simulation_config_dict, btk_in
             [6, 2, 4, 0, 0, 2, 4, 0, 0],
         ]
     )
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict, catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, sim_param=param
+        meas_generator=measure_generator, batch_size=batch_size
     )
     results = btk.compute_metrics.run(metric_param, test_size=1)
     detected_metrics_summary = results["detection"][2]
@@ -49,20 +52,20 @@ def run_metrics_basic(input_args):
     simulation_config_dict = config_dict["simulation"][args.simulation]
     simulation_config_dict["max_number"] = 6
     simulation_config_dict["batch_size"] = 4
+    batch_size = simulation_config_dict["batch_size"]
+    stamp_size = simulation_config_dict["stamp_size"]
+    survey_name = simulation_config_dict["survey_name"]
     user_config_dict = config_dict["user_input"]
     catalog_name = os.path.join(
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
-    # Set parameter values in param
-    param = btk_input.get_config_class(
-        simulation_config_dict, catalog_name, args.verbose
-    )
-    compare_basic_metric(param, user_config_dict, simulation_config_dict, btk_input)
+
+    compare_basic_metric(user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size)
     pass
 
 
 def compare_sep_group_metric(
-    param, user_config_dict, simulation_config_dict, btk_input
+    user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size
 ):
     """Compares summary table output from btk sep detection to the expected
     result, test_metric_summary.
@@ -87,15 +90,18 @@ def compare_sep_group_metric(
             [2, 1, 1, 0, 0, 1, 1, 0, 0],
         ]
     )
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict, catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, sim_param=param
+        meas_generator=measure_generator, batch_size=batch_size
     )
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results["detection"][2]
@@ -127,18 +133,18 @@ def run_metrics_sep(input_args):
         catalog_name = os.path.join(
             user_config_dict["data_dir"], simulation_config_dict["catalog"]
         )
-        # Set parameter values in param
-        param = btk_input.get_config_class(
-            simulation_config_dict, catalog_name, args.verbose
-        )
+        batch_size = simulation_config_dict["batch_size"]
+        stamp_size = simulation_config_dict["stamp_size"]
+        survey_name = simulation_config_dict["survey_name"]
+
         compare_sep_group_metric(
-            param, user_config_dict, simulation_config_dict, btk_input
+            user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size
         )
     pass
 
 
 def compare_stack_group_metric(
-    param, user_config_dict, simulation_config_dict, btk_input
+    user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size
 ):
     """Compares summary table output from btk stack detection to the expected
     result, test_metric_summary.
@@ -163,15 +169,18 @@ def compare_stack_group_metric(
             [6, 3, 3, 0, 0, 3, 3, 0, 0],
         ]
     )
-    np.random.seed(int(param.seed))
+    np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        param, user_config_dict, simulation_config_dict
+        user_config_dict, simulation_config_dict, catalog_name,
+        batch_size,
+        survey_name,
+        stamp_size,
     )
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Stack_metric_params(
-        meas_generator=measure_generator, sim_param=param
+        meas_generator=measure_generator, batch_size=batch_size
     )
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results["detection"][2]
@@ -202,12 +211,12 @@ def run_metrics_stack(input_args):
         catalog_name = os.path.join(
             user_config_dict["data_dir"], simulation_config_dict["catalog"]
         )
-        # Set parameter values in param
-        param = btk_input.get_config_class(
-            simulation_config_dict, catalog_name, args.verbose
-        )
+        batch_size = simulation_config_dict["batch_size"]
+        stamp_size = simulation_config_dict["stamp_size"]
+        survey_name = simulation_config_dict["survey_name"]
+
         compare_stack_group_metric(
-            param, user_config_dict, simulation_config_dict, btk_input
+            user_config_dict, simulation_config_dict, btk_input, catalog_name, batch_size, survey_name, stamp_size
         )
     pass
 
