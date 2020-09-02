@@ -37,16 +37,6 @@ class Measurement_params(ABC):
         return None
 
 
-def run_batch(measurement_params, blend_output, index):
-    deblend_results = measurement_params.get_deblended_images(
-        data=blend_output, index=index
-    )
-    measured_results = measurement_params.make_measurement(
-        data=blend_output, index=index
-    )
-    return [deblend_results, measured_results]
-
-
 class MeasureGenerator:
     def __init__(
         self,
@@ -82,6 +72,15 @@ class MeasureGenerator:
     def __iter__(self):
         return self
 
+    def run_batch(self, blend_output, index):
+        deblend_results = self.measurement_params.get_deblended_images(
+            data=blend_output, index=index
+        )
+        measured_results = self.measurement_params.make_measurement(
+            data=blend_output, index=index
+        )
+        return [deblend_results, measured_results]
+
     def __next__(self):
 
         blend_output = next(self.draw_blend_generator)
@@ -91,7 +90,6 @@ class MeasureGenerator:
             (self.measurement_params, blend_output, i) for i in range(self.batch_size)
         ]
         batch_results = multiprocess(
-            run_batch,
             input_args,
             self.cpus,
             self.multiprocessing,
