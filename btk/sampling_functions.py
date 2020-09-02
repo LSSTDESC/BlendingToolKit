@@ -4,6 +4,20 @@ import numpy as np
 import astropy.table
 
 
+def _get_random_center_shift(num_objects, maxshift):
+    """Returns random shifts in x and y coordinates between + and - max-shift
+    in arcseconds.
+
+    Args:
+        num_objects(int): Number of x and y shifts to return.
+
+    """
+    dx = np.random.uniform(-maxshift, maxshift, size=num_objects)
+    dy = np.random.uniform(-maxshift, maxshift, size=num_objects)
+    return dx, dy
+
+
+# TODO: Indicate what type of catalog is compatible with each sampling function.
 class SamplingFunction(ABC):
     def __init__(self, max_number):
         """Class representing sampling functions to sample input catalog from which to draw
@@ -34,18 +48,6 @@ class DefaultSampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
 
-    def get_random_center_shift(self, num_objects):
-        """Returns random shifts in x and y coordinates between + and - max-shift
-        in arcseconds.
-
-        Args:
-            num_objects(int): Number of x and y shifts to return.
-
-        """
-        dx = np.random.uniform(-self.maxshift, self.maxshift, size=num_objects)
-        dy = np.random.uniform(-self.maxshift, self.maxshift, size=num_objects)
-        return dx, dy
-
     def __call__(self, catalog):
         """Applies default sampling to the input CatSim-like catalog and returns
         catalog with entries corresponding to a blend centered close to postage
@@ -69,7 +71,7 @@ class DefaultSampling(SamplingFunction):
         (q,) = np.where(catalog["i_ab"] <= 25.3)
         blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
-        dx, dy = self.get_random_center_shift(number_of_objects)
+        dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
 
@@ -81,7 +83,7 @@ class DefaultSampling(SamplingFunction):
 
 
 class BasicSamplingFunction(SamplingFunction):
-    def __init__(self, max_number=4, stamp_size=24.0):
+    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
         super().__init__(max_number)
         self.stamp_size = stamp_size
 
@@ -120,9 +122,7 @@ class BasicSamplingFunction(SamplingFunction):
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
         # keep number density of objects constant
         maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
-        dx, dy = btk.create_blend_generator.get_random_center_shift(
-            Args, number_of_objects + 1, maxshift=maxshift
-        )
+        dx, dy = _get_random_center_shift(number_of_objects + 1, maxshift)
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
         return blend_catalog
