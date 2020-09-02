@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import astropy.wcs as WCS
 import descwl
 
-import btk.survey
+import btk.cutout
 
 
 def make_wcs(
@@ -51,7 +51,7 @@ class WLDObsConditions(ABC):
         self.survey_name = survey_name
         self.band = band
         self.stamp_size = stamp_size
-        self.pixel_scale = btk.survey.surveys[survey_name]["pixel_scale"]
+        self.pixel_scale = btk.cutout.surveys[survey_name]["pixel_scale"]
         self.pix_stamp_size = int(self.stamp_size / self.pixel_scale)
 
     @abstractmethod
@@ -106,7 +106,7 @@ class DefaultObsConditions(WLDObsConditions):
             projection=survey_params["projection"],
             shape=(self.pix_stamp_size, self.pix_stamp_size),
         )
-        btk_survey = btk.survey.Survey(
+        btk_cutout = btk.cutout.ObsCutout(
             no_analysis=True,
             survey_name=self.survey_name,
             filter_band=self.band,
@@ -114,4 +114,4 @@ class DefaultObsConditions(WLDObsConditions):
             **survey_params
         )
 
-        return btk_survey
+        return btk_cutout

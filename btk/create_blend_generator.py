@@ -18,7 +18,11 @@ class BlendGenerator:
         self.sampling_function = sampling_function
 
         if not hasattr(sampling_function, "max_number"):
-            raise AttributeError("Sampling function must have attribute 'max_number'.")
+            raise AttributeError(
+                "Please change your custom sampling function to have "
+                "an attribute 'max_number'."
+            )
+
         self.max_number = self.sampling_function.max_number
 
     def __iter__(self):
