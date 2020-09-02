@@ -100,3 +100,4 @@ class MeasureGenerator:
             measured_results.update({i: batch_results[i][1]})
         if self.verbose:
             print("Measurement performed on batch")
+        return blend_output, deblend_results, measured_results

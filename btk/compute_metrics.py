@@ -6,13 +6,13 @@ import scipy.spatial
 
 
 class Metrics_params(ABC):
-    def __init__(self, meas_generator, sim_param):
+    def __init__(self, meas_generator, batch_size):
         """Class describing functions to return results of
          detection/deblending/measurement algorithm in meas_generator. Each
          blend results yielded by the meas_generator for a batch.
         """
         self.meas_generator = meas_generator
-        self.sim_param = sim_param
+        self.batch_size = batch_size
 
     @abstractmethod
     def get_detections(self):
@@ -378,14 +378,14 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
             return results
         if (
             len(batch_detection_result[0]) != len(batch_detection_result[1])
-            or len(batch_detection_result[0]) != metrics_params.sim_param.batch_size
+            or len(batch_detection_result[0]) != metrics_params.batch_size
         ):
             raise ValueError(
                 "Metrics_params.get_detections output must be "
                 "two lists of astropy table of length batch size."
                 f" Found {len(batch_detection_result[0])}, "
                 f"{len(batch_detection_result[1])}, "
-                f"{metrics_params.sim_param.batch_size}"
+                f"{metrics_params.batch_size}"
             )
         true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1], batch_index=i

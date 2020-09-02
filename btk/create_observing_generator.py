@@ -23,12 +23,14 @@ class ObservingGenerator:
         if survey_name not in btk.survey.surveys:
             raise KeyError("Survey not implemented.")
 
-        if obs_conditions == None:
-            obs_conditions = DefaultObsConditions(survey_name, "i", stamp_size)
-        self.survey_name = survey_name
+        
         self.bands = btk.survey.surveys[survey_name]["bands"]
         self.stamp_size = stamp_size
-
+        if obs_conditions == None:
+            obs_conditions = {}
+            for band in self.bands:
+                obs_conditions[band] = DefaultObsConditions(survey_name, band, stamp_size)
+        self.survey_name = survey_name
         self.obs_conditions = obs_conditions
         self.verbose = verbose
 
@@ -38,6 +40,6 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = []
         for band in self.bands:
-            btk_survey = self.obs_conditions()
+            btk_survey = self.obs_conditions[band]()
             observing_generator.append(btk_survey)
         return observing_generator

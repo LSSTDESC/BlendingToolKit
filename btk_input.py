@@ -372,7 +372,7 @@ def get_measurement_class(user_config_dict, verbose):
 
 
 def make_measure_generator(
-    param, user_config_dict, draw_blend_generator, multiprocess=False, cpus=1
+    user_config_dict, draw_blend_generator, multiprocess=False, cpus=1, verbose=False
 ):
     """Returns a generator that yields simulations of blend scenes.
 
@@ -393,16 +393,16 @@ def make_measure_generator(
 
     """
     # get class that describes how measurement algorithm performs measurement
-    measure_class = get_measurement_class(user_config_dict, param.verbose)
+    measure_class = get_measurement_class(user_config_dict, verbose)
     if multiprocess:
         print(f"Multiprocess measurement over {cpus} cpus")
     # get generator that yields measured values.
-    measure_generator = btk.measure.generate(
+    measure_generator = btk.measure.MeasureGenerator(
         measure_class(),
         draw_blend_generator,
-        param,
         multiprocessing=multiprocess,
         cpus=cpus,
+        verbose=verbose
     )
     return measure_generator
 
