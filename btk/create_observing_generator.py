@@ -1,5 +1,4 @@
-import btk.cutout
-from btk.obs_conditions import DefaultObsConditions, surveys
+from btk.obs_conditions import DefaultObsConditions, all_surveys
 
 
 class ObservingGenerator:
@@ -20,20 +19,22 @@ class ObservingGenerator:
                              survey_name are used to create the observing_generator.
              stamp_size: In arcseconds.
         """
-        if survey_name not in surveys:
+        if survey_name not in all_surveys:
             raise KeyError("Survey not implemented.")
 
-        self.bands = surveys[survey_name]["bands"]
+        self.bands = all_surveys[survey_name]["bands"]
         self.stamp_size = stamp_size
+        self.survey_name = survey_name
+        self.obs_conditions = obs_conditions
+        self.verbose = verbose
+
+        # create default observing conditions
         if obs_conditions is None:
             obs_conditions = {}
             for band in self.bands:
                 obs_conditions[band] = DefaultObsConditions(
                     survey_name, band, stamp_size
                 )
-        self.survey_name = survey_name
-        self.obs_conditions = obs_conditions
-        self.verbose = verbose
 
     def __iter__(self):
         return self
