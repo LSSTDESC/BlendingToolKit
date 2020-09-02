@@ -1,23 +1,6 @@
 import descwl
 
 
-surveys = {
-    "LSST": {"bands": ("y", "z", "i", "r", "g", "u"), "pixel_scale": 0.2},
-    "DES": {"bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
-    "CFHT": {"bands": ("i", "r"), "pixel_scale": 0.185},
-    "HSC": {
-        "bands": (
-            "y",
-            "z",
-            "i",
-            "r",
-            "g",
-        ),
-        "pixel_scale": 0.17,
-    },
-}
-
-
 class ObsCutout(descwl.survey.Survey):
     """Extension of the descwl survey class including information for the WCS
 

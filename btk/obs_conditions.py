@@ -6,6 +6,23 @@ import descwl
 import btk.cutout
 
 
+surveys = {
+    "LSST": {"bands": ("y", "z", "i", "r", "g", "u"), "pixel_scale": 0.2},
+    "DES": {"bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
+    "CFHT": {"bands": ("i", "r"), "pixel_scale": 0.185},
+    "HSC": {
+        "bands": (
+            "y",
+            "z",
+            "i",
+            "r",
+            "g",
+        ),
+        "pixel_scale": 0.17,
+    },
+}
+
+
 def make_wcs(
     pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
 ):
@@ -51,7 +68,7 @@ class WLDObsConditions(ABC):
         self.survey_name = survey_name
         self.band = band
         self.stamp_size = stamp_size
-        self.pixel_scale = btk.cutout.surveys[survey_name]["pixel_scale"]
+        self.pixel_scale = surveys[survey_name]["pixel_scale"]
         self.pix_stamp_size = int(self.stamp_size / self.pixel_scale)
 
     @abstractmethod
