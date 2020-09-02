@@ -402,7 +402,7 @@ def make_measure_generator(
         draw_blend_generator,
         multiprocessing=multiprocess,
         cpus=cpus,
-        verbose=verbose
+        verbose=verbose,
     )
     return measure_generator
 

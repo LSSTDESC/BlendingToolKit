@@ -8,8 +8,8 @@ import scipy.spatial
 class Metrics_params(ABC):
     def __init__(self, meas_generator, batch_size):
         """Class describing functions to return results of
-         detection/deblending/measurement algorithm in meas_generator. Each
-         blend results yielded by the meas_generator for a batch.
+        detection/deblending/measurement algorithm in meas_generator. Each
+        blend results yielded by the meas_generator for a batch.
         """
         self.meas_generator = meas_generator
         self.batch_size = batch_size
@@ -43,13 +43,13 @@ class Metrics_params(ABC):
 
     def get_flux(self):
         """Define function here to return results from the flux measurement
-         algorithm.
+        algorithm.
         """
         pass
 
     def get_shapes(self):
         """Define function here to return results from the shape measurement
-         algorithm.
+        algorithm.
         """
         pass
 

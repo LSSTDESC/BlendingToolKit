@@ -329,14 +329,14 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
 def show_scarlet_residual(blend, observation, limits=(30, 90)):
     """Plot scarlet model and residual image in rgb and i band.
 
-        Note: this requires scarlet to be installed.
-        Args:
-            blend: output of scarlet containing blend fit.
-            observation: `~scarlet.Observation`
-            limits(list, default=`None`): List of start and end coordinates to
-            display image within. Note: limits are applied to both height and
-            width dimensions.
-        """
+    Note: this requires scarlet to be installed.
+    Args:
+        blend: output of scarlet containing blend fit.
+        observation: `~scarlet.Observation`
+        limits(list, default=`None`): List of start and end coordinates to
+        display image within. Note: limits are applied to both height and
+        width dimensions.
+    """
     try:
         import scarlet
         import scarlet.display

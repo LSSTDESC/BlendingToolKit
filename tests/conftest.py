@@ -13,8 +13,7 @@ def match_images():
 
 
 class Input_Args(object):
-    """Class that returns values in the same format as argparse in btk_input.
-    """
+    """Class that returns values in the same format as argparse in btk_input."""
 
     def __init__(
         self,
