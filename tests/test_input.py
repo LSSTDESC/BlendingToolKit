@@ -59,18 +59,11 @@ def test_input_draw(input_args, match_images):
     # param = btk_input.get_config_class(
     #     simulation_config_dict, catalog_name, args.verbose
     # )
-    batch_size = simulation_config_dict["batch_size"]
-    stamp_size = simulation_config_dict["stamp_size"]
-    survey_name = simulation_config_dict["survey_name"]
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict,
         simulation_config_dict,
-        catalog_name,
-        batch_size,
-        survey_name,
-        stamp_size,
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -217,10 +210,6 @@ def basic_meas(
     user_config_dict,
     simulation_config_dict,
     btk_input,
-    catalog_name,
-    batch_size,
-    survey_name,
-    stamp_size,
 ):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
@@ -240,10 +229,6 @@ def basic_meas(
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict,
         simulation_config_dict,
-        catalog_name,
-        batch_size,
-        survey_name,
-        stamp_size,
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -271,10 +256,6 @@ def sep_meas(
     user_config_dict,
     simulation_config_dict,
     btk_input,
-    catalog_name,
-    batch_size,
-    survey_name,
-    stamp_size,
 ):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
@@ -294,10 +275,6 @@ def sep_meas(
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict,
         simulation_config_dict,
-        catalog_name,
-        batch_size,
-        survey_name,
-        stamp_size,
     )
     user_config_dict["utils_input"]["measure_function"] = "SEP_params"
     measure_generator = btk_input.make_measure_generator(
@@ -325,10 +302,6 @@ def stack_meas(
     user_config_dict,
     simulation_config_dict,
     btk_input,
-    catalog_name,
-    batch_size,
-    survey_name,
-    stamp_size,
 ):
     """Checks if detection output from the stack meas generator  matches
     the pre-computed value .
@@ -348,10 +321,6 @@ def stack_meas(
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict,
         simulation_config_dict,
-        catalog_name,
-        batch_size,
-        survey_name,
-        stamp_size,
     )
     user_config_dict["utils_input"]["measure_function"] = "Stack_params"
     measure_generator = btk_input.make_measure_generator(
@@ -442,9 +411,6 @@ def test_measure(input_args):
     simulation_config_dict = config_dict["simulation"][args.simulation]
     simulation_config_dict["max_number"] = 6
     simulation_config_dict["batch_size"] = 4
-    batch_size = simulation_config_dict["batch_size"]
-    stamp_size = simulation_config_dict["stamp_size"]
-    survey_name = simulation_config_dict["survey_name"]
 
     user_config_dict = config_dict["user_input"]
     catalog_name = os.path.join(
@@ -458,10 +424,6 @@ def test_measure(input_args):
         user_config_dict,
         simulation_config_dict,
         btk_input,
-        catalog_name,
-        batch_size,
-        survey_name,
-        stamp_size,
     )
     try:
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
