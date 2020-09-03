@@ -8,7 +8,6 @@ import astropy.table
 import numpy as np
 import skimage.feature
 
-import btk.create_blend_generator
 from btk import plot_utils
 from btk.compute_metrics import Metrics_params
 from btk.measure import Measurement_params
