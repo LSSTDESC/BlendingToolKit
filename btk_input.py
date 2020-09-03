@@ -273,10 +273,6 @@ def get_obs_generator(
 def make_draw_generator(
     user_config_dict,
     simulation_config_dict,
-    catalog_name,
-    batch_size,
-    survey_name,
-    stamp_size,
     multiprocess=False,
     cpus=1,
     verbose=False,
@@ -299,6 +295,12 @@ def make_draw_generator(
 
     """
     # Load catalog to simulate objects from
+    batch_size = simulation_config_dict["batch_size"]
+    survey_name = simulation_config_dict["survey_name"]
+    stamp_size = simulation_config_dict["stamp_size"]
+    catalog_name = os.path.join(
+        user_config_dict["data_dir"], simulation_config_dict["catalog"]
+    )
     catalog = get_catalog(
         user_config_dict,
         catalog_name,
@@ -517,10 +519,8 @@ def main(args):
         catalog_name = os.path.join(
             user_config_dict["data_dir"], simulation_config_dict["catalog"]
         )
-        # Set parameter values in param
-        param = get_config_class(simulation_config_dict, catalog_name, args.verbose)
         # Set seed
-        np.random.seed(int(param.seed))
+        np.random.seed(int(simulation_config_dict["seed"]))
         if args.multiprocess:
             if args.cpus is None:
                 cpus = multiprocessing.cpu_count()
@@ -530,7 +530,6 @@ def main(args):
             cpus = 1
         # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
-            param,
             user_config_dict,
             simulation_config_dict,
             args.multiprocess,
@@ -538,13 +537,13 @@ def main(args):
         )
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(
-            param, user_config_dict, draw_blend_generator, args.multiprocess, cpus=cpus
+            user_config_dict, draw_blend_generator, args.multiprocess, cpus=cpus
         )
         # get metrics class that can generate metrics
-        metrics_class = get_metrics_class(user_config_dict, param.verbose)
+        metrics_class = get_metrics_class(user_config_dict, args.verbose)
         test_size = int(simulation_config_dict["test_size"])
-        metrics_param = metrics_class(measure_generator, param)
-        output_path = get_output_path(user_config_dict, param.verbose)
+        metrics_param = metrics_class(measure_generator, simulation_config_dict["batch_size"])
+        output_path = get_output_path(user_config_dict, args.verbose)
         output_name = os.path.join(output_path, s + "_metrics_results.dill")
         results = btk.compute_metrics.run(metrics_param, test_size=test_size)
         with open(output_name, "wb") as handle:
