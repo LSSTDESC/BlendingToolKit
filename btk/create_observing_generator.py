@@ -25,16 +25,18 @@ class ObservingGenerator:
         self.bands = all_surveys[survey_name]["bands"]
         self.stamp_size = stamp_size
         self.survey_name = survey_name
-        self.obs_conditions = obs_conditions
         self.verbose = verbose
 
+        # TODO: it might be a bit cumbersome for the user to create this dict.
         # create default observing conditions
         if obs_conditions is None:
-            obs_conditions = {}
+            self.obs_conditions = {}
             for band in self.bands:
-                obs_conditions[band] = DefaultObsConditions(
+                self.obs_conditions[band] = DefaultObsConditions(
                     survey_name, band, stamp_size
                 )
+        else:
+            self.obs_conditions = obs_conditions
 
     def __iter__(self):
         return self
