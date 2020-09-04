@@ -13,15 +13,21 @@ def get_draw_generator(batch_size=3):
 
     wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
     max_number = 10
-    stamp_size=24
-    survey_name="LSST"
+    stamp_size = 24
+    survey_name = "LSST"
     pixel_scale = 0.2
     np.random.seed(0)
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, btk.sampling_functions.GroupSamplingFunctionNumbered(max_number,wld_catalog_name,stamp_size,pixel_scale), batch_size
+        catalog,
+        btk.sampling_functions.GroupSamplingFunctionNumbered(
+            max_number, wld_catalog_name, stamp_size, pixel_scale
+        ),
+        batch_size,
     )
-    observing_generator = btk.create_observing_generator.ObservingGenerator(survey_name,stamp_size)
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name, stamp_size
+    )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator
     )
@@ -33,13 +39,15 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
 
     catalog_name = "data/sample_input_catalog.fits"
     np.random.seed(0)
-    stamp_size=24
-    survey_name="LSST"
+    stamp_size = 24
+    survey_name = "LSST"
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, btk.sampling_functions.DefaultSampling()
     )
-    observing_generator = btk.create_observing_generator.ObservingGenerator(survey_name,stamp_size)
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name, stamp_size
+    )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator
     )

@@ -101,6 +101,8 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
         self.stamp_size = self.observing_generator.stamp_size
+
+        # TODO: Pinning pixel scale like this will be a problem for multi-resolution.
         self.pixel_scale = self.observing_generator.obs_conditions["i"].pixel_scale
         self.bands = self.observing_generator.bands
         self.meas_band = meas_band

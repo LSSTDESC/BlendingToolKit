@@ -175,7 +175,6 @@ def get_blend_generator(
     objects.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         catalog: `astropy.table.Table` with parameters corresponding to objects
@@ -541,7 +540,9 @@ def main(args):
         # get metrics class that can generate metrics
         metrics_class = get_metrics_class(user_config_dict, args.verbose)
         test_size = int(simulation_config_dict["test_size"])
-        metrics_param = metrics_class(measure_generator, simulation_config_dict["batch_size"])
+        metrics_param = metrics_class(
+            measure_generator, simulation_config_dict["batch_size"]
+        )
         output_path = get_output_path(user_config_dict, args.verbose)
         output_name = os.path.join(output_path, s + "_metrics_results.dill")
         results = btk.compute_metrics.run(metrics_param, test_size=test_size)
