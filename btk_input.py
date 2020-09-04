@@ -179,6 +179,7 @@ def get_blend_generator(
             functions (filenames, file location of user algorithms).
         catalog: `astropy.table.Table` with parameters corresponding to objects
                  being simulated.
+        batch_size (int) : Size of the batches for the blend generator
         sampling_function_name (str): Name of the sampling function in
             btk/utils.py that determines how objects are drawn from the catalog
             to create blends.
@@ -227,11 +228,11 @@ def get_obs_generator(
     conditions.
 
     Args:
-        param (:obj:`config.Simulation_params`): Parameter values for btk
-                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
-        observe_function_name (str): Name of the function in btk/utils.py to
+        survey_name (str): Name of the survey (from available surveys in btk/obs_conditions.py file.)
+        stamp_size (int): Size of the desired stamp
+        obs_condifitions_name (str): Name of the class in btk/obs_conditions.py to
             set the observing conditions under which the galaxies are drawn.
         verbose (bool): If True prints description at multiple steps.
 
@@ -271,17 +272,11 @@ def get_obs_generator(
 
 
 def make_draw_generator(
-    user_config_dict,
-    simulation_config_dict,
-    multiprocess=False,
-    cpus=1,
-    verbose=False,
+    user_config_dict, simulation_config_dict, multiprocess=False, cpus=1, verbose=False,
 ):
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param (:obj:`config.Simulation_params`): Parameter values for btk
-                                                simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -327,10 +322,7 @@ def make_draw_generator(
         print(f"Multiprocess draw over {cpus} cpus")
     # Generate images of blends in all the observing bands
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator,
-        observing_generator,
-        multiprocessing=multiprocess,
-        cpus=cpus,
+        blend_generator, observing_generator, multiprocessing=multiprocess, cpus=cpus,
     )
     return draw_blend_generator
 
@@ -379,8 +371,6 @@ def make_measure_generator(
     """Returns a generator that yields simulations of blend scenes.
 
     Args:
-        param: Instance from class `config.Simulation_params`, parameter
-               values from simulation.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         draw_blend_generator : Generator that yields simulations of blend
@@ -476,13 +466,10 @@ def get_output_path(user_config_dict, verbose):
     return output_path
 
 
-def save_config_file(
-    user_config_dict, simulation_config_dict, simulation, output_path
-):
+def save_config_file(user_config_dict, simulation_config_dict, simulation, output_path):
     """Saves all parameter values to a yaml file and writes it to disk.
 
     Args:
-        param(class): Parameter values for btk simulations.
         user_config_dict: Dict with information to run user defined functions
             and store results.
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -528,10 +515,7 @@ def main(args):
             cpus = 1
         # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
-            user_config_dict,
-            simulation_config_dict,
-            args.multiprocess,
-            cpus=cpus,
+            user_config_dict, simulation_config_dict, args.multiprocess, cpus=cpus,
         )
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(
@@ -549,9 +533,7 @@ def main(args):
         with open(output_name, "wb") as handle:
             dill.dump(results, handle)
         print("BTK outputs saved at ", output_name)
-        save_config_file(
-            user_config_dict, simulation_config_dict, s, output_path
-        )
+        save_config_file(user_config_dict, simulation_config_dict, s, output_path)
 
 
 if __name__ == "__main__":

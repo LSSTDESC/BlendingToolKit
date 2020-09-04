@@ -58,8 +58,7 @@ def test_input_draw(input_args, match_images):
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict,
-        simulation_config_dict,
+        user_config_dict, simulation_config_dict,
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -203,9 +202,7 @@ def test_input_output(input_args):
 
 
 def basic_meas(
-    user_config_dict,
-    simulation_config_dict,
-    btk_input,
+    user_config_dict, simulation_config_dict, btk_input,
 ):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
@@ -223,8 +220,7 @@ def basic_meas(
     """
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict,
-        simulation_config_dict,
+        user_config_dict, simulation_config_dict,
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -248,10 +244,7 @@ def basic_meas(
 
 
 def sep_meas(
-    param,
-    user_config_dict,
-    simulation_config_dict,
-    btk_input,
+    param, user_config_dict, simulation_config_dict, btk_input,
 ):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
@@ -269,8 +262,7 @@ def sep_meas(
     """
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict,
-        simulation_config_dict,
+        user_config_dict, simulation_config_dict,
     )
     user_config_dict["utils_input"]["measure_function"] = "SEP_params"
     measure_generator = btk_input.make_measure_generator(
@@ -295,9 +287,7 @@ def sep_meas(
 
 
 def stack_meas(
-    user_config_dict,
-    simulation_config_dict,
-    btk_input,
+    user_config_dict, simulation_config_dict, btk_input,
 ):
     """Checks if detection output from the stack meas generator  matches
     the pre-computed value .
@@ -315,8 +305,7 @@ def stack_meas(
     """
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict,
-        simulation_config_dict,
+        user_config_dict, simulation_config_dict,
     )
     user_config_dict["utils_input"]["measure_function"] = "Stack_params"
     measure_generator = btk_input.make_measure_generator(
@@ -417,9 +406,7 @@ def test_measure(input_args):
     #     simulation_config_dict, catalog_name, args.verbose
     # )
     basic_meas(
-        user_config_dict,
-        simulation_config_dict,
-        btk_input,
+        user_config_dict, simulation_config_dict, btk_input,
     )
     try:
         sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
