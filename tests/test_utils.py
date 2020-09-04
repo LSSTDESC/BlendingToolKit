@@ -30,6 +30,7 @@ def get_draw_generator(batch_size=3):
 
 def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     """Returns draw generator with group sampling function"""
+
     catalog_name = "data/sample_input_catalog.fits"
     np.random.seed(0)
     stamp_size=24

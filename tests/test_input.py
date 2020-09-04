@@ -55,10 +55,6 @@ def test_input_draw(input_args, match_images):
     catalog_name = os.path.join(
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
-    # Set parameter values in param
-    # param = btk_input.get_config_class(
-    #     simulation_config_dict, catalog_name, args.verbose
-    # )
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(

@@ -91,6 +91,6 @@ config:
     add:
         wld_catalog_name: 'data/sample_group_catalog.fits'
     selection_function: None
-    sampling_function: group_sampling_function
+    sampling_function: GroupSamplingFunction
     obs_conditions: None
     test_size: 2

@@ -27,6 +27,7 @@ import numpy as np
 import yaml
 
 import btk
+import btk.sampling_functions
 
 
 def parse_config(config_gen, simulation, verbose):
@@ -477,7 +478,7 @@ def get_output_path(user_config_dict, verbose):
 
 
 def save_config_file(
-    param, user_config_dict, simulation_config_dict, simulation, output_path
+    user_config_dict, simulation_config_dict, simulation, output_path
 ):
     """Saves all parameter values to a yaml file and writes it to disk.
 
@@ -492,8 +493,6 @@ def save_config_file(
 
     """
     save_config_dict = {"simulation": simulation}
-    # save btk.Simulation_param values used.
-    save_config_dict.update({"btk_Simulation_params": param.__dict__})
     # save simulation values from input config file.
     save_config_dict.update({"simulation_config": simulation_config_dict})
     # save user defined function and file names.
@@ -550,7 +549,7 @@ def main(args):
             dill.dump(results, handle)
         print("BTK outputs saved at ", output_name)
         save_config_file(
-            param, user_config_dict, simulation_config_dict, s, output_path
+            user_config_dict, simulation_config_dict, s, output_path
         )
 
 
