@@ -57,8 +57,6 @@ class MeasureGenerator:
             multiprocessing: If true performs multiprocessing of measurement.
             cpus: If multiprocessing is True, then number of parallel processes to
                  run [Default :1].
-        Returns:
-            draw_blend_generator output, deblender output and measurement output.
         """
         self.measurement_params = measurement_params
         self.draw_blend_generator = draw_blend_generator
@@ -82,6 +80,10 @@ class MeasureGenerator:
         return [deblend_results, measured_results]
 
     def __next__(self):
+        """
+        Returns:
+            draw_blend_generator output, deblender output and measurement output.
+        """
 
         blend_output = next(self.draw_blend_generator)
         deblend_results = {}
