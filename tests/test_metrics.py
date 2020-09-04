@@ -30,7 +30,8 @@ def compare_basic_metric(
         user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, batch_size=simulation_config_dict["batch_size"]
+        meas_generator=measure_generator,
+        batch_size=simulation_config_dict["batch_size"],
     )
     results = btk.compute_metrics.run(metric_param, test_size=1)
     detected_metrics_summary = results["detection"][2]
@@ -104,7 +105,8 @@ def compare_sep_group_metric(
         param, user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Basic_metric_params(
-        meas_generator=measure_generator, batch_size=simulation_config_dict["batch_size"]
+        meas_generator=measure_generator,
+        batch_size=simulation_config_dict["batch_size"],
     )
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results["detection"][2]
@@ -182,7 +184,8 @@ def compare_stack_group_metric(
         param, user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Stack_metric_params(
-        meas_generator=measure_generator, batch_size=simulation_config_dict["batch_size"]
+        meas_generator=measure_generator,
+        batch_size=simulation_config_dict["batch_size"],
     )
     results = btk.compute_metrics.run(metric_param, test_size=2)
     detected_metrics_summary = results["detection"][2]
