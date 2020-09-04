@@ -174,7 +174,6 @@ def get_blend_generator(
     objects.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         catalog: `astropy.table.Table` with parameters corresponding to objects
