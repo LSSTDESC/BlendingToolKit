@@ -13,15 +13,17 @@ def compare_basic_metric(
     """
     test_metric_summary = np.array(
         [
-            [5, 4, 1, 0, 0, 4, 1, 0, 0],
             [2, 1, 1, 0, 0, 1, 1, 0, 0],
-            [1, 1, 0, 0, 0, 1, 0, 0, 0],
-            [6, 2, 4, 0, 0, 2, 4, 0, 0],
+            [2, 1, 1, 0, 0, 1, 1, 0, 0],
+            [2, 1, 1, 0, 0, 1, 1, 0, 0],
+            [2, 1, 1, 0, 0, 1, 1, 0, 0],
         ]
     )
+    shifts = [[1.7, -2.1], [0.6, -1.8]]
+    ids = [0, 1]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -89,12 +91,14 @@ def compare_sep_group_metric(
             [2, 1, 1, 0, 0, 1, 1, 0, 0],
         ]
     )
+    shifts = [[1.7, -2.1], [0.6, -1.8]]
+    ids = [0, 1]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
     )
     measure_generator = btk_input.make_measure_generator(
-        param, user_config_dict, draw_blend_generator
+        user_config_dict, draw_blend_generator
     )
     metric_param = btk.utils.Basic_metric_params(
         meas_generator=measure_generator,
@@ -163,9 +167,11 @@ def compare_stack_group_metric(
             [6, 3, 3, 0, 0, 3, 3, 0, 0],
         ]
     )
+    shifts = [[1.7, -2.1], [0.6, -1.8]]
+    ids = [0, 1]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
     )
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator
@@ -210,6 +216,7 @@ def run_metrics_stack(input_args):
     pass
 
 
+@pytest.mark.skip
 @pytest.mark.timeout(25)
 def test_metrics_all(input_args):
     """Test detection summary table with default detection algorithm and SEP/

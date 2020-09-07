@@ -35,7 +35,9 @@ class SamplingFunction(ABC):
 
 
 class DefaultSampling(SamplingFunction):
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
+    def __init__(
+        self, max_number=2, stamp_size=24.0, maxshift=None, shifts=None, ids=None
+    ):
         """
         Default sampling function used for producing blend catalogs.
         Args:
@@ -47,6 +49,8 @@ class DefaultSampling(SamplingFunction):
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.shifts = shifts
+        self.ids = ids
 
     def __call__(self, catalog):
         """Applies default sampling to the input CatSim-like catalog and returns
@@ -69,9 +73,16 @@ class DefaultSampling(SamplingFunction):
         """
         number_of_objects = np.random.randint(1, self.max_number + 1)
         (q,) = np.where(catalog["i_ab"] <= 25.3)
-        blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
+
+        if self.ids == None:
+            blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
+        else:
+            blend_catalog = catalog[self.ids]
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
-        dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+        if self.shifts == None:
+            dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+        else:
+            dx, dy = self.shifts
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
 
@@ -129,7 +140,15 @@ class BasicSamplingFunction(SamplingFunction):
 
 
 class GroupSamplingFunction(SamplingFunction):
-    def __init__(self, max_number, wld_catalog_name, stamp_size, pixel_scale):
+    def __init__(
+        self,
+        max_number,
+        wld_catalog_name,
+        stamp_size,
+        pixel_scale,
+        shift=None,
+        group_id=None,
+    ):
         """Blends are defined from *groups* of galaxies from the CatSim
             catalog previously analyzed with WLD.
 
@@ -144,6 +163,8 @@ class GroupSamplingFunction(SamplingFunction):
         self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
+        self.shift = shift
+        self.group_id = group_id
 
     def __call__(self, catalog):
         """We use self.wld_catalog created above to sample groups, but ultimately returns
@@ -156,7 +177,10 @@ class GroupSamplingFunction(SamplingFunction):
         # randomly sample a group om wld_catalog
         bool_groups = self.wld_catalog["grp_size"] >= 2
         group_ids = np.unique(self.wld_catalog["grp_id"][bool_groups])
-        group_id = np.random.choice(group_ids, replace=False)
+        if self.ids == None:
+            group_id = np.random.choice(group_ids, replace=False)
+        else:
+            group_id = self.group_id
 
         # get all galaxies belonging to the group.
         ids = self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id]
@@ -173,7 +197,10 @@ class GroupSamplingFunction(SamplingFunction):
         blend_catalog["dec"] *= 3600
         # Add small random shift so that center does not perfectly align with
         # the stamp center
-        dx, dy = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
+        if self.shift == None:
+            dx, dy = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
+        else:
+            dx, dy = self.shift
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
         # make sure galaxy centers don't lie too close to edge
@@ -190,7 +217,9 @@ class GroupSamplingFunction(SamplingFunction):
 
 
 class GroupSamplingFunctionNumbered(SamplingFunction):
-    def __init__(self, max_number, wld_catalog_name, stamp_size, pixel_scale):
+    def __init__(
+        self, max_number, wld_catalog_name, stamp_size, pixel_scale, shift=None
+    ):
         """Blends are defined from *groups* of galaxies from a CatSim-like
         catalog previously analyzed with WLD.
 
@@ -211,6 +240,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.group_id_count = 0
+        self.shift = shift
 
     def __call__(self, catalog):
         """The group is centered on the middle of the postage stamp.
@@ -249,7 +279,10 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         blend_catalog["dec"] *= 3600
         # Add small random shift so that center does not perfectly align with stamp
         # center
-        dx, dy = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
+        if self.shift == None:
+            dx, dy = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
+        else:
+            dx, dy = self.shift
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
         # make sure galaxy centers don't lie too close to edge

@@ -169,7 +169,13 @@ def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose
 
 
 def get_blend_generator(
-    user_config_dict, catalog, batch_size, sampling_function_name, verbose
+    user_config_dict,
+    catalog,
+    batch_size,
+    sampling_function_name,
+    verbose,
+    shifts=None,
+    ids=None,
 ):
     """Returns generator object that generates catalog describing blended
     objects.
@@ -209,9 +215,16 @@ def get_blend_generator(
     else:
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         sampling_function = btk.sampling_functions.DefaultSampling
-    blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function(), batch_size
-    )
+
+    if shifts != None or ids != None:
+        sampling_function = btk.sampling_functions.DefaultSampling
+        blend_generator = btk.create_blend_generator.BlendGenerator(
+            catalog, sampling_function(shifts=shifts, ids=ids), batch_size
+        )
+    else:
+        blend_generator = btk.create_blend_generator.BlendGenerator(
+            catalog, sampling_function(), batch_size
+        )
     if verbose:
         print(
             f"Blend generator draws from {param.catalog_name} catalog "
@@ -272,7 +285,13 @@ def get_obs_generator(
 
 
 def make_draw_generator(
-    user_config_dict, simulation_config_dict, multiprocess=False, cpus=1, verbose=False,
+    user_config_dict,
+    simulation_config_dict,
+    multiprocess=False,
+    cpus=1,
+    verbose=False,
+    shifts=None,
+    ids=None,
 ):
     """Returns a generator that yields simulations of blend scenes.
 
@@ -309,6 +328,8 @@ def make_draw_generator(
         batch_size,
         str(simulation_config_dict["sampling_function"]),
         verbose,
+        shifts,
+        ids,
     )
     # Generate observing conditions
     observing_generator = get_obs_generator(
@@ -366,7 +387,7 @@ def get_measurement_class(user_config_dict, verbose):
 
 
 def make_measure_generator(
-    user_config_dict, draw_blend_generator, multiprocess=False, cpus=1, verbose=False
+    user_config_dict, draw_blend_generator, multiprocess=False, cpus=1, verbose=False,
 ):
     """Returns a generator that yields simulations of blend scenes.
 

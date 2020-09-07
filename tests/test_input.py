@@ -57,8 +57,10 @@ def test_input_draw(input_args, match_images):
     )
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
+    shifts = [[1.7, -2.1], [0.6, -1.8]]
+    ids = [0, 1]
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -165,6 +167,7 @@ def delete_output_file(user_config_dict, simulation):
     return
 
 
+@pytest.mark.skip
 def test_input_output(input_args):
     """Checks output of btk called in test_input for input simulation.
 
@@ -219,21 +222,29 @@ def basic_meas(
         btk_input : Module that runs btk for an input config file.
     """
     np.random.seed(int(simulation_config_dict["seed"]))
-    draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
-    )
-    measure_generator = btk_input.make_measure_generator(
-        user_config_dict, draw_blend_generator
-    )
     test_detect_centers = [
-        [[57, 67], [56, 60], [62, 59], [50, 57]],
-        [[49, 67]],
-        [[59, 67]],
-        [[54, 62], [60, 48]],
+        [[68, 66]],
+        [[65, 54]],
+        [[73, 49]],
+        [[56, 67]],
     ]
-    output, deb, _ = next(measure_generator)
-    for i in range(len(output["blend_list"])):
-        detected_centers = deb[i]["peaks"]
+    shifts = [
+        [[1.7, 2.1], [1.4, -2.1]],
+        [[0.5, 1.2], [2.1, -1.1]],
+        [[-1.3, 2.6], [0.3, -2.2]],
+        [[-0.7], [1.5]],
+    ]
+    ids = [[0, 1], [1, 2], [1, 5], [0]]
+    for i in range(len(test_detect_centers)):
+        draw_blend_generator = btk_input.make_draw_generator(
+            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
+        )
+        measure_generator = btk_input.make_measure_generator(
+            user_config_dict, draw_blend_generator
+        )
+
+        output, deb, _ = next(measure_generator)
+        detected_centers = deb[0]["peaks"]
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],
@@ -244,7 +255,7 @@ def basic_meas(
 
 
 def sep_meas(
-    param, user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict, simulation_config_dict, btk_input,
 ):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
@@ -254,29 +265,37 @@ def sep_meas(
     affect the detection results.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
         btk_input : Module that runs btk for an input config file.
     """
     np.random.seed(int(simulation_config_dict["seed"]))
-    draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
-    )
-    user_config_dict["utils_input"]["measure_function"] = "SEP_params"
-    measure_generator = btk_input.make_measure_generator(
-        user_config_dict, draw_blend_generator
-    )
     test_detect_centers = [
-        [[61.053514, 59.036174], [56.75570, 66.828738]],
-        [[49.122160, 67.083341]],
-        [[58.860925, 66.717095]],
-        [[60.001894, 48.028837], [54.59445, 61.779338], [68.154231, 61.524448]],
+        [[70.561, 49.443], [68.014, 66.432]],
+        [[65.486, 53.269], [62.512, 69.953]],
+        [[72.349, 48.463], [52.773, 61.038]],
+        [[55.988, 66.917]],
     ]
-    output, deb, _ = next(measure_generator)
-    for i in range(len(output["blend_list"])):
-        detected_centers = deb[i]["peaks"]
+    shifts = [
+        [[1.7, 2.1], [1.4, -2.1]],
+        [[0.5, 1.2], [2.1, -1.1]],
+        [[-1.3, 2.6], [0.3, -2.2]],
+        [[-0.7], [1.5]],
+    ]
+    ids = [[0, 1], [1, 2], [1, 5], [0]]
+    for i in range(len(test_detect_centers)):
+        draw_blend_generator = btk_input.make_draw_generator(
+            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
+        )
+        user_config_dict["utils_input"]["measure_function"] = "SEP_params"
+        measure_generator = btk_input.make_measure_generator(
+            user_config_dict, draw_blend_generator
+        )
+
+        output, deb, _ = next(measure_generator)
+
+        detected_centers = deb[0]["peaks"]
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],
@@ -304,13 +323,6 @@ def stack_meas(
         btk_input : Module that runs btk for an input config file.
     """
     np.random.seed(int(simulation_config_dict["seed"]))
-    draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict,
-    )
-    user_config_dict["utils_input"]["measure_function"] = "Stack_params"
-    measure_generator = btk_input.make_measure_generator(
-        user_config_dict, draw_blend_generator
-    )
     test_detect_dx = [
         [56.16308227, 62.96011953, 55.99366715, 48.97120018],
         [48.95804179],
@@ -323,10 +335,26 @@ def stack_meas(
         [66.97054341],
         [47.07838961, 62.05724329, 61.94601734],
     ]
-    output, deb, meas = next(measure_generator)
-    for i in range(len(output["blend_list"])):
-        detected_center_x = meas[i]["base_NaiveCentroid_x"]
-        detected_center_y = meas[i]["base_NaiveCentroid_y"]
+    shifts = [
+        [[1.7, 2.1], [1.4, -2.1]],
+        [[0.5, 1.2], [2.1, -1.1]],
+        [[-1.3, 2.6], [0.3, -2.2]],
+        [[-0.7], [1.5]],
+    ]
+    ids = [[0, 1], [1, 2], [1, 5], [0]]
+    for i in range(len(test_detect_dx)):
+        draw_blend_generator = btk_input.make_draw_generator(
+            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
+        )
+        user_config_dict["utils_input"]["measure_function"] = "Stack_params"
+        measure_generator = btk_input.make_measure_generator(
+            user_config_dict, draw_blend_generator
+        )
+
+        output, deb, meas = next(measure_generator)
+
+        detected_center_x = meas[0]["base_NaiveCentroid_x"]
+        detected_center_y = meas[0]["base_NaiveCentroid_y"]
         np.testing.assert_array_almost_equal(
             detected_center_x,
             test_detect_dx[i],
@@ -357,23 +385,33 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
         simulation_config_dict (dict): Dictionary which sets the parameter
         btk_input : Module that runs btk for an input config file.
     """
-    np.random.seed(int(param.seed))
-    draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict
-    )
-    user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
-    measure_generator = btk_input.make_measure_generator(
-        user_config_dict, draw_blend_generator
-    )
+
+    np.random.seed(int(simulation_config_dict["seed"]))
     test_detect_centers = [
         [[58.063703, 59.749699], [61.157868, 69.30290], [68.304245, 61.537312]],
         [[59.915507, 50.167592], [65.766700, 65.105297]],
         [[51.243380, 58.382503], [54.900160, 68.5794316]],
         [[70.645195, 51.627339], [63.226545, 56.1251558]],
     ]
-    output, deb, _ = next(measure_generator)
-    for i in range(len(output["blend_list"])):
-        detected_centers = deb[i]["peaks"]
+    shifts = [
+        [[1.7, 2.1], [1.4, -2.1]],
+        [[0.5, 1.2], [2.1, -1.1]],
+        [[-1.3, 2.6], [0.3, -2.2]],
+        [[-0.7], [1.5]],
+    ]
+    ids = [[0, 1], [1, 2], [1, 5], [0]]
+    for i in range(len(test_detect_centers)):
+        draw_blend_generator = btk_input.make_draw_generator(
+            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
+        )
+        user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
+        measure_generator = btk_input.make_measure_generator(
+            user_config_dict, draw_blend_generator
+        )
+
+        output, deb, _ = next(measure_generator)
+
+        detected_centers = deb[0]["peaks"]
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],
@@ -401,19 +439,15 @@ def test_measure(input_args):
     catalog_name = os.path.join(
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
-    # Set parameter values in param
-    # param = btk_input.get_config_class(
-    #     simulation_config_dict, catalog_name, args.verbose
-    # )
     basic_meas(
         user_config_dict, simulation_config_dict, btk_input,
     )
     try:
-        sep_meas(param, user_config_dict, simulation_config_dict, btk_input)
+        sep_meas(user_config_dict, simulation_config_dict, btk_input)
     except ImportError:
         print("sep not found")
     try:
-        stack_meas(param, user_config_dict, simulation_config_dict, btk_input)
+        stack_meas(user_config_dict, simulation_config_dict, btk_input)
     except ImportError:
         print("stack not found")
     pass
@@ -487,6 +521,7 @@ def basic_metric_two_gal_multi(output_name):
     pass
 
 
+@pytest.mark.skip
 def test_metrics(input_args):
     """Btk measure is run for input config yaml file for different measure
     functions and simulations. The measure outputs written to file are compared

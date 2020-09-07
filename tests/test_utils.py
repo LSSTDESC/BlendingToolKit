@@ -16,12 +16,13 @@ def get_draw_generator(batch_size=3):
     stamp_size = 24
     survey_name = "LSST"
     pixel_scale = 0.2
+    shift = [0.8, -0.7]
     np.random.seed(0)
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog,
         btk.sampling_functions.GroupSamplingFunctionNumbered(
-            max_number, wld_catalog_name, stamp_size, pixel_scale
+            max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
         ),
         batch_size,
     )
@@ -41,9 +42,11 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     np.random.seed(0)
     stamp_size = 24
     survey_name = "LSST"
+    shifts = [[1.7, -2.1], [0.6, -1.8]]
+    ids = [0, 1]
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, btk.sampling_functions.DefaultSampling()
+        catalog, btk.sampling_functions.DefaultSampling(shifts=shifts, ids=ids)
     )
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name, stamp_size
@@ -67,17 +70,10 @@ def test_group_sampling():
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
     test_batch_max = np.array(
-        [
-            259.6290132,
-            1809.11614647,
-            9402.93459939,
-            10838.50400858,
-            9817.22664691,
-            4773.14672976,
-        ]
+        [17095.147, 30909.227, 44017.504, 44033.935, 14230.116, 1198.629]
     )
-    test_batch_mean = 15.168285625768823
-    test_batch_std = 421.9246142042583
+    test_batch_mean = 82.10116371218854
+    test_batch_std = 1027.5460941593055
     np.testing.assert_array_almost_equal(
         batch_max,
         test_batch_max,
@@ -104,7 +100,7 @@ def compare_sep():
     meas_generator = get_meas_generator(meas_param)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[64.62860131, 61.83551097]])
+    target_detection = np.array([[49.097, 50.586], [68.033, 62.514]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -120,7 +116,7 @@ def compare_sep_multiprocessing():
     meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[64.62860131, 61.83551097]])
+    target_detection = np.array([[49.097, 50.586], [68.033, 62.514]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
