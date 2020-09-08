@@ -1,5 +1,4 @@
 import pytest
-import astropy.table
 import numpy as np
 import btk.utils
 import btk.sampling_functions
@@ -10,7 +9,6 @@ def get_draw_generator(batch_size=3):
     wld_catalog_name = "data/sample_group_catalog.fits"
     catalog_name = "data/sample_group_input_catalog.fits"
 
-    wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
     max_number = 10
     stamp_size = 24
     survey_name = "LSST"

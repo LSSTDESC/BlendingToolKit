@@ -226,7 +226,6 @@ def basic_meas(
     affect the detection results.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -353,7 +352,6 @@ def stack_meas(
     affect the detection results.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
@@ -426,7 +424,6 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
     affect the detection results.
 
     Args:
-        param (class): Parameter values for btk simulations.
         user_config_dict: Dictionary with information to run user defined
             functions (filenames, file location of user algorithms).
         simulation_config_dict (dict): Dictionary which sets the parameter
