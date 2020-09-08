@@ -1,47 +1,69 @@
 import pytest
-import astropy.table
 import numpy as np
 import btk.utils
-import btk.config
+import btk.sampling_functions
 
 
 def get_draw_generator(batch_size=3):
     """Returns draw generator with group sampling function"""
     wld_catalog_name = "data/sample_group_catalog.fits"
     catalog_name = "data/sample_group_input_catalog.fits"
-    param = btk.config.Simulation_params(
-        catalog_name, max_number=10, batch_size=batch_size
+
+    max_number = 10
+    stamp_size = 24
+    survey_name = "LSST"
+    pixel_scale = 0.2
+    shift = [0.8, -0.7]
+    np.random.seed(0)
+    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    blend_generator = btk.create_blend_generator.BlendGenerator(
+        catalog,
+        btk.sampling_functions.GroupSamplingFunctionNumbered(
+            max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
+        ),
+        batch_size,
     )
-    wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
-    param.wld_catalog = wld_catalog
-    param.group_id_count = 2
-    np.random.seed(param.seed)
-    catalog = btk.get_input_catalog.load_catalog(param)
-    blend_generator = btk.create_blend_generator.generate(
-        param, catalog, btk.utils.group_sampling_function_numbered
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name, stamp_size
     )
-    observing_generator = btk.create_observing_generator.generate(param)
-    draw_blend_generator = btk.draw_blends.generate(
-        param, blend_generator, observing_generator
+    draw_blend_generator = btk.draw_blends.WLDGenerator(
+        blend_generator, observing_generator
     )
     return draw_blend_generator
 
 
 def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     """Returns draw generator with group sampling function"""
+
     catalog_name = "data/sample_input_catalog.fits"
-    param = btk.config.Simulation_params(catalog_name, batch_size=1, add_noise=True)
-    np.random.seed(param.seed)
-    catalog = btk.get_input_catalog.load_catalog(param)
-    blend_generator = btk.create_blend_generator.generate(param, catalog)
-    observing_generator = btk.create_observing_generator.generate(param)
-    draw_generator = btk.draw_blends.generate(
-        param, blend_generator, observing_generator
+    np.random.seed(0)
+    stamp_size = 24
+    survey_name = "LSST"
+    shifts = [
+        [[-0.3, 1.2], [-1.6, -1.7]],
+        [[-1.1, -2.1], [1.4, 1.8]],
+        [[-1.8, -0.8], [-0.6, 2.2]],
+        [[-2.0, -0.7], [-2.2, 1.9]],
+        [[1.1, -1.5], [0.1, -2.3]],
+        [[-2.3, 1.9], [0.4, -1.9]],
+        [[2.0, -2.0], [2.0, 0.1]],
+        [[0.2, 2.4], [-1.8, -2.0]],
+    ]
+    ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
+    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    blend_generator = btk.create_blend_generator.BlendGenerator(
+        catalog, btk.sampling_functions.DefaultSampling(), shifts=shifts, ids=ids
     )
-    meas_generator = btk.measure.generate(
-        meas_params, draw_generator, param, multiprocessing=multiprocessing, cpus=cpus
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name, stamp_size
     )
-    return meas_generator, param
+    draw_blend_generator = btk.draw_blends.WLDGenerator(
+        blend_generator, observing_generator
+    )
+    meas_generator = btk.measure.MeasureGenerator(
+        meas_params, draw_blend_generator, multiprocessing=multiprocessing, cpus=cpus
+    )
+    return meas_generator
 
 
 @pytest.mark.timeout(5)
@@ -54,17 +76,10 @@ def test_group_sampling():
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
     test_batch_max = np.array(
-        [
-            259.6290132,
-            1809.11614647,
-            9402.93459939,
-            10838.50400858,
-            9817.22664691,
-            4773.14672976,
-        ]
+        [17095.147, 30909.227, 44017.504, 44033.935, 14230.116, 1198.629]
     )
-    test_batch_mean = 15.168285625768823
-    test_batch_std = 421.9246142042583
+    test_batch_mean = 82.10116371218854
+    test_batch_std = 1027.5460941593055
     np.testing.assert_array_almost_equal(
         batch_max,
         test_batch_max,
@@ -88,10 +103,10 @@ def test_group_sampling():
 def compare_sep():
     """Test detection with sep"""
     meas_param = btk.utils.SEP_params()
-    meas_generator, param = get_meas_generator(meas_param)
+    meas_generator = get_meas_generator(meas_param)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[64.62860131, 61.83551097]])
+    target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -104,10 +119,10 @@ def compare_sep():
 def compare_sep_multiprocessing():
     """Test detection with sep"""
     meas_param = btk.utils.SEP_params()
-    meas_generator, param = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
+    meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[64.62860131, 61.83551097]])
+    target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -125,7 +140,7 @@ def compare_stack():
 def compare_scarlet():
     """Test deblending with scarlet"""
     meas_param = btk.utils.Scarlet_params()
-    meas_generator, param = get_meas_generator(meas_param)
+    meas_generator = get_meas_generator(meas_param)
     output, deb, _ = next(meas_generator)
     blend_list = output["blend_list"]
     deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
@@ -168,7 +183,7 @@ def compare_scarlet():
 def compare_scarlet_multiprocessing():
     """Test deblending with scarlet"""
     meas_param = btk.utils.Scarlet_params()
-    meas_generator, param = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
+    meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
     output, deb, _ = next(meas_generator)
     blend_list = output["blend_list"]
     deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]

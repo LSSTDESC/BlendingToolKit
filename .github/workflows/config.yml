@@ -64,12 +64,13 @@ jobs:
 
     - name: Testing dependencies
       run: |
-        pip install pytest pytest-cov pytest-timeout black
+        pip install pytest pytest-cov pytest-timeout
+        pip install black==20.8b1
 
 
     - name: Run Tests
       run: |
-        black --check ./btk ./tests btk_input.py
+        black --check ./btk ./btk_input.py ./tests
         pytest --cov=./btk --cov-report=xml --durations=0
 
     - name: Upload coverage to Codecov

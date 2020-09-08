@@ -1,26 +1,47 @@
 import numpy as np
 import pytest
 import btk
-import btk.config
+import btk.sampling_functions
 import multiprocessing as mp
 
 
-def get_draw_generator(batch_size=8, cpus=1, multiprocessing=False, add_noise=True):
+def get_draw_generator(
+    batch_size=8, cpus=1, multiprocessing=False, add_noise=True, fixed_parameters=False
+):
     """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = "data/sample_input_catalog.fits"
-    param = btk.config.Simulation_params(
-        catalog_name, batch_size=batch_size, add_noise=add_noise
+
+    np.random.seed(0)
+    stamp_size = 24.0
+    if fixed_parameters:
+        shifts = [
+            [[-0.3, 1.2], [-1.6, -1.7]],
+            [[-1.1, -2.1], [1.4, 1.8]],
+            [[-1.8, -0.8], [-0.6, 2.2]],
+            [[-2.0, -0.7], [-2.2, 1.9]],
+            [[1.1, -1.5], [0.1, -2.3]],
+            [[-2.3, 1.9], [0.4, -1.9]],
+            [[2.0, -2.0], [2.0, 0.1]],
+            [[0.2, 2.4], [-1.8, -2.0]],
+        ]
+        ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
+    else:
+        shifts = None
+        ids = None
+    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    blend_generator = btk.create_blend_generator.BlendGenerator(
+        catalog, sampling_function, batch_size, shifts=shifts, ids=ids
     )
-    np.random.seed(param.seed)
-    catalog = btk.get_input_catalog.load_catalog(param)
-    blend_generator = btk.create_blend_generator.generate(param, catalog)
-    observing_generator = btk.create_observing_generator.generate(param)
-    draw_generator = btk.draw_blends.generate(
-        param,
+    observing_generator = btk.create_observing_generator.ObservingGenerator(
+        survey_name="LSST", stamp_size=stamp_size
+    )
+    draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
         observing_generator,
         multiprocessing=multiprocessing,
         cpus=cpus,
+        add_noise=add_noise,
     )
     return draw_generator
 
@@ -30,7 +51,7 @@ def match_background_noise(blend_images):
     the i band. This is compared to the values measured a priori for the
     default input settings.
     """
-    test_batch_noise = 176958.46899032593
+    test_batch_noise = 129661.1961517334
     batch_noise = np.var(blend_images[1, 0:32, 0:32, 3])
     np.testing.assert_almost_equal(
         batch_noise,
@@ -42,7 +63,7 @@ def match_background_noise(blend_images):
 
 @pytest.mark.timeout(10)
 def test_default(match_images):
-    default_draw_generator = get_draw_generator()
+    default_draw_generator = get_draw_generator(fixed_parameters=True)
     draw_output = next(default_draw_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
     assert (
@@ -56,7 +77,6 @@ def test_default(match_images):
     match_images.match_blend_images_default(draw_output["blend_images"])
     match_images.match_isolated_images_default(draw_output["isolated_images"])
     match_background_noise(draw_output["blend_images"])
-    pass
 
 
 @pytest.mark.timeout(15)

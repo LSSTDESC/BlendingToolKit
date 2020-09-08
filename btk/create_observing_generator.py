@@ -1,109 +1,49 @@
-import btk.survey
-import descwl
-import astropy.wcs as WCS
+from btk.obs_conditions import DefaultObsConditions, all_surveys
 
 
-def make_wcs(
-    pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
-):
-    """Creates wcs for an image
-    
-    Args:
-        pixel_scale (float): pixel size in arcseconds
-        shape (tuple): shape of the image
-        center_pix (tuple): position of the reference pixel used as the center of the
-                            affine transform for the wcs.
-        center_sky (float):
-        naxis (int):
-        projection(str):
+class ObservingGenerator:
+    def __init__(
+        self,
+        survey_name,
+        stamp_size,
+        obs_conditions=None,
+        verbose=False,
+    ):
+        """Generates class with observing conditions in each band.
 
-    Returns:
-        wcs: WCS
-    """
-    if center_pix is None:
-        center_pix = [(s + 1) / 2 for s in shape]
-    if center_sky is None:
-        center_sky = [0 for _ in range(naxis)]
-    if projection is None:
-        projection = "TAN"
-    w = WCS.WCS(naxis=2)
-    w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
-    w.wcs.crpix = center_pix
-    w.wcs.cdelt = [pixel_scale for _ in range(naxis)]
-    w.wcs.crval = center_sky
-    w.array_shape = shape
-    return w
+        Args:
+             survey_name (str): Name of the survey which should be available in descwl
+             obs_conditions: Class (not object) that returns observing conditions for
+                             a given survey and band. If not provided, then the default
+                             `descwl.survey.Survey` values for the corresponding
+                             survey_name are used to create the observing_generator.
+             stamp_size: In arcseconds.
+        """
+        if survey_name not in all_surveys:
+            raise KeyError("Survey not implemented.")
 
+        self.bands = all_surveys[survey_name]["bands"]
+        self.stamp_size = stamp_size
+        self.survey_name = survey_name
+        self.verbose = verbose
 
-def default_obs_conditions(Args, band):
-    """Returns the default observing conditions from the WLD package
-    for a given survey_name and band.
+        # TODO: it might be a bit cumbersome for the user to create this dict.
+        # create default observing conditions
+        if obs_conditions is None:
+            self.obs_conditions = {}
+            for band in self.bands:
+                self.obs_conditions[band] = DefaultObsConditions(
+                    survey_name, band, stamp_size
+                )
+        else:
+            self.obs_conditions = obs_conditions
 
-    Args:
-        Args: A `btk.config.SimulationParams` object containing parameters to generate blends
-        band: filter name to get observing conditions for.
-    Returns:
-        `survey`: Dictionary containing the observing conditions and WCS information.
-    """
-    survey = descwl.survey.Survey.get_defaults(
-        survey_name=Args.survey_name, filter_band=band
-    )
-    survey["center_sky"] = None
-    survey["center_pix"] = None
-    survey["projection"] = "TAN"
-    return survey
+    def __iter__(self):
+        return self
 
-
-def generate(Args, obs_function=None):
-    """Generates class with observing conditions in each band.
-
-    Args:
-        Args: Class containing input parameters.
-        obs_function: Function that outputs dict of observing conditions. If
-            not provided then the default `descwl.survey.Survey` values for the
-            corresponding Args.survey_name are used to create the
-            observing_generator.
-
-    Yields:
-        Generator with `btk.survey.Survey` class for each band.
-    """
-    while True:
+    def __next__(self):
         observing_generator = []
-        for band in Args.bands:
-            if obs_function:
-                survey = obs_function(Args, band)
-            else:
-                survey = default_obs_conditions(Args, band)
-                if Args.verbose:
-                    print("Default observing conditions selected")
-            survey["image_width"] = Args.stamp_size / survey["pixel_scale"]
-            survey["image_height"] = Args.stamp_size / survey["pixel_scale"]
-            stamp_size = int(Args.stamp_size / Args.pixel_scale)
-            wcs = make_wcs(
-                pixel_scale=Args.pixel_scale,
-                center_pix=survey["center_pix"],
-                center_sky=survey["center_sky"],
-                projection=survey["projection"],
-                shape=(stamp_size, stamp_size),
-            )
-            btk_survey = btk.survey.Survey(
-                no_analysis=True,
-                survey_name=Args.survey_name,
-                filter_band=band,
-                wcs=wcs,
-                **survey
-            )
-            if btk_survey.pixel_scale != Args.pixel_scale:
-                raise ValueError(
-                    "observing condition pixel scale does not "
-                    "match input pixel scale: {0} == {1}".format(
-                        btk_survey.pixel_scale, Args.pixel_scale
-                    )
-                )
-            if btk_survey.filter_band != band:
-                raise ValueError(
-                    "observing condition band does not "
-                    "match input band: {0} == {1}".format(btk_survey.filter_band, band)
-                )
+        for band in self.bands:
+            btk_survey = self.obs_conditions[band]()
             observing_generator.append(btk_survey)
-        yield observing_generator
+        return observing_generator

@@ -13,8 +13,7 @@ def match_images():
 
 
 class Input_Args(object):
-    """Class that returns values in the same format as argparse in btk_input.
-    """
+    """Class that returns values in the same format as argparse in btk_input."""
 
     def __init__(
         self,
@@ -37,17 +36,10 @@ class Match_Images(object):
         measured a priori for the default input settings.
         """
         test_batch_max = np.array(
-            [
-                215.6290132,
-                2394.11614647,
-                8480.93459939,
-                11069.50400858,
-                8686.22664691,
-                5538.14672976,
-            ]
+            [5352.147, 8842.227, 11197.504, 8216.935, 1535.116, 191.629]
         )
-        test_batch_mean = 7.354362014657712
-        test_batch_std = 404.1066833449062
+        test_batch_mean = 5.6334577901206755
+        test_batch_std = 403.5918774641063
         batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -77,17 +69,10 @@ class Match_Images(object):
         measured a proiri for the default input settings.
         """
         test_batch_max = np.array(
-            [
-                203.60154724,
-                2072.32250977,
-                7771.61767578,
-                10532.68652344,
-                8669.31933594,
-                4871.0546875,
-            ]
+            [4774.28, 8503.917, 10339.48, 7637.224, 1244.871, 90.719]
         )
-        test_batch_mean = 3.7485726507963544
-        test_batch_std = 92.11482419872036
+        test_batch_mean = 2.9643491324620252
+        test_batch_std = 90.7578274135593
         batch_max = isolated_images.max(axis=0).max(axis=0).max(axis=0).max(axis=0)
         batch_mean = isolated_images.mean()
         batch_std = isolated_images.std()

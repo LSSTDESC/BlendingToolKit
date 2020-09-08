@@ -15,6 +15,5 @@ from . import create_blend_generator
 from . import create_observing_generator
 from . import draw_blends
 from . import measure
-from . import config
 from . import compute_metrics
 from . import utils
