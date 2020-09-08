@@ -261,9 +261,6 @@ def run_metrics_stack(input_args):
         simulation_config_dict = config_dict["simulation"][args.simulation]
         user_config_dict = config_dict["user_input"]
         user_config_dict["utils_input"]["measure_function"] = "Stack_params"
-        catalog_name = os.path.join(
-            user_config_dict["data_dir"], simulation_config_dict["catalog"]
-        )
 
         compare_stack_group_metric(
             user_config_dict,
