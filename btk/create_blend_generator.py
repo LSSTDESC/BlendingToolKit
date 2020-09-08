@@ -1,5 +1,13 @@
 class BlendGenerator:
-    def __init__(self, catalog, sampling_function, batch_size=8, verbose=False, shifts=None, ids=None):
+    def __init__(
+        self,
+        catalog,
+        sampling_function,
+        batch_size=8,
+        verbose=False,
+        shifts=None,
+        ids=None,
+    ):
         """Generates a list of blend catalogs of length batch_size. Each blend
         catalog has entries numbered between 1 and max_number, corresponding
         to overlapping objects in the blend.
@@ -11,6 +19,10 @@ class BlendGenerator:
                                                                          from the catalog.
             batch_size (int): Size of batches returned.
             verbose: Whether to print additional information.
+            shifts (list): Contains arbitrary shifts to be applied instead of random shifts. 
+                           Must be of length batch_size. Must be used with ids.
+            ids (list): Contains the ids of the galaxies to use in the stamp. 
+                        Must be of length batch_size. Must be used with shifts.
         """
         self.catalog = catalog
         self.batch_size = batch_size
@@ -35,7 +47,9 @@ class BlendGenerator:
             blend_catalogs = []
             for i in range(self.batch_size):
                 if self.shifts != None and self.ids != None:
-                    blend_catalog = self.sampling_function(self.catalog,shifts=self.shifts[i],ids=self.ids[i])
+                    blend_catalog = self.sampling_function(
+                        self.catalog, shifts=self.shifts[i], ids=self.ids[i]
+                    )
                 else:
                     blend_catalog = self.sampling_function(self.catalog)
                 if len(blend_catalog) > self.max_number:

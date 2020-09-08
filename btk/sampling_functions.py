@@ -35,9 +35,7 @@ class SamplingFunction(ABC):
 
 
 class DefaultSampling(SamplingFunction):
-    def __init__(
-        self, max_number=2, stamp_size=24.0, maxshift=None
-    ):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
         """
         Default sampling function used for producing blend catalogs.
         Args:
@@ -49,7 +47,6 @@ class DefaultSampling(SamplingFunction):
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
-        
 
     def __call__(self, catalog, shifts=None, ids=None):
         """Applies default sampling to the input CatSim-like catalog and returns
@@ -66,6 +63,10 @@ class DefaultSampling(SamplingFunction):
 
         Args:
             catalog: CatSim-like catalog from which to sample galaxies.
+            shifts (list): Contains arbitrary shifts to be applied instead of random ones.
+                           Should of the form [dx,dy] where dx and dy are the lists 
+                           containing the x and y shifts.
+            ids (list): Contains the ids of the galaxies to use.
 
         Returns:
             Catalog with entries corresponding to one blend.
