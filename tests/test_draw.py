@@ -42,6 +42,7 @@ def get_draw_generator(
         observing_generator,
         multiprocessing=multiprocessing,
         cpus=cpus,
+        add_noise=add_noise,
     )
     return draw_generator
 
@@ -77,7 +78,6 @@ def test_default(match_images):
     match_images.match_blend_images_default(draw_output["blend_images"])
     match_images.match_isolated_images_default(draw_output["isolated_images"])
     match_background_noise(draw_output["blend_images"])
-    pass
 
 
 @pytest.mark.timeout(15)
