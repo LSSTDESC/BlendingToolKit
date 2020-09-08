@@ -19,9 +19,10 @@ class BlendGenerator:
                                                                          from the catalog.
             batch_size (int): Size of batches returned.
             verbose: Whether to print additional information.
-            shifts (list): Contains arbitrary shifts to be applied instead of random shifts. 
-                           Must be of length batch_size. Must be used with ids.
-            ids (list): Contains the ids of the galaxies to use in the stamp. 
+            shifts (list): Contains arbitrary shifts to be applied instead of
+                           random shifts. Must be of length batch_size. Must be used
+                           with ids.
+            ids (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
         """
         self.catalog = catalog

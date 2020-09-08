@@ -6,7 +6,9 @@ import numpy as np
 
 
 def compare_basic_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk default detection to the expected
     result test_metric_summary.
@@ -25,7 +27,17 @@ def compare_basic_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -65,13 +77,17 @@ def run_metrics_basic(input_args):
     )
 
     compare_basic_metric(
-        user_config_dict, simulation_config_dict, btk_input,
+        user_config_dict,
+        simulation_config_dict,
+        btk_input,
     )
     pass
 
 
 def compare_sep_group_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk sep detection to the expected
     result, test_metric_summary.
@@ -102,7 +118,17 @@ def compare_sep_group_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -146,13 +172,17 @@ def run_metrics_sep(input_args):
         )
 
         compare_sep_group_metric(
-            user_config_dict, simulation_config_dict, btk_input,
+            user_config_dict,
+            simulation_config_dict,
+            btk_input,
         )
     pass
 
 
 def compare_stack_group_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk stack detection to the expected
     result, test_metric_summary.
@@ -183,7 +213,17 @@ def compare_stack_group_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -226,7 +266,9 @@ def run_metrics_stack(input_args):
         )
 
         compare_stack_group_metric(
-            user_config_dict, simulation_config_dict, btk_input,
+            user_config_dict,
+            simulation_config_dict,
+            btk_input,
         )
     pass
 

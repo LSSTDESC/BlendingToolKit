@@ -3,7 +3,11 @@ from btk.obs_conditions import DefaultObsConditions, all_surveys
 
 class ObservingGenerator:
     def __init__(
-        self, survey_name, stamp_size, obs_conditions=None, verbose=False,
+        self,
+        survey_name,
+        stamp_size,
+        obs_conditions=None,
+        verbose=False,
     ):
         """Generates class with observing conditions in each band.
 

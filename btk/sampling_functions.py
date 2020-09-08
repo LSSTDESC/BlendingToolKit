@@ -19,8 +19,8 @@ def _get_random_center_shift(num_objects, maxshift):
 # TODO: Indicate what type of catalog is compatible with each sampling function.
 class SamplingFunction(ABC):
     def __init__(self, max_number):
-        """Class representing sampling functions to sample input catalog from which to draw
-        blends.
+        """Class representing sampling functions to sample input catalog
+        from which to draw blends.
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
@@ -64,7 +64,7 @@ class DefaultSampling(SamplingFunction):
         Args:
             catalog: CatSim-like catalog from which to sample galaxies.
             shifts (list): Contains arbitrary shifts to be applied instead of random ones.
-                           Should of the form [dx,dy] where dx and dy are the lists 
+                           Should of the form [dx,dy] where dx and dy are the lists
                            containing the x and y shifts.
             ids (list): Contains the ids of the galaxies to use.
 

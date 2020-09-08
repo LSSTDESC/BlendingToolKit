@@ -217,7 +217,6 @@ def get_blend_generator(
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         sampling_function = btk.sampling_functions.DefaultSampling
 
-    
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function(max_number), batch_size, shifts=shifts, ids=ids
     )
@@ -341,7 +340,10 @@ def make_draw_generator(
         print(f"Multiprocess draw over {cpus} cpus")
     # Generate images of blends in all the observing bands
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator, observing_generator, multiprocessing=multiprocess, cpus=cpus,
+        blend_generator,
+        observing_generator,
+        multiprocessing=multiprocess,
+        cpus=cpus,
     )
     return draw_blend_generator
 
@@ -385,7 +387,11 @@ def get_measurement_class(user_config_dict, verbose):
 
 
 def make_measure_generator(
-    user_config_dict, draw_blend_generator, multiprocess=False, cpus=1, verbose=False,
+    user_config_dict,
+    draw_blend_generator,
+    multiprocess=False,
+    cpus=1,
+    verbose=False,
 ):
     """Returns a generator that yields simulations of blend scenes.
 
@@ -534,7 +540,10 @@ def main(args):
             cpus = 1
         # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
-            user_config_dict, simulation_config_dict, args.multiprocess, cpus=cpus,
+            user_config_dict,
+            simulation_config_dict,
+            args.multiprocess,
+            cpus=cpus,
         )
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(

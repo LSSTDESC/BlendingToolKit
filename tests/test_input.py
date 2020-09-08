@@ -214,7 +214,9 @@ def test_input_output(input_args):
 
 
 def basic_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
@@ -243,7 +245,17 @@ def basic_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
 
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -266,7 +278,9 @@ def basic_meas(
 
 
 def sep_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
@@ -294,7 +308,17 @@ def sep_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
 
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -317,7 +341,9 @@ def sep_meas(
 
 
 def stack_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the stack meas generator  matches
     the pre-computed value .
@@ -352,7 +378,17 @@ def stack_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
 
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -410,7 +446,17 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
+    ids = [
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
+        [6, 10, 3, 7, 4],
+        [10, 0, 7, 1, 9, 4],
+        [1, 3, 2, 8],
+    ]
 
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -451,7 +497,9 @@ def test_measure(input_args):
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
     basic_meas(
-        user_config_dict, simulation_config_dict, btk_input,
+        user_config_dict,
+        simulation_config_dict,
+        btk_input,
     )
     try:
         sep_meas(user_config_dict, simulation_config_dict, btk_input)
