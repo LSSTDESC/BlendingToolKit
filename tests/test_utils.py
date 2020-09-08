@@ -3,7 +3,6 @@ import astropy.table
 import numpy as np
 import btk.utils
 import btk.sampling_functions
-import btk.config
 
 
 def get_draw_generator(batch_size=3):

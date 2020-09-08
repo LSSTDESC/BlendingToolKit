@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 import btk
 import btk.sampling_functions
-import btk.config
 import multiprocessing as mp
 
 
