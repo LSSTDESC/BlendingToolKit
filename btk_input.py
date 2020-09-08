@@ -172,6 +172,7 @@ def get_blend_generator(
     user_config_dict,
     catalog,
     batch_size,
+    max_number,
     sampling_function_name,
     verbose,
     shifts=None,
@@ -216,15 +217,10 @@ def get_blend_generator(
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         sampling_function = btk.sampling_functions.DefaultSampling
 
-    if shifts != None or ids != None:
-        sampling_function = btk.sampling_functions.DefaultSampling
-        blend_generator = btk.create_blend_generator.BlendGenerator(
-            catalog, sampling_function(shifts=shifts, ids=ids), batch_size
-        )
-    else:
-        blend_generator = btk.create_blend_generator.BlendGenerator(
-            catalog, sampling_function(), batch_size
-        )
+    
+    blend_generator = btk.create_blend_generator.BlendGenerator(
+        catalog, sampling_function(max_number), batch_size, shifts=shifts, ids=ids
+    )
     if verbose:
         print(
             f"Blend generator draws from {param.catalog_name} catalog "
@@ -312,6 +308,7 @@ def make_draw_generator(
     batch_size = simulation_config_dict["batch_size"]
     survey_name = simulation_config_dict["survey_name"]
     stamp_size = simulation_config_dict["stamp_size"]
+    max_number = simulation_config_dict["max_number"]
     catalog_name = os.path.join(
         user_config_dict["data_dir"], simulation_config_dict["catalog"]
     )
@@ -326,6 +323,7 @@ def make_draw_generator(
         user_config_dict,
         catalog,
         batch_size,
+        max_number,
         str(simulation_config_dict["sampling_function"]),
         verbose,
         shifts,

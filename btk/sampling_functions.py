@@ -36,7 +36,7 @@ class SamplingFunction(ABC):
 
 class DefaultSampling(SamplingFunction):
     def __init__(
-        self, max_number=2, stamp_size=24.0, maxshift=None, shifts=None, ids=None
+        self, max_number=2, stamp_size=24.0, maxshift=None
     ):
         """
         Default sampling function used for producing blend catalogs.
@@ -49,10 +49,9 @@ class DefaultSampling(SamplingFunction):
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
-        self.shifts = shifts
-        self.ids = ids
+        
 
-    def __call__(self, catalog):
+    def __call__(self, catalog, shifts=None, ids=None):
         """Applies default sampling to the input CatSim-like catalog and returns
         catalog with entries corresponding to a blend centered close to postage
         stamp center.
@@ -74,15 +73,15 @@ class DefaultSampling(SamplingFunction):
         number_of_objects = np.random.randint(1, self.max_number + 1)
         (q,) = np.where(catalog["i_ab"] <= 25.3)
 
-        if self.ids == None:
+        if ids == None:
             blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
         else:
-            blend_catalog = catalog[self.ids]
+            blend_catalog = catalog[ids]
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
-        if self.shifts == None:
+        if shifts == None:
             dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
         else:
-            dx, dy = self.shifts
+            dx, dy = shifts
         blend_catalog["ra"] += dx
         blend_catalog["dec"] += dy
 

@@ -15,17 +15,24 @@ def get_draw_generator(
     np.random.seed(0)
     stamp_size = 24.0
     if fixed_parameters:
-        shifts = [[1.7, -2.1], [0.6, -1.8]]
-        ids = [0, 1]
+        shifts = [
+            [[-0.3, 1.2], [-1.6, -1.7]],
+            [[-1.1, -2.1], [1.4, 1.8]],
+            [[-1.8, -0.8], [-0.6, 2.2]],
+            [[-2.0, -0.7], [-2.2, 1.9]],
+            [[1.1, -1.5], [0.1, -2.3]],
+            [[-2.3, 1.9], [0.4, -1.9]],
+            [[2.0, -2.0], [2.0, 0.1]],
+            [[0.2, 2.4], [-1.8, -2.0]],
+        ]
+        ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     else:
         shifts = None
         ids = None
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
-    sampling_function = btk.sampling_functions.DefaultSampling(
-        stamp_size=stamp_size, shifts=shifts, ids=ids
-    )
+    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function, batch_size
+        catalog, sampling_function, batch_size, shifts=shifts, ids=ids
     )
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name="LSST", stamp_size=stamp_size

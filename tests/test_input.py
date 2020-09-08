@@ -57,8 +57,17 @@ def test_input_draw(input_args, match_images):
     )
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
-    shifts = [[1.7, -2.1], [0.6, -1.8]]
-    ids = [0, 1]
+    shifts = [
+        [[-0.3, 1.2], [-1.6, -1.7]],
+        [[-1.1, -2.1], [1.4, 1.8]],
+        [[-1.8, -0.8], [-0.6, 2.2]],
+        [[-2.0, -0.7], [-2.2, 1.9]],
+        [[1.1, -1.5], [0.1, -2.3]],
+        [[-2.3, 1.9], [0.4, -1.9]],
+        [[2.0, -2.0], [2.0, 0.1]],
+        [[0.2, 2.4], [-1.8, -2.0]],
+    ]
+    ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
     )
@@ -223,28 +232,30 @@ def basic_meas(
     """
     np.random.seed(int(simulation_config_dict["seed"]))
     test_detect_centers = [
-        [[68, 66]],
-        [[65, 54]],
-        [[73, 49]],
-        [[56, 67]],
+        [[66, 69]],
+        [[48, 67]],
+        [[56, 54]],
+        [[53, 57]],
     ]
     shifts = [
-        [[1.7, 2.1], [1.4, -2.1]],
-        [[0.5, 1.2], [2.1, -1.1]],
-        [[-1.3, 2.6], [0.3, -2.2]],
-        [[-0.7], [1.5]],
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[0, 1], [1, 2], [1, 5], [0]]
-    for i in range(len(test_detect_centers)):
-        draw_blend_generator = btk_input.make_draw_generator(
-            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
-        )
-        measure_generator = btk_input.make_measure_generator(
-            user_config_dict, draw_blend_generator
-        )
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
 
-        output, deb, _ = next(measure_generator)
-        detected_centers = deb[0]["peaks"]
+    draw_blend_generator = btk_input.make_draw_generator(
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+    )
+    measure_generator = btk_input.make_measure_generator(
+        user_config_dict, draw_blend_generator
+    )
+
+    output, deb, _ = next(measure_generator)
+    for i in range(len(output["blend_list"])):
+        detected_centers = deb[i]["peaks"]
+
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],
@@ -272,30 +283,30 @@ def sep_meas(
     """
     np.random.seed(int(simulation_config_dict["seed"]))
     test_detect_centers = [
-        [[70.561, 49.443], [68.014, 66.432]],
-        [[65.486, 53.269], [62.512, 69.953]],
-        [[72.349, 48.463], [52.773, 61.038]],
-        [[55.988, 66.917]],
+        [[55.343, 57.336], [66.363, 69.078]],
+        [[69.635, 59.765], [60.169, 63.402], [48.093, 67.462]],
+        [[57.185, 54.397]],
+        [[65.329, 50.522], [53.786, 57.411]],
     ]
     shifts = [
-        [[1.7, 2.1], [1.4, -2.1]],
-        [[0.5, 1.2], [2.1, -1.1]],
-        [[-1.3, 2.6], [0.3, -2.2]],
-        [[-0.7], [1.5]],
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[0, 1], [1, 2], [1, 5], [0]]
-    for i in range(len(test_detect_centers)):
-        draw_blend_generator = btk_input.make_draw_generator(
-            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
-        )
-        user_config_dict["utils_input"]["measure_function"] = "SEP_params"
-        measure_generator = btk_input.make_measure_generator(
-            user_config_dict, draw_blend_generator
-        )
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
 
-        output, deb, _ = next(measure_generator)
+    draw_blend_generator = btk_input.make_draw_generator(
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+    )
+    user_config_dict["utils_input"]["measure_function"] = "SEP_params"
+    measure_generator = btk_input.make_measure_generator(
+        user_config_dict, draw_blend_generator
+    )
 
-        detected_centers = deb[0]["peaks"]
+    output, deb, _ = next(measure_generator)
+    for i in range(len(output["blend_list"])):
+        detected_centers = deb[i]["peaks"]
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],
@@ -336,25 +347,25 @@ def stack_meas(
         [47.07838961, 62.05724329, 61.94601734],
     ]
     shifts = [
-        [[1.7, 2.1], [1.4, -2.1]],
-        [[0.5, 1.2], [2.1, -1.1]],
-        [[-1.3, 2.6], [0.3, -2.2]],
-        [[-0.7], [1.5]],
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[0, 1], [1, 2], [1, 5], [0]]
-    for i in range(len(test_detect_dx)):
-        draw_blend_generator = btk_input.make_draw_generator(
-            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
-        )
-        user_config_dict["utils_input"]["measure_function"] = "Stack_params"
-        measure_generator = btk_input.make_measure_generator(
-            user_config_dict, draw_blend_generator
-        )
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
 
-        output, deb, meas = next(measure_generator)
+    draw_blend_generator = btk_input.make_draw_generator(
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+    )
+    user_config_dict["utils_input"]["measure_function"] = "Stack_params"
+    measure_generator = btk_input.make_measure_generator(
+        user_config_dict, draw_blend_generator
+    )
 
-        detected_center_x = meas[0]["base_NaiveCentroid_x"]
-        detected_center_y = meas[0]["base_NaiveCentroid_y"]
+    output, deb, meas = next(measure_generator)
+    for i in range(len(output["blend_list"])):
+        detected_center_x = meas[i]["base_NaiveCentroid_x"]
+        detected_center_y = meas[i]["base_NaiveCentroid_y"]
         np.testing.assert_array_almost_equal(
             detected_center_x,
             test_detect_dx[i],
@@ -394,24 +405,24 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
         [[70.645195, 51.627339], [63.226545, 56.1251558]],
     ]
     shifts = [
-        [[1.7, 2.1], [1.4, -2.1]],
-        [[0.5, 1.2], [2.1, -1.1]],
-        [[-1.3, 2.6], [0.3, -2.2]],
-        [[-0.7], [1.5]],
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [[0, 1], [1, 2], [1, 5], [0]]
-    for i in range(len(test_detect_centers)):
-        draw_blend_generator = btk_input.make_draw_generator(
-            user_config_dict, simulation_config_dict, shifts=shifts[i], ids=ids[i]
-        )
-        user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
-        measure_generator = btk_input.make_measure_generator(
-            user_config_dict, draw_blend_generator
-        )
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
 
-        output, deb, _ = next(measure_generator)
+    draw_blend_generator = btk_input.make_draw_generator(
+        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+    )
+    user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
+    measure_generator = btk_input.make_measure_generator(
+        user_config_dict, draw_blend_generator
+    )
 
-        detected_centers = deb[0]["peaks"]
+    output, deb, _ = next(measure_generator)
+    for i in range(len(output["blend_list"])):
+        detected_centers = deb[i]["peaks"]
         np.testing.assert_array_almost_equal(
             detected_centers,
             test_detect_centers[i],

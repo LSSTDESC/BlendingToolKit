@@ -42,11 +42,20 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     np.random.seed(0)
     stamp_size = 24
     survey_name = "LSST"
-    shifts = [[1.7, -2.1], [0.6, -1.8]]
-    ids = [0, 1]
+    shifts = [
+        [[-0.3, 1.2], [-1.6, -1.7]],
+        [[-1.1, -2.1], [1.4, 1.8]],
+        [[-1.8, -0.8], [-0.6, 2.2]],
+        [[-2.0, -0.7], [-2.2, 1.9]],
+        [[1.1, -1.5], [0.1, -2.3]],
+        [[-2.3, 1.9], [0.4, -1.9]],
+        [[2.0, -2.0], [2.0, 0.1]],
+        [[0.2, 2.4], [-1.8, -2.0]],
+    ]
+    ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, btk.sampling_functions.DefaultSampling(shifts=shifts, ids=ids)
+        catalog, btk.sampling_functions.DefaultSampling(), shifts=shifts, ids=ids
     )
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name, stamp_size
@@ -100,7 +109,7 @@ def compare_sep():
     meas_generator = get_meas_generator(meas_param)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[49.097, 50.586], [68.033, 62.514]])
+    target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -116,7 +125,7 @@ def compare_sep_multiprocessing():
     meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
-    target_detection = np.array([[49.097, 50.586], [68.033, 62.514]])
+    target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,

@@ -1,5 +1,5 @@
 class BlendGenerator:
-    def __init__(self, catalog, sampling_function, batch_size=8, verbose=False):
+    def __init__(self, catalog, sampling_function, batch_size=8, verbose=False, shifts=None, ids=None):
         """Generates a list of blend catalogs of length batch_size. Each blend
         catalog has entries numbered between 1 and max_number, corresponding
         to overlapping objects in the blend.
@@ -16,6 +16,8 @@ class BlendGenerator:
         self.batch_size = batch_size
         self.verbose = verbose
         self.sampling_function = sampling_function
+        self.shifts = shifts
+        self.ids = ids
 
         if not hasattr(sampling_function, "max_number"):
             raise AttributeError(
@@ -32,7 +34,10 @@ class BlendGenerator:
         try:
             blend_catalogs = []
             for i in range(self.batch_size):
-                blend_catalog = self.sampling_function(self.catalog)
+                if self.shifts != None and self.ids != None:
+                    blend_catalog = self.sampling_function(self.catalog,shifts=self.shifts[i],ids=self.ids[i])
+                else:
+                    blend_catalog = self.sampling_function(self.catalog)
                 if len(blend_catalog) > self.max_number:
                     raise ValueError(
                         "Number of objects per blend must be "

@@ -36,10 +36,10 @@ class Match_Images(object):
         measured a priori for the default input settings.
         """
         test_batch_max = np.array(
-            [5895.147, 9687.227, 10953.504, 8094.935, 1461.116, 191.629]
+            [5352.147, 8842.227, 11197.504, 8216.935, 1535.116, 191.629]
         )
-        test_batch_mean = 12.40582468826883
-        test_batch_std = 434.71019754629606
+        test_batch_mean = 5.6334577901206755
+        test_batch_std = 403.5918774641063
         batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -69,10 +69,10 @@ class Match_Images(object):
         measured a proiri for the default input settings.
         """
         test_batch_max = np.array(
-            [4774.28, 8503.917, 10339.48, 7637.224, 1244.871, 69.497]
+            [4774.28, 8503.917, 10339.48, 7637.224, 1244.871, 90.719]
         )
-        test_batch_mean = 6.351603369154036
-        test_batch_std = 146.1481385595921
+        test_batch_mean = 2.9643491324620252
+        test_batch_std = 90.7578274135593
         batch_max = isolated_images.max(axis=0).max(axis=0).max(axis=0).max(axis=0)
         batch_mean = isolated_images.mean()
         batch_std = isolated_images.std()

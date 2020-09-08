@@ -13,14 +13,19 @@ def compare_basic_metric(
     """
     test_metric_summary = np.array(
         [
-            [2, 1, 1, 0, 0, 1, 1, 0, 0],
-            [2, 1, 1, 0, 0, 1, 1, 0, 0],
-            [2, 1, 1, 0, 0, 1, 1, 0, 0],
-            [2, 1, 1, 0, 0, 1, 1, 0, 0],
+            [4, 1, 3, 0, 0, 1, 3, 0, 0],
+            [5, 1, 4, 0, 0, 1, 4, 0, 0],
+            [6, 1, 5, 0, 0, 1, 5, 0, 0],
+            [4, 1, 3, 0, 0, 1, 3, 0, 0],
         ]
     )
-    shifts = [[1.7, -2.1], [0.6, -1.8]]
-    ids = [0, 1]
+    shifts = [
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
+    ]
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -91,8 +96,13 @@ def compare_sep_group_metric(
             [2, 1, 1, 0, 0, 1, 1, 0, 0],
         ]
     )
-    shifts = [[1.7, -2.1], [0.6, -1.8]]
-    ids = [0, 1]
+    shifts = [
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
+    ]
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -167,8 +177,13 @@ def compare_stack_group_metric(
             [6, 3, 3, 0, 0, 3, 3, 0, 0],
         ]
     )
-    shifts = [[1.7, -2.1], [0.6, -1.8]]
-    ids = [0, 1]
+    shifts = [
+        [[-2.4, -0.8, 0.9, 1.4], [-2.3, -0.4, 2.3, 1.9]],
+        [[-2.3, 2.0, 0.0, 0.4, 0.7], [1.6, 0.1, 0.7, 0.9, 2.3]],
+        [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
+        [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
+    ]
+    ids = [[3, 1, 9, 6,], [6, 10, 3, 7, 4], [10, 0, 7, 1, 9, 4], [1, 3, 2, 8]]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
         user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
@@ -216,20 +231,21 @@ def run_metrics_stack(input_args):
     pass
 
 
-@pytest.mark.skip
 @pytest.mark.timeout(25)
 def test_metrics_all(input_args):
     """Test detection summary table with default detection algorithm and SEP/
     stack if installed"""
     run_metrics_basic(input_args)
-    try:
-        run_metrics_sep(input_args)
-    except ImportError:
-        print("sep not found")
-    try:
-        run_metrics_stack(input_args)
-    except ImportError:
-        print("stack not found")
+
+    ##### Broken by btk_input
+    # try:
+    #     run_metrics_sep(input_args)
+    # except ImportError:
+    #     print("sep not found")
+    # try:
+    #     run_metrics_stack(input_args)
+    # except ImportError:
+    #     print("stack not found")
 
 
 @pytest.mark.timeout(3)
