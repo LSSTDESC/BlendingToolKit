@@ -40,7 +40,7 @@ class DefaultSampling(SamplingFunction):
         Default sampling function used for producing blend catalogs.
         Args:
             max_number (int): Defined in parent class
-            stamp_size (float):
+            stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. In arcseconds.
         """
