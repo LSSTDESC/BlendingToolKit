@@ -3,6 +3,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/master/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
 
+**NOTE:** BTK is currently in development and rapidly changing, as such the documentation and most jupyter notebooks are deprecated. We will release a new stable version of BTK in the near future and fix these issues. 
+
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
 producing multi-band postage stamp images of blend scenes.
