@@ -52,9 +52,6 @@ def test_input_draw(input_args, match_images):
     )
     simulation_config_dict = config_dict["simulation"][args.simulation]
     user_config_dict = config_dict["user_input"]
-    catalog_name = os.path.join(
-        user_config_dict["data_dir"], simulation_config_dict["catalog"]
-    )
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     shifts = [
@@ -67,9 +64,9 @@ def test_input_draw(input_args, match_images):
         [[2.0, -2.0], [2.0, 0.1]],
         [[0.2, 2.4], [-1.8, -2.0]],
     ]
-    ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
+    indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     draw_output = next(draw_blend_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -244,7 +241,7 @@ def basic_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -257,7 +254,7 @@ def basic_meas(
     ]
 
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -307,7 +304,7 @@ def sep_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -320,7 +317,7 @@ def sep_meas(
     ]
 
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     user_config_dict["utils_input"]["measure_function"] = "SEP_params"
     measure_generator = btk_input.make_measure_generator(
@@ -376,7 +373,7 @@ def stack_meas(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -389,7 +386,7 @@ def stack_meas(
     ]
 
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     user_config_dict["utils_input"]["measure_function"] = "Stack_params"
     measure_generator = btk_input.make_measure_generator(
@@ -443,7 +440,7 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -456,7 +453,7 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
     ]
 
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     user_config_dict["utils_input"]["measure_function"] = "Scarlet_params"
     measure_generator = btk_input.make_measure_generator(
@@ -490,9 +487,6 @@ def test_measure(input_args):
     simulation_config_dict["batch_size"] = 4
 
     user_config_dict = config_dict["user_input"]
-    catalog_name = os.path.join(
-        user_config_dict["data_dir"], simulation_config_dict["catalog"]
-    )
     basic_meas(
         user_config_dict,
         simulation_config_dict,

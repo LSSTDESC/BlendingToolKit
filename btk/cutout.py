@@ -13,13 +13,18 @@ class ObsCutout(descwl.survey.Survey):
                      be found in the documentation of `astropy.wcs`
         wcs: an `astropy.wcs.wcs` object corresponding to the parameters center_pix,
               center_sky, projection, pixel_scale and stamp_size.
-        **kwargs: any arguments given to a descwl survey
+        **survey_kwargs: any arguments given to a descwl survey
     """
 
     def __init__(
-        self, center_pix=None, center_sky=None, projection=None, wcs=None, **kwargs
+        self,
+        center_pix=None,
+        center_sky=None,
+        projection=None,
+        wcs=None,
+        **survey_kwargs
     ):
-        super().__init__(**kwargs)
+        super().__init__(**survey_kwargs)
         self.center_pix = center_pix
         self.center_sky = center_sky
         self.projection = projection

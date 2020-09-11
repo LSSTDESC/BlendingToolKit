@@ -27,7 +27,7 @@ def compare_basic_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -40,7 +40,7 @@ def compare_basic_metric(
     ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -118,7 +118,7 @@ def compare_sep_group_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -131,7 +131,7 @@ def compare_sep_group_metric(
     ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     measure_generator = btk_input.make_measure_generator(
         user_config_dict, draw_blend_generator
@@ -213,7 +213,7 @@ def compare_stack_group_metric(
         [[0.6, -0.6, 1.7, 0.4, 2.3, 0.2], [-1.7, -1.1, -1.6, 0.7, 1.0, -1.5]],
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
-    ids = [
+    indexes = [
         [
             3,
             1,
@@ -226,7 +226,7 @@ def compare_stack_group_metric(
     ]
     np.random.seed(int(simulation_config_dict["seed"]))
     draw_blend_generator = btk_input.make_draw_generator(
-        user_config_dict, simulation_config_dict, shifts=shifts, ids=ids
+        user_config_dict, simulation_config_dict, shifts=shifts, indexes=indexes
     )
     measure_generator = btk_input.make_measure_generator(
         param, user_config_dict, draw_blend_generator

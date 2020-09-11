@@ -28,7 +28,7 @@ class SamplingFunction(ABC):
         self.max_number = max_number
 
     @abstractmethod
-    def __call__(self, catalog):
+    def __call__(self, catalog, **kwargs):
         """Returns a sample from the catalog with at most self.max_number of objects.
         Changes the 'ra' and 'dec' entries to be in arcseconds."""
         pass
@@ -40,7 +40,7 @@ class DefaultSampling(SamplingFunction):
         Default sampling function used for producing blend catalogs.
         Args:
             max_number (int): Defined in parent class
-            stamp_size (float):
+            stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. In arcseconds.
         """
@@ -48,7 +48,7 @@ class DefaultSampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
 
-    def __call__(self, catalog, shifts=None, ids=None):
+    def __call__(self, catalog, shifts=None, indexes=None):
         """Applies default sampling to the input CatSim-like catalog and returns
         catalog with entries corresponding to a blend centered close to postage
         stamp center.
@@ -66,7 +66,7 @@ class DefaultSampling(SamplingFunction):
             shifts (list): Contains arbitrary shifts to be applied instead of random ones.
                            Should of the form [dx,dy] where dx and dy are the lists
                            containing the x and y shifts.
-            ids (list): Contains the ids of the galaxies to use.
+            indexes (list): Contains the indexes of the galaxies to use.
 
         Returns:
             Catalog with entries corresponding to one blend.
@@ -74,12 +74,12 @@ class DefaultSampling(SamplingFunction):
         number_of_objects = np.random.randint(1, self.max_number + 1)
         (q,) = np.where(catalog["i_ab"] <= 25.3)
 
-        if ids == None:
+        if indexes is None:
             blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
         else:
-            blend_catalog = catalog[ids]
+            blend_catalog = catalog[indexes]
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
-        if shifts == None:
+        if shifts is None:
             dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
         else:
             dx, dy = shifts
@@ -98,7 +98,7 @@ class BasicSamplingFunction(SamplingFunction):
         super().__init__(max_number)
         self.stamp_size = stamp_size
 
-    def __call__(self, catalog):
+    def __call__(self, catalog, **kwargs):
         """Samples galaxies from input catalog to make blend scene.
 
         Then number of galaxies in a blend are drawn from a uniform
@@ -166,7 +166,7 @@ class GroupSamplingFunction(SamplingFunction):
         self.shift = shift
         self.group_id = group_id
 
-    def __call__(self, catalog):
+    def __call__(self, catalog, **kwargs):
         """We use self.wld_catalog created above to sample groups, but ultimately returns
         rows from catalog (by matching the corresponding galaxy ids).
 
@@ -177,7 +177,7 @@ class GroupSamplingFunction(SamplingFunction):
         # randomly sample a group om wld_catalog
         bool_groups = self.wld_catalog["grp_size"] >= 2
         group_ids = np.unique(self.wld_catalog["grp_id"][bool_groups])
-        if self.ids == None:
+        if self.group_id is None:
             group_id = np.random.choice(group_ids, replace=False)
         else:
             group_id = self.group_id
@@ -197,7 +197,7 @@ class GroupSamplingFunction(SamplingFunction):
         blend_catalog["dec"] *= 3600
         # Add small random shift so that center does not perfectly align with
         # the stamp center
-        if self.shift == None:
+        if self.shift is None:
             dx, dy = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
         else:
             dx, dy = self.shift
@@ -242,7 +242,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         self.group_id_count = 0
         self.shift = shift
 
-    def __call__(self, catalog):
+    def __call__(self, catalog, **kwargs):
         """The group is centered on the middle of the postage stamp.
         This function only returns galaxies whose centers lie within 1 arcsec the
         postage stamp edge, which may cause the number of galaxies in the blend to
@@ -279,7 +279,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         blend_catalog["dec"] *= 3600
         # Add small random shift so that center does not perfectly align with stamp
         # center
-        if self.shift == None:
+        if self.shift is None:
             dx, dy = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
         else:
             dx, dy = self.shift

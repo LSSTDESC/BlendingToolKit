@@ -6,7 +6,7 @@ class BlendGenerator:
         batch_size=8,
         verbose=False,
         shifts=None,
-        ids=None,
+        indexes=None,
     ):
         """Generates a list of blend catalogs of length batch_size. Each blend
         catalog has entries numbered between 1 and max_number, corresponding
@@ -22,7 +22,7 @@ class BlendGenerator:
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
                            with ids.
-            ids (list): Contains the ids of the galaxies to use in the stamp.
+            indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
         """
         self.catalog = catalog
@@ -30,7 +30,7 @@ class BlendGenerator:
         self.verbose = verbose
         self.sampling_function = sampling_function
         self.shifts = shifts
-        self.ids = ids
+        self.indexes = indexes
 
         if not hasattr(sampling_function, "max_number"):
             raise AttributeError(
@@ -47,9 +47,9 @@ class BlendGenerator:
         try:
             blend_catalogs = []
             for i in range(self.batch_size):
-                if self.shifts != None and self.ids != None:
+                if self.shifts is not None and self.indexes is not None:
                     blend_catalog = self.sampling_function(
-                        self.catalog, shifts=self.shifts[i], ids=self.ids[i]
+                        self.catalog, shifts=self.shifts[i], indexes=self.indexes[i]
                     )
                 else:
                     blend_catalog = self.sampling_function(self.catalog)
