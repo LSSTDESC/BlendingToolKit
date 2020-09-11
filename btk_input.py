@@ -176,7 +176,7 @@ def get_blend_generator(
     sampling_function_name,
     verbose,
     shifts=None,
-    ids=None,
+    indexes=None,
 ):
     """Returns generator object that generates catalog describing blended
     objects.
@@ -218,7 +218,11 @@ def get_blend_generator(
         sampling_function = btk.sampling_functions.DefaultSampling
 
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function(max_number), batch_size, shifts=shifts, ids=ids
+        catalog,
+        sampling_function(max_number),
+        batch_size,
+        shifts=shifts,
+        indexes=indexes,
     )
     if verbose:
         print(
@@ -284,9 +288,9 @@ def make_draw_generator(
     simulation_config_dict,
     multiprocess=False,
     cpus=1,
-    verbose=False,
     shifts=None,
-    ids=None,
+    indexes=None,
+    verbose=False,
 ):
     """Returns a generator that yields simulations of blend scenes.
 
@@ -298,6 +302,9 @@ def make_draw_generator(
         multiprocess: If true, performs multiprocessing of measurement.
         cpus: If multiprocessing is True, then number of parallel processes to
              run on [Default :1].
+        shifts:
+        indexes:
+        verbose:
 
     Returns:
         Generator objects that generates output of blend scene.
@@ -326,7 +333,7 @@ def make_draw_generator(
         str(simulation_config_dict["sampling_function"]),
         verbose,
         shifts,
-        ids,
+        indexes,
     )
     # Generate observing conditions
     observing_generator = get_obs_generator(
@@ -403,6 +410,7 @@ def make_measure_generator(
         multiprocess: If true, performs multiprocessing of measurement.
         cpus: If multiprocessing is True, then number of parallel processes to
              run on [Default :1].
+        verbose:
 
     Returns:
         Generator objects that yields measured values by the measurement
@@ -537,10 +545,7 @@ def main(args):
             cpus = 1
         # Generate images of blends in all the observing bands
         draw_blend_generator = make_draw_generator(
-            user_config_dict,
-            simulation_config_dict,
-            args.multiprocess,
-            cpus=cpus,
+            user_config_dict, simulation_config_dict, args.multiprocess, cpus=cpus
         )
         # Create generator for measurement algorithm outputs
         measure_generator = make_measure_generator(

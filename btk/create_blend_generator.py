@@ -49,7 +49,7 @@ class BlendGenerator:
             for i in range(self.batch_size):
                 if self.shifts is not None and self.indexes is not None:
                     blend_catalog = self.sampling_function(
-                        self.catalog, shifts=self.shifts[i], ids=self.indexes[i]
+                        self.catalog, shifts=self.shifts[i], indexes=self.indexes[i]
                     )
                 else:
                     blend_catalog = self.sampling_function(self.catalog)
