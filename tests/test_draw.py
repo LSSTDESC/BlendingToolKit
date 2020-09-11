@@ -24,14 +24,14 @@ def get_draw_generator(
             [[2.0, -2.0], [2.0, 0.1]],
             [[0.2, 2.4], [-1.8, -2.0]],
         ]
-        ids = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
+        indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     else:
         shifts = None
-        ids = None
+        indexes = None
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function, batch_size, shifts=shifts, ids=ids
+        catalog, sampling_function, batch_size, shifts=shifts, indexes=indexes
     )
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name="LSST", stamp_size=stamp_size

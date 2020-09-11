@@ -52,9 +52,6 @@ def test_input_draw(input_args, match_images):
     )
     simulation_config_dict = config_dict["simulation"][args.simulation]
     user_config_dict = config_dict["user_input"]
-    catalog_name = os.path.join(
-        user_config_dict["data_dir"], simulation_config_dict["catalog"]
-    )
     # Set seed
     np.random.seed(int(simulation_config_dict["seed"]))
     shifts = [
@@ -490,9 +487,6 @@ def test_measure(input_args):
     simulation_config_dict["batch_size"] = 4
 
     user_config_dict = config_dict["user_input"]
-    catalog_name = os.path.join(
-        user_config_dict["data_dir"], simulation_config_dict["catalog"]
-    )
     basic_meas(
         user_config_dict,
         simulation_config_dict,

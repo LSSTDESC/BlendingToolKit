@@ -526,9 +526,6 @@ def main(args):
     for i, s in enumerate(config_dict["simulation"]):
         simulation_config_dict = config_dict["simulation"][s]
         user_config_dict = config_dict["user_input"]
-        catalog_name = os.path.join(
-            user_config_dict["data_dir"], simulation_config_dict["catalog"]
-        )
         # Set seed
         np.random.seed(int(simulation_config_dict["seed"]))
         if args.multiprocess:
