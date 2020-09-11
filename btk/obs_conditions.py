@@ -71,29 +71,51 @@ class WLDObsConditions(ABC):
         self.pixel_scale = all_surveys[survey_name]["pixel_scale"]
         self.pix_stamp_size = int(self.stamp_size / self.pixel_scale)
 
+    def get_wcs(self, survey_params):
+
+        return make_wcs(
+            pixel_scale=self.pixel_scale,
+            center_pix=survey_params["center_sky"],
+            center_sky=survey_params["center_pix"],
+            projection=survey_params["projection"],
+            shape=(self.pix_stamp_size, self.pix_stamp_size),
+        )
+
     @abstractmethod
-    def get_survey(self):
-        """Returns a btk.survey.Survey object."""
+    def get_cutout_params(self):
         pass
+
+    def get_cutout(self):
+        """Returns a btk.survey.Survey object."""
+
+        cutout_params = self.get_cutout_params()
+        wcs = self.get_wcs(cutout_params)
+        return btk.cutout.ObsCutout(
+            no_analysis=True,
+            survey_name=self.survey_name,
+            filter_band=self.band,
+            wcs=wcs,
+            **cutout_params
+        )
 
     def __call__(self):
 
-        btk_survey = self.get_survey()
+        cutout = self.get_cutout()
 
-        if btk_survey.pixel_scale != self.pixel_scale:
+        if cutout.pixel_scale != self.pixel_scale:
             raise ValueError(
                 "observing condition pixel scale does not "
                 "match input pixel scale: {0} == {1}".format(
-                    btk_survey.pixel_scale, self.pixel_scale
+                    cutout.pixel_scale, self.pixel_scale
                 )
             )
-        if btk_survey.filter_band != self.band:
+        if cutout.filter_band != self.band:
             raise ValueError(
                 "observing condition band does not "
-                "match input band: {0} == {1}".format(btk_survey.filter_band, self.band)
+                "match input band: {0} == {1}".format(cutout.filter_band, self.band)
             )
 
-        return btk_survey
+        return cutout
 
 
 class DefaultObsConditions(WLDObsConditions):
@@ -103,32 +125,17 @@ class DefaultObsConditions(WLDObsConditions):
         """
         super().__init__(survey_name, band, stamp_size)
 
-    def get_survey(self):
+    def get_cutout_params(self):
         # get default survey params
-        survey_params = descwl.survey.Survey.get_defaults(
+        cutout_params = descwl.survey.Survey.get_defaults(
             survey_name=self.survey_name, filter_band=self.band
         )
-        survey_params["image_width"] = self.pix_stamp_size
-        survey_params["image_height"] = self.pix_stamp_size
+        cutout_params["image_width"] = self.pix_stamp_size
+        cutout_params["image_height"] = self.pix_stamp_size
 
         # Information for WCS
-        survey_params["center_sky"] = None
-        survey_params["center_pix"] = None
-        survey_params["projection"] = "TAN"
+        cutout_params["center_sky"] = None
+        cutout_params["center_pix"] = None
+        cutout_params["projection"] = "TAN"
 
-        wcs = make_wcs(
-            pixel_scale=self.pixel_scale,
-            center_pix=survey_params["center_sky"],
-            center_sky=survey_params["center_pix"],
-            projection=survey_params["projection"],
-            shape=(self.pix_stamp_size, self.pix_stamp_size),
-        )
-        btk_cutout = btk.cutout.ObsCutout(
-            no_analysis=True,
-            survey_name=self.survey_name,
-            filter_band=self.band,
-            wcs=wcs,
-            **survey_params
-        )
-
-        return btk_cutout
+        return cutout_params
