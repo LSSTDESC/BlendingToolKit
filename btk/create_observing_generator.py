@@ -5,7 +5,6 @@ class ObservingGenerator:
     def __init__(
         self,
         survey_name,
-        stamp_size,
         obs_conditions=None,
         verbose=False,
     ):
@@ -17,24 +16,18 @@ class ObservingGenerator:
                              a given survey and band. If not provided, then the default
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
-             stamp_size: In arcseconds.
         """
         if survey_name not in all_surveys:
             raise KeyError("Survey not implemented.")
 
         self.bands = all_surveys[survey_name]["bands"]
-        self.stamp_size = stamp_size
         self.survey_name = survey_name
         self.verbose = verbose
 
         # TODO: it might be a bit cumbersome for the user to create this dict.
         # create default observing conditions
         if obs_conditions is None:
-            self.obs_conditions = {}
-            for band in self.bands:
-                self.obs_conditions[band] = DefaultObsConditions(
-                    survey_name, band, stamp_size
-                )
+            self.obs_conditions = DefaultObsConditions()
         else:
             self.obs_conditions = obs_conditions
 
@@ -44,6 +37,6 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = []
         for band in self.bands:
-            btk_survey = self.obs_conditions[band]()
+            btk_survey = self.obs_conditions(self.survey_name, band)
             observing_generator.append(btk_survey)
         return observing_generator
