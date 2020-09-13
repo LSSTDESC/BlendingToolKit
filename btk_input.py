@@ -28,6 +28,7 @@ import yaml
 
 import btk
 import btk.sampling_functions
+import btk.obs_conditions
 
 
 def parse_config(config_gen, simulation, verbose):
@@ -269,11 +270,12 @@ def get_obs_generator(
             module = importlib.util.module_from_spec(spec)
             sys.modules["obs_utils"] = module
             spec.loader.exec_module(module)
-            obs_conditions = getattr(module, obs_conditions_name)
+            obs_conds = getattr(module, obs_conditions_name)
     else:
-        obs_conditions = None
+        obs_conds = None
+    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name, stamp_size, obs_conditions, verbose
+        survey_name, obs_conds, verbose
     )
     if verbose:
         print(
