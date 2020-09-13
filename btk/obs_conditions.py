@@ -137,6 +137,46 @@ class ObsConditions(ABC):
 
 
 class WLDObsConditions(ObsConditions):
+    @abstractmethod
+    def get_cutout_params(self, survey_name, band, pixel_scale):
+        pass
+
+    def get_cutout(self, survey_name, band, pixel_scale):
+        """Returns a btk.cutout.Cutout object."""
+        cutout_params = self.get_cutout_params(survey_name, band, pixel_scale)
+        return btk.cutout.WLDCutout(
+            self.stamp_size,
+            no_analysis=True,
+            survey_name=survey_name,
+            filter_band=band,
+            **cutout_params
+        )
+
+    def __call__(self, survey_name, band):
+        pixel_scale = all_surveys[survey_name]["pixel_scale"]
+        cutout = self.get_cutout(survey_name, band, pixel_scale)
+
+        if cutout.pixel_scale != pixel_scale:
+            raise ValueError(
+                "observing condition pixel scale does not "
+                "match input pixel scale: {0} == {1}".format(
+                    cutout.pixel_scale, pixel_scale
+                )
+            )
+        if cutout.filter_band != band:
+            raise ValueError(
+                "observing condition band does not "
+                "match input band: {0} == {1}".format(cutout.filter_band, band)
+            )
+
+        return cutout
+
+    @abstractmethod
+    def get_cutout_params(self):
+        pass
+
+
+class DefaultObsConditions(WLDObsConditions):
     def __init__(self, stamp_size=24):
         """Returns the default observing conditions from the WLD package
         for a given survey_name and band.

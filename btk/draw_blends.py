@@ -376,3 +376,83 @@ class WLDGenerator(DrawBlendsGenerator):
                 print("Source not visible")
             entry["not_drawn_" + band] = 1
             raise descwl.render.SourceNotVisible
+
+
+class GalsimRealDraw(DrawBlendsGenerator):
+    def get_psf(self):
+        psf_int = self.psf_function(self.psf_args).withFlux(1.0)
+
+        # Draw PSF
+        psf = psf_int.drawImage(
+            nx=self.psf_size,
+            ny=self.psf_size,
+            method="real_space",
+            use_true_center=True,
+            scale=self.pix,
+        ).array
+
+        # Make sure PSF vanishes on the edges of a patch that
+        # has the shape of the initial npsf
+        psf = psf - psf[0, int(self.psf_size / 2)] * 2
+        psf[psf < 0] = 0
+        psf = psf / np.sum(psf)
+
+        return psf
+
+    def draw_single(self, cat, shift):
+        """Draws a single random galaxy profile in a random location of the image
+        Args:
+            shift (np.array): pixel center of the single galaxy in the postage stamp
+                              with size self.stamp_size
+
+        Returns:
+            gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
+        """
+
+        k = np.int(np.random.randn(1) * cat.size)
+        gal = cat.makeGalaxy(
+            k, gal_type="real", noise_pad_size=self.stamp_size * self.pixel_scale
+        )
+        gal = gal.shift(dx=shift[0], dy=shift[1])
+        return gal
+
+    def draw_blend(self, ngal):
+        """Creates multi-band scenes
+        Args:
+            ngal (int): Number of galaxies in the stamp
+        """
+        singles = []
+        seds = []
+        locs = []
+        cube = np.zeros((self.channels.size, self.stamp_size, self.stamp_size))
+        for i in range(ngal):
+            shift = (np.random.rand(2) - 0.5) * self.stamp_size * self.pix / 2
+            gal = self.draw_single(shift)
+            singles.append(gal)
+            sed = np.random.rand(self.channels.size) * 0.8 + 0.2
+            seds.appends(sed)
+
+            im = galsim.Convolve(gal, self.psf).drawImage(
+                nx=self.stamp_size,
+                ny=self.stamp_size,
+                use_true_center=True,
+                method="no_pixel",
+                scale=self.pix,
+                dtype=np.float64,
+            )
+            locs.append(
+                [
+                    shift[0] / self.pix + self.stamp_size[0] / 2,
+                    shift[1] / self.pix + self.stamp_size[1] / 2,
+                ]
+            )
+            cube += im[None, :, :] * sed[:, None, None]
+
+        self.singles = singles
+        self.locs = locs
+        self.seds = seds
+
+        return cube
+
+    def run_mini_batch(self, blend_catalog, obs_conds):
+        pass
