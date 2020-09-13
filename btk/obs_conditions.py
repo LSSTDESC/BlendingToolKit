@@ -62,7 +62,7 @@ class ObsConditions(ABC):
         blend postage stamps can be drawn.
 
         Args:
-            stamp_size (int): In arcseconds.
+            stamp_size (float): In arcseconds.
 
         """
         self.stamp_size = stamp_size

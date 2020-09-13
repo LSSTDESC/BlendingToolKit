@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 import btk
 import btk.sampling_functions
+import btk.obs_conditions
 import multiprocessing as mp
 
 
@@ -33,8 +34,9 @@ def get_draw_generator(
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size, shifts=shifts, indexes=indexes
     )
+    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name="LSST", stamp_size=stamp_size
+        survey_name="LSST", obs_conds=obs_conds
     )
     draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,

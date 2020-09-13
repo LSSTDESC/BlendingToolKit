@@ -5,14 +5,14 @@ class ObservingGenerator:
     def __init__(
         self,
         survey_name,
-        obs_conditions=None,
+        obs_conds=None,
         verbose=False,
     ):
         """Generates class with observing conditions in each band.
 
         Args:
              survey_name (str): Name of the survey which should be available in descwl
-             obs_conditions: Class (not object) that returns observing conditions for
+             obs_conds: Class (not object) that returns observing conditions for
                              a given survey and band. If not provided, then the default
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
@@ -24,12 +24,11 @@ class ObservingGenerator:
         self.survey_name = survey_name
         self.verbose = verbose
 
-        # TODO: it might be a bit cumbersome for the user to create this dict.
         # create default observing conditions
-        if obs_conditions is None:
-            self.obs_conditions = DefaultObsConditions()
+        if obs_conds is None:
+            self.obs_conds = DefaultObsConditions()
         else:
-            self.obs_conditions = obs_conditions
+            self.obs_conds = obs_conds
 
     def __iter__(self):
         return self
@@ -37,6 +36,6 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = []
         for band in self.bands:
-            btk_survey = self.obs_conditions(self.survey_name, band)
+            btk_survey = self.obs_conds(self.survey_name, band)
             observing_generator.append(btk_survey)
         return observing_generator
