@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import btk.utils
 import btk.sampling_functions
+import btk.obs_conditions
 
 
 def get_draw_generator(batch_size=3):
@@ -23,8 +24,9 @@ def get_draw_generator(batch_size=3):
         ),
         batch_size,
     )
+    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name, stamp_size
+        survey_name, obs_conds
     )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator
@@ -57,8 +59,9 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         shifts=shifts,
         indexes=indexes,
     )
+    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name, stamp_size
+        survey_name, obs_conds
     )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator

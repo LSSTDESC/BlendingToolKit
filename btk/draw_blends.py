@@ -8,6 +8,7 @@ import numpy as np
 from astropy.table import Column
 
 from btk.multiprocess import multiprocess
+from btk.obs_conditions import all_surveys
 
 
 def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
@@ -100,10 +101,12 @@ class DrawBlendsGenerator(ABC):
 
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
-        self.stamp_size = self.observing_generator.stamp_size
 
         # TODO: Pinning pixel scale like this will be a problem for multi-resolution.
-        self.pixel_scale = self.observing_generator.obs_conditions["i"].pixel_scale
+        self.survey_name = self.observing_generator.survey_name
+        self.stamp_size = self.observing_generator.obs_conds.stamp_size
+        self.pixel_scale = all_surveys[self.survey_name]["pixel_scale"]
+
         self.bands = self.observing_generator.bands
         self.meas_band = meas_band
 
