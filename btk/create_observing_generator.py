@@ -18,12 +18,18 @@ class ObservingGenerator:
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
         """
-        if survey_name not in all_surveys:
-            raise KeyError("Survey not implemented.")
+        self.multiresolution = multiresolution
+        if multiresolution:
+            self.survey_name = survey_name
+            self.verbose = verbose
 
-        self.bands = all_surveys[survey_name]["bands"]
-        self.survey_name = survey_name
-        self.verbose = verbose
+        else:
+            if survey_name not in all_surveys:
+                raise KeyError("Survey not implemented.")
+
+            # self.bands = all_surveys[survey_name]["bands"]
+            self.survey_name = survey_name
+            self.verbose = verbose
 
         # create default observing conditions
         if obs_conds is None:
@@ -36,8 +42,16 @@ class ObservingGenerator:
         return self
 
     def __next__(self):
-        observing_generator = []
-        for band in self.bands:
-            btk_survey = self.obs_conds(self.survey_name, band)
-            observing_generator.append(btk_survey)
+        if self.multiresolution:
+            observing_generator = {}
+            for s in self.survey_name:
+                observing_generator[s] = []
+                for band in all_surveys[s]["bands"]:
+                    cutout = self.obs_conds(s, band)
+                    observing_generator[s].append(cutout)
+        else:
+            observing_generator = []
+            for band in self.bands:
+                cutout = self.obs_conds(self.survey_name, band)
+                observing_generator.append(cutout)
         return observing_generator
