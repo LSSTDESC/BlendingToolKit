@@ -89,7 +89,7 @@ class WLDCutout(descwl.survey.Survey, Cutout):
 
     def get_psf_sky(self, psf_stamp_size):
         """Returns postage stamp image of the PSF and mean background sky
-        level value saved in the input obs_cond class
+        level value saved in the input obs_conds class
         Args:
             psf_stamp_size: Size of postage stamp to draw PSF on in pixels.
         Returns:
