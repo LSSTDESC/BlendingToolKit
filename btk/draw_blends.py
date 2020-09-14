@@ -523,7 +523,7 @@ class GalsimRealDraw(DrawBlendsGenerator):
 
         return cube
 
-    def run_mini_batch(self, blend_catalog, obs_conds):
+    def run_mini_batch(self, blend_list, obs_conds):
         pass
 
 
