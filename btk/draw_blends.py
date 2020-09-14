@@ -379,7 +379,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
 
 class GalsimRealDraw(DrawBlendsGenerator):
-    """Class that instanciates a blend from real galsim images
+    """Class that instantiates a blend from real galsim images
     Parameters
     ----------
     cat:
