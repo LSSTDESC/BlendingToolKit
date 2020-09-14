@@ -379,6 +379,75 @@ class WLDGenerator(DrawBlendsGenerator):
 
 
 class GalsimRealDraw(DrawBlendsGenerator):
+    """Class that instanciates a blend from real galsim images
+    Parameters
+    ----------
+    cat:
+        galsim catalog of galaxies
+    pix: `float`
+        pixel scale in arcseconds
+    stamp_size: `int`
+        number of pixels on a side for the stamp
+    channels: `array`
+        array of names for each band in the blend
+    sky_center: `array`
+        coordinate of a reference pixel in ra-dec
+    pixe_center: `array`
+        pixel coordinates of a reference pixel
+    psf_function: function
+        function to generate a 2-dimensional psf profile
+    psf_args: `list`
+        list of arguments for the psf function
+    """
+
+    def __init__(
+        self,
+        cat,
+        pix,
+        stamp_size,
+        channels=["u", "g", "r", "i", "z", "y"],
+        sky_center=(0 * galsim.degrees, 0 * galsim.degrees),
+        pix_center=None,
+        psf_function=None,
+        psf_size=41,
+        psf_args=None,
+    ):
+        self.cat = cat
+        self.pix = pix
+        self.stamp_size = stamp_size
+        self.channels = channels
+        if psf_function is None:
+
+            def psf_function(r):
+                return galsim.Moffat(2, r)
+
+            if psf_args is None:
+                self.psf_args = 3 * pix
+        else:
+            if psf_args is None:
+                raise InputError("Input arguments for psf not provided")
+            else:
+                self.psf_args = psf_args
+
+        if psf_size % 2 == 0:
+            psf_size += 1
+            print(
+                f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}"
+            )
+        self.psf_size = psf_size
+
+        self.psf = self.get_psf(psf_function)
+
+        if pix_center is None:
+            pix_center = (stamp_size // 2, stamp_size // 2)
+        self.wcs = self.get_wcs(
+            self.pix, pix_center, sky_center, (stamp_size, stamp_size)
+        )
+        self.seds = None
+        self.singles = None
+        self.locs = None
+        self.blend = None
+
     def get_psf(self):
         psf_int = self.psf_function(self.psf_args).withFlux(1.0)
 
