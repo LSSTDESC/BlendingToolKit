@@ -525,3 +525,8 @@ class GalsimRealDraw(DrawBlendsGenerator):
 
     def run_mini_batch(self, blend_catalog, obs_conds):
         pass
+
+
+class GalsimHubDraw(DrawBlendsGenerator):
+    def run_mini_batch(self, blend_list, obs_conds):
+        pass
