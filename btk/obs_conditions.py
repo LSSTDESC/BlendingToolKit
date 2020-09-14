@@ -171,10 +171,6 @@ class WLDObsConditions(ObsConditions):
 
         return cutout
 
-    @abstractmethod
-    def get_cutout_params(self):
-        pass
-
 
 class DefaultObsConditions(WLDObsConditions):
     def __init__(self, stamp_size=24):
