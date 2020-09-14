@@ -41,7 +41,7 @@ def get_size(pixel_scale, catalog, meas_obs_cond):
 
     Galaxy size is estimated as second moments size (r_sec) computed as
     described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
-    is computed by galsim from the PSF model in obs_cond in the i band.
+    is computed by galsim from the PSF model in obs_conds in the i band.
     The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
 
     Args:
@@ -140,10 +140,10 @@ class DrawBlendsGenerator(ABC):
             )
         )
         in_batch_blend_cat = next(self.blend_generator)
-        obs_cond = next(self.observing_generator)
+        obs_conds = next(self.observing_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
         input_args = [
-            (in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_cond))
+            (in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_conds))
             for i in range(0, self.batch_size, mini_batch_size)
         ]
 
@@ -162,7 +162,7 @@ class DrawBlendsGenerator(ABC):
             blend_images[i] = batch_results[i][0]
             isolated_images[i] = batch_results[i][1]
             batch_blend_cat.append(batch_results[i][2])
-            batch_obs_cond.append(obs_cond)
+            batch_obs_cond.append(obs_conds)
             batch_wcs.append(batch_results[i][3])
         output = {
             "blend_images": blend_images,
@@ -174,7 +174,7 @@ class DrawBlendsGenerator(ABC):
         return output
 
     @abstractmethod
-    def run_mini_batch(self, blend_catalog, obs_cond):
+    def run_mini_batch(self, blend_catalog, obs_conds):
         pass
 
 
@@ -207,15 +207,15 @@ class WLDGenerator(DrawBlendsGenerator):
         )
         return iso_obs
 
-    def run_single_band(self, blend_catalog, obs_cond, band):
+    def run_single_band(self, blend_catalog, obs_conds, band):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
         blend_catalog entries and with observing conditions determined by
-        obs_cond. The rendered objects are stored in the observing conditions
+        obs_conds. The rendered objects are stored in the observing conditions
         class. So as to not overwrite images across different blends, we make a
-        copy of the obs_cond while drawing each galaxy. Images of isolated
+        copy of the obs_conds while drawing each galaxy. Images of isolated
         galaxies are drawn with the WLDeblending and them summed to produce the
         blend image.
 
@@ -224,7 +224,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         Args:
             blend_catalog: Catalog with entries corresponding to one blend.
-            obs_cond: `descwl.survey.Survey` class describing observing conditions.
+            obs_conds: `descwl.survey.Survey` class describing observing conditions.
             band(string): Name of band to draw images in.
 
         Returns:
@@ -235,16 +235,16 @@ class WLDGenerator(DrawBlendsGenerator):
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
         )
         galaxy_builder = descwl.model.GalaxyBuilder(
-            obs_cond, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
+            obs_conds, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
         )
         pix_stamp_size = np.int(self.stamp_size / self.pixel_scale)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         # define temporary galsim image
         # this will hold isolated galaxy images that will be summed
         blend_image_temp = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-        mean_sky_level = obs_cond.mean_sky_level
+        mean_sky_level = obs_conds.mean_sky_level
         for k, entry in enumerate(blend_catalog):
-            iso_obs = copy.deepcopy(obs_cond)
+            iso_obs = copy.deepcopy(obs_conds)
             try:
                 galaxy = galaxy_builder.from_catalog(
                     entry, entry["ra"], entry["dec"], band
@@ -266,7 +266,7 @@ class WLDGenerator(DrawBlendsGenerator):
         blend_image = blend_image_temp.array
         return blend_image, iso_image
 
-    def run_mini_batch(self, blend_list, obs_cond):
+    def run_mini_batch(self, blend_list, obs_conds):
         """Returns isolated and blended images for bend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -276,7 +276,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         Args:
             blend_list: List of catalogs with entries corresponding to one blend.
-            obs_cond (list): List of `descwl.survey.Survey` class describing
+            obs_conds (list): List of `descwl.survey.Survey` class describing
                 observing conditions in different bands.
 
         Returns:
@@ -291,7 +291,7 @@ class WLDGenerator(DrawBlendsGenerator):
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(
-                self.pixel_scale, blend_list[i], obs_cond[self.bands == self.meas_band]
+                self.pixel_scale, blend_list[i], obs_conds[self.bands == self.meas_band]
             )
             blend_list[i].add_column(size)
             pix_stamp_size = int(self.stamp_size / self.pixel_scale)
@@ -303,12 +303,12 @@ class WLDGenerator(DrawBlendsGenerator):
             )
             for j in range(len(self.bands)):
                 single_band_output = self.run_single_band(
-                    blend_list[i], obs_cond[j], self.bands[j]
+                    blend_list[i], obs_conds[j], self.bands[j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
 
-            wcs = obs_cond[0].wcs
+            wcs = obs_conds[0].wcs
             mini_batch_outputs.append(
                 [blend_image_multi, iso_image_multi, blend_list[i], wcs]
             )

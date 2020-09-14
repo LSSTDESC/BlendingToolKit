@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-
-import astropy.wcs as WCS
 import descwl
 
 import btk.cutout
@@ -23,59 +21,15 @@ all_surveys = {
 }
 
 
-def make_wcs(
-    pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
-):
-    """Creates wcs for an image
-
-    Args:
-        pixel_scale (float): pixel size in arcseconds
-        shape (tuple): shape of the image
-        center_pix (tuple): position of the reference pixel used as the center of the
-                            affine transform for the wcs.
-        center_sky (list):
-        naxis (int):
-        projection(str):
-
-    Returns:
-        wcs: WCS
-    """
-    if center_pix is None:
-        center_pix = [(s + 1) / 2 for s in shape]
-    if center_sky is None:
-        center_sky = [0 for _ in range(naxis)]
-    if projection is None:
-        projection = "TAN"
-    w = WCS.WCS(naxis=2)
-    w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
-    w.wcs.crpix = center_pix
-    w.wcs.cdelt = [pixel_scale for _ in range(naxis)]
-    w.wcs.crval = center_sky
-    w.array_shape = shape
-    return w
-
-
 class ObsConditions(ABC):
     def __init__(self, stamp_size=24):
-        """Class that returns observing conditions for a given survey_name and band.
+        """Class that returns a cutout object for a given survey_name and band.
         If the information provided by this class is combined with the blend_catalogs,
         blend postage stamps can be drawn.
-
         Args:
             stamp_size (float): In arcseconds.
-
         """
         self.stamp_size = stamp_size
-
-    def get_wcs(self, pixel_scale, center_pix=None, center_sky=None, projection=None):
-        pix_stamp_size = int(self.stamp_size / pixel_scale)
-        return make_wcs(
-            pixel_scale=pixel_scale,
-            center_pix=center_pix,
-            center_sky=center_sky,
-            projection=projection,
-            shape=(pix_stamp_size, pix_stamp_size),
-        )
 
     @abstractmethod
     def __call__(self, survey_name, band):
@@ -83,10 +37,8 @@ class ObsConditions(ABC):
         Args:
             survey_name: Name of the survey which should be available in descwl
             band: filter name to get observing conditions for.
-
         Returns:
             A btk.cutout.Cutout object.
-
         """
         pass
 
@@ -99,12 +51,11 @@ class WLDObsConditions(ObsConditions):
     def get_cutout(self, survey_name, band, pixel_scale):
         """Returns a btk.cutout.Cutout object."""
         cutout_params = self.get_cutout_params(survey_name, band, pixel_scale)
-        wcs = self.get_wcs(pixel_scale)
-        return btk.cutout.ObsCutout(
+        return btk.cutout.WLDCutout(
+            self.stamp_size,
             no_analysis=True,
             survey_name=survey_name,
             filter_band=band,
-            wcs=wcs,
             **cutout_params
         )
 

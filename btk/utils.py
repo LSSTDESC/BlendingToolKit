@@ -60,26 +60,6 @@ class SEP_params(Measurement_params):
         return {"deblend_image": None, "peaks": peaks}
 
 
-def get_psf_sky(obs_cond, psf_stamp_size):
-    """Returns postage stamp image of the PSF and mean background sky
-    level value saved in the input obs_cond class
-    Args:
-        obs_cond:`descwl.survey.Survey` class describing observing
-            conditions.
-        psf_stamp_size: Size of postage stamp to draw PSF on in pixels.
-    Returns:
-        `np.ndarray`: Postage stamp image of PSF
-        float: Mean of sky background
-
-    """
-    mean_sky_level = obs_cond.mean_sky_level
-    psf = obs_cond.psf_model
-    psf_image = psf.drawImage(
-        scale=obs_cond.pixel_scale, nx=psf_stamp_size, ny=psf_stamp_size
-    ).array
-    return psf_image, mean_sky_level
-
-
 class Stack_params(Measurement_params):
     """Class with functions that describe how LSST science pipeline can
     perform measurements on the input data."""
@@ -102,9 +82,8 @@ class Stack_params(Measurement_params):
             astropy.Table of the measurement results.
         """
         image_array = data["blend_images"][index, :, :, 3].astype(np.float32)
-        psf_image, mean_sky_level = get_psf_sky(
-            data["obs_condition"][index][3], self.psf_stamp_size
-        )
+        obs_conds = data["obs_condition"][index][3]
+        psf_image, mean_sky_level = obs_conds.get_psf_sky(self.psf_stamp_size)
         variance_array = image_array + mean_sky_level
         psf_array = psf_image.astype(np.float64)
         cat = run_stack(
@@ -292,9 +271,8 @@ class Scarlet_params(Measurement_params):
         n_bands = images.shape[0]
         for i in range(n_bands):
             bands.append(data["obs_condition"][index][i].filter_band)
-            psf, mean_sky_level = get_psf_sky(
-                data["obs_condition"][index][i], psf_stamp_size
-            )
+            obs_conds = data["obs_condition"][index][i]
+            psf, mean_sky_level = obs_conds.get_psf_sky(psf_stamp_size)
             psfs[i] = psf
             variances[i] = images[i] + mean_sky_level
         blend_cat = data["blend_list"][index]
