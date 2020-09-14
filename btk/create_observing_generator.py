@@ -51,7 +51,7 @@ class ObservingGenerator:
                     observing_generator[s].append(cutout)
         else:
             observing_generator = []
-            for band in self.bands:
+            for band in all_surveys[self.survey_name]["bands"]:
                 cutout = self.obs_conds(self.survey_name, band)
                 observing_generator.append(cutout)
         return observing_generator

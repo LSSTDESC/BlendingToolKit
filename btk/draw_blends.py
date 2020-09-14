@@ -111,7 +111,7 @@ class DrawBlendsGenerator(ABC):
             for s in self.survey_name:
                 self.bands[s] = all_surveys[s]["bands"]
         else:
-            self.bands = all_surveys[survey_name]["bands"]
+            self.bands = {self.survey_name:all_surveys[self.survey_name]["bands"]}
         self.meas_band = meas_band
 
         self.add_noise = add_noise
@@ -151,7 +151,7 @@ class DrawBlendsGenerator(ABC):
             batch_blend_cat, batch_obs_cond, batch_wcs = [],[],[]
             pix_stamp_size = int(self.stamp_size / all_surveys[self.survey_name]["pixel_scale"])
             blend_images = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands))
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(all_surveys[self.survey_name]["bands"]))
             )
             isolated_images = np.zeros(
                 (
@@ -159,7 +159,7 @@ class DrawBlendsGenerator(ABC):
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(self.bands),
+                    len(all_surveys[self.survey_name]["bands"]),
                 )
             )
         in_batch_blend_cat = next(self.blend_generator)
