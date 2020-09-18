@@ -4,7 +4,7 @@ import astropy.wcs as WCS
 
 
 def make_wcs(
-    pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
+    pixel_scale, shape, center_pix=None, center_sky=None, projection=None
 ):
     """Creates WCS for an image.
     Args:
@@ -12,9 +12,9 @@ def make_wcs(
         shape (tuple): shape of the image in pixels.
         center_pix (tuple): position of the reference pixel used as the center of the
                             affine transform for the wcs.
-        center_sky (list):
-        naxis (int):
-        projection(str):
+        center_sky (list): sky coordinates corresponding to center_pix, in arcseconds
+        projection(str): projection type, default to TAN. A list of available
+                            types can be found in astropy.wcs documentation
     Returns:
         wcs: WCS
     """

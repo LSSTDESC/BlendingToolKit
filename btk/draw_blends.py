@@ -87,7 +87,9 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             blend_generator: Object generator to create blended object
-            observing_generator: Observing generator for each entry in batch.
+            observing_generator: Observing generator to get observing conditions.
+                                    The observing conditions are the same for the 
+                                    whole batch.
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core
             cpus: If multiprocessing, then number of parallel processes to run.
@@ -293,6 +295,8 @@ class WLDGenerator(DrawBlendsGenerator):
             blend_list: List of catalogs with entries corresponding to one blend.
             obs_conds (list): List of `descwl.survey.Survey` class describing
                 observing conditions in different bands.
+            survey_name (str): Name of the survey (see obs_conditions.py for
+                                currently available surveys)
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with

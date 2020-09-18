@@ -12,7 +12,10 @@ class ObservingGenerator:
         """Generates class with observing conditions in each band.
 
         Args:
-             survey_name (str): Name of the survey which should be available in descwl
+             surveys (str or list): Name(s) of the survey which should be available 
+                                    in descwl. May either be a string for single survey
+                                    or a list of strings for several surveys. See 
+                                    obs_conditions.py for a list of available surveys.
              obs_conds: Class (not object) that returns observing conditions for
                              a given survey and band. If not provided, then the default
                              `descwl.survey.Survey` values for the corresponding
