@@ -1,12 +1,14 @@
 import os
+import galsim
 import astropy.table
 
 
-def load_catalog(catalog_name, selection_function=None, verbose=None):
+def load_catalog(catalog_name, selection_function=None, verbose=None, cosmos=False):
     """Returns astropy table with catalog name from input class.
 
     Args:
-        catalog_name: Name of CatSim-like catalog to draw galaxies from.
+        catalog_name: File path of CatSim-like catalog or galsim COSMOS catalog to draw
+                      galaxies from.
         selection_function: Selection cuts (if input) to place on input catalog.
         verbose: Whether to print information related to loading catalog.
 
@@ -14,10 +16,14 @@ def load_catalog(catalog_name, selection_function=None, verbose=None):
         `astropy.table`: CatSim-like catalog with a selection criteria applied
         if provided.
     """
-    name, ext = os.path.splitext(catalog_name)
-    if ext == ".fits":
-        table = astropy.table.Table.read(catalog_name, format="fits")
+
+    if cosmos:
+        cat = galsim.COSMOSCatalog(file_name=catalog_name)
+
     else:
+        _, ext = os.path.splitext(catalog_name)
+        fmt = "fits" if ext == ".fits" else "ascii.basic"
+        cat = astropy.table.Table.read(catalog_name, format=fmt)
         table = astropy.table.Table.read(catalog_name, format="ascii.basic")
 
     # convert ra dec from degrees to arcsec in catalog.
