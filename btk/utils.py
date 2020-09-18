@@ -82,7 +82,7 @@ class Stack_params(Measurement_params):
             astropy.Table of the measurement results.
         """
         image_array = data["blend_images"][index, :, :, 3].astype(np.float32)
-        obs_conds = data["obs_condition"][index][3]
+        obs_conds = data["obs_condition"][3]
         psf_image, mean_sky_level = obs_conds.get_psf_sky(self.psf_stamp_size)
         variance_array = image_array + mean_sky_level
         psf_array = psf_image.astype(np.float64)
@@ -268,8 +268,8 @@ class Scarlet_params(Measurement_params):
         variances = np.zeros_like(images)
         n_bands = images.shape[0]
         for i in range(n_bands):
-            bands.append(data["obs_condition"][index][i].filter_band)
-            obs_conds = data["obs_condition"][index][i]
+            bands.append(data["obs_condition"][i].filter_band)
+            obs_conds = data["obs_condition"][i]
             psf, mean_sky_level = obs_conds.get_psf_sky(psf_stamp_size)
             psfs[i] = psf
             variances[i] = images[i] + mean_sky_level

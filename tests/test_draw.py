@@ -36,7 +36,7 @@ def get_draw_generator(
     )
     obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name="LSST", obs_conds=obs_conds
+        "LSST", obs_conds=obs_conds
     )
     draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
@@ -73,7 +73,7 @@ def test_default(match_images):
     ), "Default max_number should \
         generate 2 or 1 galaxies per blend."
     assert (
-        draw_output["obs_condition"][5][0].survey_name == "LSST"
+        draw_output["obs_condition"][0].survey_name == "LSST"
     ), "Default \
         observing survey is LSST."
     match_images.match_blend_images_default(draw_output["blend_images"])

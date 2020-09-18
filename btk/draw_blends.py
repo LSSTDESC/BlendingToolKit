@@ -184,7 +184,7 @@ class DrawBlendsGenerator(ABC):
                 "blend_images": blend_images[survey_name],
                 "isolated_images": isolated_images[survey_name],
                 "blend_list": batch_blend_cat[survey_name],
-                "obs_condition": obs_conds,
+                "obs_condition": obs_conds[survey_name],
             }
         return output
 
