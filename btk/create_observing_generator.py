@@ -7,6 +7,7 @@ class ObservingGenerator:
         survey_name,
         obs_conds=None,
         verbose=False,
+        stamp_size=24,
     ):
         """Generates class with observing conditions in each band.
 
@@ -26,8 +27,9 @@ class ObservingGenerator:
 
         # create default observing conditions
         if obs_conds is None:
-            self.obs_conds = DefaultObsConditions()
+            self.obs_conds = DefaultObsConditions(stamp_size)
         else:
+            assert obs_conds.stamp_size == stamp_size
             self.obs_conds = obs_conds
 
     def __iter__(self):
