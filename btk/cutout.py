@@ -21,13 +21,13 @@ def make_wcs(
     if center_pix is None:
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
-        center_sky = [0 for _ in range(naxis)]
+        center_sky = [0 for _ in range(2)]
     if projection is None:
         projection = "TAN"
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
-    w.wcs.cdelt = [pixel_scale / 3600 for _ in range(naxis)]
+    w.wcs.cdelt = [pixel_scale / 3600 for _ in range(2)]
     w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
