@@ -172,7 +172,7 @@ class Scarlet_params(Measurement_params):
     """"""
 
     iters = 200  # Maximum number of iterations for scarlet to run
-    e_rel = 1e-4  # Relative error for convergence
+    e_rel = 1e-5  # Relative error for convergence
     detect_centers = True
 
     def __init__(self, show_scene=False):
@@ -236,8 +236,6 @@ class Scarlet_params(Measurement_params):
                 model_frame,
                 (peak[1], peak[0]),
                 observation,
-                symmetric=True,
-                monotonic=True,
                 thresh=1,
                 shifting=True,
             )
