@@ -102,16 +102,12 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        self.multiresolution = self.observing_generator.multiresolution
-        self.survey_name = self.observing_generator.survey_name
+        self.surveys = self.observing_generator.surveys
         self.stamp_size = self.observing_generator.obs_conds.stamp_size
 
-        if self.multiresolution:
-            self.bands = {}
-            for s in self.survey_name:
-                self.bands[s] = all_surveys[s]["bands"]
-        else:
-            self.bands = {self.survey_name:all_surveys[self.survey_name]["bands"]}
+        self.bands = {}
+        for s in self.surveys:
+            self.bands[s] = all_surveys[s]["bands"]
         self.meas_band = meas_band
 
         self.add_noise = add_noise
@@ -128,70 +124,35 @@ class DrawBlendsGenerator(ABC):
             Dictionary with blend images, isolated object images, blend catalog,
             and observing conditions.
         """
-        if self.multiresolution:
-            batch_blend_cat, batch_obs_cond, batch_wcs = {},{},{}
-            blend_images = {}
-            isolated_images = {}
-            for s in self.survey_name:
-                pix_stamp_size = int(self.stamp_size / all_surveys[s]["pixel_scale"])
-                blend_images[s] = np.zeros(
-                    (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands[s]))
-                )
-                isolated_images[s] = np.zeros(
-                    (
-                        self.batch_size,
-                        self.max_number,
-                        pix_stamp_size,
-                        pix_stamp_size,
-                        len(self.bands[s])
-                    )
-                )
-                batch_blend_cat[s], batch_obs_cond[s], batch_wcs[s] = [],[],[]
-        else:
-            batch_blend_cat, batch_obs_cond, batch_wcs = [],[],[]
-            pix_stamp_size = int(self.stamp_size / all_surveys[self.survey_name]["pixel_scale"])
-            blend_images = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(all_surveys[self.survey_name]["bands"]))
+        batch_blend_cat, batch_obs_cond, batch_wcs = {}, {}, {}
+        blend_images = {}
+        isolated_images = {}
+        for s in self.surveys:
+            pix_stamp_size = int(self.stamp_size / all_surveys[s]["pixel_scale"])
+            blend_images[s] = np.zeros(
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands[s]))
             )
-            isolated_images = np.zeros(
+            isolated_images[s] = np.zeros(
                 (
                     self.batch_size,
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(all_surveys[self.survey_name]["bands"]),
+                    len(self.bands[s]),
                 )
             )
+            batch_blend_cat[s], batch_obs_cond[s], batch_wcs[s] = [], [], []
+
         in_batch_blend_cat = next(self.blend_generator)
         obs_conds = next(self.observing_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        if self.multiresolution:
-            for s in self.survey_name:
-                input_args = [
-                     (copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]), copy.deepcopy(obs_conds[s]),s)
-                for i in range(0, self.batch_size, mini_batch_size)
-                ]
-
-                # multiprocess and join results
-                mini_batch_results = multiprocess(
-                    self.run_mini_batch,
-                    input_args,
-                    self.cpus,
-                    self.multiprocessing,
-                    self.verbose,
-                )
-                batch_results = list(chain(*mini_batch_results))
-
-                # organize results.
-                for i in range(self.batch_size):
-                    blend_images[s][i] = batch_results[i][0]
-                    isolated_images[s][i] = batch_results[i][1]
-                    batch_blend_cat[s].append(batch_results[i][2])
-                    batch_obs_cond[s].append(obs_conds)
-                    batch_wcs[s].append(batch_results[i][3])
-        else:
+        for s in self.surveys:
             input_args = [
-                (in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_conds),self.survey_name)
+                (
+                    copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]),
+                    copy.deepcopy(obs_conds[s]),
+                    s,
+                )
                 for i in range(0, self.batch_size, mini_batch_size)
             ]
 
@@ -207,18 +168,28 @@ class DrawBlendsGenerator(ABC):
 
             # organize results.
             for i in range(self.batch_size):
-                blend_images[i] = batch_results[i][0]
-                isolated_images[i] = batch_results[i][1]
-                batch_blend_cat.append(batch_results[i][2])
-                batch_obs_cond.append(obs_conds)
-                batch_wcs.append(batch_results[i][3])
-        output = {
-            "blend_images": blend_images,
-            "isolated_images": isolated_images,
-            "blend_list": batch_blend_cat,
-            "obs_condition": batch_obs_cond,
-            "wcs": batch_wcs,
-        }
+                blend_images[s][i] = batch_results[i][0]
+                isolated_images[s][i] = batch_results[i][1]
+                batch_blend_cat[s].append(batch_results[i][2])
+                batch_obs_cond[s].append(obs_conds)
+                batch_wcs[s].append(batch_results[i][3])
+        if len(self.surveys) > 1:
+            output = {
+                "blend_images": blend_images,
+                "isolated_images": isolated_images,
+                "blend_list": batch_blend_cat,
+                "obs_condition": batch_obs_cond,
+                "wcs": batch_wcs,
+            }
+        else:
+            survey_name = self.surveys[0]
+            output = {
+                "blend_images": blend_images[survey_name],
+                "isolated_images": isolated_images[survey_name],
+                "blend_list": batch_blend_cat[survey_name],
+                "obs_condition": batch_obs_cond[survey_name],
+                "wcs": batch_wcs[survey_name],
+            }
         return output
 
     @abstractmethod
@@ -334,18 +305,23 @@ class WLDGenerator(DrawBlendsGenerator):
         mini_batch_outputs = []
         for i in range(len(blend_list)):
             pixel_scale = obs_conds[0].pixel_scale
-            dx, dy = get_center_in_pixels(
-                blend_list[i], self.stamp_size, pixel_scale
-            )
+            dx, dy = get_center_in_pixels(blend_list[i], self.stamp_size, pixel_scale)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(
-                pixel_scale, blend_list[i], obs_conds[self.bands[survey_name] == self.meas_band]
+                pixel_scale,
+                blend_list[i],
+                obs_conds[self.bands[survey_name] == self.meas_band],
             )
             blend_list[i].add_column(size)
             pix_stamp_size = int(self.stamp_size / pixel_scale)
             iso_image_multi = np.zeros(
-                (self.max_number, pix_stamp_size, pix_stamp_size, len(self.bands[survey_name]))
+                (
+                    self.max_number,
+                    pix_stamp_size,
+                    pix_stamp_size,
+                    len(self.bands[survey_name]),
+                )
             )
             blend_image_multi = np.zeros(
                 (pix_stamp_size, pix_stamp_size, len(self.bands[survey_name]))
