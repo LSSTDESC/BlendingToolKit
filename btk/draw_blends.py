@@ -124,7 +124,7 @@ class DrawBlendsGenerator(ABC):
             Dictionary with blend images, isolated object images, blend catalog,
             and observing conditions.
         """
-        batch_blend_cat, batch_obs_cond, batch_wcs = {}, {}, {}
+        batch_blend_cat, batch_obs_cond = {}, {}
         blend_images = {}
         isolated_images = {}
         for s in self.surveys:
@@ -141,7 +141,7 @@ class DrawBlendsGenerator(ABC):
                     len(self.bands[s]),
                 )
             )
-            batch_blend_cat[s], batch_obs_cond[s], batch_wcs[s] = [], [], []
+            batch_blend_cat[s], batch_obs_cond[s] = [], []
 
         in_batch_blend_cat = next(self.blend_generator)
         obs_conds = next(self.observing_generator)
@@ -171,15 +171,12 @@ class DrawBlendsGenerator(ABC):
                 blend_images[s][i] = batch_results[i][0]
                 isolated_images[s][i] = batch_results[i][1]
                 batch_blend_cat[s].append(batch_results[i][2])
-                batch_obs_cond[s].append(obs_conds)
-                batch_wcs[s].append(batch_results[i][3])
         if len(self.surveys) > 1:
             output = {
                 "blend_images": blend_images,
                 "isolated_images": isolated_images,
                 "blend_list": batch_blend_cat,
-                "obs_condition": batch_obs_cond,
-                "wcs": batch_wcs,
+                "obs_condition": obs_conds,
             }
         else:
             survey_name = self.surveys[0]
@@ -187,8 +184,7 @@ class DrawBlendsGenerator(ABC):
                 "blend_images": blend_images[survey_name],
                 "isolated_images": isolated_images[survey_name],
                 "blend_list": batch_blend_cat[survey_name],
-                "obs_condition": batch_obs_cond[survey_name],
-                "wcs": batch_wcs[survey_name],
+                "obs_condition": obs_conds,
             }
         return output
 
@@ -333,8 +329,7 @@ class WLDGenerator(DrawBlendsGenerator):
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
 
-            wcs = obs_conds[0].wcs
             mini_batch_outputs.append(
-                [blend_image_multi, iso_image_multi, blend_list[i], wcs]
+                [blend_image_multi, iso_image_multi, blend_list[i]]
             )
         return mini_batch_outputs

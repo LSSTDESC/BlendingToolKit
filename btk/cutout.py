@@ -27,8 +27,8 @@ def make_wcs(
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
-    w.wcs.cdelt = [pixel_scale for _ in range(naxis)]
-    w.wcs.crval = center_sky
+    w.wcs.cdelt = [pixel_scale / 3600 for _ in range(naxis)]
+    w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
 

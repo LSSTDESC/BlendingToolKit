@@ -4,7 +4,7 @@ from btk.obs_conditions import DefaultObsConditions, all_surveys
 class ObservingGenerator:
     def __init__(
         self,
-        survey_name,
+        surveys,
         obs_conds=None,
         verbose=False,
         stamp_size=24,
@@ -18,13 +18,17 @@ class ObservingGenerator:
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
         """
-        if type(survey_name) == str:
-            self.surveys = [survey_name]
-        elif type(survey_name) == list:
-            self.surveys = survey_name
+        if type(surveys) == str:
+            self.surveys = [surveys]
+        elif type(surveys) == list:
+            self.surveys = surveys
         else:
             raise TypeError("survey_name is not in the right format")
         self.verbose = verbose
+
+        for s in self.surveys:
+            if s not in all_surveys:
+                raise KeyError("Survey not implemented.")
 
         # create default observing conditions
         if obs_conds is None:
