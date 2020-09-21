@@ -11,7 +11,7 @@ from btk.multiprocess import multiprocess
 from btk.obs_conditions import all_surveys
 
 
-def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
+def get_center_in_pixels(blend_catalog, wcs):
     """Returns center of objects in blend_catalog in pixel coordinates of
     postage stamp.
 
@@ -22,15 +22,13 @@ def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
 
     Args:
         blend_catalog: Catalog with entries corresponding to one blend.
-        stamp_size: In arcseconds.
-        pixel_scale: Number of pixels per arcsecond.
-
+        wcs: astropy.wcs.WCS object corresponding to the image
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    center = (stamp_size / pixel_scale - 1) / 2
-    dx = blend_catalog["ra"] / pixel_scale + center
-    dy = blend_catalog["dec"] / pixel_scale + center
+    dx, dy = wcs.all_world2pix(
+        blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0
+    )
     dx_col = Column(dx, name="dx")
     dy_col = Column(dy, name="dy")
     return dx_col, dy_col
@@ -305,7 +303,7 @@ class WLDGenerator(DrawBlendsGenerator):
         mini_batch_outputs = []
         for i in range(len(blend_list)):
             pixel_scale = obs_conds[0].pixel_scale
-            dx, dy = get_center_in_pixels(blend_list[i], self.stamp_size, pixel_scale)
+            dx, dy = get_center_in_pixels(blend_list[i], obs_conds[0].wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(

@@ -104,6 +104,7 @@ def test_multi_processing():
     )
     pass
 
+
 @pytest.mark.timeout(10)
 def test_multiresolution():
     catalog_name = "data/sample_input_catalog.fits"
@@ -114,7 +115,7 @@ def test_multiresolution():
     cpus = 1
     multiprocessing = False
     add_noise = True
-    
+
     catalog = btk.get_input_catalog.load_catalog(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
@@ -122,7 +123,7 @@ def test_multiresolution():
     )
     obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        ["LSST","HSC"], obs_conds=obs_conds
+        ["LSST", "HSC"], obs_conds=obs_conds
     )
     draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
@@ -132,8 +133,16 @@ def test_multiresolution():
         add_noise=add_noise,
     )
     draw_output = next(draw_generator)
-    
-    assert "LSST" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert "HSC" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert draw_output["blend_images"]["LSST"][0].shape[0] == int(24.0/0.2), "LSST survey should have a pixel scale of 0.2"
-    assert draw_output["blend_images"]["HSC"][0].shape[0] == int(24.0/0.17), "HSC survey should have a pixel scale of 0.17"
+
+    assert (
+        "LSST" in draw_output["blend_list"].keys()
+    ), "Both surveys get well defined outputs"
+    assert (
+        "HSC" in draw_output["blend_list"].keys()
+    ), "Both surveys get well defined outputs"
+    assert draw_output["blend_images"]["LSST"][0].shape[0] == int(
+        24.0 / 0.2
+    ), "LSST survey should have a pixel scale of 0.2"
+    assert draw_output["blend_images"]["HSC"][0].shape[0] == int(
+        24.0 / 0.17
+    ), "HSC survey should have a pixel scale of 0.17"

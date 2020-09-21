@@ -3,9 +3,7 @@ from abc import ABC
 import astropy.wcs as WCS
 
 
-def make_wcs(
-    pixel_scale, shape, center_pix=None, center_sky=None, projection=None
-):
+def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=None):
     """Creates WCS for an image.
     Args:
         pixel_scale (float): pixel size in arcseconds
