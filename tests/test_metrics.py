@@ -6,7 +6,9 @@ import numpy as np
 
 
 def compare_basic_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk default detection to the expected
     result test_metric_summary.
@@ -26,7 +28,12 @@ def compare_basic_metric(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -70,13 +77,17 @@ def run_metrics_basic(input_args):
     )
 
     compare_basic_metric(
-        user_config_dict, simulation_config_dict, btk_input,
+        user_config_dict,
+        simulation_config_dict,
+        btk_input,
     )
     pass
 
 
 def compare_sep_group_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk sep detection to the expected
     result, test_metric_summary.
@@ -108,7 +119,12 @@ def compare_sep_group_metric(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -156,13 +172,17 @@ def run_metrics_sep(input_args):
         )
 
         compare_sep_group_metric(
-            user_config_dict, simulation_config_dict, btk_input,
+            user_config_dict,
+            simulation_config_dict,
+            btk_input,
         )
     pass
 
 
 def compare_stack_group_metric(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Compares summary table output from btk stack detection to the expected
     result, test_metric_summary.
@@ -194,7 +214,12 @@ def compare_stack_group_metric(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -238,7 +263,9 @@ def run_metrics_stack(input_args):
         user_config_dict["utils_input"]["measure_function"] = "Stack_params"
 
         compare_stack_group_metric(
-            user_config_dict, simulation_config_dict, btk_input,
+            user_config_dict,
+            simulation_config_dict,
+            btk_input,
         )
     pass
 

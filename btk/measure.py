@@ -90,7 +90,11 @@ class MeasureGenerator:
         measured_results = {}
         input_args = [(blend_output, i) for i in range(self.batch_size)]
         batch_results = multiprocess(
-            self.run_batch, input_args, self.cpus, self.multiprocessing, self.verbose,
+            self.run_batch,
+            input_args,
+            self.cpus,
+            self.multiprocessing,
+            self.verbose,
         )
         for i in range(self.batch_size):
             deblend_results.update({i: batch_results[i][0]})

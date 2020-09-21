@@ -211,7 +211,9 @@ def test_input_output(input_args):
 
 
 def basic_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the default meas generator  matches
     the pre-computed value .
@@ -240,7 +242,12 @@ def basic_meas(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -267,7 +274,9 @@ def basic_meas(
 
 
 def sep_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the sep meas generator  matches
     the pre-computed value .
@@ -296,7 +305,12 @@ def sep_meas(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -323,7 +337,9 @@ def sep_meas(
 
 
 def stack_meas(
-    user_config_dict, simulation_config_dict, btk_input,
+    user_config_dict,
+    simulation_config_dict,
+    btk_input,
 ):
     """Checks if detection output from the stack meas generator  matches
     the pre-computed value .
@@ -358,7 +374,12 @@ def stack_meas(
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -420,7 +441,12 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
         [[-1.3, -1.0, 1.2, -2.3], [-0.2, -0.9, -1.8, 1.4]],
     ]
     indexes = [
-        [3, 1, 9, 6,],
+        [
+            3,
+            1,
+            9,
+            6,
+        ],
         [6, 10, 3, 7, 4],
         [10, 0, 7, 1, 9, 4],
         [1, 3, 2, 8],
@@ -462,7 +488,9 @@ def test_measure(input_args):
 
     user_config_dict = config_dict["user_input"]
     basic_meas(
-        user_config_dict, simulation_config_dict, btk_input,
+        user_config_dict,
+        simulation_config_dict,
+        btk_input,
     )
     try:
         sep_meas(user_config_dict, simulation_config_dict, btk_input)

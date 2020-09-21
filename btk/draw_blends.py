@@ -86,7 +86,7 @@ class DrawBlendsGenerator(ABC):
         Args:
             blend_generator: Object generator to create blended object
             observing_generator: Observing generator to get observing conditions.
-                                    The observing conditions are the same for the 
+                                    The observing conditions are the same for the
                                     whole batch.
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core

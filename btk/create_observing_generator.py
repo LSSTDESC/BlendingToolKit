@@ -12,9 +12,9 @@ class ObservingGenerator:
         """Generates class with observing conditions in each band.
 
         Args:
-             surveys (str or list): Name(s) of the survey which should be available 
+             surveys (str or list): Name(s) of the survey which should be available
                                     in descwl. May either be a string for single survey
-                                    or a list of strings for several surveys. See 
+                                    or a list of strings for several surveys. See
                                     obs_conditions.py for a list of available surveys.
              obs_conds: Class (not object) that returns observing conditions for
                              a given survey and band. If not provided, then the default
@@ -37,7 +37,11 @@ class ObservingGenerator:
         if obs_conds is None:
             self.obs_conds = DefaultObsConditions(stamp_size)
         else:
-            assert obs_conds.stamp_size == stamp_size
+            if not obs_conds.stamp_size == stamp_size:
+                raise ValueError(
+                    "Observing conditions stamp_size does not match "
+                    "stamp_size given."
+                )
             self.obs_conds = obs_conds
 
     def __iter__(self):
