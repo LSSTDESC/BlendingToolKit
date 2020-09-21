@@ -222,15 +222,15 @@ class WLDGenerator(DrawBlendsGenerator):
         )
         return iso_obs
 
-    def run_single_band(self, blend_catalog, obs_conds, band):
+    def run_single_band(self, blend_catalog, cutout, band):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
         blend_catalog entries and with observing conditions determined by
-        obs_conds. The rendered objects are stored in the observing conditions
+        cutout. The rendered objects are stored in the observing conditions
         class. So as to not overwrite images across different blends, we make a
-        copy of the obs_conds while drawing each galaxy. Images of isolated
+        copy of the cutout while drawing each galaxy. Images of isolated
         galaxies are drawn with the WLDeblending and them summed to produce the
         blend image.
 
@@ -239,7 +239,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         Args:
             blend_catalog: Catalog with entries corresponding to one blend.
-            obs_conds: `descwl.survey.Survey` class describing observing conditions.
+            cutout: `btk.cutout.Cutout` class describing observing conditions.
             band(string): Name of band to draw images in.
 
         Returns:
@@ -250,16 +250,16 @@ class WLDGenerator(DrawBlendsGenerator):
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
         )
         galaxy_builder = descwl.model.GalaxyBuilder(
-            obs_conds, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
+            cutout, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
         )
-        pix_stamp_size = np.int(self.stamp_size / obs_conds.pixel_scale)
+        pix_stamp_size = np.int(self.stamp_size / cutout.pixel_scale)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         # define temporary galsim image
         # this will hold isolated galaxy images that will be summed
         blend_image_temp = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-        mean_sky_level = obs_conds.mean_sky_level
+        mean_sky_level = cutout.mean_sky_level
         for k, entry in enumerate(blend_catalog):
-            iso_obs = copy.deepcopy(obs_conds)
+            iso_obs = copy.deepcopy(cutout)
             try:
                 galaxy = galaxy_builder.from_catalog(
                     entry, entry["ra"], entry["dec"], band
@@ -281,7 +281,7 @@ class WLDGenerator(DrawBlendsGenerator):
         blend_image = blend_image_temp.array
         return blend_image, iso_image
 
-    def run_mini_batch(self, blend_list, obs_conds, survey_name):
+    def run_mini_batch(self, blend_list, cutouts, survey_name):
         """Returns isolated and blended images for bend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -291,7 +291,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         Args:
             blend_list: List of catalogs with entries corresponding to one blend.
-            obs_conds (list): List of `descwl.survey.Survey` class describing
+            cutouts (list): List of `btk.cutout.Cutout` objects describing
                 observing conditions in different bands.
             survey_name (str): Name of the survey (see obs_conditions.py for
                                 currently available surveys)
@@ -302,14 +302,14 @@ class WLDGenerator(DrawBlendsGenerator):
         """
         mini_batch_outputs = []
         for i in range(len(blend_list)):
-            pixel_scale = obs_conds[0].pixel_scale
-            dx, dy = get_center_in_pixels(blend_list[i], obs_conds[0].wcs)
+            pixel_scale = cutouts[0].pixel_scale
+            dx, dy = get_center_in_pixels(blend_list[i], cutouts[0].wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(
                 pixel_scale,
                 blend_list[i],
-                obs_conds[self.bands[survey_name] == self.meas_band],
+                cutouts[self.bands[survey_name] == self.meas_band],
             )
             blend_list[i].add_column(size)
             pix_stamp_size = int(self.stamp_size / pixel_scale)
@@ -326,7 +326,7 @@ class WLDGenerator(DrawBlendsGenerator):
             )
             for j in range(len(self.bands[survey_name])):
                 single_band_output = self.run_single_band(
-                    blend_list[i], obs_conds[j], self.bands[survey_name][j]
+                    blend_list[i], cutouts[j], self.bands[survey_name][j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
