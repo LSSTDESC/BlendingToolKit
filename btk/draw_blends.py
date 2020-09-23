@@ -91,7 +91,7 @@ class DrawBlendsGenerator(ABC):
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core
             cpus: If multiprocessing, then number of parallel processes to run.
-            meas_band:
+            meas_band (str): Name of
         """
 
         self.blend_generator = blend_generator
@@ -144,7 +144,7 @@ class DrawBlendsGenerator(ABC):
             batch_blend_cat[s], batch_obs_cond[s] = [], []
 
         in_batch_blend_cat = next(self.blend_generator)
-        obs_conds = next(self.observing_generator)
+        obs_conds = next(self.observing_generator)  # same for every blend in batch.
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
         for s in self.surveys:
             input_args = [
@@ -157,6 +157,7 @@ class DrawBlendsGenerator(ABC):
             ]
 
             # multiprocess and join results
+            # ideally, each cpu processes a single mini_batch
             mini_batch_results = multiprocess(
                 self.run_mini_batch,
                 input_args,
@@ -164,6 +165,8 @@ class DrawBlendsGenerator(ABC):
                 self.multiprocessing,
                 self.verbose,
             )
+
+            # join results across mini-batches.
             batch_results = list(chain(*mini_batch_results))
 
             # organize results.
@@ -189,7 +192,7 @@ class DrawBlendsGenerator(ABC):
         return output
 
     @abstractmethod
-    def run_mini_batch(self, blend_catalog, obs_conds):
+    def run_mini_batch(self, blend_catalog, obs_conds, survey_name):
         pass
 
 
@@ -290,9 +293,13 @@ class WLDGenerator(DrawBlendsGenerator):
         was not drawn and object centers in pixel coordinates.
 
         Args:
-            blend_list: List of catalogs with entries corresponding to one blend.
+            blend_list (list): List of catalogs with entries corresponding to one
+                               blend. The size of this list is equal to the
+                               mini_batch_size.
             cutouts (list): List of `btk.cutout.Cutout` objects describing
-                observing conditions in different bands.
+                            observing conditions in different bands for given survey
+                            `survey_name`. The order of cutouts corresponds to order in
+                            `self.bands[survey_name]`.
             survey_name (str): Name of the survey (see obs_conditions.py for
                                 currently available surveys)
 
@@ -302,7 +309,9 @@ class WLDGenerator(DrawBlendsGenerator):
         """
         mini_batch_outputs = []
         for i in range(len(blend_list)):
-            pixel_scale = cutouts[0].pixel_scale
+
+            # All bands in same survey have same pixel scale
+            pixel_scale = all_surveys[survey_name]["pixel_scale"]
             dx, dy = get_center_in_pixels(blend_list[i], cutouts[0].wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)

@@ -97,7 +97,6 @@ def get_m_z_diff(true_table, detected_true):
     dx = true_table["dx"] - match["dx"]
     dy = true_table["dy"] - match["dy"]
     true_table["ddist_match"] = np.hypot(dx, dy)
-    true_table["dnorm_dist_match"] = np.hypot(dx, dy) / match["size"]
 
 
 def initialize_detection_tables(
@@ -156,7 +155,7 @@ def get_detection_match(true_table, detected_table):
     """Match detections to true objects and update values in the input
     blend catalog and detection catalog.
 
-    Function does not return anything, only the astropy tables are updates.
+    Function does not return anything, only the astropy tables are updated.
 
     Args:
         true_table (astropy.table.Table): Table with entries corresponding to
