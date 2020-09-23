@@ -42,7 +42,7 @@ class DefaultSampling(SamplingFunction):
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
-                             is set as one-tenth the stamp size. In arcseconds.
+                             is set as one-tenth the stamp size. (in arcseconds)
         """
         super().__init__(max_number)
         self.stamp_size = stamp_size
@@ -192,9 +192,7 @@ class GroupSamplingFunction(SamplingFunction):
         # postage stamp.
         blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
         blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
-        # convert ra dec from degrees to arcsec
-        blend_catalog["ra"] *= 3600
-        blend_catalog["dec"] *= 3600
+
         # Add small random shift so that center does not perfectly align with
         # the stamp center
         if self.shift is None:
@@ -274,9 +272,6 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         # postage stamp.
         blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
         blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
-        # convert ra dec from degrees to arcsec
-        blend_catalog["ra"] *= 3600
-        blend_catalog["dec"] *= 3600
         # Add small random shift so that center does not perfectly align with stamp
         # center
         if self.shift is None:
