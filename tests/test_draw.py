@@ -131,6 +131,7 @@ def test_multiresolution():
         multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
+        meas_bands=("i", "i"),
     )
     draw_output = next(draw_generator)
 
