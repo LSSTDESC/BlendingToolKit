@@ -97,7 +97,6 @@ def get_m_z_diff(true_table, detected_true):
     dx = true_table["dx"] - match["dx"]
     dy = true_table["dy"] - match["dy"]
     true_table["ddist_match"] = np.hypot(dx, dy)
-    true_table["dnorm_dist_match"] = np.hypot(dx, dy) / match["size"]
 
 
 def initialize_detection_tables(
@@ -156,7 +155,7 @@ def get_detection_match(true_table, detected_table):
     """Match detections to true objects and update values in the input
     blend catalog and detection catalog.
 
-    Function does not return anything, only the astropy tables are updates.
+    Function does not return anything, only the astropy tables are updated.
 
     Args:
         true_table (astropy.table.Table): Table with entries corresponding to
@@ -344,7 +343,7 @@ def evaluate_shapes(shapes, data=None, index=None):
     return None
 
 
-def run(metrics_params, test_size=1000, dSigma_detection=True):
+def run(metrics_params, test_size=1000):
     """Runs detection/segmentation/flux/shape measurement algorithm defined in
     the input metrics params for input test_size number of btk runs.
 
@@ -354,8 +353,6 @@ def run(metrics_params, test_size=1000, dSigma_detection=True):
         results of detection/deblending/measurement algorithm.
         test_size(int): Number of times Metrics_params is run and results
             summarized.
-        dSigma_detection(bool): If true then detection match is
-            made on the size normalized distance.
 
     Returns:
         dict summarizing detection/deblending/measurement results.

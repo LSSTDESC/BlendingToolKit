@@ -67,7 +67,6 @@ jobs:
         pip install pytest pytest-cov pytest-timeout
         pip install black==20.8b1
 
-
     - name: Run Tests
       run: |
         black --check ./btk ./btk_input.py ./tests

@@ -19,6 +19,11 @@ def load_catalog(catalog_name, selection_function=None, verbose=None):
         table = astropy.table.Table.read(catalog_name, format="fits")
     else:
         table = astropy.table.Table.read(catalog_name, format="ascii.basic")
+
+    # convert ra dec from degrees to arcsec in catalog.
+    table["ra"] *= 3600
+    table["dec"] *= 3600
+
     if verbose:
         print("Catalog loaded")
     if selection_function:

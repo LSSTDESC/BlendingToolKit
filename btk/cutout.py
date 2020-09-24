@@ -3,32 +3,30 @@ from abc import ABC
 import astropy.wcs as WCS
 
 
-def make_wcs(
-    pixel_scale, shape, center_pix=None, center_sky=None, projection=None, naxis=2
-):
+def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=None):
     """Creates WCS for an image.
     Args:
         pixel_scale (float): pixel size in arcseconds
         shape (tuple): shape of the image in pixels.
         center_pix (tuple): position of the reference pixel used as the center of the
                             affine transform for the wcs.
-        center_sky (list):
-        naxis (int):
-        projection(str):
+        center_sky (list): sky coordinates corresponding to center_pix, in arcseconds
+        projection(str): projection type, default to TAN. A list of available
+                            types can be found in astropy.wcs documentation
     Returns:
         wcs: WCS
     """
     if center_pix is None:
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
-        center_sky = [0 for _ in range(naxis)]
+        center_sky = [0 for _ in range(2)]
     if projection is None:
         projection = "TAN"
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
-    w.wcs.cdelt = [pixel_scale for _ in range(naxis)]
-    w.wcs.crval = center_sky
+    w.wcs.cdelt = [pixel_scale / 3600 for _ in range(2)]
+    w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
 

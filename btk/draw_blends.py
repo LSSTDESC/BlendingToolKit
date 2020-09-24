@@ -11,7 +11,7 @@ from btk.multiprocess import multiprocess
 from btk.obs_conditions import all_surveys
 
 
-def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
+def get_center_in_pixels(blend_catalog, wcs):
     """Returns center of objects in blend_catalog in pixel coordinates of
     postage stamp.
 
@@ -22,21 +22,19 @@ def get_center_in_pixels(blend_catalog, stamp_size, pixel_scale):
 
     Args:
         blend_catalog: Catalog with entries corresponding to one blend.
-        stamp_size: In arcseconds.
-        pixel_scale: Number of pixels per arcsecond.
-
+        wcs: astropy.wcs.WCS object corresponding to the image
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    center = (stamp_size / pixel_scale - 1) / 2
-    dx = blend_catalog["ra"] / pixel_scale + center
-    dy = blend_catalog["dec"] / pixel_scale + center
+    dx, dy = wcs.all_world2pix(
+        blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0
+    )
     dx_col = Column(dx, name="dx")
     dy_col = Column(dy, name="dy")
     return dx_col, dy_col
 
 
-def get_size(pixel_scale, catalog, meas_obs_cond):
+def get_size(pixel_scale, catalog, cutout):
     """Returns a astropy.table.column with the size of the galaxy.
 
     Galaxy size is estimated as second moments size (r_sec) computed as
@@ -47,8 +45,8 @@ def get_size(pixel_scale, catalog, meas_obs_cond):
     Args:
         pixel_scale: arcseconds per pixel
         catalog: Catalog with entries corresponding to one blend.
-        meas_obs_cond: `descwl.survey.Survey` class describing
-            observing conditions in bands to take measurement in.
+        cutout: `btk.Cutout.cutout` class describing
+                observing conditions in bands to take measurement in.
 
     Returns:
         `astropy.table.Column`: size of the galaxy.
@@ -59,7 +57,7 @@ def get_size(pixel_scale, catalog, meas_obs_cond):
     hlr_d = np.sqrt(catalog["a_d"] * catalog["b_d"])
     hlr_b = np.sqrt(catalog["a_b"] * catalog["b_b"])
     r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66, hlr_b * f ** 0.5 * 1.46)
-    psf = meas_obs_cond.psf_model
+    psf = cutout.psf_model
     psf_r_sec = psf.calculateMomentRadius()
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name="size")
@@ -70,7 +68,7 @@ class DrawBlendsGenerator(ABC):
         self,
         blend_generator,
         observing_generator,
-        meas_band="i",
+        meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
         verbose=False,
@@ -87,11 +85,15 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             blend_generator: Object generator to create blended object
-            observing_generator: Observing generator for each entry in batch.
+            observing_generator: Observing generator to get observing conditions.
+                                    The observing conditions are the same for the
+                                    whole batch.
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core
             cpus: If multiprocessing, then number of parallel processes to run.
-            meas_band:
+            meas_bands (tuple): For each survey in `self.observing_generator.surveys`,
+                               the band in that survey for which measurements of e.g.
+                               size will be made. Tuple order should be same as `surveys`.
         """
 
         self.blend_generator = blend_generator
@@ -102,17 +104,17 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        # TODO: Pinning pixel scale like this will be a problem for multi-resolution.
-        self.survey_name = self.observing_generator.survey_name
+        self.surveys = self.observing_generator.surveys
         self.stamp_size = self.observing_generator.obs_conds.stamp_size
-        self.pixel_scale = all_surveys[self.survey_name]["pixel_scale"]
 
-        self.bands = self.observing_generator.bands
-        self.meas_band = meas_band
+        self.bands = {}  # map from survey name to band.
+        self.meas_bands = {}
+        for i, s in enumerate(self.surveys):
+            self.bands[s] = all_surveys[s]["bands"]
+            self.meas_bands[s] = meas_bands[i]
 
         self.add_noise = add_noise
         self.min_snr = min_snr
-
         self.verbose = verbose
 
     def __iter__(self):
@@ -124,57 +126,76 @@ class DrawBlendsGenerator(ABC):
             Dictionary with blend images, isolated object images, blend catalog,
             and observing conditions.
         """
-        batch_blend_cat, batch_obs_cond, batch_wcs = [], [], []
-        pix_stamp_size = int(self.stamp_size / self.pixel_scale)
-
-        blend_images = np.zeros(
-            (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands))
-        )
-        isolated_images = np.zeros(
-            (
-                self.batch_size,
-                self.max_number,
-                pix_stamp_size,
-                pix_stamp_size,
-                len(self.bands),
+        batch_blend_cat, batch_obs_cond = {}, {}
+        blend_images = {}
+        isolated_images = {}
+        for s in self.surveys:
+            pix_stamp_size = int(self.stamp_size / all_surveys[s]["pixel_scale"])
+            blend_images[s] = np.zeros(
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands[s]))
             )
-        )
+
+            isolated_images[s] = np.zeros(
+                (
+                    self.batch_size,
+                    self.max_number,
+                    pix_stamp_size,
+                    pix_stamp_size,
+                    len(self.bands[s]),
+                )
+            )
+            batch_blend_cat[s], batch_obs_cond[s] = [], []
+
         in_batch_blend_cat = next(self.blend_generator)
-        obs_conds = next(self.observing_generator)
+        obs_conds = next(self.observing_generator)  # same for every blend in batch.
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        input_args = [
-            (in_batch_blend_cat[i : i + mini_batch_size], copy.deepcopy(obs_conds))
-            for i in range(0, self.batch_size, mini_batch_size)
-        ]
+        for s in self.surveys:
+            input_args = [
+                (
+                    copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]),
+                    copy.deepcopy(obs_conds[s]),
+                    s,
+                )
+                for i in range(0, self.batch_size, mini_batch_size)
+            ]
 
-        # multiprocess and join results
-        mini_batch_results = multiprocess(
-            self.run_mini_batch,
-            input_args,
-            self.cpus,
-            self.multiprocessing,
-            self.verbose,
-        )
-        batch_results = list(chain(*mini_batch_results))
+            # multiprocess and join results
+            # ideally, each cpu processes a single mini_batch
+            mini_batch_results = multiprocess(
+                self.run_mini_batch,
+                input_args,
+                self.cpus,
+                self.multiprocessing,
+                self.verbose,
+            )
 
-        # organize results.
-        for i in range(self.batch_size):
-            blend_images[i] = batch_results[i][0]
-            isolated_images[i] = batch_results[i][1]
-            batch_blend_cat.append(batch_results[i][2])
-            batch_obs_cond.append(obs_conds)
-            batch_wcs.append(batch_results[i][3])
-        output = {
-            "blend_images": blend_images,
-            "isolated_images": isolated_images,
-            "blend_list": batch_blend_cat,
-            "obs_condition": batch_obs_cond,
-            "wcs": batch_wcs,
-        }
+            # join results across mini-batches.
+            batch_results = list(chain(*mini_batch_results))
+
+            # organize results.
+            for i in range(self.batch_size):
+                blend_images[s][i] = batch_results[i][0]
+                isolated_images[s][i] = batch_results[i][1]
+                batch_blend_cat[s].append(batch_results[i][2])
+        if len(self.surveys) > 1:
+            output = {
+                "blend_images": blend_images,
+                "isolated_images": isolated_images,
+                "blend_list": batch_blend_cat,
+                "obs_condition": obs_conds,
+            }
+        else:
+            survey_name = self.surveys[0]
+            output = {
+                "blend_images": blend_images[survey_name],
+                "isolated_images": isolated_images[survey_name],
+                "blend_list": batch_blend_cat[survey_name],
+                "obs_condition": obs_conds[survey_name],
+            }
         return output
 
     @abstractmethod
-    def run_mini_batch(self, blend_catalog, obs_conds):
+    def run_mini_batch(self, blend_catalog, obs_conds, survey_name):
         pass
 
 
@@ -207,15 +228,15 @@ class WLDGenerator(DrawBlendsGenerator):
         )
         return iso_obs
 
-    def run_single_band(self, blend_catalog, obs_conds, band):
+    def run_single_band(self, blend_catalog, cutout, band):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
         blend_catalog entries and with observing conditions determined by
-        obs_conds. The rendered objects are stored in the observing conditions
+        cutout. The rendered objects are stored in the observing conditions
         class. So as to not overwrite images across different blends, we make a
-        copy of the obs_conds while drawing each galaxy. Images of isolated
+        copy of the cutout while drawing each galaxy. Images of isolated
         galaxies are drawn with the WLDeblending and them summed to produce the
         blend image.
 
@@ -224,7 +245,7 @@ class WLDGenerator(DrawBlendsGenerator):
 
         Args:
             blend_catalog: Catalog with entries corresponding to one blend.
-            obs_conds: `descwl.survey.Survey` class describing observing conditions.
+            cutout: `btk.cutout.Cutout` class describing observing conditions.
             band(string): Name of band to draw images in.
 
         Returns:
@@ -235,16 +256,16 @@ class WLDGenerator(DrawBlendsGenerator):
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
         )
         galaxy_builder = descwl.model.GalaxyBuilder(
-            obs_conds, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
+            cutout, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
         )
-        pix_stamp_size = np.int(self.stamp_size / self.pixel_scale)
+        pix_stamp_size = np.int(self.stamp_size / cutout.pixel_scale)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         # define temporary galsim image
         # this will hold isolated galaxy images that will be summed
         blend_image_temp = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-        mean_sky_level = obs_conds.mean_sky_level
+        mean_sky_level = cutout.mean_sky_level
         for k, entry in enumerate(blend_catalog):
-            iso_obs = copy.deepcopy(obs_conds)
+            iso_obs = copy.deepcopy(cutout)
             try:
                 galaxy = galaxy_builder.from_catalog(
                     entry, entry["ra"], entry["dec"], band
@@ -266,7 +287,7 @@ class WLDGenerator(DrawBlendsGenerator):
         blend_image = blend_image_temp.array
         return blend_image, iso_image
 
-    def run_mini_batch(self, blend_list, obs_conds):
+    def run_mini_batch(self, blend_list, cutouts, survey_name):
         """Returns isolated and blended images for bend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -275,9 +296,15 @@ class WLDGenerator(DrawBlendsGenerator):
         was not drawn and object centers in pixel coordinates.
 
         Args:
-            blend_list: List of catalogs with entries corresponding to one blend.
-            obs_conds (list): List of `descwl.survey.Survey` class describing
-                observing conditions in different bands.
+            blend_list (list): List of catalogs with entries corresponding to one
+                               blend. The size of this list is equal to the
+                               mini_batch_size.
+            cutouts (list): List of `btk.cutout.Cutout` objects describing
+                            observing conditions in different bands for given survey
+                            `survey_name`. The order of cutouts corresponds to order in
+                            `self.bands[survey_name]`.
+            survey_name (str): Name of the survey (see obs_conditions.py for
+                                currently available surveys)
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -285,31 +312,43 @@ class WLDGenerator(DrawBlendsGenerator):
         """
         mini_batch_outputs = []
         for i in range(len(blend_list)):
-            dx, dy = get_center_in_pixels(
-                blend_list[i], self.stamp_size, self.pixel_scale
-            )
+
+            # All bands in same survey have same pixel scale, WCS
+            pixel_scale = all_surveys[survey_name]["pixel_scale"]
+            wcs = cutouts[0].wcs
+
+            # Band to do measurements of size for given survey.
+            meas_band = self.meas_bands[survey_name]
+
+            dx, dy = get_center_in_pixels(blend_list[i], wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(
-                self.pixel_scale, blend_list[i], obs_conds[self.bands == self.meas_band]
+                pixel_scale,
+                blend_list[i],
+                cutouts[self.bands[survey_name] == meas_band],
             )
             blend_list[i].add_column(size)
-            pix_stamp_size = int(self.stamp_size / self.pixel_scale)
+            pix_stamp_size = int(self.stamp_size / pixel_scale)
             iso_image_multi = np.zeros(
-                (self.max_number, pix_stamp_size, pix_stamp_size, len(self.bands))
+                (
+                    self.max_number,
+                    pix_stamp_size,
+                    pix_stamp_size,
+                    len(self.bands[survey_name]),
+                )
             )
             blend_image_multi = np.zeros(
-                (pix_stamp_size, pix_stamp_size, len(self.bands))
+                (pix_stamp_size, pix_stamp_size, len(self.bands[survey_name]))
             )
-            for j in range(len(self.bands)):
+            for j in range(len(self.bands[survey_name])):
                 single_band_output = self.run_single_band(
-                    blend_list[i], obs_conds[j], self.bands[j]
+                    blend_list[i], cutouts[j], self.bands[survey_name][j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
 
-            wcs = obs_conds[0].wcs
             mini_batch_outputs.append(
-                [blend_image_multi, iso_image_multi, blend_list[i], wcs]
+                [blend_image_multi, iso_image_multi, blend_list[i]]
             )
         return mini_batch_outputs

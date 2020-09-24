@@ -75,7 +75,7 @@ def test_input_draw(input_args, match_images):
     ), "Default max_number should \
         generate 2 or 1 galaxies per blend."
     assert (
-        draw_output["obs_condition"][5][0].survey_name == "LSST"
+        draw_output["obs_condition"][0].survey_name == "LSST"
     ), "Default \
         observing survey is LSST."
     match_images.match_blend_images_default(draw_output["blend_images"])

@@ -82,7 +82,7 @@ class Stack_params(Measurement_params):
             astropy.Table of the measurement results.
         """
         image_array = data["blend_images"][index, :, :, 3].astype(np.float32)
-        obs_conds = data["obs_condition"][index][3]
+        obs_conds = data["obs_condition"][3]
         psf_image, mean_sky_level = obs_conds.get_psf_sky(self.psf_stamp_size)
         variance_array = image_array + mean_sky_level
         psf_array = psf_image.astype(np.float64)
@@ -268,8 +268,8 @@ class Scarlet_params(Measurement_params):
         variances = np.zeros_like(images)
         n_bands = images.shape[0]
         for i in range(n_bands):
-            bands.append(data["obs_condition"][index][i].filter_band)
-            obs_conds = data["obs_condition"][index][i]
+            bands.append(data["obs_condition"][i].filter_band)
+            obs_conds = data["obs_condition"][i]
             psf, mean_sky_level = obs_conds.get_psf_sky(psf_stamp_size)
             psfs[i] = psf
             variances[i] = images[i] + mean_sky_level
@@ -341,7 +341,7 @@ class Basic_measure_params(Measurement_params):
         input image with skimage.feature.peak_local_max.
 
         Args:
-            image (float): Image (single band) of galaxy to perform measurement
+            image (np.ndarray): Image (single band) of galaxy to perform measurement
 
         Returns:
                 centers: x and y coordinates of detected  centroids
@@ -405,11 +405,11 @@ class Stack_metric_params(Metrics_params):
         Returns:
             Results of the detection algorithm are returned as:
                 true_tables: List of astropy Table of the blend catalogs of the
-                    batch. Length of tables must be the batch size. x and y
+                    batch. Length of tables must be the batch_size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
                 detected_tables: List of astropy Table of output from detection
-                    algorithm. Length of tables must be the batch size. x and y
+                    algorithm. Length of tables must be the batch_size. x and y
                     coordinate values must be under columns named 'dx' and 'dy'
                     respectively, in pixels from bottom left corner as (0, 0).
         """
