@@ -34,7 +34,7 @@ def get_center_in_pixels(blend_catalog, wcs):
     return dx_col, dy_col
 
 
-def get_size(pixel_scale, catalog, meas_obs_cond):
+def get_size(pixel_scale, catalog, cutout):
     """Returns a astropy.table.column with the size of the galaxy.
 
     Galaxy size is estimated as second moments size (r_sec) computed as
@@ -45,8 +45,8 @@ def get_size(pixel_scale, catalog, meas_obs_cond):
     Args:
         pixel_scale: arcseconds per pixel
         catalog: Catalog with entries corresponding to one blend.
-        meas_obs_cond: `descwl.survey.Survey` class describing
-            observing conditions in bands to take measurement in.
+        cutout: `btk.Cutout.cutout` class describing
+                observing conditions in bands to take measurement in.
 
     Returns:
         `astropy.table.Column`: size of the galaxy.
@@ -57,7 +57,7 @@ def get_size(pixel_scale, catalog, meas_obs_cond):
     hlr_d = np.sqrt(catalog["a_d"] * catalog["b_d"])
     hlr_b = np.sqrt(catalog["a_b"] * catalog["b_b"])
     r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66, hlr_b * f ** 0.5 * 1.46)
-    psf = meas_obs_cond.psf_model
+    psf = cutout.psf_model
     psf_r_sec = psf.calculateMomentRadius()
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
     return Column(size, name="size")
@@ -68,7 +68,7 @@ class DrawBlendsGenerator(ABC):
         self,
         blend_generator,
         observing_generator,
-        meas_band="i",
+        meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
         verbose=False,
@@ -91,7 +91,9 @@ class DrawBlendsGenerator(ABC):
             multiprocessing: Divides batch of blends to draw into mini-batches and
                 runs each on different core
             cpus: If multiprocessing, then number of parallel processes to run.
-            meas_band (str): Name of
+            meas_bands (tuple): For each survey in `self.observing_generator.surveys`,
+                               the band in that survey for which measurements of e.g.
+                               size will be made. Tuple order should be same as `surveys`.
         """
 
         self.blend_generator = blend_generator
@@ -105,14 +107,14 @@ class DrawBlendsGenerator(ABC):
         self.surveys = self.observing_generator.surveys
         self.stamp_size = self.observing_generator.obs_conds.stamp_size
 
-        self.bands = {}
-        for s in self.surveys:
+        self.bands = {}  # map from survey name to band.
+        self.meas_bands = {}
+        for i, s in enumerate(self.surveys):
             self.bands[s] = all_surveys[s]["bands"]
-        self.meas_band = meas_band
+            self.meas_bands[s] = meas_bands[i]
 
         self.add_noise = add_noise
         self.min_snr = min_snr
-
         self.verbose = verbose
 
     def __iter__(self):
@@ -132,6 +134,7 @@ class DrawBlendsGenerator(ABC):
             blend_images[s] = np.zeros(
                 (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands[s]))
             )
+
             isolated_images[s] = np.zeros(
                 (
                     self.batch_size,
@@ -310,15 +313,20 @@ class WLDGenerator(DrawBlendsGenerator):
         mini_batch_outputs = []
         for i in range(len(blend_list)):
 
-            # All bands in same survey have same pixel scale
+            # All bands in same survey have same pixel scale, WCS
             pixel_scale = all_surveys[survey_name]["pixel_scale"]
-            dx, dy = get_center_in_pixels(blend_list[i], cutouts[0].wcs)
+            wcs = cutouts[0].wcs
+
+            # Band to do measurements of size for given survey.
+            meas_band = self.meas_bands[survey_name]
+
+            dx, dy = get_center_in_pixels(blend_list[i], wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             size = get_size(
                 pixel_scale,
                 blend_list[i],
-                cutouts[self.bands[survey_name] == self.meas_band],
+                cutouts[self.bands[survey_name] == meas_band],
             )
             blend_list[i].add_column(size)
             pix_stamp_size = int(self.stamp_size / pixel_scale)
