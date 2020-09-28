@@ -157,7 +157,7 @@ def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose
     else:
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         selection_function = None
-    catalog = btk.get_input_catalog.load_catalog(
+    catalog = btk.catalog.load_catalog(
         catalog_name, selection_function=selection_function
     )
     if verbose:

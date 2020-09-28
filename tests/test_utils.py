@@ -16,7 +16,7 @@ def get_draw_generator(batch_size=3):
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     np.random.seed(0)
-    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    catalog = btk.catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog,
         btk.sampling_functions.GroupSamplingFunctionNumbered(
@@ -52,7 +52,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         [[0.2, 2.4], [-1.8, -2.0]],
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
-    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    catalog = btk.catalog.load_catalog(catalog_name)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
