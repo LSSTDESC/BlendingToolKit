@@ -16,7 +16,6 @@ def _get_random_center_shift(num_objects, maxshift):
     return dx, dy
 
 
-# TODO: Indicate what type of catalog is compatible with each sampling function.
 class SamplingFunction(ABC):
     def __init__(self, max_number):
         """Class representing sampling functions to sample input catalog
@@ -31,6 +30,12 @@ class SamplingFunction(ABC):
     def __call__(self, catalog, **kwargs):
         """Returns a sample from the catalog with at most self.max_number of objects.
         Changes the 'ra' and 'dec' entries to be in arcseconds."""
+        pass
+
+    @property
+    @abstractmethod
+    def compatible_catalogs(self):
+        # return a tuple of compatible catalogs by their name in `catalogs.py`.
         pass
 
 
@@ -48,7 +53,11 @@ class DefaultSampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
 
-    def __call__(self, catalog, shifts=None, indexes=None):
+    @property
+    def compatible_catalogs(self):
+        return "WLDCatalog", "CosmosCatalog"
+
+    def __call__(self, table, shifts=None, indexes=None):
         """Applies default sampling to the input CatSim-like catalog and returns
         catalog with entries corresponding to a blend centered close to postage
         stamp center.
@@ -62,14 +71,15 @@ class DefaultSampling(SamplingFunction):
         representative of real blends.
 
         Args:
-            catalog: CatSim-like catalog from which to sample galaxies.
+            table (Astropy.table): Table containing entries corresponding to galaxies
+                                   from which to sample.
             shifts (list): Contains arbitrary shifts to be applied instead of random ones.
                            Should of the form [dx,dy] where dx and dy are the lists
                            containing the x and y shifts.
             indexes (list): Contains the indexes of the galaxies to use.
 
         Returns:
-            Catalog with entries corresponding to one blend.
+            Astropy.table with entries corresponding to one blend.
         """
         number_of_objects = np.random.randint(1, self.max_number + 1)
         (q,) = np.where(catalog["i_ab"] <= 25.3)

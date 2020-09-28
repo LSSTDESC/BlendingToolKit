@@ -34,6 +34,12 @@ class Catalog(ABC):
     def get_table(self):
         pass
 
+    @abstractmethod
+    @property
+    def name(self):
+        # class name
+        pass
+
 
 class WLDCatalog(Catalog):
     def get_catalog(self, catalog_file):
@@ -51,6 +57,10 @@ class WLDCatalog(Catalog):
 
         return self.cat
 
+    @property
+    def name(self):
+        return "WLDCatalog"
+
 
 class CosmosCatalog(Catalog):
     def get_catalog(self, catalog_file):
@@ -67,3 +77,7 @@ class CosmosCatalog(Catalog):
         table["ra"] *= 3600
         table["dec"] *= 3600
         return table
+
+    @property
+    def name(self):
+        return "CosmosCatalog"
