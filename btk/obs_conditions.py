@@ -5,10 +5,15 @@ import btk.cutout
 
 
 all_surveys = {
-    "LSST": {"bands": ("y", "z", "i", "r", "g", "u"), "pixel_scale": 0.2},
-    "DES": {"bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
-    "CFHT": {"bands": ("i", "r"), "pixel_scale": 0.185},
+    "LSST": {
+        "name": "LSST",
+        "bands": ("y", "z", "i", "r", "g", "u"),
+        "pixel_scale": 0.2,
+    },
+    "DES": {"name": "DES", "bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
+    "CFHT": {"name": "CFHT", "bands": ("i", "r"), "pixel_scale": 0.185},
     "HSC": {
+        "name": "HSC",
         "bands": (
             "y",
             "z",
@@ -59,9 +64,9 @@ class WLDObsConditions(ObsConditions):
             **cutout_params
         )
 
-    def __call__(self, survey_name, band):
-        pixel_scale = all_surveys[survey_name]["pixel_scale"]
-        cutout = self.get_cutout(survey_name, band, pixel_scale)
+    def __call__(self, survey, band):
+        pixel_scale = survey["pixel_scale"]
+        cutout = self.get_cutout(survey["name"], band, pixel_scale)
 
         if cutout.pixel_scale != pixel_scale:
             raise ValueError(

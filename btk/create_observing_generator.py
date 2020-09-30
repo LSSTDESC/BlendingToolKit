@@ -22,16 +22,22 @@ class ObservingGenerator:
                              survey_name are used to create the observing_generator.
         """
         if type(surveys) == str:
-            self.surveys = [surveys]
+            self.surveys = [all_surveys[surveys]]
         elif type(surveys) == list:
-            self.surveys = surveys
-        else:
-            raise TypeError("survey_name is not in the right format")
-        self.verbose = verbose
+            self.surveys = []
+            for s in surveys:
+                if type(s) == str:
+                    if s not in all_surveys:
+                        raise KeyError("Survey not implemented.")
+                    self.surveys.append(all_surveys[s])
+                elif type(s) == dict:
+                    self.surveys.append(s)
+                else:
+                    raise TypeError("surveys is not in the right format")
 
-        for s in self.surveys:
-            if s not in all_surveys:
-                raise KeyError("Survey not implemented.")
+        else:
+            raise TypeError("surveys is not in the right format")
+        self.verbose = verbose
 
         # create default observing conditions
         if obs_conds is None:
@@ -50,8 +56,8 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = {}
         for s in self.surveys:
-            observing_generator[s] = []
-            for band in all_surveys[s]["bands"]:
+            observing_generator[s["name"]] = []
+            for band in s["bands"]:
                 cutout = self.obs_conds(s, band)
-                observing_generator[s].append(cutout)
+                observing_generator[s["name"]].append(cutout)
         return observing_generator

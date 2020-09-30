@@ -8,7 +8,6 @@ import numpy as np
 from astropy.table import Column
 
 from btk.multiprocess import multiprocess
-from btk.obs_conditions import all_surveys
 
 
 def get_center_in_pixels(blend_catalog, wcs):
@@ -107,11 +106,9 @@ class DrawBlendsGenerator(ABC):
         self.surveys = self.observing_generator.surveys
         self.stamp_size = self.observing_generator.obs_conds.stamp_size
 
-        self.bands = {}  # map from survey name to band.
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
-            self.bands[s] = all_surveys[s]["bands"]
-            self.meas_bands[s] = meas_bands[i]
+            self.meas_bands[s["name"]] = meas_bands[i]
 
         self.add_noise = add_noise
         self.min_snr = min_snr
@@ -130,21 +127,21 @@ class DrawBlendsGenerator(ABC):
         blend_images = {}
         isolated_images = {}
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / all_surveys[s]["pixel_scale"])
-            blend_images[s] = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(self.bands[s]))
+            pix_stamp_size = int(self.stamp_size / s["pixel_scale"])
+            blend_images[s["name"]] = np.zeros(
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s["bands"]))
             )
 
-            isolated_images[s] = np.zeros(
+            isolated_images[s["name"]] = np.zeros(
                 (
                     self.batch_size,
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(self.bands[s]),
+                    len(s["bands"]),
                 )
             )
-            batch_blend_cat[s], batch_obs_cond[s] = [], []
+            batch_blend_cat[s["name"]], batch_obs_cond[s["name"]] = [], []
 
         in_batch_blend_cat = next(self.blend_generator)
         obs_conds = next(self.observing_generator)  # same for every blend in batch.
@@ -153,7 +150,7 @@ class DrawBlendsGenerator(ABC):
             input_args = [
                 (
                     copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]),
-                    copy.deepcopy(obs_conds[s]),
+                    copy.deepcopy(obs_conds[s["name"]]),
                     s,
                 )
                 for i in range(0, self.batch_size, mini_batch_size)
@@ -174,9 +171,9 @@ class DrawBlendsGenerator(ABC):
 
             # organize results.
             for i in range(self.batch_size):
-                blend_images[s][i] = batch_results[i][0]
-                isolated_images[s][i] = batch_results[i][1]
-                batch_blend_cat[s].append(batch_results[i][2])
+                blend_images[s["name"]][i] = batch_results[i][0]
+                isolated_images[s["name"]][i] = batch_results[i][1]
+                batch_blend_cat[s["name"]].append(batch_results[i][2])
         if len(self.surveys) > 1:
             output = {
                 "blend_images": blend_images,
@@ -185,7 +182,7 @@ class DrawBlendsGenerator(ABC):
                 "obs_condition": obs_conds,
             }
         else:
-            survey_name = self.surveys[0]
+            survey_name = self.surveys[0]["name"]
             output = {
                 "blend_images": blend_images[survey_name],
                 "isolated_images": isolated_images[survey_name],
@@ -287,7 +284,7 @@ class WLDGenerator(DrawBlendsGenerator):
         blend_image = blend_image_temp.array
         return blend_image, iso_image
 
-    def run_mini_batch(self, blend_list, cutouts, survey_name):
+    def run_mini_batch(self, blend_list, cutouts, survey):
         """Returns isolated and blended images for bend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -302,9 +299,8 @@ class WLDGenerator(DrawBlendsGenerator):
             cutouts (list): List of `btk.cutout.Cutout` objects describing
                             observing conditions in different bands for given survey
                             `survey_name`. The order of cutouts corresponds to order in
-                            `self.bands[survey_name]`.
-            survey_name (str): Name of the survey (see obs_conditions.py for
-                                currently available surveys)
+                            `survey['bands']`.
+            survey (dict): Dictionary containing survey information.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -314,11 +310,11 @@ class WLDGenerator(DrawBlendsGenerator):
         for i in range(len(blend_list)):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = all_surveys[survey_name]["pixel_scale"]
+            pixel_scale = survey["pixel_scale"]
             wcs = cutouts[0].wcs
 
             # Band to do measurements of size for given survey.
-            meas_band = self.meas_bands[survey_name]
+            meas_band = self.meas_bands[survey["name"]]
 
             dx, dy = get_center_in_pixels(blend_list[i], wcs)
             blend_list[i].add_column(dx)
@@ -326,7 +322,7 @@ class WLDGenerator(DrawBlendsGenerator):
             size = get_size(
                 pixel_scale,
                 blend_list[i],
-                cutouts[self.bands[survey_name] == meas_band],
+                cutouts[survey["bands"] == meas_band],
             )
             blend_list[i].add_column(size)
             pix_stamp_size = int(self.stamp_size / pixel_scale)
@@ -335,15 +331,15 @@ class WLDGenerator(DrawBlendsGenerator):
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(self.bands[survey_name]),
+                    len(survey["bands"]),
                 )
             )
             blend_image_multi = np.zeros(
-                (pix_stamp_size, pix_stamp_size, len(self.bands[survey_name]))
+                (pix_stamp_size, pix_stamp_size, len(survey["bands"]))
             )
-            for j in range(len(self.bands[survey_name])):
+            for j in range(len(survey["bands"])):
                 single_band_output = self.run_single_band(
-                    blend_list[i], cutouts[j], self.bands[survey_name][j]
+                    blend_list[i], cutouts[j], survey["bands"][j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
