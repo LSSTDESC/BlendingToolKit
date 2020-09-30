@@ -110,7 +110,6 @@ class DrawBlendsGenerator(ABC):
         self.bands = {}  # map from survey name to band.
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
-            print(s)
             self.meas_bands[s["name"]] = meas_bands[i]
 
         self.add_noise = add_noise
