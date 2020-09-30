@@ -8,7 +8,6 @@ import numpy as np
 from astropy.table import Column
 
 from btk.multiprocess import multiprocess
-from btk.obs_conditions import all_surveys
 
 
 def get_center_in_pixels(blend_catalog, wcs):
@@ -107,7 +106,6 @@ class DrawBlendsGenerator(ABC):
         self.surveys = self.observing_generator.surveys
         self.stamp_size = self.observing_generator.obs_conds.stamp_size
 
-        self.bands = {}  # map from survey name to band.
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
             self.meas_bands[s["name"]] = meas_bands[i]
@@ -301,9 +299,8 @@ class WLDGenerator(DrawBlendsGenerator):
             cutouts (list): List of `btk.cutout.Cutout` objects describing
                             observing conditions in different bands for given survey
                             `survey_name`. The order of cutouts corresponds to order in
-                            `self.bands[survey_name]`.
-            survey_name (str): Name of the survey (see obs_conditions.py for
-                                currently available surveys)
+                            `survey['bands']`.
+            survey (dict): Dictionary containing survey information.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
