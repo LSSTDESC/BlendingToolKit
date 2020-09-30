@@ -199,3 +199,70 @@ def test_custom_survey_input():
     assert draw_output["blend_images"]["DES"][0].shape[0] == int(
         24.0 / 0.263
     ), "DES survey should have a pixel scale of 0.17"
+
+def test_wrong_format():
+    with pytest.raises(TypeError):
+        catalog_name = "data/sample_input_catalog.fits"
+
+        np.random.seed(0)
+        stamp_size = 24.0
+        batch_size = 8
+        cpus = 1
+        multiprocessing = False
+        add_noise = True
+
+        catalog = btk.get_input_catalog.load_catalog(catalog_name)
+        sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+        blend_generator = btk.create_blend_generator.BlendGenerator(
+            catalog, sampling_function, batch_size
+        )
+        obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+        observing_generator = btk.create_observing_generator.ObservingGenerator(
+            [
+                ("LSST",("y", "z", "i", "r", "g", "u"),0.2),
+                {"name": "DES", "bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
+            ],
+            obs_conds=obs_conds,
+        )
+        draw_generator = btk.draw_blends.WLDGenerator(
+            blend_generator,
+            observing_generator,
+            multiprocessing=multiprocessing,
+            cpus=cpus,
+            add_noise=add_noise,
+            meas_bands=("i", "i"),
+        )
+        draw_output = next(draw_generator)
+
+def test_wrong_name():
+    with pytest.raises(KeyError):
+        catalog_name = "data/sample_input_catalog.fits"
+
+        np.random.seed(0)
+        stamp_size = 24.0
+        batch_size = 8
+        cpus = 1
+        multiprocessing = False
+        add_noise = True
+
+        catalog = btk.get_input_catalog.load_catalog(catalog_name)
+        sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+        blend_generator = btk.create_blend_generator.BlendGenerator(
+            catalog, sampling_function, batch_size
+        )
+        obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+        observing_generator = btk.create_observing_generator.ObservingGenerator(
+            [
+                "LSSD"
+            ],
+            obs_conds=obs_conds,
+        )
+        draw_generator = btk.draw_blends.WLDGenerator(
+            blend_generator,
+            observing_generator,
+            multiprocessing=multiprocessing,
+            cpus=cpus,
+            add_noise=add_noise,
+            meas_bands=("i", "i"),
+        )
+        draw_output = next(draw_generator)
