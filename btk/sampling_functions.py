@@ -82,12 +82,12 @@ class DefaultSampling(SamplingFunction):
             Astropy.table with entries corresponding to one blend.
         """
         number_of_objects = np.random.randint(1, self.max_number + 1)
-        (q,) = np.where(catalog["i_ab"] <= 25.3)
+        (q,) = np.where(table["i_ab"] <= 25.3)
 
         if indexes is None:
-            blend_catalog = catalog[np.random.choice(q, size=number_of_objects)]
+            blend_catalog = table[np.random.choice(q, size=number_of_objects)]
         else:
-            blend_catalog = catalog[indexes]
+            blend_catalog = table[indexes]
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
         if shifts is None:
             dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
@@ -107,8 +107,13 @@ class BasicSamplingFunction(SamplingFunction):
     def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
         super().__init__(max_number)
         self.stamp_size = stamp_size
+        self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
 
-    def __call__(self, catalog, **kwargs):
+    @property
+    def compatible_catalogs(self):
+        return "WLDCatalog"
+
+    def __call__(self, table, **kwargs):
         """Samples galaxies from input catalog to make blend scene.
 
         Then number of galaxies in a blend are drawn from a uniform
@@ -120,24 +125,24 @@ class BasicSamplingFunction(SamplingFunction):
         stamp size, where N is the number of objects in the blend.
 
         Args:
-            catalog: CatSim-like catalog from which to sample galaxies.
+            table: CatSim-like catalog from which to sample galaxies.
 
         Returns:
             Catalog with entries corresponding to one blend.
         """
 
         number_of_objects = np.random.randint(0, self.max_number)
-        a = np.hypot(catalog["a_d"], catalog["a_b"])
+        a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
-        (q_bright,) = np.where(cond & (catalog["i_ab"] <= 24))
+        (q_bright,) = np.where(cond & (table["i_ab"] <= 24))
         if np.random.random() >= 0.9:
-            (q,) = np.where(cond & (catalog["i_ab"] < 28))
+            (q,) = np.where(cond & (table["i_ab"] < 28))
         else:
-            (q,) = np.where(cond & (catalog["i_ab"] <= 25.3))
+            (q,) = np.where(cond & (table["i_ab"] <= 25.3))
         blend_catalog = astropy.table.vstack(
             [
-                catalog[np.random.choice(q_bright, size=1)],
-                catalog[np.random.choice(q, size=number_of_objects)],
+                table[np.random.choice(q_bright, size=1)],
+                table[np.random.choice(q, size=number_of_objects)],
             ]
         )
         blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
@@ -175,6 +180,10 @@ class GroupSamplingFunction(SamplingFunction):
         self.pixel_scale = pixel_scale
         self.shift = shift
         self.group_id = group_id
+
+    @property
+    def compatible_catalogs(self):
+        return "WLDCatalog"
 
     def __call__(self, catalog, **kwargs):
         """We use self.wld_catalog created above to sample groups, but ultimately returns
@@ -249,6 +258,10 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         self.pixel_scale = pixel_scale
         self.group_id_count = 0
         self.shift = shift
+
+    @property
+    def compatible_catalogs(self):
+        return "WLDCatalog"
 
     def __call__(self, catalog, **kwargs):
         """The group is centered on the middle of the postage stamp.

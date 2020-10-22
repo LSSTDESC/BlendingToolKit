@@ -38,6 +38,12 @@ class BlendGenerator:
                 "an attribute 'max_number'."
             )
 
+        if self.catalog.name not in self.sampling_function.compatible_catalogs:
+            raise AttributeError(
+                "Your catalog and sampling functions are not "
+                "compatible with each other."
+            )
+
         self.max_number = self.sampling_function.max_number
 
     def __iter__(self):

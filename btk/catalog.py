@@ -16,7 +16,9 @@ class Catalog(ABC):
             verbose: Whether to print information related to loading catalog.
 
         Attributes:
-            self.table (`astropy.table`) : CatSim-like catalog with a selection
+            self.cat (varies): Catalog object of varying type. Might be necessary to
+                                ultimately generate the images (e.g. COSMOS Catalog)
+            self.table (`astropy.table`): CatSim-like catalog with a selection
                                            criteria applied if provided.
         """
         self.cat = self.get_catalog(catalog_file)
@@ -42,7 +44,8 @@ class Catalog(ABC):
 
 
 class WLDCatalog(Catalog):
-    def get_catalog(self, catalog_file):
+    def get_catalog(self, catalog_file) -> astropy.table.Table:
+        # catalog returned is an astropy table.
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext == ".fits" else "ascii.basic"
         cat = astropy.table.Table.read(catalog_file, format=fmt)
@@ -63,7 +66,8 @@ class WLDCatalog(Catalog):
 
 
 class CosmosCatalog(Catalog):
-    def get_catalog(self, catalog_file):
+    def get_catalog(self, catalog_file) -> galsim.scene.COSMOSCatalog:
+        # This will return a COSMOSCatalog object.
         return galsim.COSMOSCatalog(file_name=catalog_file)
 
     def get_table(self):
