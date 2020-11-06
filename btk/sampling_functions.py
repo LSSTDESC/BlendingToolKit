@@ -27,9 +27,9 @@ class SamplingFunction(ABC):
         self.max_number = max_number
 
     @abstractmethod
-    def __call__(self, catalog, **kwargs):
-        """Returns a sample from the catalog with at most self.max_number of objects.
-        Changes the 'ra' and 'dec' entries to be in arcseconds."""
+    def __call__(self, table, **kwargs):
+        """Returns a sample from the given astropy table with at most self.max_number of
+        objects."""
         pass
 
     @property
@@ -42,7 +42,7 @@ class SamplingFunction(ABC):
 class DefaultSampling(SamplingFunction):
     def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
         """
-        Default sampling function used for producing blend catalogs.
+        Default sampling function used for producing blend tables.
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
@@ -58,16 +58,16 @@ class DefaultSampling(SamplingFunction):
         return "WLDCatalog", "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
-        """Applies default sampling to the input CatSim-like catalog and returns
-        catalog with entries corresponding to a blend centered close to postage
+        """Applies default sampling to the input CatSim-like catalog and returns an
+        astropy table with entries corresponding to a blend centered close to postage
         stamp center.
 
-        Function selects entries from input catalog that are brighter than 25.3 mag
+        Function selects entries from input table that are brighter than 25.3 mag
         in the i band. Number of objects per blend is set at a random integer
-        between 1 and Args.max_number. The blend catalog is then randomly sampled
-        entries from the catalog after selection cuts. The centers are randomly
+        between 1 and Args.max_number. The blend table is then randomly sampled
+        entries from the table after selection cuts. The centers are randomly
         distributed within 1/10th of the stamp size. Here even though the galaxies
-        are sampled from the CatSim catalog, their spatial location are not
+        are sampled from a CatSim catalog, their spatial location are not
         representative of real blends.
 
         Args:
@@ -85,22 +85,22 @@ class DefaultSampling(SamplingFunction):
         (q,) = np.where(table["i_ab"] <= 25.3)
 
         if indexes is None:
-            blend_catalog = table[np.random.choice(q, size=number_of_objects)]
+            blend_table = table[np.random.choice(q, size=number_of_objects)]
         else:
-            blend_catalog = table[indexes]
-        blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
+            blend_table = table[indexes]
+        blend_table["ra"], blend_table["dec"] = 0.0, 0.0
         if shifts is None:
             dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
         else:
             dx, dy = shifts
-        blend_catalog["ra"] += dx
-        blend_catalog["dec"] += dy
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
 
-        if np.any(blend_catalog["ra"] > self.stamp_size / 2.0) or np.any(
-            blend_catalog["dec"] > self.stamp_size / 2.0
+        if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
+            blend_table["dec"] > self.stamp_size / 2.0
         ):
             warnings.warn("Object center lies outside the stamp")
-        return blend_catalog
+        return blend_table
 
 
 class BasicSamplingFunction(SamplingFunction):
@@ -128,7 +128,7 @@ class BasicSamplingFunction(SamplingFunction):
             table: CatSim-like catalog from which to sample galaxies.
 
         Returns:
-            Catalog with entries corresponding to one blend.
+            Table with entries corresponding to one blend.
         """
 
         number_of_objects = np.random.randint(0, self.max_number)
@@ -139,19 +139,19 @@ class BasicSamplingFunction(SamplingFunction):
             (q,) = np.where(cond & (table["i_ab"] < 28))
         else:
             (q,) = np.where(cond & (table["i_ab"] <= 25.3))
-        blend_catalog = astropy.table.vstack(
+        blend_table = astropy.table.vstack(
             [
                 table[np.random.choice(q_bright, size=1)],
                 table[np.random.choice(q, size=number_of_objects)],
             ]
         )
-        blend_catalog["ra"], blend_catalog["dec"] = 0.0, 0.0
+        blend_table["ra"], blend_table["dec"] = 0.0, 0.0
         # keep number density of objects constant
         maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
         dx, dy = _get_random_center_shift(number_of_objects + 1, maxshift)
-        blend_catalog["ra"] += dx
-        blend_catalog["dec"] += dy
-        return blend_catalog
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
+        return blend_table
 
 
 class GroupSamplingFunction(SamplingFunction):
@@ -185,9 +185,9 @@ class GroupSamplingFunction(SamplingFunction):
     def compatible_catalogs(self):
         return "WLDCatalog"
 
-    def __call__(self, catalog, **kwargs):
+    def __call__(self, table, **kwargs):
         """We use self.wld_catalog created above to sample groups, but ultimately returns
-        rows from catalog (by matching the corresponding galaxy ids).
+        rows from the input `table` (by matching the corresponding galaxy ids).
 
         The group is centered on the middle of the postage stamp. Function only draws
         galaxies that lie within the postage stamp size.
@@ -203,14 +203,14 @@ class GroupSamplingFunction(SamplingFunction):
 
         # get all galaxies belonging to the group.
         ids = self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id]
-        blend_catalog = astropy.table.vstack(
-            [catalog[catalog["galtileid"] == i] for i in ids]
+        blend_table = astropy.table.vstack(
+            [table[table["galtileid"] == i] for i in ids]
         )
 
         # Set mean x and y coordinates of the group galaxies to the center of the
         # postage stamp.
-        blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
-        blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
+        blend_table["ra"] -= np.mean(blend_table["ra"])
+        blend_table["dec"] -= np.mean(blend_table["dec"])
 
         # Add small random shift so that center does not perfectly align with
         # the stamp center
@@ -218,12 +218,12 @@ class GroupSamplingFunction(SamplingFunction):
             dx, dy = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
         else:
             dx, dy = self.shift
-        blend_catalog["ra"] += dx
-        blend_catalog["dec"] += dy
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
         # make sure galaxy centers don't lie too close to edge
-        cond1 = np.abs(blend_catalog["ra"]) < self.stamp_size / 2.0 - 3
-        cond2 = np.abs(blend_catalog["dec"]) < self.stamp_size / 2.0 - 3
-        no_boundary = blend_catalog[cond1 & cond2]
+        cond1 = np.abs(blend_table["ra"]) < self.stamp_size / 2.0 - 3
+        cond2 = np.abs(blend_table["dec"]) < self.stamp_size / 2.0 - 3
+        no_boundary = blend_table[cond1 & cond2]
         if len(no_boundary) == 0:
             return no_boundary
         # make sure number of galaxies in blend is less than Args.max_number
@@ -263,7 +263,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
     def compatible_catalogs(self):
         return "WLDCatalog"
 
-    def __call__(self, catalog, **kwargs):
+    def __call__(self, table, **kwargs):
         """The group is centered on the middle of the postage stamp.
         This function only returns galaxies whose centers lie within 1 arcsec the
         postage stamp edge, which may cause the number of galaxies in the blend to
@@ -288,25 +288,25 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         ids = np.unique(
             self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id]
         )
-        blend_catalog = astropy.table.vstack(
-            [catalog[catalog["galtileid"] == i] for i in ids]
+        blend_table = astropy.table.vstack(
+            [table[table["galtileid"] == i] for i in ids]
         )
         # Set mean x and y coordinates of the group galaxies to the center of the
         # postage stamp.
-        blend_catalog["ra"] -= np.mean(blend_catalog["ra"])
-        blend_catalog["dec"] -= np.mean(blend_catalog["dec"])
+        blend_table["ra"] -= np.mean(blend_table["ra"])
+        blend_table["dec"] -= np.mean(blend_table["dec"])
         # Add small random shift so that center does not perfectly align with stamp
         # center
         if self.shift is None:
             dx, dy = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
         else:
             dx, dy = self.shift
-        blend_catalog["ra"] += dx
-        blend_catalog["dec"] += dy
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
         # make sure galaxy centers don't lie too close to edge
-        cond1 = np.abs(blend_catalog["ra"]) < self.stamp_size / 2.0 - 1
-        cond2 = np.abs(blend_catalog["dec"]) < self.stamp_size / 2.0 - 1
-        no_boundary = blend_catalog[cond1 & cond2]
+        cond1 = np.abs(blend_table["ra"]) < self.stamp_size / 2.0 - 1
+        cond2 = np.abs(blend_table["dec"]) < self.stamp_size / 2.0 - 1
+        no_boundary = blend_table[cond1 & cond2]
         message = (
             "Number of galaxies greater than max number of objects per"
             f"blend. Found {len(no_boundary)}, expected <= {self.max_number}"

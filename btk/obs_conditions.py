@@ -145,7 +145,7 @@ class WLDObsConditions(ObsConditions):
             no_analysis=True,
             survey_name=survey_name,
             filter_band=band,
-            **cutout_params
+            **cutout_params,
         )
 
     def __call__(self, survey_name, band):
@@ -154,10 +154,8 @@ class WLDObsConditions(ObsConditions):
 
         if cutout.pixel_scale != pixel_scale:
             raise ValueError(
-                "observing condition pixel scale does not "
-                "match input pixel scale: {0} == {1}".format(
-                    cutout.pixel_scale, pixel_scale
-                )
+                f"Observing condition pixel scale does not "
+                f"match input pixel scale: {cutout.pixel_scale} == {pixel_scale}"
             )
         if cutout.filter_band != band:
             raise ValueError(
