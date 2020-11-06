@@ -99,6 +99,7 @@ class DrawBlendsGenerator(ABC):
 
         self.blend_generator = blend_generator
         self.observing_generator = observing_generator
+        self.catalog = self.blend_generator.catalog
         self.multiprocessing = multiprocessing
         self.cpus = cpus
 
@@ -415,68 +416,15 @@ class GalsimRealDraw(DrawBlendsGenerator):
         cat,
         pix,
         stamp_size,
-        channels=("u", "g", "r", "i", "z", "y"),
-        sky_center=(0 * galsim.degrees, 0 * galsim.degrees),
-        pix_center=None,
-        psf_function=None,
-        psf_size=41,
-        psf_args=None,
     ):
         self.cat = cat
         self.pix = pix
         self.stamp_size = stamp_size
-        self.channels = channels
-        if psf_function is None:
 
-            def psf_function(r):
-                return galsim.Moffat(2, r)
-
-            if psf_args is None:
-                self.psf_args = 3 * pix
-        else:
-            if psf_args is None:
-                raise InputError("Input arguments for psf not provided")
-            else:
-                self.psf_args = psf_args
-
-        if psf_size % 2 == 0:
-            psf_size += 1
-            print(
-                f"odd-shaped psfs are preferred. psf_size was updated from {psf_size-1} to {psf_size}"
-            )
-        self.psf_size = psf_size
-
-        self.psf = self.get_psf(psf_function)
-
-        if pix_center is None:
-            pix_center = (stamp_size // 2, stamp_size // 2)
-        self.wcs = self.get_wcs(
-            self.pix, pix_center, sky_center, (stamp_size, stamp_size)
-        )
         self.seds = None
         self.singles = None
         self.locs = None
         self.blend = None
-
-    def get_psf(self):
-        psf_int = self.psf_function(self.psf_args).withFlux(1.0)
-
-        # Draw PSF
-        psf = psf_int.drawImage(
-            nx=self.psf_size,
-            ny=self.psf_size,
-            method="real_space",
-            use_true_center=True,
-            scale=self.pix,
-        ).array
-
-        # Make sure PSF vanishes on the edges of a patch that
-        # has the shape of the initial npsf
-        psf = psf - psf[0, int(self.psf_size / 2)] * 2
-        psf[psf < 0] = 0
-        psf = psf / np.sum(psf)
-
-        return psf
 
     @property
     def compatible_catalogs(self):

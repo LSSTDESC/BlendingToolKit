@@ -189,6 +189,12 @@ class DefaultObsConditions(WLDObsConditions):
 
         return cutout_params
 
+
+class CosmosObsConditions(ObsConditions):
+    def __init__(self):
+        """Returns the default obs"""
+        pass
+
     def __call__(self, survey, band):
         pixel_scale = survey["pixel_scale"]
         cutout_params = self.get_cutout_params(survey["name"], band, pixel_scale)
