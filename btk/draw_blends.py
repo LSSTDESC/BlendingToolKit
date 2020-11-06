@@ -116,6 +116,11 @@ class DrawBlendsGenerator(ABC):
         self.min_snr = min_snr
         self.verbose = verbose
 
+    @abstractmethod
+    @property
+    def compatible_catalogs(self):
+        pass
+
     def __iter__(self):
         return self
 
@@ -332,6 +337,11 @@ class DrawBlendsGenerator(ABC):
 
 
 class WLDGenerator(DrawBlendsGenerator):
+    @property
+    def compatible_catalogs(self):
+        return "WLDCatalog"
+
+
     def render_single(self, entry, cutout, band):
         """Returns the Galsim Image of an isolated galaxy.
 
@@ -405,7 +415,7 @@ class GalsimRealDraw(DrawBlendsGenerator):
         cat,
         pix,
         stamp_size,
-        channels=["u", "g", "r", "i", "z", "y"],
+        channels=("u", "g", "r", "i", "z", "y"),
         sky_center=(0 * galsim.degrees, 0 * galsim.degrees),
         pix_center=None,
         psf_function=None,
@@ -467,6 +477,10 @@ class GalsimRealDraw(DrawBlendsGenerator):
         psf = psf / np.sum(psf)
 
         return psf
+
+    @property
+    def compatible_catalogs(self):
+        return "CosmosCatalog"
 
     def draw_single(self, cat, shift):
         """Draws a single random galaxy profile in a random location of the image

@@ -4,14 +4,10 @@ import astropy.wcs as WCS
 
 
 all_surveys = {
-    "LSST": {
-        "name": "LSST",
-        "bands": ("y", "z", "i", "r", "g", "u"),
-        "pixel_scale": 0.2,
-    },
-    "DES": {"name": "DES", "bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
-    "CFHT": {"name": "CFHT", "bands": ("i", "r"), "pixel_scale": 0.185},
-    "HSC": {"name": "HSC", "bands": ("y", "z", "i", "r", "g"), "pixel_scale": 0.17},
+   "LSST": {"bands": ("y", "z", "i", "r", "g", "u"), "pixel_scale": 0.2},
+    "DES": {"bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
+    "CFHT": {"bands": ("i", "r"), "pixel_scale": 0.185},
+    "HSC": {"bands": ("y", "z", "i", "r", "g"), "pixel_scale": 0.17},
 }
 
 
