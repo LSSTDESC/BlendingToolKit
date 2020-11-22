@@ -150,9 +150,9 @@ def compare_scarlet():
     output, deb, _ = next(meas_generator)
     blend_list = output["blend_list"]
     deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    batch_mean = deblend_images[0].mean()
-    batch_std = deblend_images[0].std()
+    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
+    deblend_images[0].mean()
+    deblend_images[0].std()
 
 
 def compare_scarlet_multiprocessing():
@@ -162,9 +162,9 @@ def compare_scarlet_multiprocessing():
     output, deb, _ = next(meas_generator)
     blend_list = output["blend_list"]
     deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    batch_mean = deblend_images[0].mean()
-    batch_std = deblend_images[0].std()
+    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
+    deblend_images[0].mean()
+    deblend_images[0].std()
 
 
 @pytest.mark.timeout(25)
