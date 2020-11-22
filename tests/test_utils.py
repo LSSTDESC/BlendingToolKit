@@ -72,7 +72,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     return meas_generator
 
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(15)
 def test_group_sampling():
     """Test blends drawn with group sampling function"""
     draw_blend_generator = get_draw_generator()
@@ -153,37 +153,6 @@ def compare_scarlet():
     batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
     batch_mean = deblend_images[0].mean()
     batch_std = deblend_images[0].std()
-    test_batch_max = np.array(
-        [
-            10.39827598,
-            279.24613539,
-            1511.07999549,
-            1083.94685111,
-            567.58024363,
-            403.28130687,
-        ]
-    )
-    test_batch_mean = 4.09093024221
-    test_batch_std = 41.334411867967
-    np.testing.assert_array_almost_equal(
-        batch_max,
-        test_batch_max,
-        decimal=3,
-        err_msg="Did not get desired maximum pixel values of deblend images",
-    )
-    np.testing.assert_almost_equal(
-        batch_mean,
-        test_batch_mean,
-        decimal=5,
-        err_msg="Did not get desired mean pixel values of deblend images",
-    )
-    np.testing.assert_almost_equal(
-        batch_std,
-        test_batch_std,
-        decimal=5,
-        err_msg="Did not get desired std of pixel values of deblend images",
-    )
-    pass
 
 
 def compare_scarlet_multiprocessing():
@@ -196,40 +165,9 @@ def compare_scarlet_multiprocessing():
     batch_max = deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
     batch_mean = deblend_images[0].mean()
     batch_std = deblend_images[0].std()
-    test_batch_max = np.array(
-        [
-            10.39827598,
-            279.24613539,
-            1511.07999549,
-            1083.94685111,
-            567.58024363,
-            403.28130687,
-        ]
-    )
-    test_batch_mean = 4.09093024221
-    test_batch_std = 41.334411867967
-    np.testing.assert_array_almost_equal(
-        batch_max,
-        test_batch_max,
-        decimal=3,
-        err_msg="Did not get desired maximum pixel values of deblend images",
-    )
-    np.testing.assert_almost_equal(
-        batch_mean,
-        test_batch_mean,
-        decimal=3,
-        err_msg="Did not get desired mean pixel values of deblend images",
-    )
-    np.testing.assert_almost_equal(
-        batch_std,
-        test_batch_std,
-        decimal=3,
-        err_msg="Did not get desired std of pixel values of deblend images",
-    )
-    pass
 
 
-@pytest.mark.timeout(15)
+@pytest.mark.timeout(25)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     try:
@@ -242,8 +180,8 @@ def test_algorithms():
     try:
         import scarlet
 
-        # compare_scarlet()
-        # compare_scarlet_multiprocessing()
+        compare_scarlet()
+        compare_scarlet_multiprocessing()
     except ModuleNotFoundError:
         print("skipping scarlet test")
     try:
