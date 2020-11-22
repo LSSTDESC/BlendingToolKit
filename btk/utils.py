@@ -223,12 +223,10 @@ class Scarlet_params(Measurement_params):
                 the scarlet model.
         """
         scarlet = __import__("scarlet")
-        model_psf = scarlet.PSF(
-            partial(scarlet.psf.gaussian, sigma=0.8), shape=(None, 41, 41)
-        )
+        model_psf = scarlet.GaussianPSF(sigma=(0.8,) * len(bands))
         model_frame = scarlet.Frame(images.shape, psfs=model_psf, channels=bands)
         observation = scarlet.Observation(
-            images, psfs=scarlet.PSF(psfs), weights=1.0 / variances, channels=bands
+            images, psfs=scarlet.ImagePSF(psfs), weights=1.0 / variances, channels=bands
         ).match(model_frame)
         sources = []
         for n, peak in enumerate(peaks):
