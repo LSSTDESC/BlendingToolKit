@@ -128,10 +128,10 @@ class DrawBlendsGenerator(ABC):
         isolated_images = {}
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s["pixel_scale"])
+            batch_blend_cat[s["name"]], batch_obs_cond[s["name"]] = [], []
             blend_images[s["name"]] = np.zeros(
                 (self.batch_size, pix_stamp_size, pix_stamp_size, len(s["bands"]))
             )
-
             isolated_images[s["name"]] = np.zeros(
                 (
                     self.batch_size,
@@ -141,7 +141,6 @@ class DrawBlendsGenerator(ABC):
                     len(s["bands"]),
                 )
             )
-            batch_blend_cat[s["name"]], batch_obs_cond[s["name"]] = [], []
 
         in_batch_blend_cat = next(self.blend_generator)
         obs_conds = next(self.observing_generator)  # same for every blend in batch.
@@ -159,7 +158,7 @@ class DrawBlendsGenerator(ABC):
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
             mini_batch_results = multiprocess(
-                self.render_blends,
+                self.render_mini_batch,
                 input_args,
                 self.cpus,
                 self.multiprocessing,
@@ -191,101 +190,8 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    @abstractmethod
-    def render_blends(self, blend_catalog, obs_conds, survey_name):
-        pass
-
-
-class WLDGenerator(DrawBlendsGenerator):
-    def render_isolated(self, galaxy, iso_obs):
-        """Returns `descwl.survey.Survey` class object that includes the rendered
-        object for an isolated galaxy in its '.image' attribute.
-
-        Args:
-            galaxy: `descwl.model.Galaxy` class that models galaxies.
-            iso_obs: `descwl.survey.Survey` class describing observing conditions.
-                The input galaxy is rendered and stored in here.
-        """
-        if self.verbose:
-            print("Draw isolated object")
-        iso_render_engine = descwl.render.Engine(
-            survey=iso_obs,
-            min_snr=self.min_snr,
-            truncate_radius=30,
-            no_margin=False,
-            verbose_render=False,
-        )
-        iso_render_engine.render_galaxy(
-            galaxy,
-            variations_x=None,
-            variations_s=None,
-            variations_g=None,
-            no_fisher=True,
-            no_analysis=True,
-        )
-        return iso_obs
-
-    def render_single_band(self, blend_catalog, cutout, band):
-        """Draws image of isolated galaxies along with the blend image in the
-        single input band.
-
-        The WLDeblending package (descwl) renders galaxies corresponding to the
-        blend_catalog entries and with observing conditions determined by
-        cutout. The rendered objects are stored in the observing conditions
-        class. So as to not overwrite images across different blends, we make a
-        copy of the cutout while drawing each galaxy. Images of isolated
-        galaxies are drawn with the WLDeblending and them summed to produce the
-        blend image.
-
-        A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
-        If a galaxy was not drawn by descwl, then this flag is set to 1.
-
-        Args:
-            blend_catalog: Catalog with entries corresponding to one blend.
-            cutout: `btk.cutout.Cutout` class describing observing conditions.
-            band(string): Name of band to draw images in.
-
-        Returns:
-            Images of blend and isolated galaxies as `numpy.ndarray`.
-
-        """
-        blend_catalog.add_column(
-            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
-        )
-        galaxy_builder = descwl.model.GalaxyBuilder(
-            cutout, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
-        )
-        pix_stamp_size = np.int(self.stamp_size / cutout.pixel_scale)
-        iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
-        # define temporary galsim image
-        # this will hold isolated galaxy images that will be summed
-        blend_image_temp = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-        mean_sky_level = cutout.mean_sky_level
-        for k, entry in enumerate(blend_catalog):
-            iso_obs = copy.deepcopy(cutout)
-            try:
-                galaxy = galaxy_builder.from_catalog(
-                    entry, entry["ra"], entry["dec"], band
-                )
-                iso_render = self.render_isolated(galaxy, iso_obs)
-                iso_image[k] = iso_render.image.array
-                blend_image_temp += iso_render.image
-            except descwl.render.SourceNotVisible:
-                if self.verbose:
-                    print("Source not visible")
-                blend_catalog["not_drawn_" + band][k] = 1
-                continue
-        if self.add_noise:
-            if self.verbose:
-                print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
-            noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
-            blend_image_temp.addNoise(noise)
-        blend_image = blend_image_temp.array
-        return blend_image, iso_image
-
-    def render_blends(self, blend_list, cutouts, survey):
-        """Returns isolated and blended images for bend catalogs in blend_list
+    def render_mini_batch(self, blend_list, cutouts, survey):
+        """Returns isolated and blended images for blend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
         band. Even though blend_list was input to the function, we return it since,
@@ -338,7 +244,7 @@ class WLDGenerator(DrawBlendsGenerator):
                 (pix_stamp_size, pix_stamp_size, len(survey["bands"]))
             )
             for j in range(len(survey["bands"])):
-                single_band_output = self.render_single_band(
+                single_band_output = self.render_blend(
                     blend_list[i], cutouts[j], survey["bands"][j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
@@ -346,3 +252,110 @@ class WLDGenerator(DrawBlendsGenerator):
 
             outputs.append([blend_image_multi, iso_image_multi, blend_list[i]])
         return outputs
+
+    def render_blend(self, blend_catalog, cutout, band):
+        """Draws image of isolated galaxies along with the blend image in the
+        single input band.
+
+        The WLDeblending package (descwl) renders galaxies corresponding to the
+        blend_catalog entries and with observing conditions determined by
+        cutout. The rendered objects are stored in the observing conditions
+        class. So as to not overwrite images across different blends, we make a
+        copy of the cutout while drawing each galaxy. Images of isolated
+        galaxies are drawn with the WLDeblending and them summed to produce the
+        blend image.
+
+        A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
+        If a galaxy was not drawn by descwl, then this flag is set to 1.
+
+        Args:
+            blend_catalog: Catalog with entries corresponding to one blend.
+            cutout: `btk.obs_conditions.Cutout` class describing observing conditions.
+            band(string): Name of band to draw images in.
+
+        Returns:
+            Images of blend and isolated galaxies as `numpy.ndarray`.
+
+        """
+        blend_catalog.add_column(
+            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
+        )
+
+        pix_stamp_size = np.int(self.stamp_size / cutout.pixel_scale)
+        iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
+
+        # define galsim image
+        _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
+        mean_sky_level = cutout.mean_sky_level
+
+        for k, entry in enumerate(blend_catalog):
+            _cutout = copy.deepcopy(cutout)
+            single_image = self.render_single(entry, _cutout, band)
+            iso_image[k] = single_image.array
+            _blend_image += single_image
+
+        if self.add_noise:
+            if self.verbose:
+                print("Noise added to blend image")
+            generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
+            noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
+            _blend_image.addNoise(noise)
+
+        blend_image = _blend_image.array
+        return blend_image, iso_image
+
+    @abstractmethod
+    def render_single(self, entry, cutout, band):
+        """Renders single galaxy in single band in the location given by its entry
+        using the cutout information.
+
+        Return:
+            galsim.Image
+        """
+        pass
+
+
+class WLDGenerator(DrawBlendsGenerator):
+    def render_single(self, entry, cutout, band):
+        """Returns the Galsim Image of an isolated galaxy.
+
+        Args:
+            entry: `descwl.model.Galaxy` class that models galaxies.
+            cutout: `descwl.survey.Survey` class describing observing conditions.
+                The input galaxy is rendered and stored in here.
+            band:
+
+        Return:
+            galsim.Image
+        """
+        if self.verbose:
+            print("Draw isolated object")
+
+        galaxy_builder = descwl.model.GalaxyBuilder(
+            cutout, no_disk=False, no_bulge=False, no_agn=False, verbose_model=False
+        )
+
+        try:
+            galaxy = galaxy_builder.from_catalog(entry, entry["ra"], entry["dec"], band)
+            iso_render_engine = descwl.render.Engine(
+                survey=cutout,
+                min_snr=self.min_snr,
+                truncate_radius=30,
+                no_margin=False,
+                verbose_render=False,
+            )
+            iso_render_engine.render_galaxy(
+                galaxy,
+                variations_x=None,
+                variations_s=None,
+                variations_g=None,
+                no_fisher=True,
+                no_analysis=True,
+            )
+
+            return cutout.image
+
+        except descwl.render.SourceNotVisible:
+            if self.verbose:
+                print("Source not visible")
+            entry["not_drawn_" + band] = 1
