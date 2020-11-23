@@ -159,7 +159,7 @@ class DrawBlendsGenerator(ABC):
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
             mini_batch_results = multiprocess(
-                self.run_mini_batch,
+                self.render_blends,
                 input_args,
                 self.cpus,
                 self.multiprocessing,
@@ -192,12 +192,12 @@ class DrawBlendsGenerator(ABC):
         return output
 
     @abstractmethod
-    def run_mini_batch(self, blend_catalog, obs_conds, survey_name):
+    def render_blends(self, blend_catalog, obs_conds, survey_name):
         pass
 
 
 class WLDGenerator(DrawBlendsGenerator):
-    def draw_isolated(self, galaxy, iso_obs):
+    def render_isolated(self, galaxy, iso_obs):
         """Returns `descwl.survey.Survey` class object that includes the rendered
         object for an isolated galaxy in its '.image' attribute.
 
@@ -225,7 +225,7 @@ class WLDGenerator(DrawBlendsGenerator):
         )
         return iso_obs
 
-    def run_single_band(self, blend_catalog, cutout, band):
+    def render_single_band(self, blend_catalog, cutout, band):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -267,7 +267,7 @@ class WLDGenerator(DrawBlendsGenerator):
                 galaxy = galaxy_builder.from_catalog(
                     entry, entry["ra"], entry["dec"], band
                 )
-                iso_render = self.draw_isolated(galaxy, iso_obs)
+                iso_render = self.render_isolated(galaxy, iso_obs)
                 iso_image[k] = iso_render.image.array
                 blend_image_temp += iso_render.image
             except descwl.render.SourceNotVisible:
@@ -284,7 +284,7 @@ class WLDGenerator(DrawBlendsGenerator):
         blend_image = blend_image_temp.array
         return blend_image, iso_image
 
-    def run_mini_batch(self, blend_list, cutouts, survey):
+    def render_blends(self, blend_list, cutouts, survey):
         """Returns isolated and blended images for bend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -306,7 +306,7 @@ class WLDGenerator(DrawBlendsGenerator):
             `numpy.ndarray` of blend images and isolated galaxy images, along with
             list of blend catalogs.
         """
-        mini_batch_outputs = []
+        outputs = []
         for i in range(len(blend_list)):
 
             # All bands in same survey have same pixel scale, WCS
@@ -338,13 +338,11 @@ class WLDGenerator(DrawBlendsGenerator):
                 (pix_stamp_size, pix_stamp_size, len(survey["bands"]))
             )
             for j in range(len(survey["bands"])):
-                single_band_output = self.run_single_band(
+                single_band_output = self.render_single_band(
                     blend_list[i], cutouts[j], survey["bands"][j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
 
-            mini_batch_outputs.append(
-                [blend_image_multi, iso_image_multi, blend_list[i]]
-            )
-        return mini_batch_outputs
+            outputs.append([blend_image_multi, iso_image_multi, blend_list[i]])
+        return outputs
