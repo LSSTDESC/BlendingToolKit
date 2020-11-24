@@ -93,7 +93,8 @@ class DrawBlendsGenerator(ABC):
             cpus: If multiprocessing, then number of parallel processes to run.
             meas_bands (tuple): For each survey in `self.observing_generator.surveys`,
                                the band in that survey for which measurements of e.g.
-                               size will be made. Tuple order should be same as `surveys`.
+                               size will be made. Tuple order should be same as
+                               `surveys`.
         """
 
         self.blend_generator = blend_generator
@@ -296,6 +297,11 @@ class DrawBlendsGenerator(ABC):
             try:
                 _cutout = copy.deepcopy(cutout)
                 single_image = self.render_single(entry, _cutout, band)
+                if single_image.array.shape[-1] != pix_stamp_size:
+                    raise ValueError(
+                        "render_single returned image of incorrect dimensions."
+                    )
+
                 iso_image[k] = single_image.array
                 _blend_image += single_image
 
@@ -317,7 +323,7 @@ class DrawBlendsGenerator(ABC):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
-        The image created must be in a stamp of size self.stamp_size / cutout.pixel_scale.
+        The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
 
         Return:
             galsim.Image
