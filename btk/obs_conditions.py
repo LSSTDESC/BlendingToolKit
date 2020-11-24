@@ -4,10 +4,14 @@ import astropy.wcs as WCS
 
 
 all_surveys = {
-   "LSST": {"bands": ("y", "z", "i", "r", "g", "u"), "pixel_scale": 0.2},
-    "DES": {"bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
-    "CFHT": {"bands": ("i", "r"), "pixel_scale": 0.185},
-    "HSC": {"bands": ("y", "z", "i", "r", "g"), "pixel_scale": 0.17},
+    "LSST": {
+        "name": "LSST",
+        "bands": ("y", "z", "i", "r", "g", "u"),
+        "pixel_scale": 0.2,
+    },
+    "DES": {"name": "DES", "bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
+    "CFHT": {"name": "CFHT", "bands": ("i", "r"), "pixel_scale": 0.185},
+    "HSC": {"name": "HSC", "bands": ("y", "z", "i", "r", "g"), "pixel_scale": 0.17},
 }
 
 
@@ -110,6 +114,34 @@ class WLDCutout(descwl.survey.Survey, Cutout):
         return psf_image, mean_sky_level
 
 
+class CosmosCutout(Cutout):
+    @staticmethod
+    def psf_function(r):
+        # usually r = 0.3 * pix
+        return galsim.Moffat(2, r)
+
+    def get_psf(self, psf_stamp_size):
+        assert psf_stamp_size % 2 == 1
+        psf_int = self.psf_function(self.psf_args).withFlux(1.0)
+
+        # Draw PSF
+        psf = psf_int.drawImage(
+            nx=self.psf_size,
+            ny=self.psf_size,
+            method="real_space",
+            use_true_center=True,
+            scale=self.pix,
+        ).array
+
+        # Make sure PSF vanishes on the edges of a patch that
+        # has the shape of the initial npsf
+        psf = psf - psf[0, int(self.psf_size / 2)] * 2
+        psf[psf < 0] = 0
+        psf = psf / np.sum(psf)
+
+        return psf
+
+
 class ObsConditions(ABC):
     def __init__(self, stamp_size=24):
         """Class that returns a cutout object for a given survey_name and band.
@@ -133,40 +165,6 @@ class ObsConditions(ABC):
 
 
 class WLDObsConditions(ObsConditions):
-    @abstractmethod
-    def get_cutout_params(self, survey_name, band, pixel_scale):
-        pass
-
-    def get_cutout(self, survey_name, band, pixel_scale):
-        """Returns a btk.cutout.Cutout object."""
-        cutout_params = self.get_cutout_params(survey_name, band, pixel_scale)
-        return btk.cutout.WLDCutout(
-            self.stamp_size,
-            no_analysis=True,
-            survey_name=survey_name,
-            filter_band=band,
-            **cutout_params,
-        )
-
-    def __call__(self, survey_name, band):
-        pixel_scale = all_surveys[survey_name]["pixel_scale"]
-        cutout = self.get_cutout(survey_name, band, pixel_scale)
-
-        if cutout.pixel_scale != pixel_scale:
-            raise ValueError(
-                f"Observing condition pixel scale does not "
-                f"match input pixel scale: {cutout.pixel_scale} == {pixel_scale}"
-            )
-        if cutout.filter_band != band:
-            raise ValueError(
-                "observing condition band does not "
-                "match input band: {0} == {1}".format(cutout.filter_band, band)
-            )
-
-        return cutout
-
-
-class DefaultObsConditions(WLDObsConditions):
     def __init__(self, stamp_size=24):
         """Returns the default observing conditions from the WLD package
         for a given survey_name and band.
@@ -188,6 +186,32 @@ class DefaultObsConditions(WLDObsConditions):
         cutout_params["projection"] = "TAN"
 
         return cutout_params
+
+    def __call__(self, survey, band):
+        pixel_scale = survey["pixel_scale"]
+        cutout_params = self.get_cutout_params(survey["name"], band, pixel_scale)
+        cutout = WLDCutout(
+            self.stamp_size,
+            no_analysis=True,
+            survey_name=survey["name"],
+            filter_band=band,
+            **cutout_params,
+        )
+
+        if cutout.pixel_scale != pixel_scale:
+            raise ValueError(
+                "observing condition pixel scale does not "
+                "match input pixel scale: {0} == {1}".format(
+                    cutout.pixel_scale, pixel_scale
+                )
+            )
+        if cutout.filter_band != band:
+            raise ValueError(
+                "observing condition band does not "
+                "match input band: {0} == {1}".format(cutout.filter_band, band)
+            )
+
+        return cutout
 
 
 class CosmosObsConditions(ObsConditions):

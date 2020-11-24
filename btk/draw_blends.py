@@ -233,6 +233,7 @@ class DrawBlendsGenerator(ABC):
             dx, dy = get_center_in_pixels(blend_list[i], wcs)
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
+            # TODO: How to get size for COSMOS?
             size = get_size(
                 pixel_scale,
                 blend_list[i],
@@ -341,7 +342,6 @@ class WLDGenerator(DrawBlendsGenerator):
     @property
     def compatible_catalogs(self):
         return "WLDCatalog"
-
 
     def render_single(self, entry, cutout, band):
         """Returns the Galsim Image of an isolated galaxy.
@@ -485,10 +485,10 @@ class GalsimRealDraw(DrawBlendsGenerator):
 
         return cube
 
-    def run_mini_batch(self, blend_list, obs_conds):
+    def render_single(self, entry, cutout, band):
         pass
 
 
 class GalsimHubDraw(DrawBlendsGenerator):
-    def run_mini_batch(self, blend_list, obs_conds):
+    def render_single(self, entry, cutout, band):
         pass
