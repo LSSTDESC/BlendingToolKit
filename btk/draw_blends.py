@@ -314,6 +314,8 @@ class DrawBlendsGenerator(ABC):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
+        The image created must be in a stamp of size self.stamp_size / cutout.pixel_scale.
+
         Return:
             galsim.Image
         """
