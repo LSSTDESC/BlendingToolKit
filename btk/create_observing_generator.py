@@ -1,4 +1,4 @@
-from btk.obs_conditions import DefaultObsConditions, all_surveys
+from btk.obs_conditions import WLDObsConditions, all_surveys
 
 
 class ObservingGenerator:
@@ -21,27 +21,27 @@ class ObservingGenerator:
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
         """
-        if type(surveys) == str:
+        if isinstance(surveys, str):
             self.surveys = [all_surveys[surveys]]
-        elif type(surveys) == list:
+        elif isinstance(surveys, list):
             self.surveys = []
             for s in surveys:
-                if type(s) == str:
+                if isinstance(s, str):
                     if s not in all_surveys:
                         raise KeyError("Survey not implemented.")
                     self.surveys.append(all_surveys[s])
-                elif type(s) == dict:
+                elif isinstance(s, dict):
                     self.surveys.append(s)
                 else:
                     raise TypeError("surveys is not in the right format")
-
         else:
             raise TypeError("surveys is not in the right format")
+
         self.verbose = verbose
 
         # create default observing conditions
         if obs_conds is None:
-            self.obs_conds = DefaultObsConditions(stamp_size)
+            self.obs_conds = WLDObsConditions(stamp_size)
         else:
             if not obs_conds.stamp_size == stamp_size:
                 raise ValueError(

@@ -273,7 +273,7 @@ def get_obs_generator(
             obs_conds = getattr(module, obs_conditions_name)
     else:
         obs_conds = None
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name, obs_conds, verbose
     )
