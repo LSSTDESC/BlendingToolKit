@@ -278,6 +278,9 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
+        if not hasattr(cutout, "mean_sky_level"):
+            raise AttributeError("cutout needs a mean_sky_level as an attribute.")
+
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
         )
