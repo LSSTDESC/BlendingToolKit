@@ -1,4 +1,4 @@
-from btk.obs_conditions import DefaultObsConditions, all_surveys
+from btk.obs_conditions import WLDObsConditions, all_surveys
 
 
 class ObservingGenerator:
@@ -41,7 +41,7 @@ class ObservingGenerator:
 
         # create default observing conditions
         if obs_conds is None:
-            self.obs_conds = DefaultObsConditions(stamp_size)
+            self.obs_conds = WLDObsConditions(stamp_size)
         else:
             if not obs_conds.stamp_size == stamp_size:
                 raise ValueError(

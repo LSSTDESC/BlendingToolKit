@@ -34,7 +34,7 @@ def get_draw_generator(
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size, shifts=shifts, indexes=indexes
     )
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         "LSST", obs_conds=obs_conds
     )
@@ -121,7 +121,7 @@ def test_multiresolution():
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size
     )
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         ["LSST", "HSC"], obs_conds=obs_conds
     )
@@ -165,7 +165,7 @@ def test_custom_survey_input():
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size
     )
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         [
             {
@@ -219,7 +219,7 @@ def test_wrong_format():
         blend_generator = btk.create_blend_generator.BlendGenerator(
             catalog, sampling_function, batch_size
         )
-        obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+        obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
         observing_generator = btk.create_observing_generator.ObservingGenerator(
             [
                 ("LSST", ("y", "z", "i", "r", "g", "u"), 0.2),
@@ -256,7 +256,7 @@ def test_wrong_name():
         blend_generator = btk.create_blend_generator.BlendGenerator(
             catalog, sampling_function, batch_size
         )
-        obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+        obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
         observing_generator = btk.create_observing_generator.ObservingGenerator(
             ["LSSD"],
             obs_conds=obs_conds,

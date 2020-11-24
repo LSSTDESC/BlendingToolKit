@@ -24,7 +24,7 @@ def get_draw_generator(batch_size=3):
         ),
         batch_size,
     )
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name, obs_conds
     )
@@ -59,7 +59,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         shifts=shifts,
         indexes=indexes,
     )
-    obs_conds = btk.obs_conditions.DefaultObsConditions(stamp_size)
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
         survey_name, obs_conds
     )

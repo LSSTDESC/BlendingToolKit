@@ -2,10 +2,11 @@ import copy
 from itertools import chain
 from abc import ABC, abstractmethod
 
-import descwl
 import galsim
 import numpy as np
 from astropy.table import Column
+
+import descwl
 
 from btk.multiprocess import multiprocess
 
@@ -289,10 +290,14 @@ class DrawBlendsGenerator(ABC):
         mean_sky_level = cutout.mean_sky_level
 
         for k, entry in enumerate(blend_catalog):
-            _cutout = copy.deepcopy(cutout)
-            single_image = self.render_single(entry, _cutout, band)
-            iso_image[k] = single_image.array
-            _blend_image += single_image
+            try:
+                _cutout = copy.deepcopy(cutout)
+                single_image = self.render_single(entry, _cutout, band)
+                iso_image[k] = single_image.array
+                _blend_image += single_image
+
+            except descwl.render.SourceNotVisible:
+                continue
 
         if self.add_noise:
             if self.verbose:
@@ -359,3 +364,4 @@ class WLDGenerator(DrawBlendsGenerator):
             if self.verbose:
                 print("Source not visible")
             entry["not_drawn_" + band] = 1
+            raise descwl.render.SourceNotVisible

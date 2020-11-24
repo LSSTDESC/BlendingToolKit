@@ -136,7 +136,7 @@ class ObsConditions(ABC):
         pass
 
 
-class WLDObs(ObsConditions):
+class WLDObsConditions(ObsConditions):
     def __init__(self, stamp_size=24):
         """Returns the default observing conditions from the WLD package
         for a given survey_name and band.
