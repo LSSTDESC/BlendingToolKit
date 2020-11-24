@@ -21,22 +21,22 @@ class ObservingGenerator:
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
         """
-        if type(surveys) == str:
+        if isinstance(surveys, str):
             self.surveys = [all_surveys[surveys]]
-        elif type(surveys) == list:
+        elif isinstance(surveys, list):
             self.surveys = []
             for s in surveys:
-                if type(s) == str:
+                if isinstance(s, str):
                     if s not in all_surveys:
                         raise KeyError("Survey not implemented.")
                     self.surveys.append(all_surveys[s])
-                elif type(s) == dict:
+                elif isinstance(s, dict):
                     self.surveys.append(s)
                 else:
                     raise TypeError("surveys is not in the right format")
-
         else:
             raise TypeError("surveys is not in the right format")
+
         self.verbose = verbose
 
         # create default observing conditions
