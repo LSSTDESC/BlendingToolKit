@@ -22,7 +22,7 @@ This repository includes sample input catalogs with a small number of galaxies t
 - [Cosmo DC2](https://arxiv.org/abs/1907.06530) catalog requires pre-processing in order to be used as input catalog to btk. Refer to this [notebook](https://github.com/LSSTDESC/WeakLensingDeblending/blob/cosmoDC2_ingestion/notebooks/wld_ingestion_cosmoDC2.ipynb) on how to convert the DC2 catalog into a CatSim-like catalog that can be analyzed with btk.
 
 ## Requirements
-The code is intended to run in python >=3.6.
+The code is intended to run in python >=3.7.
 To run btk you need to install
 - [WeakLensingDeblending](https://github.com/LSSTDESC/WeakLensingDeblending)
 - [GalSim](https://github.com/GalSim-developers/GalSim/)
