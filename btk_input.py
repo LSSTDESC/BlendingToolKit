@@ -281,8 +281,8 @@ def get_obs_generator(
     )
     if verbose:
         print(
-            f"Observing conditions generated using {observe_function_name}"
-            " function defined in {utils_filename}"
+            f"Observing conditions generated using {obs_conditions_name}"
+            f" function defined in {utils_filename}"
         )
     return observing_generator
 
