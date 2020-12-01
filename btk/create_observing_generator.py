@@ -49,7 +49,6 @@ class ObservingGenerator:
                     "stamp_size given."
                 )
             self.obs_conds = obs_conds
-        self.verbose = verbose
 
     def __iter__(self):
         return self
