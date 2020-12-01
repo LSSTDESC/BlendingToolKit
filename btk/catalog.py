@@ -58,6 +58,7 @@ class Catalog(ABC):
         self.table = selection_function(self.table)
         self._selection_functions.append(selection_function)
 
+
 class WLDCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
