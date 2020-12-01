@@ -36,11 +36,9 @@ class Catalog(ABC):
     def get_table(self):
         pass
 
-    @abstractmethod
     @property
     def name(self):
-        # class name
-        pass
+        return self.__class__.__name__
 
 
 class WLDCatalog(Catalog):
