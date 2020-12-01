@@ -58,10 +58,6 @@ class WLDCatalog(Catalog):
 
         return self.cat
 
-    @property
-    def name(self):
-        return "WLDCatalog"
-
 
 class CosmosCatalog(Catalog):
     def get_catalog(self, catalog_file) -> galsim.scene.COSMOSCatalog:
