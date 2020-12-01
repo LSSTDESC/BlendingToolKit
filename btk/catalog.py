@@ -75,7 +75,3 @@ class CosmosCatalog(Catalog):
         table["ra"] *= 3600
         table["dec"] *= 3600
         return table
-
-    @property
-    def name(self):
-        return "CosmosCatalog"
