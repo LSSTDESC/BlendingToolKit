@@ -72,9 +72,12 @@ class WLDCatalog(Catalog):
     def _prepare_table(self):
         table = deepcopy(self._raw_catalog)
 
+        # TODO: does the WLDCatalog require the 'ra' and 'dec' columns
         # convert ra dec from degrees to arcsec in catalog.
-        table["ra"] *= 3600
-        table["dec"] *= 3600
+        if "ra" in table.columns:
+            table["ra"] *= 3600
+        if "dec" in table.columns:
+            table["dec"] *= 3600
 
         return table
 
