@@ -29,12 +29,10 @@ class Catalog(ABC):
     @abstractmethod
     def from_file(cls, catalog_file, verbose):
         """Catalog constructor from input file"""
-        pass
 
     @abstractmethod
     def _prepare_table(self):
         """Operations to standardize the catalog table"""
-        pass
 
     @property
     def name(self):
