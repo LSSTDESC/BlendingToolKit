@@ -25,8 +25,8 @@ class Catalog(ABC):
         if self.verbose:
             print("Catalog loaded")
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def from_file(cls, catalog_file, verbose):
         """Catalog constructor from input file"""
         pass

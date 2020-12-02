@@ -64,6 +64,9 @@ def get_size(pixel_scale, catalog, cutout):
 
 
 class DrawBlendsGenerator(ABC):
+
+    compatible_catalogs = ("Catalog",)
+
     def __init__(
         self,
         blend_generator,
@@ -116,11 +119,6 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.min_snr = min_snr
         self.verbose = verbose
-
-    @abstractmethod
-    @property
-    def compatible_catalogs(self):
-        pass
 
     def __iter__(self):
         return self
@@ -234,12 +232,16 @@ class DrawBlendsGenerator(ABC):
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             # TODO: How to get size for COSMOS?
-            size = get_size(
-                pixel_scale,
-                blend_list[i],
-                cutouts[survey["bands"] == meas_band],
-            )
+            if self.compatible_catalogs == "WLDCatalog":
+                size = get_size(
+                    pixel_scale,
+                    blend_list[i],
+                    cutouts[survey["bands"] == meas_band],
+                )
+            else:
+                size = 1
             blend_list[i].add_column(size)
+
             pix_stamp_size = int(self.stamp_size / pixel_scale)
             iso_image_multi = np.zeros(
                 (
@@ -339,9 +341,7 @@ class DrawBlendsGenerator(ABC):
 
 
 class WLDGenerator(DrawBlendsGenerator):
-    @property
-    def compatible_catalogs(self):
-        return "WLDCatalog"
+    compatible_catalogs = ("WLDCatalog",)
 
     def render_single(self, entry, cutout, band):
         """Returns the Galsim Image of an isolated galaxy.
@@ -411,6 +411,8 @@ class GalsimRealDraw(DrawBlendsGenerator):
         list of arguments for the psf function
     """
 
+    compatible_catalogs = ("CosmosCatalog",)
+
     def __init__(
         self,
         cat,
@@ -425,10 +427,6 @@ class GalsimRealDraw(DrawBlendsGenerator):
         self.singles = None
         self.locs = None
         self.blend = None
-
-    @property
-    def compatible_catalogs(self):
-        return "CosmosCatalog"
 
     def draw_single(self, cat, shift):
         """Draws a single random galaxy profile in a random location of the image
