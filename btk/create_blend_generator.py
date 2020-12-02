@@ -54,19 +54,19 @@ class BlendGenerator:
             blend_tables = []
             for i in range(self.batch_size):
                 if self.shifts is not None and self.indexes is not None:
-                    blend_tables = self.sampling_function(
+                    blend_table = self.sampling_function(
                         self.catalog.table,
                         shifts=self.shifts[i],
                         indexes=self.indexes[i],
                     )
                 else:
-                    blend_tables = self.sampling_function(self.catalog.table)
-                if len(blend_tables) > self.max_number:
+                    blend_table = self.sampling_function(self.catalog.table)
+                if len(blend_table) > self.max_number:
                     raise ValueError(
                         f"Number of objects per blend must be "
-                        f"less than max_number: {len(blend_tables)} <= {self.max_number}"
+                        f"less than max_number: {len(blend_table)} <= {self.max_number}"
                     )
-                blend_tables.append(blend_tables)
+                blend_tables.append(blend_table)
             return blend_tables
 
         except (GeneratorExit, KeyboardInterrupt):
