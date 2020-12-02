@@ -147,7 +147,8 @@ class BasicSamplingFunction(SamplingFunction):
                 table[np.random.choice(q, size=number_of_objects)],
             ]
         )
-        blend_table["ra"], blend_table["dec"] = 0.0, 0.0
+        blend_table["ra"] = 0.0
+        blend_table["dec"] = 0.0
         # keep number density of objects constant
         maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
         dx, dy = _get_random_center_shift(number_of_objects + 1, maxshift)
