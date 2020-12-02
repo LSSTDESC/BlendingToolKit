@@ -232,7 +232,7 @@ class DrawBlendsGenerator(ABC):
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             # TODO: How to get size for COSMOS?
-            if self.compatible_catalogs == "WLDCatalog":
+            if "WLDCatalog" in self.compatible_catalogs:
                 size = get_size(
                     pixel_scale,
                     blend_list[i],
