@@ -239,7 +239,7 @@ class DrawBlendsGenerator(ABC):
                     cutouts[survey["bands"] == meas_band],
                 )
             else:
-                size = 1
+                size = Column(data=[1], name="size")
             blend_list[i].add_column(size)
 
             pix_stamp_size = int(self.stamp_size / pixel_scale)
