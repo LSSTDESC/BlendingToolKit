@@ -160,7 +160,7 @@ def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     if selection_function is not None:
         catalog.apply_selection_function(selection_function)
-    
+
     if verbose:
         print(
             f"Loaded {catalog_name} catalog with "

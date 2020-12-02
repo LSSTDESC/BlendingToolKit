@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-import descwl
 import astropy.wcs as WCS
+import galsim
+import descwl
 
 
 all_surveys = {
