@@ -14,7 +14,7 @@ class Catalog(ABC):
             verbose: Whether to print information related to loading catalog.
 
         Attributes:
-            self.table (`astropy.table`): CatSim-like catalog with selection criteria applied 
+            self.table (`astropy.table`): CatSim-like catalog with selection criteria applied
                 and recorded in the `_selection_functions` list.
         """
         self._raw_catalog = catalog
@@ -25,8 +25,8 @@ class Catalog(ABC):
         if self.verbose:
             print("Catalog loaded")
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def from_file(cls, catalog_file, verbose):
         """Catalog constructor from input file"""
         pass
@@ -48,7 +48,7 @@ class Catalog(ABC):
 
         Parameters
         ----------
-        selection_function: callable 
+        selection_function: callable
             logical selection on the catalog table columns/rows.
 
         """
@@ -66,7 +66,7 @@ class WLDCatalog(Catalog):
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
         catalog = astropy.table.Table.read(catalog_file, format=fmt)
-        
+
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self):
