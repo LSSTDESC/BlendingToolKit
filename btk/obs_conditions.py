@@ -138,7 +138,20 @@ class CosmosCutout(Cutout):
         psf = psf - psf[0, int(self.psf_size / 2)] * 2
         psf[psf < 0] = 0
         psf = psf / np.sum(psf)
+## Make sure PSF vanishes on the edges of a patch that has the shape of the initial npsf
+            
+            
+            psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.pix).withFlux(1.)
 
+            ## Interpolate the new 0-ed psf
+            psfs_obj.append(psf_obj)
+
+            ## Re-draw it (with the correct fulx)
+            psfs.append(psf_obj.drawImage(nx=npsf,
+                                          ny=npsf,
+                                          method = 'no_pixel',
+                                          use_true_center = True,
+                                          scale = self.pix).array)
         return psf
 
 
