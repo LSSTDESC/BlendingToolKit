@@ -234,12 +234,16 @@ class DrawBlendsGenerator(ABC):
             blend_list[i].add_column(dx)
             blend_list[i].add_column(dy)
             # TODO: How to get size for COSMOS?
-            size = get_size(
-                pixel_scale,
-                blend_list[i],
-                cutouts[survey["bands"] == meas_band],
-            )
+            if self.compatible_catalogs == "WLDCatalog":
+                size = get_size(
+                    pixel_scale,
+                    blend_list[i],
+                    cutouts[survey["bands"] == meas_band],
+                )
+            else:
+                size = 1
             blend_list[i].add_column(size)
+
             pix_stamp_size = int(self.stamp_size / pixel_scale)
             iso_image_multi = np.zeros(
                 (
