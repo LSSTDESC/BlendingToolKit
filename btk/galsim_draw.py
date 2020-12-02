@@ -47,6 +47,7 @@ def mk_sim(k, dir, shape, npsf, cat, shift=(0, 0), gal_type="real"):
     # Galaxy profile
     gal = cat.makeGalaxy(k, gal_type=gal_type, noise_pad_size=shape[0] * pix)
     gal = gal.shift(dx=shift[0], dy=shift[1])
+
     ## PSF is a Moffat profile dilated to the sigma of the corresponding survey
     psf_int = galsim.Moffat(2, HST["pixel"]).dilate(sigma / HST["psf"]).withFlux(1.0)
     ## Draw PSF
@@ -63,7 +64,6 @@ def mk_sim(k, dir, shape, npsf, cat, shift=(0, 0), gal_type="real"):
     psf = psf_int.drawImage(
         nx=npsf, ny=npsf, method="real_space", use_true_center=True, scale=pix_hr
     ).array
-
     # Convolve galaxy profile by PSF, rotate and sample at high resolution
     im = galsim.Convolve(gal, psf_int).drawImage(
         nx=shape[0],

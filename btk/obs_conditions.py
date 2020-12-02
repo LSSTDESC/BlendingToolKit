@@ -111,7 +111,6 @@ class CosmosCutout(Cutout):
 
     @staticmethod
     def psf_function(r):
-        # usually r = 0.3 * pix
         return galsim.Moffat(2, r)
 
     def get_psf(self, psf_stamp_size):
