@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 import astropy.table
 
+from btk.catalog import WLDCatalog
+
 
 def _get_random_center_shift(num_objects, maxshift):
     """Returns random shifts in x and y coordinates between + and - max-shift
@@ -175,7 +177,8 @@ class GroupSamplingFunction(SamplingFunction):
             wld_catalog_name: File path to a pre-analyzed WLD Catsim catalog.
         """
         super().__init__(max_number)
-        self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
+
+        self.wld_catalog = WLDCatalog.from_file(wld_catalog_name).get_raw_catalog()
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.shift = shift
@@ -253,7 +256,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
             wld_catalog_name: Same as GroupSamplingFunction
         """
         super().__init__(max_number)
-        self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format="fits")
+        self.wld_catalog = WLDCatalog.from_file(wld_catalog_name).get_raw_catalog()
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.group_id_count = 0

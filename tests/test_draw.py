@@ -29,7 +29,7 @@ def get_draw_generator(
     else:
         shifts = None
         indexes = None
-    catalog = btk.catalog.load_catalog(catalog_name)
+    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size, shifts=shifts, indexes=indexes
@@ -116,7 +116,7 @@ def test_multiresolution():
     multiprocessing = False
     add_noise = True
 
-    catalog = btk.catalog.load_catalog(catalog_name)
+    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size
@@ -160,7 +160,7 @@ def test_custom_survey_input():
     multiprocessing = False
     add_noise = True
 
-    catalog = btk.get_input_catalog.load_catalog(catalog_name)
+    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     blend_generator = btk.create_blend_generator.BlendGenerator(
         catalog, sampling_function, batch_size
@@ -212,7 +212,7 @@ def test_wrong_format():
         multiprocessing = False
         add_noise = True
 
-        catalog = btk.get_input_catalog.load_catalog(catalog_name)
+        catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
         sampling_function = btk.sampling_functions.DefaultSampling(
             stamp_size=stamp_size
         )
@@ -249,7 +249,7 @@ def test_wrong_name():
         multiprocessing = False
         add_noise = True
 
-        catalog = btk.get_input_catalog.load_catalog(catalog_name)
+        catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
         sampling_function = btk.sampling_functions.DefaultSampling(
             stamp_size=stamp_size
         )

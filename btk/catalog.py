@@ -6,66 +6,89 @@ import astropy.table
 
 
 class Catalog(ABC):
-    def __init__(self, catalog_file, selection_function=lambda x: x, verbose=False):
+    def __init__(self, catalog, verbose=False):
         """Returns astropy table with catalog name from input class.
 
         Args:
-            catalog_file: File path of CatSim-like catalog or galsim COSMOS catalog to
-                         draw galaxies from.
-            selection_function: Selection cuts (if input) to place on input catalog.
+            catalog : CatSim-like catalog or galsim COSMOS catalog to draw galaxies from.
             verbose: Whether to print information related to loading catalog.
 
         Attributes:
-            self.cat (varies): Catalog object of varying type. Might be necessary to
-                                ultimately generate the images (e.g. COSMOS Catalog)
-            self.table (`astropy.table`): CatSim-like catalog with a selection
-                                           criteria applied if provided.
+            self.table (`astropy.table`): CatSim-like catalog with selection criteria applied 
+                and recorded in the `_selection_functions` list.
         """
-        self.cat = self.get_catalog(catalog_file)
-        self.table = selection_function(self.get_table())
+        self._raw_catalog = catalog
         self.verbose = verbose
+        self.table = self._prepare_table()
+        self._selection_functions = []
 
         if self.verbose:
             print("Catalog loaded")
 
     @abstractmethod
-    def get_catalog(self, catalog_file):
+    @classmethod
+    def from_file(cls, catalog_file, verbose):
+        """Catalog constructor from input file"""
         pass
 
     @abstractmethod
-    def get_table(self):
+    def _prepare_table(self):
+        """Operations to standardize the catalog table"""
         pass
 
     @property
     def name(self):
         return self.__class__.__name__
 
+    def get_raw_catalog(self):
+        return self._raw_catalog
+
+    def apply_selection_function(self, selection_function):
+        """Apply a selection cut to the current table.
+
+        Parameters
+        ----------
+        selection_function: callable 
+            logical selection on the catalog table columns/rows.
+
+        """
+        if not callable(selection_function):
+            raise TypeError("selection_function must be callable")
+
+        self.table = selection_function(self.table)
+        self._selection_functions.append(selection_function)
+
 
 class WLDCatalog(Catalog):
-    def get_catalog(self, catalog_file) -> astropy.table.Table:
+    @classmethod
+    def from_file(cls, catalog_file, verbose=False):
         # catalog returned is an astropy table.
         _, ext = os.path.splitext(catalog_file)
-        fmt = "fits" if ext == ".fits" else "ascii.basic"
-        cat = astropy.table.Table.read(catalog_file, format=fmt)
-        return cat
+        fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
+        catalog = astropy.table.Table.read(catalog_file, format=fmt)
+        
+        return cls(catalog, verbose=verbose)
 
-    def get_table(self):
-        table = deepcopy(self.cat)
+    def _prepare_table(self):
+        table = deepcopy(self._raw_catalog)
 
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
         table["dec"] *= 3600
 
-        return self.cat
+        return table
 
 
 class CosmosCatalog(Catalog):
-    def get_catalog(self, catalog_file) -> galsim.scene.COSMOSCatalog:
+    @classmethod
+    def from_file(cls, catalog_file, verbose=False):
         # This will return a COSMOSCatalog object.
-        return galsim.COSMOSCatalog(file_name=catalog_file)
+        catalog = galsim.COSMOSCatalog(file_name=catalog_file)
 
-    def get_table(self):
-        table = astropy.table.Table(self.cat.real_cat)
+        return cls(catalog, verbose=verbose)
+
+    def _prepare_table(self):
+        table = astropy.table.Table(self._raw_catalog.real_cat)
 
         # make notation for 'ra' and 'dec' standard across code.
         table.rename_column("RA", "ra")
@@ -74,4 +97,5 @@ class CosmosCatalog(Catalog):
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
         table["dec"] *= 3600
+
         return table
