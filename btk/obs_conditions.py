@@ -59,7 +59,7 @@ class Cutout(ABC):
         self.pix_stamp_size = int(self.stamp_size / pixel_scale)
         self.wcs = self.get_wcs(center_pix, center_sky, projection)
 
-    def get_wcs(self, center_pix=None, center_sky=None, projection=None):
+    def get_wcs(self, center_pix, center_sky, projection):
         return make_wcs(
             pixel_scale=self.pixel_scale,
             center_pix=center_pix,
@@ -86,17 +86,17 @@ class WLDCutout(descwl.survey.Survey, Cutout):
     def __init__(
         self,
         stamp_size,
-        pixel_scale,
+        wld_pixel_scale,
         center_pix=None,
         center_sky=None,
-        projection=None,
+        projection="TAN",
         **survey_kwargs,
     ):
         descwl.survey.Survey.__init__(self, **survey_kwargs)
         Cutout.__init__(
             self,
             stamp_size,
-            pixel_scale,
+            wld_pixel_scale,
             center_pix,
             center_sky,
             projection,
@@ -206,22 +206,22 @@ class WLDObsConditions(ObsConditions):
         return cutout_params
 
     def __call__(self, survey, band):
-        pixel_scale = survey["pixel_scale"]
-        cutout_params = self.get_cutout_params(survey["name"], band, pixel_scale)
+        wld_pixel_scale = survey["pixel_scale"]
+        cutout_params = self.get_cutout_params(survey["name"], band, wld_pixel_scale)
         cutout = WLDCutout(
             self.stamp_size,
-            pixel_scale,
+            wld_pixel_scale,
             no_analysis=True,
             survey_name=survey["name"],
             filter_band=band,
             **cutout_params,
         )
 
-        if cutout.pixel_scale != pixel_scale:
+        if cutout.pixel_scale != wld_pixel_scale:
             raise ValueError(
                 "observing condition pixel scale does not "
                 "match input pixel scale: {0} == {1}".format(
-                    cutout.pixel_scale, pixel_scale
+                    cutout.pixel_scale, wld_pixel_scale
                 )
             )
         if cutout.filter_band != band:
