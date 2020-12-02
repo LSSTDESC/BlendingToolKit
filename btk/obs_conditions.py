@@ -16,7 +16,7 @@ all_surveys = {
 }
 
 
-def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=None):
+def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
     """Creates WCS for an image.
     Args:
         pixel_scale (float): pixel size in arcseconds
@@ -33,8 +33,6 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=No
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
         center_sky = [0 for _ in range(2)]
-    if projection is None:
-        projection = "TAN"
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
@@ -46,7 +44,12 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=No
 
 class Cutout(ABC):
     def __init__(
-        self, stamp_size, pixel_scale, center_pix=None, center_sky=None, projection=None
+        self,
+        stamp_size,
+        pixel_scale,
+        center_pix=None,
+        center_sky=None,
+        projection="TAN",
     ):
         """Class containing the necessary information to draw a postage stamp (PSF,
         pixel_scale, WCS, etc.) for a given survey and band.
@@ -83,6 +86,7 @@ class WLDCutout(descwl.survey.Survey, Cutout):
     def __init__(
         self,
         stamp_size,
+        pixel_scale,
         center_pix=None,
         center_sky=None,
         projection=None,
@@ -92,7 +96,7 @@ class WLDCutout(descwl.survey.Survey, Cutout):
         Cutout.__init__(
             self,
             stamp_size,
-            survey_kwargs["pixel_scale"],
+            pixel_scale,
             center_pix,
             center_sky,
             projection,
@@ -139,20 +143,26 @@ class CosmosCutout(Cutout):
         psf = psf - psf[0, int(self.psf_size / 2)] * 2
         psf[psf < 0] = 0
         psf = psf / np.sum(psf)
-## Make sure PSF vanishes on the edges of a patch that has the shape of the initial npsf
-            
-            
-            psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.pix).withFlux(1.)
+        ## Make sure PSF vanishes on the edges of a patch that has
+        # the shape of the initial npsf
 
-            ## Interpolate the new 0-ed psf
-            psfs_obj.append(psf_obj)
+        psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.pix).withFlux(
+            1.0
+        )
 
-            ## Re-draw it (with the correct fulx)
-            psfs.append(psf_obj.drawImage(nx=npsf,
-                                          ny=npsf,
-                                          method = 'no_pixel',
-                                          use_true_center = True,
-                                          scale = self.pix).array)
+        ## Interpolate the new 0-ed psf
+        psfs_obj.append(psf_obj)
+
+        ## Re-draw it (with the correct flux)
+        psfs.append(
+            psf_obj.drawImage(
+                nx=npsf,
+                ny=npsf,
+                method="no_pixel",
+                use_true_center=True,
+                scale=self.pix,
+            ).array
+        )
         return psf
 
 
@@ -193,12 +203,6 @@ class WLDObsConditions(ObsConditions):
         )
         cutout_params["image_width"] = pix_stamp_size
         cutout_params["image_height"] = pix_stamp_size
-
-        # Information for WCS
-        cutout_params["center_sky"] = None
-        cutout_params["center_pix"] = None
-        cutout_params["projection"] = "TAN"
-
         return cutout_params
 
     def __call__(self, survey, band):
@@ -206,6 +210,7 @@ class WLDObsConditions(ObsConditions):
         cutout_params = self.get_cutout_params(survey["name"], band, pixel_scale)
         cutout = WLDCutout(
             self.stamp_size,
+            pixel_scale,
             no_analysis=True,
             survey_name=survey["name"],
             filter_band=band,
