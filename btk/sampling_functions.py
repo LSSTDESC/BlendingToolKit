@@ -90,7 +90,8 @@ class DefaultSampling(SamplingFunction):
             blend_table = table[np.random.choice(q, size=number_of_objects)]
         else:
             blend_table = table[indexes]
-        blend_table["ra"], blend_table["dec"] = 0.0, 0.0
+        blend_table["ra"] = 0.0
+        blend_table["dec"] = 0.0
         if shifts is None:
             dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
         else:
