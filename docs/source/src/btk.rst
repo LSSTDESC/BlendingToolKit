@@ -14,7 +14,7 @@ Submodules
 
 .. toctree::
 
-   btk.get_input_catalog
+   btk.catalog
    btk.compute_metrics
    btk.create_blend_generator
    btk.create_observing_generator
