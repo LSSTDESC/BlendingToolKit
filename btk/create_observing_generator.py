@@ -1,4 +1,4 @@
-from btk.obs_conditions import WLDObsConditions, all_surveys
+from btk.obs_conditions import WLDObsConditions, all_surveys, Survey
 
 
 class ObservingGenerator:
@@ -12,28 +12,22 @@ class ObservingGenerator:
         """Generates class with observing conditions in each band.
 
         Args:
-             surveys (str or list): Name(s) of the survey which should be available
-                                    in descwl. May either be a string for single survey
-                                    or a list of strings for several surveys. See
+             surveys (`Survey` or `list`): btk.obs_condition.Survey object or a list of surveys surveys. See
                                     obs_conditions.py for a list of available surveys.
              obs_conds: Class (not object) that returns observing conditions for
                              a given survey and band. If not provided, then the default
                              `descwl.survey.Survey` values for the corresponding
                              survey_name are used to create the observing_generator.
         """
-        if isinstance(surveys, str):
-            self.surveys = [all_surveys[surveys]]
+        if isinstance(surveys, Survey):
+            self.surveys = [surveys]
         elif isinstance(surveys, list):
             self.surveys = []
             for s in surveys:
-                if isinstance(s, str):
-                    if s not in all_surveys:
-                        raise KeyError("Survey not implemented.")
-                    self.surveys.append(all_surveys[s])
-                elif isinstance(s, dict):
+                if isinstance(s, Survey):
                     self.surveys.append(s)
                 else:
-                    raise TypeError("surveys is not in the right format")
+                    raise TypeError("surveys should be a `btk.obs_conditions.Survey` object")
         else:
             raise TypeError("surveys is not in the right format")
 
@@ -56,8 +50,8 @@ class ObservingGenerator:
     def __next__(self):
         observing_generator = {}
         for s in self.surveys:
-            observing_generator[s["name"]] = []
-            for band in s["bands"]:
+            observing_generator[s.name] = []
+            for band in s.bands:
                 cutout = self.obs_conds(s, band)
-                observing_generator[s["name"]].append(cutout)
+                observing_generator[s.name].append(cutout)
         return observing_generator

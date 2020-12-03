@@ -1,7 +1,7 @@
 import os
 from copy import deepcopy
+import numpy as np
 from abc import ABC, abstractmethod
-import galsim
 import astropy.table
 
 
@@ -41,7 +41,7 @@ class Catalog(ABC):
     def get_raw_catalog(self):
         return self._raw_catalog
 
-    def apply_selection_function(self, selection_function):
+    def apply_selection_function(self, selection_function, *kwargs):
         """Apply a selection cut to the current table.
 
         Parameters
@@ -53,8 +53,8 @@ class Catalog(ABC):
         if not callable(selection_function):
             raise TypeError("selection_function must be callable")
 
-        self.table = selection_function(self.table)
-        self._selection_functions.append(selection_function)
+        self.table = selection_function(self.table, *kwargs)
+        self._selection_functions.append((selection_function, *kwargs))
 
 
 class WLDCatalog(Catalog):
@@ -70,33 +70,60 @@ class WLDCatalog(Catalog):
     def _prepare_table(self):
         table = deepcopy(self._raw_catalog)
 
+
         # TODO: does the WLDCatalog require the 'ra' and 'dec' columns
         # convert ra dec from degrees to arcsec in catalog.
-        if "ra" in table.columns:
-            table["ra"] *= 3600
-        if "dec" in table.columns:
+        if "ra" in table:
+            table["Ra"] *= 3600
+        if "dec" in table:
             table["dec"] *= 3600
+
+        f = self._raw_catalog["fluxnorm_bulge"] / (
+                self._raw_catalog["fluxnorm_disk"] + self._raw_catalog["fluxnorm_bulge"]
+        )
+        r_sec = np.hypot(
+            self._raw_catalog["a_d"] * (1 - f) ** 0.5 * 4.66, self._raw_catalog["a_b"] * f ** 0.5 * 1.46
+        )
+        # BTK now requires ref_mags, but WLD still wants magnitudes
+        table["ref_mag"] = self._raw_catalog["i_ab"]
+        table["btk_size"] = r_sec
+        #ADds the extra columns to both catalogs just to be sure
+        self._raw_catalog["ref_mag"] = self._raw_catalog["i_ab"]
+        self._raw_catalog["btk_size"] = r_sec
 
         return table
 
 
 class CosmosCatalog(Catalog):
     @classmethod
-    def from_file(cls, catalog_file, verbose=False):
+    def from_file(cls, catalog_files, verbose=False):
+        """
+
+        Paramters
+        ---------
+        catalog_files: list of galsim cataolgs
+        """
         # This will return a COSMOSCatalog object.
-        catalog = galsim.COSMOSCatalog(file_name=catalog_file)
+        catalog_coord = astropy.table.Table.read(catalog_files[0], 'fits')
+        catalog_fit = astropy.table.Table.read(catalog_files[1], 'fits')
+        catalog = astropy.table.hstack([catalog_coord, catalog_fit])
 
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self):
-        table = astropy.table.Table(self._raw_catalog.real_cat)
-
+        table = deepcopy(self._raw_catalog)
         # make notation for 'ra' and 'dec' standard across code.
         table.rename_column("RA", "ra")
         table.rename_column("DEC", "dec")
+        table.rename_column("MAG", "ref_mag")
 
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
         table["dec"] *= 3600
 
+        size = self._raw_catalog["flux_radius"]*self._raw_catalog["PIXEL_SCALE"]
+        table["btk_size"] = size
+        #ADds the extra columns to both catalogs just to be sure
+        self._raw_catalog["ref_mag"] = self._raw_catalog["MAG"]
+        self._raw_catalog["btk_size"] = size
         return table

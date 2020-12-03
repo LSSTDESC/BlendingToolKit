@@ -84,7 +84,7 @@ class DefaultSampling(SamplingFunction):
             Astropy.table with entries corresponding to one blend.
         """
         number_of_objects = np.random.randint(1, self.max_number + 1)
-        (q,) = np.where(table["i_ab"] <= 25.3)
+        (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
             blend_table = table[np.random.choice(q, size=number_of_objects)]
@@ -137,11 +137,11 @@ class BasicSamplingFunction(SamplingFunction):
         number_of_objects = np.random.randint(0, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
-        (q_bright,) = np.where(cond & (table["i_ab"] <= 24))
+        (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
         if np.random.random() >= 0.9:
-            (q,) = np.where(cond & (table["i_ab"] < 28))
+            (q,) = np.where(cond & (table["ref_mag"] < 28))
         else:
-            (q,) = np.where(cond & (table["i_ab"] <= 25.3))
+            (q,) = np.where(cond & (table["ref_mag"] <= 25.3))
         blend_table = astropy.table.vstack(
             [
                 table[np.random.choice(q_bright, size=1)],

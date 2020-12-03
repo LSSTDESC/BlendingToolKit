@@ -51,12 +51,8 @@ def get_size(pixel_scale, catalog, cutout):
     Returns:
         `astropy.table.Column`: size of the galaxy.
     """
-    f = catalog["fluxnorm_bulge"] / (
-        catalog["fluxnorm_disk"] + catalog["fluxnorm_bulge"]
-    )
-    hlr_d = np.sqrt(catalog["a_d"] * catalog["b_d"])
-    hlr_b = np.sqrt(catalog["a_b"] * catalog["b_b"])
-    r_sec = np.hypot(hlr_d * (1 - f) ** 0.5 * 4.66, hlr_b * f ** 0.5 * 1.46)
+
+    r_sec = catalog["btk_size"]
     psf = cutout.psf_model
     psf_r_sec = psf.calculateMomentRadius()
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
@@ -114,7 +110,7 @@ class DrawBlendsGenerator(ABC):
 
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
-            self.meas_bands[s["name"]] = meas_bands[i]
+            self.meas_bands[s.name] = meas_bands[i]
 
         self.add_noise = add_noise
         self.min_snr = min_snr
@@ -133,18 +129,18 @@ class DrawBlendsGenerator(ABC):
         blend_images = {}
         isolated_images = {}
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s["pixel_scale"])
-            batch_blend_cat[s["name"]], batch_obs_cond[s["name"]] = [], []
-            blend_images[s["name"]] = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s["bands"]))
+            pix_stamp_size = int(self.stamp_size / s.pixel_scale)
+            batch_blend_cat[s.name], batch_obs_cond[s.name] = [], []
+            blend_images[s.name] = np.zeros(
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s.bands))
             )
-            isolated_images[s["name"]] = np.zeros(
+            isolated_images[s.name] = np.zeros(
                 (
                     self.batch_size,
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(s["bands"]),
+                    len(s.bands),
                 )
             )
 
@@ -155,7 +151,7 @@ class DrawBlendsGenerator(ABC):
             input_args = [
                 (
                     copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]),
-                    copy.deepcopy(obs_conds[s["name"]]),
+                    copy.deepcopy(obs_conds[s.name]),
                     s,
                 )
                 for i in range(0, self.batch_size, mini_batch_size)
@@ -176,9 +172,9 @@ class DrawBlendsGenerator(ABC):
 
             # organize results.
             for i in range(self.batch_size):
-                blend_images[s["name"]][i] = batch_results[i][0]
-                isolated_images[s["name"]][i] = batch_results[i][1]
-                batch_blend_cat[s["name"]].append(batch_results[i][2])
+                blend_images[s.name][i] = batch_results[i][0]
+                isolated_images[s.name][i] = batch_results[i][1]
+                batch_blend_cat[s.name].append(batch_results[i][2])
         if len(self.surveys) > 1:
             output = {
                 "blend_images": blend_images,
@@ -187,7 +183,7 @@ class DrawBlendsGenerator(ABC):
                 "obs_condition": obs_conds,
             }
         else:
-            survey_name = self.surveys[0]["name"]
+            survey_name = self.surveys[0].name
             output = {
                 "blend_images": blend_images[survey_name],
                 "isolated_images": isolated_images[survey_name],
@@ -222,11 +218,11 @@ class DrawBlendsGenerator(ABC):
         for i in range(len(blend_list)):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = survey["pixel_scale"]
+            pixel_scale = survey.pixel_scale
             wcs = cutouts[0].wcs
 
             # Band to do measurements of size for given survey.
-            meas_band = self.meas_bands[survey["name"]]
+            meas_band = self.meas_bands[survey.name]
 
             dx, dy = get_center_in_pixels(blend_list[i], wcs)
             blend_list[i].add_column(dx)
@@ -236,7 +232,7 @@ class DrawBlendsGenerator(ABC):
                 size = get_size(
                     pixel_scale,
                     blend_list[i],
-                    cutouts[survey["bands"] == meas_band],
+                    cutouts[survey.bands == meas_band],
                 )
             else:
                 size = Column(data=[1], name="size")
@@ -248,15 +244,15 @@ class DrawBlendsGenerator(ABC):
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(survey["bands"]),
+                    len(survey.bands),
                 )
             )
             blend_image_multi = np.zeros(
-                (pix_stamp_size, pix_stamp_size, len(survey["bands"]))
+                (pix_stamp_size, pix_stamp_size, len(survey.bands))
             )
-            for j in range(len(survey["bands"])):
+            for j in range(len(survey.bands)):
                 single_band_output = self.render_blend(
-                    blend_list[i], cutouts[j], survey["bands"][j]
+                    blend_list[i], cutouts[j], survey.bands[j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
@@ -389,7 +385,7 @@ class WLDGenerator(DrawBlendsGenerator):
             raise descwl.render.SourceNotVisible
 
 
-class GalsimRealDraw(DrawBlendsGenerator):
+class CosmosGenerator(DrawBlendsGenerator):
     """Class that instantiates a blend from real galsim images
     Parameters
     ----------
@@ -413,22 +409,29 @@ class GalsimRealDraw(DrawBlendsGenerator):
 
     compatible_catalogs = ("CosmosCatalog",)
 
-    def __init__(
-        self,
-        cat,
-        pix,
-        stamp_size,
-    ):
+    def __init__(self,
+                 blend_generator,
+                 observing_generator,
+                 cat,
+                 meas_bands=("i",),
+                 multiprocessing=False,
+                 cpus=1,
+                 verbose=False,
+                 add_noise=True,
+                 min_snr=0.05
+                 ):
         self.cat = cat
-        self.pix = pix
-        self.stamp_size = stamp_size
 
-        self.seds = None
-        self.singles = None
-        self.locs = None
-        self.blend = None
+        super().__init__(blend_generator,
+                         observing_generator,
+                         meas_bands=meas_bands,
+                         multiprocessing=multiprocessing,
+                         cpus=cpus,
+                         verbose=verbose,
+                         add_noise=add_noise,
+                         min_snr=min_snr,)
 
-    def draw_single(self, cat, shift):
+    def draw_single(self, shift):
         """Draws a single random galaxy profile in a random location of the image
         Args:
             shift (np.array): pixel center of the single galaxy in the postage stamp
@@ -438,8 +441,8 @@ class GalsimRealDraw(DrawBlendsGenerator):
             gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
         """
 
-        k = np.int(np.random.randn(1) * cat.size)
-        gal = cat.makeGalaxy(
+        k = np.int(np.random.randn(1) * len(self.cat))
+        gal = self.cat.makeGalaxy(
             k, gal_type="real", noise_pad_size=self.stamp_size * self.pixel_scale
         )
         gal = gal.shift(dx=shift[0], dy=shift[1])
