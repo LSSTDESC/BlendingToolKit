@@ -91,11 +91,19 @@ if on_rtd:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "numpydoc",
     "sphinx.ext.napoleon",
 ]
+
+autodoc_default_options = {
+    'members': True,
+    'special-members': '__init__',
+    'undoc-members': True,
+    'show-inheritance': True,
+    'exclude-members': '__weakref__'
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

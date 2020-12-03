@@ -65,7 +65,7 @@ def get_closest_neighbor_distance(true_table):
         true_table: Catalog with entries corresponding to one blend.
 
     Returns:
-        `astropy.table.Column`s: size of the galaxy.
+        `astropy.table.Column`: size of the galaxy.
     """
     peaks = np.stack([np.array(true_table["dx"]), np.array(true_table["dy"])]).T
     if peaks.shape[0] > 1:
@@ -284,6 +284,7 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
     Compares the true centers and detected centers to identify the
     number of true detections, number of sources that were undetected
     and number of spurious detections.
+
     Args:
         true_tables:  List of astropy Tables of the blend catalogs of the
             batch. Length of tables must be the batch size. x and y coordinate
@@ -294,12 +295,14 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
             coordinate values must be under columns named 'dx' and 'dy'
             respectively, in pixels from bottom left corner as (0, 0).
         batch_index(int): Index number of the batch.
+
     Returns:
         batch_true_table: astropy.table.Table with parameters of true galaxy in
             the batch.
         batch_detected_table: astropy.table.Table with parameters of detected
             objects in the batch.
         batch_blend_list: List summarizing detection match results.
+
     """
     batch_true_table = astropy.table.Table()
     batch_detected_table = astropy.table.Table()
