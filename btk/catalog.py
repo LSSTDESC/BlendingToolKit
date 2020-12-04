@@ -75,7 +75,7 @@ class WLDCatalog(Catalog):
         # convert ra dec from degrees to arcsec in catalog.
         if "ra" in table:
             table["Ra"] *= 3600
-        if "dec" in table:
+        if "dec" in table.colnames:
             table["dec"] *= 3600
 
         f = self._raw_catalog["fluxnorm_bulge"] / (
