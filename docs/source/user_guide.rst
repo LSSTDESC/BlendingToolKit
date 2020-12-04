@@ -19,9 +19,5 @@ The workflow of btk is shown here:
 7. Compute metrics : compares the true centroids, shapes, and flux values to those predicted by the user-provided algorithm. Currently, BTK assesses only detection performance by returning the number of objects correctly detected, the number that are undetected and the number of spurious detections. This is achieved using a :class:`~btk.compute_metrics.MetricsParams` object, which takes as an argument the measure generator from step 6, and can be fed to the :func:`~btk.compute_metrics.run` function to get the desired results. Please note that this section may be reworked in the future.
 
 
-*BlendingToolKit* can be run end-to-end using an input yaml config file, parsed by *btk_input.py*, which then runs btk with the defined parameters.
-This is shown in detail in the tutorial `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/master/notebooks/with_config_file_input.ipynb>`_.
+*BlendingToolKit* can be run end-to-end using an input yaml config file, parsed by *btk_input.py*, which then runs btk with the defined parameters. However, this file is broken as of now and cannot be used yet.
 
-Utils
--------
-*btk/utils.py* contains functions that the user may find useful in creating functions to perform detection/deblending/measurement in *measure*. For example, it shows how a class derived from *measure.Measurement_params* can be defined by the user for use with SEP, the LSST science pipeline or stand-alone SCARLET; see point 6 above.

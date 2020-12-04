@@ -22,3 +22,4 @@ Submodules
    btk.measure
    btk.obs_conditions
    btk.sampling_functions
+   btk.utils

@@ -1,6 +1,8 @@
 Tutorials
 =============
 
+NOTE : Most of the tutorials in this page are *outdated* but can still be found in the notebooks/broken directory, and might help to get an idea on how to use btk in certain cases. The most up-to-date tutorial as of now is this `introductory tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/master/notebooks/intro.ipynb>`_ which should be able to get you started with btk.
+
 The following jupyter notebooks are included in the `notebooks/` directory:
 
 Run basic btk (*run_basic.ipynb*).
