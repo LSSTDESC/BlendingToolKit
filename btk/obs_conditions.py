@@ -6,7 +6,13 @@ import descwl
 from collections import namedtuple
 
 # A simple class archetype to serve as a dictionary without having to write the field names every time
-Survey = namedtuple("Survey", ["name", "pixel_scale", "psf_scale", "bands", "mean_sky_level", "exp_time", "zero_point"])
+Survey = namedtuple("Survey", ["name",
+                               "pixel_scale",
+                               "psf_scale",
+                               "bands",
+                               "mean_sky_level",
+                               "exp_time",
+                               "zero_point"])
 
 pix_ROMAN = 0.11
 pix_RUBIN = 0.2

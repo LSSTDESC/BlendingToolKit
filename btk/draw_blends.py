@@ -319,7 +319,7 @@ class DrawBlendsGenerator(ABC):
                 print("Noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
-            #_blend_image.addNoise(noise)
+            blend_image.addNoise(noise)
 
         blend_image = _blend_image.array
         return blend_image, iso_image
@@ -452,8 +452,6 @@ class CosmosGenerator(DrawBlendsGenerator):
         # but with a small kernel, it's better than doing nothing.
         gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * cutout.pixel_scale))
         #Randomly shifts the galaxy in the patch
-        shift = ((np.random.rand(2)-0.5) * cutout.pix_stamp_size * cutout.pixel_scale * 2 / 3)
-        gal = gal.shift(dx=shift[0], dy=shift[1])
         galaxy =galsim.Convolve(gal, cutout.get_psf()).drawImage(nx=cutout.pix_stamp_size,
                                                               ny=cutout.pix_stamp_size,
                                                               use_true_center = True,

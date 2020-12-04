@@ -54,7 +54,7 @@ class Catalog(ABC):
             raise TypeError("selection_function must be callable")
 
         self.table = selection_function(self.table, *kwargs)
-        self._selection_functions.append((selection_function, *kwargs))
+        self._selection_functions.append((selection_function, kwargs))
 
 
 class WLDCatalog(Catalog):
@@ -87,7 +87,7 @@ class WLDCatalog(Catalog):
         # BTK now requires ref_mags, but WLD still wants magnitudes
         table["ref_mag"] = self._raw_catalog["i_ab"]
         table["btk_size"] = r_sec
-        #ADds the extra columns to both catalogs just to be sure
+        #Adds the extra columns to both catalogs just to be sure
         self._raw_catalog["ref_mag"] = self._raw_catalog["i_ab"]
         self._raw_catalog["btk_size"] = r_sec
 
