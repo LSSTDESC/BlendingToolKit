@@ -22,10 +22,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-
     - name: install sphinx
       run: pip install sphinx mock sphinx_rtd_theme
-
 
     - name: run sphinx action
       uses: ammaraskar/sphinx-action@master
