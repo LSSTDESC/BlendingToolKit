@@ -116,7 +116,7 @@ class CosmosCatalog(Catalog):
         table.rename_column("RA", "ra")
         table.rename_column("DEC", "dec")
         table.rename_column("MAG", "ref_mag")
-        index = np.where(t["IDENT_1"] == self.raw_catalog["IDENT_1"] for t in table)
+        index = np.where(t["IDENT_1"] == self._raw_catalog["IDENT_1"] for t in table)
 
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
