@@ -74,7 +74,7 @@ class WLDCatalog(Catalog):
         # TODO: does the WLDCatalog require the 'ra' and 'dec' columns
         # convert ra dec from degrees to arcsec in catalog.
         if "ra" in table.colnames:
-            table["Ra"] *= 3600
+            table["ra"] *= 3600
         if "dec" in table.colnames:
             table["dec"] *= 3600
 
