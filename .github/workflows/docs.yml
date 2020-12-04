@@ -1,4 +1,4 @@
-name: tests
+name: documentation
 
 on:
   push:
@@ -13,4 +13,4 @@ jobs:
     - uses: actions/checkout@v1
     - uses: ammaraskar/sphinx-action@master
       with:
-        docs-folder: "docs/"
+        docs-folder: "./docs"
