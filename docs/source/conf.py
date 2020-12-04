@@ -19,19 +19,11 @@
 
 # -- Project information -----------------------------------------------------
 import os
-import sys
-
-# import mock.Mock as MagicMock
-from mock import Mock as MagicMock
-
-# from unittest.mock import MagicMock
-sys.path.insert(0, os.path.abspath("../.."))
-sys.path.insert(0, os.path.abspath(".."))
 import sphinx_rtd_theme
 
 
 project = "btk"
-copyright = "2019, btk developers"
+copyright = "2020, btk developers"
 author = "btk developers"
 
 # The short X.Y version
@@ -41,45 +33,6 @@ release = "0.1"
 
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
-
-    def __mul__(self, other):
-        return Mock()
-
-    def __rmul__(self, other):
-        return Mock()
-
-    def __pow__(self, other):
-        return Mock()
-
-    def __div__(self, other):
-        return Mock()
-
-
-MOCK_MODULES = [
-    "numpy",
-    "numpy.ma",
-    "numpy.linalg",
-    "scipy",
-    "scipy.spatial",
-    "astropy",
-    "astropy.table",
-    "astropy.io",
-    "astropy.io.fits",
-    "fitsio",
-    "galsim",
-    "lmfit",
-    "descwl",
-    "skimage",
-    "skimage.feature",
-]
-if on_rtd:
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ---------------------------------------------------
 
@@ -91,7 +44,7 @@ if on_rtd:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "numpydoc",
     "sphinx.ext.napoleon",
