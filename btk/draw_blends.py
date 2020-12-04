@@ -234,9 +234,7 @@ class DrawBlendsGenerator(ABC):
                     blend_list[i],
                     cutouts[survey.bands == meas_band],
                 )
-            else:
-                size = Column(data=[1], name="size")
-            blend_list[i].add_column(size)
+                blend_list[i].add_column(size)
 
             pix_stamp_size = int(self.stamp_size / pixel_scale)
             iso_image_multi = np.zeros(
@@ -284,8 +282,12 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        if not hasattr(cutout, "mean_sky_level"):
-            raise AttributeError("cutout needs a mean_sky_level as an attribute.")
+        if not hasattr(cutout, "survey"):
+            mean_sky_level = cutout.mean_sky_level
+        elif not hasattr(cutout, "mean_sky_level"):
+            mean_sky_level = cutout.survey.mean_sky_level[[b == band for b in cutout.survey.bands]]
+        else:
+            raise AttributeError("cutout needs a `survey`  as an attribute.")
 
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
@@ -296,7 +298,6 @@ class DrawBlendsGenerator(ABC):
 
         # define galsim image
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-        mean_sky_level = cutout.mean_sky_level
 
         for k, entry in enumerate(blend_catalog):
             try:
@@ -318,7 +319,7 @@ class DrawBlendsGenerator(ABC):
                 print("Noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
-            _blend_image.addNoise(noise)
+            #_blend_image.addNoise(noise)
 
         blend_image = _blend_image.array
         return blend_image, iso_image
@@ -431,7 +432,7 @@ class CosmosGenerator(DrawBlendsGenerator):
                          add_noise=add_noise,
                          min_snr=min_snr,)
 
-    def draw_single(self, shift):
+    def render_single(self, catalog_line, cutout, band):
         """Draws a single random galaxy profile in a random location of the image
         Args:
             shift (np.array): pixel center of the single galaxy in the postage stamp
@@ -440,54 +441,27 @@ class CosmosGenerator(DrawBlendsGenerator):
         Returns:
             gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
         """
+        k = int(np.random.rand(1)*len(self.cat))#catalog_line["btk_index"][0]
+        gal = self.cat.makeGalaxy(k,
+                                  gal_type="real",
+                                  noise_pad_size=0).withFlux(1)
 
-        k = np.int(np.random.randn(1) * len(self.cat))
-        gal = self.cat.makeGalaxy(
-            k, gal_type="real", noise_pad_size=self.stamp_size * self.pixel_scale
-        )
+        #Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
+        # so gaussian kernel convolution smoothes it out.
+        # It haas the slight disadvantage of adding some band-limitedeness to the image,
+        # but with a small kernel, it's better than doing nothing.
+        gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * cutout.pixel_scale))
+        #Randomly shifts the galaxy in the patch
+        shift = ((np.random.rand(2)-0.5) * cutout.pix_stamp_size * cutout.pixel_scale * 2 / 3)
         gal = gal.shift(dx=shift[0], dy=shift[1])
-        return gal
+        galaxy =galsim.Convolve(gal, cutout.get_psf()).drawImage(nx=cutout.pix_stamp_size,
+                                                              ny=cutout.pix_stamp_size,
+                                                              use_true_center = True,
+                                                              method = 'real_space',
+                                                              scale = cutout.pixel_scale,
+                                                              dtype = np.float64).array
 
-    def draw_blend(self, ngal):
-        """Creates multi-band scenes
-        Args:
-            ngal (int): Number of galaxies in the stamp
-        """
-        singles = []
-        seds = []
-        locs = []
-        cube = np.zeros((self.channels.size, self.stamp_size, self.stamp_size))
-        for i in range(ngal):
-            shift = (np.random.rand(2) - 0.5) * self.stamp_size * self.pix / 2
-            gal = self.draw_single(shift)
-            singles.append(gal)
-            sed = np.random.rand(self.channels.size) * 0.8 + 0.2
-            seds.appends(sed)
-
-            im = galsim.Convolve(gal, self.psf).drawImage(
-                nx=self.stamp_size,
-                ny=self.stamp_size,
-                use_true_center=True,
-                method="no_pixel",
-                scale=self.pix,
-                dtype=np.float64,
-            )
-            locs.append(
-                [
-                    shift[0] / self.pix + self.stamp_size[0] / 2,
-                    shift[1] / self.pix + self.stamp_size[1] / 2,
-                ]
-            )
-            cube += im[None, :, :] * sed[:, None, None]
-
-        self.singles = singles
-        self.locs = locs
-        self.seds = seds
-
-        return cube
-
-    def render_single(self, entry, cutout, band):
-        pass
+        return galsim.Image(galaxy)
 
 
 class GalsimHubDraw(DrawBlendsGenerator):

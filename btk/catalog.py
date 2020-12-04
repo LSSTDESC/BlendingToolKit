@@ -116,6 +116,7 @@ class CosmosCatalog(Catalog):
         table.rename_column("RA", "ra")
         table.rename_column("DEC", "dec")
         table.rename_column("MAG", "ref_mag")
+        index = np.where(t["IDENT_1"] == self.raw_catalog["IDENT_1"] for t in table)
 
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
@@ -123,6 +124,7 @@ class CosmosCatalog(Catalog):
 
         size = self._raw_catalog["flux_radius"]*self._raw_catalog["PIXEL_SCALE"]
         table["btk_size"] = size
+        table["btk_index"] = index
         #ADds the extra columns to both catalogs just to be sure
         self._raw_catalog["ref_mag"] = self._raw_catalog["MAG"]
         self._raw_catalog["btk_size"] = size

@@ -6,7 +6,7 @@ import descwl
 from collections import namedtuple
 
 # A simple class archetype to serve as a dictionary without having to write the field names every time
-Survey = namedtuple("Survey", ["name", "pixel_scale", "psf_scale", "bands", "sky", "exp_time", "zero_point"])
+Survey = namedtuple("Survey", ["name", "pixel_scale", "psf_scale", "bands", "mean_sky_level", "exp_time", "zero_point"])
 
 pix_ROMAN = 0.11
 pix_RUBIN = 0.2
@@ -105,11 +105,18 @@ class Cutout(ABC):
     def __init__(self, stamp_size, pixel_scale, **wcs_kwargs):
         """Class containing the necessary information to draw a postage stamp (PSF,
         pixel_scale, WCS, etc.) for a given survey and band.
+
+        Parameters
+        ----------
+        stamp_size: float
+            stamp size in arcsec
+        pixel_scale: float
+            pixel scale in arcsec
+        wcs_kwargs: arguments for generating wcs.
         """
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.pix_stamp_size = int(self.stamp_size / pixel_scale)
-
         shape = (self.pix_stamp_size, self.pix_stamp_size)
         self.wcs = make_wcs(pixel_scale, shape, **wcs_kwargs)
 
@@ -160,6 +167,7 @@ class CosmosCutout(Cutout):
     def __init__(self,
                  stamp_size,
                  survey,
+                 band,
                  psf_stamp_size=41,
                  ):
         """Class containing the necessary information to draw a postage stamp (PSF,
@@ -178,45 +186,34 @@ class CosmosCutout(Cutout):
         super(CosmosCutout, self).__init__(stamp_size, survey.pixel_scale)
         self.survey = survey
         self.psf_stamp_size = psf_stamp_size
+        self.band = band
 
     @staticmethod
     def psf_function(r):
         return galsim.Moffat(2, r)
 
-    def get_psf(self, psf_stamp_size):
-        assert psf_stamp_size % 2 == 1
-        psfs = []
-        psf_objs = []
-        for i in range(len(self.survey.bands)):
-            psf_obj = self.psf_function(self.survey.psf_scale[i]).withFlux(1.0)
-            psf_arr = psf_obj.drawImage(
-                nx=psf_stamp_size,
-                ny=psf_stamp_size,
-                method="no_pixel",
-                use_true_center=True,
-                scale=self.pixel_scale,
-            ).array
-            psf = galsim.InterpolatedImage(
-                galsim.Image(psf_arr), scale=self.pixel_scale
-            ).withFlux(1.0)
+    def get_psf(self):
+        """ Generates a psf as a Galsim object using the survey information
+        """
+        assert self.psf_stamp_size % 2 == 1
+        band_index = np.where([s == self.band for s in self.survey.bands])
 
-            # Make sure PSF vanishes on the edges of a patch that
-            # has the shape of the initial psf
-            psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
-            psf[psf < 0] = 0
-            psf /= np.sum(psf)
+        psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
+        psf = psf_obj.drawImage(nx=self.psf_stamp_size,
+                                    ny=self.psf_stamp_size,
+                                    method="no_pixel",
+                                    use_true_center=True,
+                                    scale=self.pixel_scale).array
 
-            #Generating an unintegrated galsim psf for the convolution
-            psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.survey.pix).withFlux(1.)
-            psf_objs.append(psf_obj)
-            # Generates an array for the psf with integration
-            psfs.append(psf_obj.drawImage(nx=self.psf_stamp_size,
-                                          ny=self.psf_stamp_size,
-                                          method = 'no_pixel',
-                                          use_true_center = True,
-                                          scale = self.survey.pix).array)
+        # Make sure PSF vanishes on the edges of a patch that
+        # has the shape of the initial psf
+        psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
+        psf[psf < 0] = 0
+        psf /= np.sum(psf)
+        #Generating an unintegrated galsim psf for the convolution
+        psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.survey.pixel_scale).withFlux(1.)
 
-        return psfs, psf_objs
+        return psf_obj
 
 
 class ObsConditions(ABC):
@@ -278,10 +275,13 @@ class WLDObsConditions(ObsConditions):
 
 
 class CosmosObsConditions(ObsConditions):
-    def __call__(self, survey):
+    def __call__(self, survey, band):
+        psf_stamp_size = int(self.psf_stamp_size / survey.pixel_scale)
+        while psf_stamp_size % 2 == 0:
+            psf_stamp_size +=1
 
-        return CosmosCutout(
-            int(self.stamp_size / survey.pixel_scale),
-            survey, int(self.psf_stamp_size / survey.pixel_scale)
-        )
+        return CosmosCutout(self.stamp_size,
+                            survey,
+                            band,
+                            psf_stamp_size)
 
