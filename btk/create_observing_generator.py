@@ -29,7 +29,7 @@ class ObservingGenerator:
                 else:
                     raise TypeError("surveys should be a `btk.obs_conditions.Survey` object")
         else:
-            raise TypeError("surveys is not in the right format")
+            raise TypeError("surveys should be a `btk.obs_conditions.Survey` object")
 
         self.verbose = verbose
 
