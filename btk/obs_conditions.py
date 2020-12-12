@@ -6,13 +6,18 @@ import descwl
 from collections import namedtuple
 
 # A simple class archetype to serve as a dictionary without having to write the field names every time
-Survey = namedtuple("Survey", ["name",
-                               "pixel_scale",
-                               "psf_scale",
-                               "bands",
-                               "mean_sky_level",
-                               "exp_time",
-                               "zero_point"])
+Survey = namedtuple(
+    "Survey",
+    [
+        "name",
+        "pixel_scale",
+        "psf_scale",
+        "bands",
+        "mean_sky_level",
+        "exp_time",
+        "zero_point",
+    ],
+)
 
 pix_ROMAN = 0.11
 pix_RUBIN = 0.2
@@ -23,61 +28,70 @@ pix_DES = 0.263
 pix_CFHT = 0.185
 
 # Sigma of the psf profile in arcseconds.
-sigma_ROMAN = 0.11 * np.array([1.68, 1.69, 1.86, 2.12, 2.44, 2.71])  # https://arxiv.org/pdf/1702.01747.pdf Z-band
-sigma_RUBIN = np.array([0.327, 0.31, 0.297, 0.285, 0.276, 0.267])  # https://www.lsst.org/about/camera/features
-sigma_EUCLID = np.array([0.16])  # https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
-sigma_HST = np.array([0.074])  # Source https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6.6UVISOpticalPerformance-6.6.1 800nm
-sigma_HSC = np.array([0.306, 0.285, 0.238, 0.268, 0.272])  # https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
+sigma_ROMAN = 0.11 * np.array(
+    [1.68, 1.69, 1.86, 2.12, 2.44, 2.71]
+)  # https://arxiv.org/pdf/1702.01747.pdf Z-band
+sigma_RUBIN = np.array(
+    [0.327, 0.31, 0.297, 0.285, 0.276, 0.267]
+)  # https://www.lsst.org/about/camera/features
+sigma_EUCLID = np.array(
+    [0.16]
+)  # https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
+sigma_HST = np.array(
+    [0.074]
+)  # Source https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6.6UVISOpticalPerformance-6.6.1 800nm
+sigma_HSC = np.array(
+    [0.306, 0.285, 0.238, 0.268, 0.272]
+)  # https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
 
 
-Euclid = Survey("Euclid",
-                pix_EUCLID,
-                sigma_EUCLID,
-                ["VIS"],
-                np.array([22.9]),
-                np.array([2260]),
-                np.array([6.85]))
-HST = Survey("HST",
-             pix_HST,
-             sigma_HST,
-             ["f814w"],
-             np.array([22]),
-             np.array([3000]),
-             np.array([20]))
-HSC = Survey("HSC",
-             pix_HSC,
-             sigma_HSC, ["g", "r", "i", "z", "y"],
-             np.array([21.4, 20.6, 19.7, 18.3, 17.9]),
-             np.array([600, 600, 1200, 1200, 1200]),
-             np.array([91.11, 87.74, 69.80, 29.56, 21.53]))
-Roman = Survey("Roman",
-               pix_ROMAN,
-               sigma_ROMAN,
-               ["F062", "Z087", "Y106", "J129", "H158", "F184"],
-               np.array([22, 22, 22, 22, 22, 22]), ## Not Checked!!!
-               np.array([3000, 3000, 3000, 3000, 3000, 3000]),  ## Not Checked!!!
-               np.array([26.99, 26.39, 26.41, 26.35, 26.41, 25.96]))
-Rubin = Survey("LSST",
-               pix_RUBIN,
-               sigma_RUBIN,
-               ["u", "g", "r", "i", "z", "y"],
-               np.array([22.9, 22.3, 21.2, 20.5, 19.6, 18.6]),
-               np.array([1680, 2400, 5520, 5520, 4800, 4800]),
-               np.array([9.16, 50.70, 43.70, 32.36, 22.68, 10.58]))
-DES = Survey("DES",
-             pix_DES,
-             None,
-             ["i", "r", "g", "z"],
-             None,
-             None,
-             None)
-CFHT = Survey("CFHT",
-              pix_CFHT,
-              None,
-              ["i", "r"],
-              None,
-              None,
-              None)
+Euclid = Survey(
+    "Euclid",
+    pix_EUCLID,
+    sigma_EUCLID,
+    ["VIS"],
+    np.array([22.9]),
+    np.array([2260]),
+    np.array([6.85]),
+)
+HST = Survey(
+    "HST",
+    pix_HST,
+    sigma_HST,
+    ["f814w"],
+    np.array([22]),
+    np.array([3000]),
+    np.array([20]),
+)
+HSC = Survey(
+    "HSC",
+    pix_HSC,
+    sigma_HSC,
+    ["g", "r", "i", "z", "y"],
+    np.array([21.4, 20.6, 19.7, 18.3, 17.9]),
+    np.array([600, 600, 1200, 1200, 1200]),
+    np.array([91.11, 87.74, 69.80, 29.56, 21.53]),
+)
+Roman = Survey(
+    "Roman",
+    pix_ROMAN,
+    sigma_ROMAN,
+    ["F062", "Z087", "Y106", "J129", "H158", "F184"],
+    np.array([22, 22, 22, 22, 22, 22]),  ## Not Checked!!!
+    np.array([3000, 3000, 3000, 3000, 3000, 3000]),  ## Not Checked!!!
+    np.array([26.99, 26.39, 26.41, 26.35, 26.41, 25.96]),
+)
+Rubin = Survey(
+    "LSST",
+    pix_RUBIN,
+    sigma_RUBIN,
+    ["u", "g", "r", "i", "z", "y"],
+    np.array([22.9, 22.3, 21.2, 20.5, 19.6, 18.6]),
+    np.array([1680, 2400, 5520, 5520, 4800, 4800]),
+    np.array([9.16, 50.70, 43.70, 32.36, 22.68, 10.58]),
+)
+DES = Survey("DES", pix_DES, None, ["i", "r", "g", "z"], None, None, None)
+CFHT = Survey("CFHT", pix_CFHT, None, ["i", "r"], None, None, None)
 all_surveys = [Euclid, HST, HSC, Roman, Rubin, DES, CFHT]
 
 
@@ -170,12 +184,13 @@ class WLDCutout(descwl.survey.Survey, Cutout):
 
 
 class CosmosCutout(Cutout):
-    def __init__(self,
-                 stamp_size,
-                 survey,
-                 band,
-                 psf_stamp_size=41,
-                 ):
+    def __init__(
+        self,
+        stamp_size,
+        survey,
+        band,
+        psf_stamp_size=41,
+    ):
         """Class containing the necessary information to draw a postage stamp (PSF,
         pixel_scale, WCS, etc.) using Cosmos' real galaxies for a given survey.
 
@@ -199,31 +214,34 @@ class CosmosCutout(Cutout):
         return galsim.Moffat(2, r)
 
     def get_psf(self):
-        """ Generates a psf as a Galsim object using the survey information
-        """
+        """Generates a psf as a Galsim object using the survey information"""
         assert self.psf_stamp_size % 2 == 1
         band_index = np.where([s == self.band for s in self.survey.bands])
 
         psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
-        psf = psf_obj.drawImage(nx=self.psf_stamp_size,
-                                    ny=self.psf_stamp_size,
-                                    method="no_pixel",
-                                    use_true_center=True,
-                                    scale=self.pixel_scale).array
+        psf = psf_obj.drawImage(
+            nx=self.psf_stamp_size,
+            ny=self.psf_stamp_size,
+            method="no_pixel",
+            use_true_center=True,
+            scale=self.pixel_scale,
+        ).array
 
         # Make sure PSF vanishes on the edges of a patch that
         # has the shape of the initial psf
         psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
         psf[psf < 0] = 0
         psf /= np.sum(psf)
-        #Generating an unintegrated galsim psf for the convolution
-        psf_obj = galsim.InterpolatedImage(galsim.Image(psf), scale=self.survey.pixel_scale).withFlux(1.)
+        # Generating an unintegrated galsim psf for the convolution
+        psf_obj = galsim.InterpolatedImage(
+            galsim.Image(psf), scale=self.survey.pixel_scale
+        ).withFlux(1.0)
 
         return psf_obj
 
 
 class ObsConditions(ABC):
-    def __init__(self, stamp_size=24, psf_stamp_size = 8.2):
+    def __init__(self, stamp_size=24, psf_stamp_size=8.2):
         """Class that returns a cutout object for a given survey_name and band.
         If the information provided by this class is combined with the blend_catalogs,
         blend postage stamps can be drawn.
@@ -284,10 +302,6 @@ class CosmosObsConditions(ObsConditions):
     def __call__(self, survey, band):
         psf_stamp_size = int(self.psf_stamp_size / survey.pixel_scale)
         while psf_stamp_size % 2 == 0:
-            psf_stamp_size +=1
+            psf_stamp_size += 1
 
-        return CosmosCutout(self.stamp_size,
-                            survey,
-                            band,
-                            psf_stamp_size)
-
+        return CosmosCutout(self.stamp_size, survey, band, psf_stamp_size)

@@ -27,7 +27,9 @@ class ObservingGenerator:
                 if isinstance(s, Survey):
                     self.surveys.append(s)
                 else:
-                    raise TypeError("surveys should be a `btk.obs_conditions.Survey` object")
+                    raise TypeError(
+                        "surveys should be a `btk.obs_conditions.Survey` object"
+                    )
         else:
             raise TypeError("surveys should be a `btk.obs_conditions.Survey` object")
 

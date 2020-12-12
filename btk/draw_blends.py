@@ -285,7 +285,9 @@ class DrawBlendsGenerator(ABC):
         if not hasattr(cutout, "survey"):
             mean_sky_level = cutout.mean_sky_level
         elif not hasattr(cutout, "mean_sky_level"):
-            mean_sky_level = cutout.survey.mean_sky_level[[b == band for b in cutout.survey.bands]]
+            mean_sky_level = cutout.survey.mean_sky_level[
+                [b == band for b in cutout.survey.bands]
+            ]
         else:
             raise AttributeError("cutout needs a `survey`  as an attribute.")
 
@@ -410,27 +412,30 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CosmosCatalog",)
 
-    def __init__(self,
-                 blend_generator,
-                 observing_generator,
-                 cat,
-                 meas_bands=("i",),
-                 multiprocessing=False,
-                 cpus=1,
-                 verbose=False,
-                 add_noise=True,
-                 min_snr=0.05
-                 ):
+    def __init__(
+        self,
+        blend_generator,
+        observing_generator,
+        cat,
+        meas_bands=("i",),
+        multiprocessing=False,
+        cpus=1,
+        verbose=False,
+        add_noise=True,
+        min_snr=0.05,
+    ):
         self.cat = cat
 
-        super().__init__(blend_generator,
-                         observing_generator,
-                         meas_bands=meas_bands,
-                         multiprocessing=multiprocessing,
-                         cpus=cpus,
-                         verbose=verbose,
-                         add_noise=add_noise,
-                         min_snr=min_snr,)
+        super().__init__(
+            blend_generator,
+            observing_generator,
+            meas_bands=meas_bands,
+            multiprocessing=multiprocessing,
+            cpus=cpus,
+            verbose=verbose,
+            add_noise=add_noise,
+            min_snr=min_snr,
+        )
 
     def render_single(self, catalog_line, cutout, band):
         """Draws a single random galaxy profile in a random location of the image
@@ -441,23 +446,27 @@ class CosmosGenerator(DrawBlendsGenerator):
         Returns:
             gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
         """
-        k = int(np.random.rand(1)*len(self.cat))#catalog_line["btk_index"][0]
-        gal = self.cat.makeGalaxy(k,
-                                  gal_type="real",
-                                  noise_pad_size=0).withFlux(1)
+        k = int(np.random.rand(1) * len(self.cat))  # catalog_line["btk_index"][0]
+        gal = self.cat.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
 
-        #Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
+        # Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
         # so gaussian kernel convolution smoothes it out.
         # It haas the slight disadvantage of adding some band-limitedeness to the image,
         # but with a small kernel, it's better than doing nothing.
         gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * cutout.pixel_scale))
-        #Randomly shifts the galaxy in the patch
-        galaxy =galsim.Convolve(gal, cutout.get_psf()).drawImage(nx=cutout.pix_stamp_size,
-                                                              ny=cutout.pix_stamp_size,
-                                                              use_true_center = True,
-                                                              method = 'real_space',
-                                                              scale = cutout.pixel_scale,
-                                                              dtype = np.float64).array
+        # Randomly shifts the galaxy in the patch
+        galaxy = (
+            galsim.Convolve(gal, cutout.get_psf())
+            .drawImage(
+                nx=cutout.pix_stamp_size,
+                ny=cutout.pix_stamp_size,
+                use_true_center=True,
+                method="real_space",
+                scale=cutout.pixel_scale,
+                dtype=np.float64,
+            )
+            .array
+        )
 
         return galsim.Image(galaxy)
 

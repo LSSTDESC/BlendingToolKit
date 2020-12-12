@@ -306,7 +306,7 @@ def make_true_seg_map(image, threshold):
     return seg_map.astype(np.bool)
 
 
-def basic_selection_function(catalog, max_size = 4, max_mag = 27):
+def basic_selection_function(catalog, max_size=4, max_mag=27):
     """Apply selection cuts to the input catalog.
 
     Only galaxies that satisfy the below criteria are returned:
@@ -322,6 +322,7 @@ def basic_selection_function(catalog, max_size = 4, max_mag = 27):
     """
     (q,) = np.where((catalog["btk_size"] <= max_size) & (catalog["ref_mag"] <= max_mag))
     return catalog[q]
+
 
 class Basic_measure_params(Measurement_params):
     """Class to perform detection by identifying peaks with skimage"""
