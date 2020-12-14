@@ -12,7 +12,7 @@ def get_draw_generator(batch_size=3):
 
     max_number = 10
     stamp_size = 24
-    survey_name = "LSST"
+    survey = btk.obs_conditions.Rubin
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     np.random.seed(0)
@@ -26,7 +26,7 @@ def get_draw_generator(batch_size=3):
     )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name, obs_conds
+        survey, obs_conds
     )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator
@@ -40,7 +40,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     catalog_name = "data/sample_input_catalog.fits"
     np.random.seed(0)
     stamp_size = 24
-    survey_name = "LSST"
+    survey = btk.obs_conditions.Rubin
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],
@@ -61,7 +61,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey_name, obs_conds
+        survey, obs_conds
     )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         blend_generator, observing_generator

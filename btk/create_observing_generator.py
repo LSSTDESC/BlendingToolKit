@@ -1,4 +1,4 @@
-from btk.obs_conditions import WLDObsConditions, all_surveys, Survey
+from btk.obs_conditions import WLDObsConditions, Survey
 
 
 class ObservingGenerator:

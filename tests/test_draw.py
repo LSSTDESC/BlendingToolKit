@@ -1,9 +1,9 @@
+import multiprocessing as mp
 import numpy as np
 import pytest
 import btk
 import btk.sampling_functions
 import btk.obs_conditions
-import multiprocessing as mp
 
 
 def get_draw_generator(
@@ -36,7 +36,7 @@ def get_draw_generator(
     )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        "LSST", obs_conds=obs_conds
+        btk.obs_conditions.Rubin, obs_conds=obs_conds
     )
     draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
@@ -74,8 +74,7 @@ def test_default(match_images):
         generate 2 or 1 galaxies per blend."
     assert (
         draw_output["obs_condition"][0].survey_name == "LSST"
-    ), "Default \
-        observing survey is LSST."
+    ), "Default observing survey is LSST."
     match_images.match_blend_images_default(draw_output["blend_images"])
     match_images.match_isolated_images_default(draw_output["isolated_images"])
     match_background_noise(draw_output["blend_images"])
@@ -258,7 +257,7 @@ def test_wrong_name():
         )
         obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
         observing_generator = btk.create_observing_generator.ObservingGenerator(
-            ["LSSD"],
+            [btk.obs_conditions.Rubin],
             obs_conds=obs_conds,
         )
         draw_generator = btk.draw_blends.WLDGenerator(

@@ -240,7 +240,13 @@ class GroupSamplingFunction(SamplingFunction):
 
 class GroupSamplingFunctionNumbered(SamplingFunction):
     def __init__(
-        self, max_number, wld_catalog_name, stamp_size, pixel_scale, shift=None
+        self,
+        max_number,
+        wld_catalog_name,
+        stamp_size,
+        pixel_scale,
+        shift=None,
+        fmt="fits",
     ):
         """Blends are defined from *groups* of galaxies from a CatSim-like
         catalog previously analyzed with WLD.
@@ -258,7 +264,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
             wld_catalog_name: Same as GroupSamplingFunction
         """
         super().__init__(max_number)
-        self.wld_catalog = WLDCatalog.from_file(wld_catalog_name).get_raw_catalog()
+        self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format=fmt)
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.group_id_count = 0

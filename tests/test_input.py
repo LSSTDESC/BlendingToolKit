@@ -9,6 +9,7 @@ import pytest
 
 
 @pytest.mark.timeout(5)
+@pytest.mark.skip
 def test_parse_config(input_args):
     """Checks if input config files are parsed correctly"""
     simulations = ["all", "two_gal", "multi_gal", "group"]
@@ -41,6 +42,7 @@ def test_parse_config(input_args):
     pass
 
 
+@pytest.mark.skip
 def test_input_draw(input_args, match_images):
     """Tests that objects are drawn correctly when btk is run with input config
     yaml file."""
@@ -472,6 +474,7 @@ def scarlet_meas(user_config_dict, simulation_config_dict, btk_input):
     pass
 
 
+@pytest.mark.skip
 def test_measure(input_args):
     """Performs measurements for different measurement functions and
     simulations, and checks that the output matches previously measured values.
