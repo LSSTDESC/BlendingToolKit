@@ -86,10 +86,10 @@ Rubin = Survey(
     "LSST",
     pix_RUBIN,
     sigma_RUBIN,
-    ["u", "g", "r", "i", "z", "y"],
-    np.array([22.9, 22.3, 21.2, 20.5, 19.6, 18.6]),
-    np.array([1680, 2400, 5520, 5520, 4800, 4800]),
-    np.array([9.16, 50.70, 43.70, 32.36, 22.68, 10.58]),
+    ["y", "z", "i", "r", "g", "u"],
+    np.array([18.6, 19.6, 20.5, 21.2, 22.3, 22.9]),
+    np.array([4800, 4800, 5520, 2400, 1680]),
+    np.array([10.58, 22.68, 32.36, 43.70, 50.70, 9.16]),
 )
 DES = Survey("DES", pix_DES, None, ["i", "r", "g", "z"], None, None, None)
 CFHT = Survey("CFHT", pix_CFHT, None, ["i", "r"], None, None, None)

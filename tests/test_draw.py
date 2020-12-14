@@ -4,6 +4,7 @@ import pytest
 import btk
 import btk.sampling_functions
 import btk.obs_conditions
+from btk.obs_conditions import Rubin, HSC
 
 
 def get_draw_generator(
@@ -122,7 +123,7 @@ def test_multiresolution():
     )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     observing_generator = btk.create_observing_generator.ObservingGenerator(
-        ["LSST", "HSC"], obs_conds=obs_conds
+        [Rubin, HSC], obs_conds=obs_conds
     )
     draw_generator = btk.draw_blends.WLDGenerator(
         blend_generator,
