@@ -167,7 +167,7 @@ def compare_scarlet_multiprocessing():
     deblend_images[0].std()
 
 
-@pytest.mark.timeout(25)
+@pytest.mark.timeout(35)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     try:
