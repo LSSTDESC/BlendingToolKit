@@ -157,15 +157,17 @@ def get_catalog(user_config_dict, catalog_name, selection_function_name, verbose
     else:
         utils_filename = os.path.join(os.path.dirname(btk.__file__), "utils.py")
         selection_function = None
-    catalog = btk.get_input_catalog.load_catalog(
-        catalog_name, selection_function=selection_function
-    )
+    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
+    if selection_function is not None:
+        catalog.apply_selection_function(selection_function)
+
     if verbose:
         print(
-            f"Loaded {param.catalog_name} catalog with "
+            f"Loaded {catalog_name} catalog with "
             f"{selection_function_name} selection "
             f"function defined in {utils_filename}"
         )
+
     return catalog
 
 
@@ -227,7 +229,7 @@ def get_blend_generator(
     )
     if verbose:
         print(
-            f"Blend generator draws from {param.catalog_name} catalog "
+            f"Blend generator draws from {catalog.name} catalog "
             f"with {sampling_function_name} sampling function defined "
             f" in {utils_filename}"
         )
@@ -279,8 +281,8 @@ def get_obs_generator(
     )
     if verbose:
         print(
-            f"Observing conditions generated using {observe_function_name}"
-            " function defined in {utils_filename}"
+            f"Observing conditions generated using {obs_conditions_name}"
+            f" function defined in {utils_filename}"
         )
     return observing_generator
 

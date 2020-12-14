@@ -1,28 +1,108 @@
 from abc import ABC, abstractmethod
-import descwl
 import astropy.wcs as WCS
+import numpy as np
+import galsim
+import descwl
+from collections import namedtuple
+
+# A simple class archetype to serve as a dictionary without having to write the field names
+# every time.
+Survey = namedtuple(
+    "Survey",
+    [
+        "name",
+        "pixel_scale",
+        "psf_scale",
+        "bands",
+        "mean_sky_level",
+        "exp_time",
+        "zero_point",
+    ],
+)
+
+pix_ROMAN = 0.11
+pix_RUBIN = 0.2
+pix_HST = 0.06
+pix_EUCLID = 0.101
+pix_HSC = 0.167
+pix_DES = 0.263
+pix_CFHT = 0.185
+
+# Sigma of the psf profile in arcseconds.
+# https://arxiv.org/pdf/1702.01747.pdf Z-band
+sigma_ROMAN = 0.11 * np.array([1.68, 1.69, 1.86, 2.12, 2.44, 2.71])
+
+# https://www.lsst.org/about/camera/features
+sigma_RUBIN = np.array([0.327, 0.31, 0.297, 0.285, 0.276, 0.267])
+
+# https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
+sigma_EUCLID = np.array([0.16])
+
+# Source https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6
+# .6UVISOpticalPerformance-6.6.1 800nm
+sigma_HST = np.array([0.074])
+
+# https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
+sigma_HSC = np.array([0.306, 0.285, 0.238, 0.268, 0.272])
 
 
-all_surveys = {
-    "LSST": {
-        "name": "LSST",
-        "bands": ("y", "z", "i", "r", "g", "u"),
-        "pixel_scale": 0.2,
-    },
-    "DES": {"name": "DES", "bands": ("i", "r", "g", "z"), "pixel_scale": 0.263},
-    "CFHT": {"name": "CFHT", "bands": ("i", "r"), "pixel_scale": 0.185},
-    "HSC": {"name": "HSC", "bands": ("y", "z", "i", "r", "g"), "pixel_scale": 0.17},
-}
+Euclid = Survey(
+    "Euclid",
+    pix_EUCLID,
+    sigma_EUCLID,
+    ["VIS"],
+    np.array([22.9]),
+    np.array([2260]),
+    np.array([6.85]),
+)
+HST = Survey(
+    "HST",
+    pix_HST,
+    sigma_HST,
+    ["f814w"],
+    np.array([22]),
+    np.array([3000]),
+    np.array([20]),
+)
+HSC = Survey(
+    "HSC",
+    pix_HSC,
+    sigma_HSC,
+    ["g", "r", "i", "z", "y"],
+    np.array([21.4, 20.6, 19.7, 18.3, 17.9]),
+    np.array([600, 600, 1200, 1200, 1200]),
+    np.array([91.11, 87.74, 69.80, 29.56, 21.53]),
+)
+Roman = Survey(
+    "Roman",
+    pix_ROMAN,
+    sigma_ROMAN,
+    ["F062", "Z087", "Y106", "J129", "H158", "F184"],
+    np.array([22, 22, 22, 22, 22, 22]),  ## Not Checked!!!
+    np.array([3000, 3000, 3000, 3000, 3000, 3000]),  ## Not Checked!!!
+    np.array([26.99, 26.39, 26.41, 26.35, 26.41, 25.96]),
+)
+Rubin = Survey(
+    "LSST",
+    pix_RUBIN,
+    sigma_RUBIN,
+    ["y", "z", "i", "r", "g", "u"],
+    np.array([18.6, 19.6, 20.5, 21.2, 22.3, 22.9]),
+    np.array([4800, 4800, 5520, 2400, 1680]),
+    np.array([10.58, 22.68, 32.36, 43.70, 50.70, 9.16]),
+)
+DES = Survey("DES", pix_DES, None, ["i", "r", "g", "z"], None, None, None)
+CFHT = Survey("CFHT", pix_CFHT, None, ["i", "r"], None, None, None)
 
 
-def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=None):
+def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
     """Creates WCS for an image.
     Args:
         pixel_scale (float): pixel size in arcseconds
         shape (tuple): shape of the image in pixels.
-        center_pix (tuple): position of the reference pixel used as the center of the
-                            affine transform for the wcs.
-        center_sky (list): sky coordinates corresponding to center_pix, in arcseconds
+        center_pix: tuple representing the center of the image in pixels
+        center_sky: tuple representing the center of the image in sky coordinates
+                     (RA,DEC) in arcseconds.
         projection(str): projection type, default to TAN. A list of available
                             types can be found in astropy.wcs documentation
     Returns:
@@ -32,8 +112,6 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=No
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
         center_sky = [0 for _ in range(2)]
-    if projection is None:
-        projection = "TAN"
     w = WCS.WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
@@ -44,25 +122,23 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection=No
 
 
 class Cutout(ABC):
-    def __init__(
-        self, stamp_size, pixel_scale, center_pix=None, center_sky=None, projection=None
-    ):
+    def __init__(self, stamp_size, pixel_scale, **wcs_kwargs):
         """Class containing the necessary information to draw a postage stamp (PSF,
         pixel_scale, WCS, etc.) for a given survey and band.
+
+        Parameters
+        ----------
+        stamp_size: float
+            stamp size in arcsec
+        pixel_scale: float
+            pixel scale in arcsec
+        wcs_kwargs: arguments for generating wcs.
         """
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.pix_stamp_size = int(self.stamp_size / pixel_scale)
-        self.wcs = self.get_wcs(center_pix, center_sky, projection)
-
-    def get_wcs(self, center_pix=None, center_sky=None, projection=None):
-        return make_wcs(
-            pixel_scale=self.pixel_scale,
-            center_pix=center_pix,
-            center_sky=center_sky,
-            projection=projection,
-            shape=(self.pix_stamp_size, self.pix_stamp_size),
-        )
+        shape = (self.pix_stamp_size, self.pix_stamp_size)
+        self.wcs = make_wcs(pixel_scale, shape, **wcs_kwargs)
 
 
 class WLDCutout(descwl.survey.Survey, Cutout):
@@ -76,30 +152,23 @@ class WLDCutout(descwl.survey.Survey, Cutout):
                      be found in the documentation of `astropy.wcs`
         wcs: an `astropy.wcs.wcs` object corresponding to the parameters center_pix,
               center_sky, projection, pixel_scale and stamp_size.
-        **survey_kwargs: any arguments given to a descwl survey
+        survey_kwargs: any arguments given to a descwl survey
     """
 
     def __init__(
         self,
         stamp_size,
-        center_pix=None,
-        center_sky=None,
-        projection=None,
-        **survey_kwargs,
+        pixel_scale,
+        survey_kwargs,
+        **wcs_kwargs,
     ):
         descwl.survey.Survey.__init__(self, **survey_kwargs)
-        Cutout.__init__(
-            self,
-            stamp_size,
-            survey_kwargs["pixel_scale"],
-            center_pix,
-            center_sky,
-            projection,
-        )
+        Cutout.__init__(self, stamp_size, pixel_scale, **wcs_kwargs)
 
     def get_psf_sky(self, psf_stamp_size):
         """Returns postage stamp image of the PSF and mean background sky
-        level value saved in the input obs_conds class
+        level value.
+
         Args:
             psf_stamp_size: Size of postage stamp to draw PSF on in pixels.
         Returns:
@@ -114,15 +183,74 @@ class WLDCutout(descwl.survey.Survey, Cutout):
         return psf_image, mean_sky_level
 
 
+class CosmosCutout(Cutout):
+    def __init__(
+        self,
+        stamp_size,
+        survey,
+        band,
+        psf_stamp_size=41,
+    ):
+        """Class containing the necessary information to draw a postage stamp (PSF,
+        pixel_scale, WCS, etc.) using Cosmos' real galaxies for a given survey.
+
+        Parameters
+        ----------
+        stamp_size: int
+            size of the image cutout in pixels
+        survey: `Survey`
+            a `Survey` object that contains the meta-information for the cutout
+        psf_stamp_size: int
+            size of the psf stamp in pixels
+
+        """
+        super(CosmosCutout, self).__init__(stamp_size, survey.pixel_scale)
+        self.survey = survey
+        self.psf_stamp_size = psf_stamp_size
+        self.band = band
+
+    @staticmethod
+    def psf_function(r):
+        return galsim.Moffat(2, r)
+
+    def get_psf(self):
+        """Generates a psf as a Galsim object using the survey information"""
+        assert self.psf_stamp_size % 2 == 1
+        band_index = np.where([s == self.band for s in self.survey.bands])
+
+        psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
+        psf = psf_obj.drawImage(
+            nx=self.psf_stamp_size,
+            ny=self.psf_stamp_size,
+            method="no_pixel",
+            use_true_center=True,
+            scale=self.pixel_scale,
+        ).array
+
+        # Make sure PSF vanishes on the edges of a patch that
+        # has the shape of the initial psf
+        psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
+        psf[psf < 0] = 0
+        psf /= np.sum(psf)
+        # Generating an unintegrated galsim psf for the convolution
+        psf_obj = galsim.InterpolatedImage(
+            galsim.Image(psf), scale=self.survey.pixel_scale
+        ).withFlux(1.0)
+
+        return psf_obj
+
+
 class ObsConditions(ABC):
-    def __init__(self, stamp_size=24):
+    def __init__(self, stamp_size=24, psf_stamp_size=8.2):
         """Class that returns a cutout object for a given survey_name and band.
         If the information provided by this class is combined with the blend_catalogs,
         blend postage stamps can be drawn.
         Args:
             stamp_size (float): In arcseconds.
+            psf_stamp_size (float): In arcseconds.
         """
         self.stamp_size = stamp_size
+        self.psf_stamp_size = psf_stamp_size
 
     @abstractmethod
     def __call__(self, survey_name, band):
@@ -137,50 +265,43 @@ class ObsConditions(ABC):
 
 
 class WLDObsConditions(ObsConditions):
-    def __init__(self, stamp_size=24):
-        """Returns the default observing conditions from the WLD package
-        for a given survey_name and band.
-        """
-        super().__init__(stamp_size)
-
-    def get_cutout_params(self, survey_name, band, pixel_scale):
-        # get default survey params
-        pix_stamp_size = int(self.stamp_size / pixel_scale)
-        cutout_params = descwl.survey.Survey.get_defaults(
-            survey_name=survey_name, filter_band=band
-        )
-        cutout_params["image_width"] = pix_stamp_size
-        cutout_params["image_height"] = pix_stamp_size
-
-        # Information for WCS
-        cutout_params["center_sky"] = None
-        cutout_params["center_pix"] = None
-        cutout_params["projection"] = "TAN"
-
-        return cutout_params
+    """Returns the default observing conditions from the WLD package
+    for a given survey_name and band.
+    """
 
     def __call__(self, survey, band):
-        pixel_scale = survey["pixel_scale"]
-        cutout_params = self.get_cutout_params(survey["name"], band, pixel_scale)
-        cutout = WLDCutout(
-            self.stamp_size,
-            no_analysis=True,
-            survey_name=survey["name"],
-            filter_band=band,
-            **cutout_params,
-        )
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
-        if cutout.pixel_scale != pixel_scale:
+        # get parameters for the descwl.Survey.survey object.
+        survey_kwargs = descwl.survey.Survey.get_defaults(
+            survey_name=survey.name, filter_band=band
+        )
+        survey_kwargs["image_width"] = pix_stamp_size
+        survey_kwargs["image_height"] = pix_stamp_size
+        survey_kwargs["no_analysis"] = True
+        survey_kwargs["survey_name"] = survey.name
+        survey_kwargs["filter_band"] = band
+
+        cutout = WLDCutout(self.stamp_size, survey.pixel_scale, survey_kwargs)
+
+        if cutout.pixel_scale != survey.pixel_scale:
             raise ValueError(
                 "observing condition pixel scale does not "
-                "match input pixel scale: {0} == {1}".format(
-                    cutout.pixel_scale, pixel_scale
-                )
+                f"match input pixel scale: {cutout.pixel_scale} == {survey.pixel_scale}"
             )
         if cutout.filter_band != band:
             raise ValueError(
                 "observing condition band does not "
-                "match input band: {0} == {1}".format(cutout.filter_band, band)
+                f"match input band: {cutout.filter_band} == {band}"
             )
 
         return cutout
+
+
+class CosmosObsConditions(ObsConditions):
+    def __call__(self, survey, band):
+        psf_stamp_size = int(self.psf_stamp_size / survey.pixel_scale)
+        while psf_stamp_size % 2 == 0:
+            psf_stamp_size += 1
+
+        return CosmosCutout(self.stamp_size, survey, band, psf_stamp_size)

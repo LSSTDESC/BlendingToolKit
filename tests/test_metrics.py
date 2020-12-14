@@ -271,6 +271,7 @@ def run_metrics_stack(input_args):
 
 
 @pytest.mark.timeout(25)
+@pytest.mark.skip
 def test_metrics_all(input_args):
     """Test detection summary table with default detection algorithm and SEP/
     stack if installed"""
