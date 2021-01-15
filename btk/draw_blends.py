@@ -9,6 +9,8 @@ from astropy.table import Column
 import descwl
 
 from btk.multiprocess import multiprocess
+from btk.create_blend_generator import BlendGenerator
+from btk.create_observing_generator import ObservingGenerator
 
 
 def get_center_in_pixels(blend_catalog, wcs):
@@ -65,8 +67,14 @@ class DrawBlendsGenerator(ABC):
 
     def __init__(
         self,
-        blend_generator,
-        observing_generator,
+        catalog,
+        sampling_function,
+        surveys,
+        obs_conds=None,
+        batch_size=8,
+        stamp_size=24,
+        shifts=None,
+        indexes=None,
         meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
@@ -96,8 +104,8 @@ class DrawBlendsGenerator(ABC):
                                `surveys`.
         """
 
-        self.blend_generator = blend_generator
-        self.observing_generator = observing_generator
+        self.blend_generator = BlendGenerator(catalog, sampling_function, batch_size, shifts, indexes, verbose)
+        self.observing_generator = ObservingGenerator(surveys, obs_conds, verbose, stamp_size)
         self.catalog = self.blend_generator.catalog
         self.multiprocessing = multiprocessing
         self.cpus = cpus
