@@ -17,19 +17,12 @@ def get_draw_generator(batch_size=3):
     shift = [0.8, -0.7]
     np.random.seed(0)
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog,
-        btk.sampling_functions.GroupSamplingFunctionNumbered(
+    sampling_function = btk.sampling_functions.GroupSamplingFunctionNumbered(
             max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
-        ),
-        batch_size,
-    )
+        )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey, obs_conds
-    )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator, observing_generator
+        catalog,sampling_function,survey,obs_conds=obs_conds
     )
     return draw_blend_generator
 
@@ -53,18 +46,14 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
+    draw_blend_generator = btk.draw_blends.WLDGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
+        survey,
+        obs_conds=obs_conds,
         shifts=shifts,
-        indexes=indexes,
-    )
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey, obs_conds
-    )
-    draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator, observing_generator
+        indexes=indexes
     )
     meas_generator = btk.measure.MeasureGenerator(
         meas_params, draw_blend_generator, multiprocessing=multiprocessing, cpus=cpus
