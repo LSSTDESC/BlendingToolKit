@@ -422,9 +422,15 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     def __init__(
         self,
-        blend_generator,
-        observing_generator,
-        cat,
+        catalog,
+        galsim_cat,
+        sampling_function,
+        surveys,
+        obs_conds=None,
+        batch_size=8,
+        stamp_size=24,
+        shifts=None,
+        indexes=None,
         meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
@@ -432,7 +438,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         add_noise=True,
         min_snr=0.05,
     ):
-        self.cat = cat
+        self.cat = galsim_cat
 
         super().__init__(
             blend_generator,
