@@ -22,7 +22,7 @@ def get_draw_generator(batch_size=3):
         )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        catalog,sampling_function,survey,obs_conds=obs_conds
+        catalog,sampling_function,survey,obs_conds=obs_conds,batch_size=batch_size
     )
     return draw_blend_generator
 
