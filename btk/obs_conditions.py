@@ -4,6 +4,7 @@ import numpy as np
 import galsim
 import descwl
 from collections import namedtuple
+from astropy.io import fits
 
 # A simple class archetype to serve as a dictionary without having to write the field names
 # every time.
@@ -189,7 +190,8 @@ class CosmosCutout(Cutout):
         stamp_size,
         survey,
         band,
-        psf_stamp_size=41,
+        psf_file,
+        psf_stamp_size=41
     ):
         """Class containing the necessary information to draw a postage stamp (PSF,
         pixel_scale, WCS, etc.) using Cosmos' real galaxies for a given survey.
@@ -206,8 +208,10 @@ class CosmosCutout(Cutout):
         """
         super(CosmosCutout, self).__init__(stamp_size, survey.pixel_scale)
         self.survey = survey
-        self.psf_stamp_size = psf_stamp_size
         self.band = band
+        self.psf_file = psf_file
+        self.psf_stamp_size = psf_stamp_size
+
 
     @staticmethod
     def psf_function(r):
@@ -216,20 +220,25 @@ class CosmosCutout(Cutout):
     def get_psf(self):
         """Generates a psf as a Galsim object using the survey information"""
         assert self.psf_stamp_size % 2 == 1
-        band_index = np.where([s == self.band for s in self.survey.bands])
 
-        psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
-        psf = psf_obj.drawImage(
-            nx=self.psf_stamp_size,
-            ny=self.psf_stamp_size,
-            method="no_pixel",
-            use_true_center=True,
-            scale=self.pixel_scale,
-        ).array
+        if self.psf_file==None:
+            band_index = np.where([s == self.band for s in self.survey.bands])
 
-        # Make sure PSF vanishes on the edges of a patch that
-        # has the shape of the initial psf
-        psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
+            psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
+            psf = psf_obj.drawImage(
+                nx=self.psf_stamp_size,
+                ny=self.psf_stamp_size,
+                method="no_pixel",
+                use_true_center=True,
+                scale=self.pixel_scale,
+            ).array
+            # Make sure PSF vanishes on the edges of a patch that
+            # has the shape of the initial psf
+            psf = psf - psf[1, int(self.psf_stamp_size / 2)] * 2
+        else:
+            # Simply read a psf from the specified file for now
+            psf = fits.getdata(self.psf_file)
+            
         psf[psf < 0] = 0
         psf /= np.sum(psf)
         # Generating an unintegrated galsim psf for the convolution
@@ -299,9 +308,14 @@ class WLDObsConditions(ObsConditions):
 
 
 class CosmosObsConditions(ObsConditions):
+    
+    def __init__(self, stamp_size=24, psf_stamp_size = 8.2, psf_file=None):
+        super().__init__(stamp_size, psf_stamp_size)
+        self.psf_file = psf_file
+
     def __call__(self, survey, band):
         psf_stamp_size = int(self.psf_stamp_size / survey.pixel_scale)
         while psf_stamp_size % 2 == 0:
             psf_stamp_size += 1
 
-        return CosmosCutout(self.stamp_size, survey, band, psf_stamp_size)
+        return CosmosCutout(self.stamp_size, survey, band, self.psf_file, psf_stamp_size)
