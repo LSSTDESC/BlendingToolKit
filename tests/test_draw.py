@@ -32,16 +32,17 @@ def get_draw_generator(
         indexes = None
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function, batch_size, shifts=shifts, indexes=indexes
-    )
+    survey = btk.obs_conditions.Rubin
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        btk.obs_conditions.Rubin, obs_conds=obs_conds
-    )
     draw_generator = btk.draw_blends.WLDGenerator(
-        blend_generator,
-        observing_generator,
+        catalog,
+        sampling_function,
+        survey,
+        obs_conds=obs_conds,
+        batch_size=batch_size,
+        stamp_size=stamp_size,
+        shifts=shifts,
+        indexes=indexes,
         multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
@@ -118,16 +119,14 @@ def test_multiresolution():
 
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog, sampling_function, batch_size
-    )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        [Rubin, HSC], obs_conds=obs_conds
-    )
     draw_generator = btk.draw_blends.WLDGenerator(
-        blend_generator,
-        observing_generator,
+        catalog,
+        sampling_function,
+        [Rubin, HSC],
+        obs_conds=obs_conds,
+        stamp_size=stamp_size,
+        batch_size=batch_size,
         multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,

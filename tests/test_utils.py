@@ -17,19 +17,12 @@ def get_draw_generator(batch_size=3):
     shift = [0.8, -0.7]
     np.random.seed(0)
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
-        catalog,
-        btk.sampling_functions.GroupSamplingFunctionNumbered(
-            max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
-        ),
-        batch_size,
+    sampling_function = btk.sampling_functions.GroupSamplingFunctionNumbered(
+        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
     )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey, obs_conds
-    )
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator, observing_generator
+        catalog, sampling_function, survey, obs_conds=obs_conds, batch_size=batch_size
     )
     return draw_blend_generator
 
@@ -53,18 +46,14 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    blend_generator = btk.create_blend_generator.BlendGenerator(
+    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
+    draw_blend_generator = btk.draw_blends.WLDGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
+        survey,
+        obs_conds=obs_conds,
         shifts=shifts,
         indexes=indexes,
-    )
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    observing_generator = btk.create_observing_generator.ObservingGenerator(
-        survey, obs_conds
-    )
-    draw_blend_generator = btk.draw_blends.WLDGenerator(
-        blend_generator, observing_generator
     )
     meas_generator = btk.measure.MeasureGenerator(
         meas_params, draw_blend_generator, multiprocessing=multiprocessing, cpus=cpus
@@ -143,30 +132,6 @@ def compare_stack():
     pass
 
 
-def compare_scarlet():
-    """Test deblending with scarlet"""
-    meas_param = btk.utils.Scarlet_params()
-    meas_generator = get_meas_generator(meas_param)
-    output, deb, _ = next(meas_generator)
-    blend_list = output["blend_list"]
-    deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    deblend_images[0].mean()
-    deblend_images[0].std()
-
-
-def compare_scarlet_multiprocessing():
-    """Test deblending with scarlet"""
-    meas_param = btk.utils.Scarlet_params()
-    meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
-    output, deb, _ = next(meas_generator)
-    blend_list = output["blend_list"]
-    deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    deblend_images[0].mean()
-    deblend_images[0].std()
-
-
 @pytest.mark.timeout(35)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
@@ -177,16 +142,3 @@ def test_algorithms():
         compare_sep_multiprocessing()
     except ModuleNotFoundError:
         print("skipping sep test")
-    try:
-        import scarlet
-
-        compare_scarlet()
-        compare_scarlet_multiprocessing()
-    except ModuleNotFoundError:
-        print("skipping scarlet test")
-    try:
-        import lsst.afw.table
-
-        compare_stack()
-    except ModuleNotFoundError:
-        print("skipping stack test")

@@ -9,6 +9,8 @@ from astropy.table import Column
 import descwl
 
 from btk.multiprocess import multiprocess
+from btk.create_blend_generator import BlendGenerator
+from btk.create_observing_generator import ObservingGenerator
 
 
 def get_center_in_pixels(blend_catalog, wcs):
@@ -65,8 +67,14 @@ class DrawBlendsGenerator(ABC):
 
     def __init__(
         self,
-        blend_generator,
-        observing_generator,
+        catalog,
+        sampling_function,
+        surveys,
+        obs_conds=None,
+        batch_size=8,
+        stamp_size=24,
+        shifts=None,
+        indexes=None,
         meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
@@ -96,8 +104,12 @@ class DrawBlendsGenerator(ABC):
                                `surveys`.
         """
 
-        self.blend_generator = blend_generator
-        self.observing_generator = observing_generator
+        self.blend_generator = BlendGenerator(
+            catalog, sampling_function, batch_size, shifts, indexes, verbose
+        )
+        self.observing_generator = ObservingGenerator(
+            surveys, obs_conds, verbose, stamp_size
+        )
         self.catalog = self.blend_generator.catalog
         self.multiprocessing = multiprocessing
         self.cpus = cpus
@@ -132,7 +144,7 @@ class DrawBlendsGenerator(ABC):
             pix_stamp_size = int(self.stamp_size / s.pixel_scale)
             batch_blend_cat[s.name], batch_obs_cond[s.name] = [], []
             blend_images[s.name] = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s.bands))
+                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s.filters))
             )
             isolated_images[s.name] = np.zeros(
                 (
@@ -140,7 +152,7 @@ class DrawBlendsGenerator(ABC):
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(s.bands),
+                    len(s.filters),
                 )
             )
 
@@ -232,7 +244,11 @@ class DrawBlendsGenerator(ABC):
                 size = get_size(
                     pixel_scale,
                     blend_list[i],
-                    cutouts[survey.bands == meas_band],
+                    cutouts[
+                        np.where([filt.name == meas_band for filt in survey.filters])[
+                            0
+                        ][0]
+                    ],
                 )
                 blend_list[i].add_column(size)
 
@@ -242,15 +258,15 @@ class DrawBlendsGenerator(ABC):
                     self.max_number,
                     pix_stamp_size,
                     pix_stamp_size,
-                    len(survey.bands),
+                    len(survey.filters),
                 )
             )
             blend_image_multi = np.zeros(
-                (pix_stamp_size, pix_stamp_size, len(survey.bands))
+                (pix_stamp_size, pix_stamp_size, len(survey.filters))
             )
-            for j in range(len(survey.bands)):
+            for j in range(len(survey.filters)):
                 single_band_output = self.render_blend(
-                    blend_list[i], cutouts[j], survey.bands[j]
+                    blend_list[i], cutouts[j], survey.filters[j]
                 )
                 blend_image_multi[:, :, j] = single_band_output[0]
                 iso_image_multi[:, :, :, j] = single_band_output[1]
@@ -258,7 +274,7 @@ class DrawBlendsGenerator(ABC):
             outputs.append([blend_image_multi, iso_image_multi, blend_list[i]])
         return outputs
 
-    def render_blend(self, blend_catalog, cutout, band):
+    def render_blend(self, blend_catalog, cutout, filt):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -276,7 +292,7 @@ class DrawBlendsGenerator(ABC):
         Args:
             blend_catalog: Catalog with entries corresponding to one blend.
             cutout: `btk.obs_conditions.Cutout` class describing observing conditions.
-            band(string): Name of band to draw images in.
+            filt(string): Name of filter to draw images in.
 
         Returns:
             Images of blend and isolated galaxies as `numpy.ndarray`.
@@ -286,13 +302,13 @@ class DrawBlendsGenerator(ABC):
             mean_sky_level = cutout.mean_sky_level
         elif not hasattr(cutout, "mean_sky_level"):
             mean_sky_level = cutout.survey.mean_sky_level[
-                [b == band for b in cutout.survey.bands]
+                [b == filt for b in cutout.survey.filters]
             ]
         else:
             raise AttributeError("cutout needs a `survey`  as an attribute.")
 
         blend_catalog.add_column(
-            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + band)
+            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
 
         pix_stamp_size = np.int(self.stamp_size / cutout.pixel_scale)
@@ -304,7 +320,7 @@ class DrawBlendsGenerator(ABC):
         for k, entry in enumerate(blend_catalog):
             try:
                 _cutout = copy.deepcopy(cutout)
-                single_image = self.render_single(entry, _cutout, band)
+                single_image = self.render_single(entry, _cutout, filt.name)
                 if single_image.array.shape[-1] != pix_stamp_size:
                     raise ValueError(
                         "render_single returned image of incorrect dimensions."
@@ -414,9 +430,15 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     def __init__(
         self,
-        blend_generator,
-        observing_generator,
-        cat,
+        catalog,
+        galsim_cat,
+        sampling_function,
+        surveys,
+        obs_conds=None,
+        batch_size=8,
+        stamp_size=24,
+        shifts=None,
+        indexes=None,
         meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
@@ -424,7 +446,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         add_noise=True,
         min_snr=0.05,
     ):
-        self.cat = cat
+        self.cat = galsim_cat
 
         super().__init__(
             blend_generator,

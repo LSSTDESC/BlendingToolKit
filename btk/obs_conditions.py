@@ -12,13 +12,21 @@ Survey = namedtuple(
     [
         "name",
         "pixel_scale",
+        "filters",
+    ],
+)
+
+Filter = namedtuple(
+    "Filter",
+    [
+        "name",
         "psf_scale",
-        "bands",
         "mean_sky_level",
         "exp_time",
         "zero_point",
     ],
 )
+
 
 pix_ROMAN = 0.11
 pix_RUBIN = 0.2
@@ -46,53 +54,61 @@ sigma_HST = np.array([0.074])
 sigma_HSC = np.array([0.306, 0.285, 0.238, 0.268, 0.272])
 
 
-Euclid = Survey(
-    "Euclid",
-    pix_EUCLID,
-    sigma_EUCLID,
-    ["VIS"],
-    np.array([22.9]),
-    np.array([2260]),
-    np.array([6.85]),
-)
-HST = Survey(
-    "HST",
-    pix_HST,
-    sigma_HST,
-    ["f814w"],
-    np.array([22]),
-    np.array([3000]),
-    np.array([20]),
-)
+Euclid = Survey("Euclid", pix_EUCLID, [Filter("VIS", 0.16, 22.9, 2260, 6.85)])
+HST = Survey("HST", pix_HST, [Filter("f814w", 0.074, 22, 3000, 20)])
 HSC = Survey(
     "HSC",
     pix_HSC,
-    sigma_HSC,
-    ["g", "r", "i", "z", "y"],
-    np.array([21.4, 20.6, 19.7, 18.3, 17.9]),
-    np.array([600, 600, 1200, 1200, 1200]),
-    np.array([91.11, 87.74, 69.80, 29.56, 21.53]),
+    [
+        Filter("g", 0.306, 21.4, 600, 91.11),
+        Filter("r", 0.285, 20.6, 600, 87.74),
+        Filter("i", 0.238, 19.7, 1200, 69.80),
+        Filter("z", 0.268, 18.3, 1200, 29.56),
+        Filter("y", 0.272, 17.9, 1200, 21.53),
+    ],
 )
 Roman = Survey(
     "Roman",
     pix_ROMAN,
-    sigma_ROMAN,
-    ["F062", "Z087", "Y106", "J129", "H158", "F184"],
-    np.array([22, 22, 22, 22, 22, 22]),  ## Not Checked!!!
-    np.array([3000, 3000, 3000, 3000, 3000, 3000]),  ## Not Checked!!!
-    np.array([26.99, 26.39, 26.41, 26.35, 26.41, 25.96]),
+    [
+        Filter("F062", 0.1848, 22, 3000, 26.99),
+        Filter("Z087", 0.1859, 22, 3000, 26.39),
+        Filter("Y106", 0.2046, 22, 3000, 26.41),
+        Filter("J129", 0.2332, 22, 3000, 26.35),
+        Filter("H158", 0.2684, 22, 3000, 26.41),
+        Filter("F184", 0.2981, 22, 3000, 25.96),
+    ],  # Mean sky level and exposure time need to be checked
 )
 Rubin = Survey(
     "LSST",
     pix_RUBIN,
-    sigma_RUBIN,
-    ["y", "z", "i", "r", "g", "u"],
-    np.array([18.6, 19.6, 20.5, 21.2, 22.3, 22.9]),
-    np.array([4800, 4800, 5520, 2400, 1680]),
-    np.array([10.58, 22.68, 32.36, 43.70, 50.70, 9.16]),
+    [
+        Filter("y", 0.327, 18.6, 4800, 10.58),
+        Filter("z", 0.310, 19.6, 4800, 22.68),
+        Filter("i", 0.297, 20.5, 5520, 32.36),
+        Filter("r", 0.285, 21.2, 5520, 43.70),
+        Filter("g", 0.276, 22.3, 2400, 50.70),
+        Filter("u", 0.267, 22.9, 1680, 9.16),
+    ],
 )
-DES = Survey("DES", pix_DES, None, ["i", "r", "g", "z"], None, None, None)
-CFHT = Survey("CFHT", pix_CFHT, None, ["i", "r"], None, None, None)
+DES = Survey(
+    "DES",
+    pix_DES,
+    [
+        Filter("i", None, None, None, None),
+        Filter("r", None, None, None, None),
+        Filter("g", None, None, None, None),
+        Filter("z", None, None, None, None),
+    ],  # Will not work properly until we fill in the correct values
+)
+CFHT = Survey(
+    "CFHT",
+    pix_CFHT,
+    [
+        Filter("i", None, None, None, None),
+        Filter("r", None, None, None, None),
+    ],  # Will not work properly until we fill in the correct values
+)
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
@@ -187,8 +203,8 @@ class CosmosCutout(Cutout):
     def __init__(
         self,
         stamp_size,
-        survey,
-        band,
+        pixel_scale,
+        filt,
         psf_stamp_size=41,
     ):
         """Class containing the necessary information to draw a postage stamp (PSF,
@@ -204,10 +220,10 @@ class CosmosCutout(Cutout):
             size of the psf stamp in pixels
 
         """
-        super(CosmosCutout, self).__init__(stamp_size, survey.pixel_scale)
-        self.survey = survey
+        super(CosmosCutout, self).__init__(stamp_size, pixel_scale)
         self.psf_stamp_size = psf_stamp_size
-        self.band = band
+        self.filt = filt
+        self.band = filt.name
 
     @staticmethod
     def psf_function(r):
@@ -216,9 +232,8 @@ class CosmosCutout(Cutout):
     def get_psf(self):
         """Generates a psf as a Galsim object using the survey information"""
         assert self.psf_stamp_size % 2 == 1
-        band_index = np.where([s == self.band for s in self.survey.bands])
 
-        psf_obj = self.psf_function(self.survey.psf_scale[band_index]).withFlux(1.0)
+        psf_obj = self.psf_function(self.filt.psf_scale).withFlux(1.0)
         psf = psf_obj.drawImage(
             nx=self.psf_stamp_size,
             ny=self.psf_stamp_size,
@@ -234,7 +249,7 @@ class CosmosCutout(Cutout):
         psf /= np.sum(psf)
         # Generating an unintegrated galsim psf for the convolution
         psf_obj = galsim.InterpolatedImage(
-            galsim.Image(psf), scale=self.survey.pixel_scale
+            galsim.Image(psf), scale=self.pixel_scale
         ).withFlux(1.0)
 
         return psf_obj
@@ -253,7 +268,7 @@ class ObsConditions(ABC):
         self.psf_stamp_size = psf_stamp_size
 
     @abstractmethod
-    def __call__(self, survey_name, band):
+    def __call__(self, survey_name, filt):
         """
         Args:
             survey_name: Name of the survey which should be available in descwl
@@ -269,18 +284,21 @@ class WLDObsConditions(ObsConditions):
     for a given survey_name and band.
     """
 
-    def __call__(self, survey, band):
+    def __call__(self, survey, filt):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
         # get parameters for the descwl.Survey.survey object.
         survey_kwargs = descwl.survey.Survey.get_defaults(
-            survey_name=survey.name, filter_band=band
+            survey_name=survey.name, filter_band=filt.name
         )
+        survey_kwargs["zero_point"] = filt.zero_point
+        survey_kwargs["exposure_time"] = filt.exp_time
+        # Ideally we would make use of filt.psf_scale and filt.mean_sky_level but those are not directly inputs of WLD, so it needs some thinking.
         survey_kwargs["image_width"] = pix_stamp_size
         survey_kwargs["image_height"] = pix_stamp_size
         survey_kwargs["no_analysis"] = True
         survey_kwargs["survey_name"] = survey.name
-        survey_kwargs["filter_band"] = band
+        survey_kwargs["filter_band"] = filt.name
 
         cutout = WLDCutout(self.stamp_size, survey.pixel_scale, survey_kwargs)
 
@@ -289,7 +307,7 @@ class WLDObsConditions(ObsConditions):
                 "observing condition pixel scale does not "
                 f"match input pixel scale: {cutout.pixel_scale} == {survey.pixel_scale}"
             )
-        if cutout.filter_band != band:
+        if cutout.filter_band != filt.name:
             raise ValueError(
                 "observing condition band does not "
                 f"match input band: {cutout.filter_band} == {band}"
@@ -299,9 +317,9 @@ class WLDObsConditions(ObsConditions):
 
 
 class CosmosObsConditions(ObsConditions):
-    def __call__(self, survey, band):
+    def __call__(self, survey, filt):
         psf_stamp_size = int(self.psf_stamp_size / survey.pixel_scale)
         while psf_stamp_size % 2 == 0:
             psf_stamp_size += 1
 
-        return CosmosCutout(self.stamp_size, survey, band, psf_stamp_size)
+        return CosmosCutout(self.stamp_size, survey.pixel_scale, filt, psf_stamp_size)

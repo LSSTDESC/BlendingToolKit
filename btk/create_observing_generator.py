@@ -53,7 +53,7 @@ class ObservingGenerator:
         observing_generator = {}
         for s in self.surveys:
             observing_generator[s.name] = []
-            for band in s.bands:
-                cutout = self.obs_conds(s, band)
+            for filt in s.filters:
+                cutout = self.obs_conds(s, filt)
                 observing_generator[s.name].append(cutout)
         return observing_generator
