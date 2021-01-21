@@ -132,30 +132,6 @@ def compare_stack():
     pass
 
 
-def compare_scarlet():
-    """Test deblending with scarlet"""
-    meas_param = btk.utils.Scarlet_params()
-    meas_generator = get_meas_generator(meas_param)
-    output, deb, _ = next(meas_generator)
-    blend_list = output["blend_list"]
-    deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    deblend_images[0].mean()
-    deblend_images[0].std()
-
-
-def compare_scarlet_multiprocessing():
-    """Test deblending with scarlet"""
-    meas_param = btk.utils.Scarlet_params()
-    meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
-    output, deb, _ = next(meas_generator)
-    blend_list = output["blend_list"]
-    deblend_images = [deb[i]["deblend_image"] for i in range(len(blend_list))]
-    deblend_images[0].max(axis=0).max(axis=0).max(axis=0)
-    deblend_images[0].mean()
-    deblend_images[0].std()
-
-
 @pytest.mark.timeout(35)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
@@ -166,16 +142,3 @@ def test_algorithms():
         compare_sep_multiprocessing()
     except ModuleNotFoundError:
         print("skipping sep test")
-    try:
-        import scarlet
-
-        compare_scarlet()
-        compare_scarlet_multiprocessing()
-    except ModuleNotFoundError:
-        print("skipping scarlet test")
-    try:
-        import lsst.afw.table
-
-        compare_stack()
-    except ModuleNotFoundError:
-        print("skipping stack test")

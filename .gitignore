@@ -3,3 +3,4 @@
 *.idea
 /my-notebooks/
 .vscode/
+.pytest_cache/
