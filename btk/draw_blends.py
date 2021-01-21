@@ -104,8 +104,12 @@ class DrawBlendsGenerator(ABC):
                                `surveys`.
         """
 
-        self.blend_generator = BlendGenerator(catalog, sampling_function, batch_size, shifts, indexes, verbose)
-        self.observing_generator = ObservingGenerator(surveys, obs_conds, verbose, stamp_size)
+        self.blend_generator = BlendGenerator(
+            catalog, sampling_function, batch_size, shifts, indexes, verbose
+        )
+        self.observing_generator = ObservingGenerator(
+            surveys, obs_conds, verbose, stamp_size
+        )
         self.catalog = self.blend_generator.catalog
         self.multiprocessing = multiprocessing
         self.cpus = cpus
@@ -240,7 +244,11 @@ class DrawBlendsGenerator(ABC):
                 size = get_size(
                     pixel_scale,
                     blend_list[i],
-                    cutouts[np.where([filt.name == meas_band for filt in survey.filters])[0][0]],
+                    cutouts[
+                        np.where([filt.name == meas_band for filt in survey.filters])[
+                            0
+                        ][0]
+                    ],
                 )
                 blend_list[i].add_column(size)
 

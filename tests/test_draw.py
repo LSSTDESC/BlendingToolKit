@@ -41,7 +41,7 @@ def get_draw_generator(
         obs_conds=obs_conds,
         batch_size=batch_size,
         stamp_size=stamp_size,
-        shifts=shifts, 
+        shifts=shifts,
         indexes=indexes,
         multiprocessing=multiprocessing,
         cpus=cpus,
@@ -123,7 +123,7 @@ def test_multiresolution():
     draw_generator = btk.draw_blends.WLDGenerator(
         catalog,
         sampling_function,
-        [Rubin,HSC],
+        [Rubin, HSC],
         obs_conds=obs_conds,
         stamp_size=stamp_size,
         batch_size=batch_size,

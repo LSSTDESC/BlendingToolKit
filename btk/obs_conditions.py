@@ -54,65 +54,60 @@ sigma_HST = np.array([0.074])
 sigma_HSC = np.array([0.306, 0.285, 0.238, 0.268, 0.272])
 
 
-Euclid = Survey(
-    "Euclid",
-    pix_EUCLID,
-    [Filter("VIS",0.16,22.9,2260,6.85)
-    ]
-)
-HST = Survey(
-    "HST",
-    pix_HST,
-    [Filter("f814w",0.074,22,3000,20)
-    ]
-)
+Euclid = Survey("Euclid", pix_EUCLID, [Filter("VIS", 0.16, 22.9, 2260, 6.85)])
+HST = Survey("HST", pix_HST, [Filter("f814w", 0.074, 22, 3000, 20)])
 HSC = Survey(
     "HSC",
     pix_HSC,
-    [Filter("g",0.306,21.4,600,91.11),
-     Filter("r",0.285,20.6,600,87.74),
-     Filter("i",0.238,19.7,1200,69.80),
-     Filter("z",0.268,18.3,1200,29.56),
-     Filter("y",0.272,17.9,1200,21.53),
-    ]
+    [
+        Filter("g", 0.306, 21.4, 600, 91.11),
+        Filter("r", 0.285, 20.6, 600, 87.74),
+        Filter("i", 0.238, 19.7, 1200, 69.80),
+        Filter("z", 0.268, 18.3, 1200, 29.56),
+        Filter("y", 0.272, 17.9, 1200, 21.53),
+    ],
 )
 Roman = Survey(
     "Roman",
     pix_ROMAN,
-    [Filter("F062",0.1848,22,3000,26.99),
-     Filter("Z087",0.1859,22,3000,26.39),
-     Filter("Y106",0.2046,22,3000,26.41),
-     Filter("J129",0.2332,22,3000,26.35),
-     Filter("H158",0.2684,22,3000,26.41),
-     Filter("F184",0.2981,22,3000,25.96),
-    ] # Mean sky level and exposure time need to be checked
+    [
+        Filter("F062", 0.1848, 22, 3000, 26.99),
+        Filter("Z087", 0.1859, 22, 3000, 26.39),
+        Filter("Y106", 0.2046, 22, 3000, 26.41),
+        Filter("J129", 0.2332, 22, 3000, 26.35),
+        Filter("H158", 0.2684, 22, 3000, 26.41),
+        Filter("F184", 0.2981, 22, 3000, 25.96),
+    ],  # Mean sky level and exposure time need to be checked
 )
 Rubin = Survey(
     "LSST",
     pix_RUBIN,
-    [Filter("y",0.327,18.6,4800,10.58),
-     Filter("z",0.310,19.6,4800,22.68),
-     Filter("i",0.297,20.5,5520,32.36),
-     Filter("r",0.285,21.2,5520,43.70),
-     Filter("g",0.276,22.3,2400,50.70),
-     Filter("u",0.267,22.9,1680,9.16),
-    ]
+    [
+        Filter("y", 0.327, 18.6, 4800, 10.58),
+        Filter("z", 0.310, 19.6, 4800, 22.68),
+        Filter("i", 0.297, 20.5, 5520, 32.36),
+        Filter("r", 0.285, 21.2, 5520, 43.70),
+        Filter("g", 0.276, 22.3, 2400, 50.70),
+        Filter("u", 0.267, 22.9, 1680, 9.16),
+    ],
 )
 DES = Survey(
     "DES",
     pix_DES,
-    [Filter("i",None,None,None,None),  
-     Filter("r",None,None,None,None),  
-     Filter("g",None,None,None,None),  
-     Filter("z",None,None,None,None),  
-    ] # Will not work properly until we fill in the correct values
+    [
+        Filter("i", None, None, None, None),
+        Filter("r", None, None, None, None),
+        Filter("g", None, None, None, None),
+        Filter("z", None, None, None, None),
+    ],  # Will not work properly until we fill in the correct values
 )
 CFHT = Survey(
     "CFHT",
     pix_CFHT,
-    [Filter("i",None,None,None,None),  
-     Filter("r",None,None,None,None),
-    ] # Will not work properly until we fill in the correct values
+    [
+        Filter("i", None, None, None, None),
+        Filter("r", None, None, None, None),
+    ],  # Will not work properly until we fill in the correct values
 )
 
 

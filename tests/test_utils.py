@@ -18,11 +18,11 @@ def get_draw_generator(batch_size=3):
     np.random.seed(0)
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.GroupSamplingFunctionNumbered(
-            max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
-        )
+        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
+    )
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     draw_blend_generator = btk.draw_blends.WLDGenerator(
-        catalog,sampling_function,survey,obs_conds=obs_conds,batch_size=batch_size
+        catalog, sampling_function, survey, obs_conds=obs_conds, batch_size=batch_size
     )
     return draw_blend_generator
 
@@ -53,7 +53,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         survey,
         obs_conds=obs_conds,
         shifts=shifts,
-        indexes=indexes
+        indexes=indexes,
     )
     meas_generator = btk.measure.MeasureGenerator(
         meas_params, draw_blend_generator, multiprocessing=multiprocessing, cpus=cpus
