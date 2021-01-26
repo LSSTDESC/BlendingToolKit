@@ -140,7 +140,7 @@ class Cutout(ABC):
         self.pix_stamp_size = int(self.stamp_size / pixel_scale)
         shape = (self.pix_stamp_size, self.pix_stamp_size)
         self.wcs = make_wcs(pixel_scale, shape, **wcs_kwargs)
-
+    
 
 class WLDCutout(descwl.survey.Survey, Cutout):
     """Extension of the descwl survey class including information for the WCS.
@@ -190,7 +190,7 @@ class CosmosCutout(Cutout):
         stamp_size,
         survey,
         band,
-        psf_file,
+        psf_file=None,
         psf_stamp_size=41
     ):
         """Class containing the necessary information to draw a postage stamp (PSF,
@@ -309,7 +309,7 @@ class WLDObsConditions(ObsConditions):
 
 class CosmosObsConditions(ObsConditions):
     
-    def __init__(self, stamp_size=24, psf_stamp_size = 8.2, psf_file=None):
+    def __init__(self, stamp_size=24, psf_stamp_size=41, psf_file=None):
         super().__init__(stamp_size, psf_stamp_size)
         self.psf_file = psf_file
 
