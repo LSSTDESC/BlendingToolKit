@@ -5,17 +5,3 @@ The code generates on the fly images of overlapping parametric galaxies, while
 providing a framework to test user defined detection/deblending/measurement
 algorithms.
 """
-
-__author__ = "btk developers"
-__email__ = "sowmyak@stanford.edu"
-__version__ = "0.1"
-
-from . import catalog
-from . import create_blend_generator
-from . import create_observing_generator
-from . import draw_blends
-from . import measure
-from . import compute_metrics
-from . import utils
-from . import sampling_functions
-from . import obs_conditions

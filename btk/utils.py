@@ -280,7 +280,7 @@ class Scarlet_params(Measurement_params):
             images, peaks, psfs, variances, np.array(bands, dtype=str)
         )
         im, selected_peaks = [], []
-        for k, component in enumerate(blend):
+        for _, component in enumerate(blend):
             y, x = component.center
             selected_peaks.append([x, y])
             model = component.get_model()

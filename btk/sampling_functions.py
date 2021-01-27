@@ -256,7 +256,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         count. If the count is larger than the number of groups input,
         the generator is forced to exit.
 
-        Note: the pre-run WLD images are not used here. We only use the pre-run
+        NOTE: the pre-run WLD images are not used here. We only use the pre-run
         catalog to identify galaxies that belong to a group.
 
         Args:

@@ -10,7 +10,6 @@ import descwl
 
 from btk.multiprocess import multiprocess
 from btk.create_blend_generator import BlendGenerator
-from btk.create_observing_generator import ObservingGenerator
 
 
 def get_center_in_pixels(blend_catalog, wcs):
@@ -36,8 +35,8 @@ def get_center_in_pixels(blend_catalog, wcs):
     return dx_col, dy_col
 
 
-def get_size(pixel_scale, catalog, cutout):
-    """Returns a astropy.table.column with the size of the galaxy.
+def get_size(catalog, pixel_scale, cutout):
+    """Returns a astropy.table.column with the size of the galaxy in pixels.
 
     Galaxy size is estimated as second moments size (r_sec) computed as
     described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
@@ -51,7 +50,7 @@ def get_size(pixel_scale, catalog, cutout):
                 observing conditions in bands to take measurement in.
 
     Returns:
-        `astropy.table.Column`: size of the galaxy.
+        `astropy.table.Column`: size of the galaxy in pixels.
     """
 
     r_sec = catalog["btk_size"]
@@ -67,14 +66,12 @@ class DrawBlendsGenerator(ABC):
 
     def __init__(
         self,
-        catalog,
+        catalog_file: str,
         sampling_function,
         surveys,
-        obs_conds=None,
+        catalog_type="catsim",
         batch_size=8,
         stamp_size=24,
-        shifts=None,
-        indexes=None,
         meas_bands=("i",),
         multiprocessing=False,
         cpus=1,
@@ -107,9 +104,7 @@ class DrawBlendsGenerator(ABC):
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
         )
-        self.observing_generator = ObservingGenerator(
-            surveys, obs_conds, verbose, stamp_size
-        )
+
         self.catalog = self.blend_generator.catalog
         self.multiprocessing = multiprocessing
         self.cpus = cpus
@@ -117,8 +112,8 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        self.surveys = self.observing_generator.surveys
-        self.stamp_size = self.observing_generator.obs_conds.stamp_size
+        self.surveys = surveys
+        self.stamp_size = stamp_size
 
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
@@ -140,34 +135,28 @@ class DrawBlendsGenerator(ABC):
         batch_blend_cat, batch_obs_cond = {}, {}
         blend_images = {}
         isolated_images = {}
+        pix_stamp_size = int(self.stamp_size / s.pixel_scale)
+        blend_cat = next(self.blend_generator)
+        mini_batch_size = np.max([self.batch_size // self.cpus, 1])
+
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale)
-            batch_blend_cat[s.name], batch_obs_cond[s.name] = [], []
-            blend_images[s.name] = np.zeros(
-                (self.batch_size, pix_stamp_size, pix_stamp_size, len(s.filters))
+            # allocate memory for output catalogues and images.
+            batch_blend_cat[s.name] = []
+            batch_obs_cond[s.name] = []
+            image_shape = (
+                pix_stamp_size,
+                pix_stamp_size,
+                len(s.filters),
             )
+            blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros(
-                (
-                    self.batch_size,
-                    self.max_number,
-                    pix_stamp_size,
-                    pix_stamp_size,
-                    len(s.filters),
-                )
+                (self.batch_size, self.max_number, *image_shape)
             )
 
-        in_batch_blend_cat = next(self.blend_generator)
-        obs_conds = next(self.observing_generator)  # same for every blend in batch.
-        mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        for s in self.surveys:
-            input_args = [
-                (
-                    copy.deepcopy(in_batch_blend_cat[i : i + mini_batch_size]),
-                    copy.deepcopy(obs_conds[s.name]),
-                    s,
-                )
-                for i in range(0, self.batch_size, mini_batch_size)
-            ]
+            input_args = []
+            for i in range(0, self.batch_size, mini_batch_size):
+                cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
+                input_args.append((cat, s))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -491,8 +480,3 @@ class CosmosGenerator(DrawBlendsGenerator):
         )
 
         return galsim.Image(galaxy)
-
-
-class GalsimHubDraw(DrawBlendsGenerator):
-    def render_single(self, entry, cutout, band):
-        pass

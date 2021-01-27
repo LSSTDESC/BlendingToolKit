@@ -29,10 +29,12 @@ class Catalog(ABC):
     @abstractmethod
     def from_file(cls, catalog_file, verbose):
         """Catalog constructor from input file"""
+        pass
 
     @abstractmethod
     def _prepare_table(self):
         """Operations to standardize the catalog table"""
+        pass
 
     @property
     def name(self):
@@ -41,23 +43,8 @@ class Catalog(ABC):
     def get_raw_catalog(self):
         return self._raw_catalog
 
-    def apply_selection_function(self, selection_function, *kwargs):
-        """Apply a selection cut to the current table.
 
-        Parameters
-        ----------
-        selection_function: callable
-            logical selection on the catalog table columns/rows.
-
-        """
-        if not callable(selection_function):
-            raise TypeError("selection_function must be callable")
-
-        self.table = selection_function(self.table, *kwargs)
-        self._selection_functions.append((selection_function, kwargs))
-
-
-class WLDCatalog(Catalog):
+class CatsimCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
         # catalog returned is an astropy table.
