@@ -39,6 +39,19 @@ pix_hsc = 0.167
 pix_des = 0.263
 pix_cfht = 0.185
 
+# Central wavelengths in Angstroms for each LSST filter band, calculated from the
+# baseline total filter throughputs tabulated at
+# http://dev.lsstcorp.org/cgit/LSST/sims/throughputs.git/snapshot/throughputs-1.2.tar.gz
+_central_wavelength = {
+    "u": 3592.13,
+    "g": 4789.98,
+    "r": 6199.52,
+    "i": 7528.51,
+    "z": 8689.83,
+    "y": 9674.05,
+    "VIS": 7135.0,
+}
+
 
 # https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
 Euclid = Survey("Euclid", pix_euclid, [Filter("VIS", 0.16, 22.9, 2260, 6.85)])
@@ -112,6 +125,38 @@ CFHT = Survey(
 )
 
 
+def get_filter(survey, band):
+    bands = [filt.name for filt in survey.filters]
+    assert band in bands
+    return survey.filters[bands.index(band)]
+
+
+def get_flux(ab_magnitude, filt, survey):
+    """Convert source magnitude to flux.
+    The calculation includes the effects of atmospheric extinction.
+    Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
+
+    Args:
+        ab_magnitude(float): AB magnitude of source.
+    Returns:
+        float: Flux in detected electrons.
+    """
+    zeropoint_airmass = 1.0
+    if survey.name == "DES":
+        zeropoint_airmass = 1.3
+    if survey.name == "LSST" or survey.name == "HSC":
+        zeropoint_airmass = 1.2
+    if survey.name == "Euclid":
+        zeropoint_airmass = 1.0
+
+    mag = ab_magnitude + filt.extinction * (filt.airmass - zeropoint_airmass)
+    return filt.exposure_time * filt.zero_point * 10 ** (-0.4 * (mag - 24))
+
+
+def get_mean_sky_level(survey, filt):
+    return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale ** 2
+
+
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
     """Creates WCS for an image.
     Args:
@@ -166,3 +211,33 @@ def get_moffat_psf(survey, filt, psf_stamp_size):
     ).withFlux(1.0)
 
     return psf_obj
+
+
+def get_psf(survey):
+    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)"""
+    psfs = []  # one per filter.
+    for filt in survey.filters:
+
+        # get optical psf
+        assert filt.mirror_diameter > 0
+        area_ratio = filt.effective_area / (np.pi * (0.5 * filt.mirror_diameter) ** 2)
+        if area_ratio <= 0 or area_ratio > 1:
+            raise RuntimeError(
+                "Incompatible effective-area and mirror-diameter values."
+            )
+        obscuration_fraction = np.sqrt(1 - area_ratio)
+        lambda_over_diameter = 3600 * np.degrees(
+            1e-10 * _central_wavelength[filt.band] / filt.mirror_diameter
+        )
+        optical_psf_model = galsim.Airy(
+            lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
+        )
+
+        # get atmospheric psf
+        atmospheric_psf_fwhm = filt.zenith_psf_fwhm * filt.airmass ** 0.6
+        atmospheric_psf_model = galsim.Kolmogorov(fwhm=atmospheric_psf_fwhm)
+
+        # combine them and obtain psf image.
+        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model)
+        psfs.append(psf_model)
+    return psfs
