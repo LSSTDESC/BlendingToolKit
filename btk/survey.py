@@ -220,7 +220,7 @@ def get_psf(survey):
 
         # get optical psf
         assert survey.mirror_diameter > 0
-        area_ratio = filt.effective_area / (np.pi * (0.5 * filt.mirror_diameter) ** 2)
+        area_ratio = survey.effective_area / (np.pi * (0.5 * survey.mirror_diameter) ** 2)
         if area_ratio <= 0 or area_ratio > 1:
             raise RuntimeError(
                 "Incompatible effective-area and mirror-diameter values."
