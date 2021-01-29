@@ -380,7 +380,7 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
     return w
 
 
-def get_psf(filt, atmospheric_model="Kolmogorov"):
+def get_psf(survey, filt, atmospheric_model="Kolmogorov"):
     """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)"""
 
     # get atmospheric psf
@@ -394,16 +394,16 @@ def get_psf(filt, atmospheric_model="Kolmogorov"):
         )
 
     # get optical psf if available
-    if filt.mirror_diameter > 0:
-        mirror_area = np.pi * (0.5 * filt.mirror_diameter) ** 2
-        area_ratio = filt.effective_area / mirror_area
+    if survey.mirror_diameter > 0:
+        mirror_area = np.pi * (0.5 * survey.mirror_diameter) ** 2
+        area_ratio = survey.effective_area / mirror_area
         if area_ratio <= 0 or area_ratio > 1:
             raise RuntimeError(
                 "Incompatible effective-area and mirror-diameter values."
             )
         obscuration_fraction = np.sqrt(1 - area_ratio)
         lambda_over_diameter = 3600 * np.degrees(
-            1e-10 * _central_wavelength[filt.band] / filt.mirror_diameter
+            1e-10 * _central_wavelength[filt.name] / survey.mirror_diameter
         )
         optical_psf_model = galsim.Airy(
             lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
