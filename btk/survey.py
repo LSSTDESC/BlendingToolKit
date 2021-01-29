@@ -234,7 +234,7 @@ def get_psf(survey):
         )
 
         # get atmospheric psf
-        atmospheric_psf_fwhm = filt.zenith_psf_fwhm * filt.airmass ** 0.6
+        atmospheric_psf_fwhm = filt.zenith_psf_fwhm * survey.airmass ** 0.6
         atmospheric_psf_model = galsim.Kolmogorov(fwhm=atmospheric_psf_fwhm)
 
         # combine them and obtain psf image.
