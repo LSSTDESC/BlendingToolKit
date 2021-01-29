@@ -158,6 +158,7 @@ class DrawBlendsGenerator(ABC):
         min_snr=0.05,
         shifts=None,
         indexes=None,
+        atmospheric_model="Kolmogorov",
     ):
         """Class that generates images of blended objects, individual isolated
         objects, for each blend in the batch.
@@ -202,6 +203,9 @@ class DrawBlendsGenerator(ABC):
         self.min_snr = min_snr
         self.verbose = verbose
 
+        # psf
+        self.atmospheric_model = atmospheric_model
+
     def __iter__(self):
         return self
 
@@ -223,7 +227,7 @@ class DrawBlendsGenerator(ABC):
             pix_stamp_size = int(self.stamp_size / s.pixel_scale)
 
             # create WCS and PSF information
-            psf = get_psf(s)
+            psf = [get_psf(s, filt, self.atmospheric_model) for filt in s.filters]
             wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
