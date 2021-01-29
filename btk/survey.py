@@ -219,7 +219,7 @@ def get_psf(survey):
     for filt in survey.filters:
 
         # get optical psf
-        assert filt.mirror_diameter > 0
+        assert survey.mirror_diameter > 0
         area_ratio = filt.effective_area / (np.pi * (0.5 * filt.mirror_diameter) ** 2)
         if area_ratio <= 0 or area_ratio > 1:
             raise RuntimeError(
