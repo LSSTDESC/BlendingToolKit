@@ -377,14 +377,9 @@ class DrawBlendsGenerator(ABC):
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
         for k, entry in enumerate(blend_catalog):
-            try:
-                single_image = self.render_single(entry, psf, filt, survey)
-
-                iso_image[k] = single_image.array
-                _blend_image += single_image
-
-            except SourceNotVisible:
-                continue
+            single_image = self.render_single(entry, psf, filt, survey)
+            iso_image[k] = single_image.array
+            _blend_image += single_image
 
         # add background
         _blend_image += mean_sky_level
@@ -442,7 +437,6 @@ class CatsimGenerator(DrawBlendsGenerator):
             if self.verbose:
                 print("Source not visible")
             entry["not_drawn_" + filt.name] = 1
-            raise SourceNotVisible
 
 
 class CosmosGenerator(DrawBlendsGenerator):
