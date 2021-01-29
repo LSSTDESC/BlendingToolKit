@@ -14,13 +14,11 @@ class Catalog(ABC):
             verbose: Whether to print information related to loading catalog.
 
         Attributes:
-            self.table (`astropy.table`): CatSim-like catalog with selection criteria applied
-                and recorded in the `_selection_functions` list.
+            self.table (`astropy.table`): CatSim-like catalog.
         """
         self._raw_catalog = catalog
         self.verbose = verbose
         self.table = self._prepare_table()
-        self._selection_functions = []
 
         if self.verbose:
             print("Catalog loaded")
@@ -29,12 +27,10 @@ class Catalog(ABC):
     @abstractmethod
     def from_file(cls, catalog_file, verbose):
         """Catalog constructor from input file"""
-        pass
 
     @abstractmethod
     def _prepare_table(self):
         """Operations to standardize the catalog table"""
-        pass
 
     @property
     def name(self):
@@ -85,12 +81,10 @@ class CosmosCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
         """
-
         Paramters
         ---------
         catalog_files: list of galsim cataolgs
         """
-        # This will return a COSMOSCatalog object.
         catalog_coord = astropy.table.Table.read(catalog_files[0], "fits")
         catalog_fit = astropy.table.Table.read(catalog_files[1], "fits")
         catalog = astropy.table.hstack([catalog_coord, catalog_fit])

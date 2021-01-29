@@ -457,8 +457,9 @@ class CosmosGenerator(DrawBlendsGenerator):
         Returns:
             gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
         """
-        k = int(np.random.rand(1) * len(self.cat))  # catalog_line["btk_index"][0]
-        gal = self.cat.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
+        k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
+        cat = self.catalog.get
+        gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
         pix_stamp_size = np.int(self.stamp_size / survey.pixel_scale)
 
         # Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
