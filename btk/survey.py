@@ -227,7 +227,7 @@ def get_psf(survey):
             )
         obscuration_fraction = np.sqrt(1 - area_ratio)
         lambda_over_diameter = 3600 * np.degrees(
-            1e-10 * _central_wavelength[filt.band] / filt.mirror_diameter
+            1e-10 * _central_wavelength[filt.name] / survey.mirror_diameter
         )
         optical_psf_model = galsim.Airy(
             lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
