@@ -3,8 +3,8 @@ import numpy as np
 import pytest
 import btk
 import btk.sampling_functions
-import btk.obs_conditions
-from btk.obs_conditions import Rubin, HSC
+import btk.survey
+from btk.survey import Rubin, HSC
 
 
 def get_draw_generator(
@@ -30,14 +30,13 @@ def get_draw_generator(
     else:
         shifts = None
         indexes = None
-    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    survey = btk.obs_conditions.Rubin
     obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     draw_generator = btk.draw_blends.WLDGenerator(
         catalog,
         sampling_function,
-        survey,
+        Rubin,
         obs_conds=obs_conds,
         batch_size=batch_size,
         stamp_size=stamp_size,
@@ -83,7 +82,7 @@ def test_default(match_images):
 
 
 @pytest.mark.timeout(15)
-def test_multi_processing():
+def test_multiprocessing():
     b_size = 16
     try:
         cpus = np.min([mp.cpu_count(), 16])

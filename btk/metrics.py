@@ -54,6 +54,55 @@ class Metrics_params(ABC):
         pass
 
 
+class Basic_metric_params(Metrics_params):
+    """Class describing functions to return results of
+    detection/deblending/measurement algorithm in meas_generator. Each
+    time the algorithm is called, it is run on a batch of blends yielded
+    by the meas_generator.
+    """
+
+    def get_detections(self):
+        """Returns input blend catalog and detection catalog for
+        the detection performed.
+
+        Returns:
+            Results of the detection algorithm are returned as:
+                true_tables: List of astropy Table of the blend catalogs of the
+                    batch. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+                detected_tables: List of astropy Table of output from detection
+                    algorithm. Length of tables must be the batch size. x and y
+                    coordinate values must be under columns named 'dx' and 'dy'
+                    respectively, in pixels from bottom left corner as (0, 0).
+        """
+        blend_op, deblend_op, _ = next(self.meas_generator)
+        true_tables = blend_op["blend_list"]
+        detected_tables = []
+        for i in range(len(true_tables)):
+            detected_centers = deblend_op[i]["peaks"]
+            detected_table = astropy.table.Table(detected_centers, names=["dx", "dy"])
+            detected_tables.append(detected_table)
+        return true_tables, detected_tables
+
+
+def make_true_seg_map(image, threshold):
+    """Returns a boolean segmentation map corresponding to pixels in
+    image above a certain threshold value.
+    Args:
+        image: Image to estimate segmentation map of
+        threshold: Pixels above this threshold are marked as belonging to
+            segmentation map
+
+    Returns:
+        Boolean segmentation map of the image
+    """
+    seg_map = np.zeros_like(image)
+    seg_map[image < threshold] = 0
+    seg_map[image >= threshold] = 1
+    return seg_map.astype(np.bool)
+
+
 def get_closest_neighbor_distance(true_table):
     """Returns a astropy.table.column with the distance to the closest object.
 
@@ -277,6 +326,46 @@ def get_blend_detection_summary(true_table, det_table):
         num_shred2,
     ]
     return blend_summary
+
+
+def get_detection_eff_matrix(summary_table, num):
+    """Computes the detection efficiency matrix for the input detection summary
+    table.
+
+    Input argument num sets the maximum number of true objects per blend in the
+    test set for which the
+    detection efficiency matrix is to be created for. Detection efficiency is
+    computed for a number of true objects in the range (0-num) as columns and
+    the detection percentage as rows. The percentage values in a column sum to
+    100.
+
+    The input summary table must be a numpy array of shape [N, 5], where N is
+    the test set size. The 5 columns in the summary_table are number of true
+    objects, detected sources, undetected objects, spurious detections and
+    shredded objects for each of the N blend scenes in the test set.
+
+    Args:
+        summary_table (`numpy.array`): Detection summary as a table [N, 5].
+        num (int): Maximum number of true objects to create matrix for. Number
+            of columns in efficiency matrix will be num+1. The first column
+            will correspond to no true objects.
+
+    Returns:
+        numpy.ndarray of size[num+2, num+1] that shows detection efficiency.
+    """
+    eff_matrix = np.zeros((num + 2, num + 1))
+    for i in range(0, num + 1):
+        (q_true,) = np.where(summary_table[:, 0] == i)
+        for j in range(0, num + 2):
+            if len(q_true) > 0:
+                (q_det,) = np.where(summary_table[q_true, 1] == j)
+                eff_matrix[j, i] = len(q_det)
+    norm = np.sum(eff_matrix, axis=0)
+    # If no detections along a column, set sum to 1 to avoid dividing by zero.
+    norm[norm == 0.0] = 1
+    # normalize over columns.
+    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.0
+    return eff_matrix
 
 
 def evaluate_detection(true_tables, detected_tables, batch_index):

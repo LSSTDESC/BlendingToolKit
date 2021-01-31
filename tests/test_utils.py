@@ -1,8 +1,7 @@
 import pytest
 import numpy as np
-import btk.utils
 import btk.sampling_functions
-import btk.obs_conditions
+import btk.survey
 
 
 def get_draw_generator(batch_size=3):
@@ -15,12 +14,10 @@ def get_draw_generator(batch_size=3):
     survey = btk.obs_conditions.Rubin
     pixel_scale = 0.2
     shift = [0.8, -0.7]
-    np.random.seed(0)
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.GroupSamplingFunctionNumbered(
         max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
     )
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         catalog, sampling_function, survey, obs_conds=obs_conds, batch_size=batch_size
     )
@@ -33,7 +30,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     catalog_name = "data/sample_input_catalog.fits"
     np.random.seed(0)
     stamp_size = 24
-    survey = btk.obs_conditions.Rubin
+    survey = btk.survey.Rubin
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],
@@ -46,7 +43,6 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
     catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
     draw_blend_generator = btk.draw_blends.WLDGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
@@ -97,7 +93,7 @@ def test_group_sampling():
 
 def compare_sep():
     """Test detection with sep"""
-    meas_param = btk.utils.SEP_params()
+    meas_param = btk.measure.SEP_params()
     meas_generator = get_meas_generator(meas_param)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
@@ -113,7 +109,7 @@ def compare_sep():
 
 def compare_sep_multiprocessing():
     """Test detection with sep"""
-    meas_param = btk.utils.SEP_params()
+    meas_param = btk.measure.SEP_params()
     meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
     output, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
@@ -127,18 +123,8 @@ def compare_sep_multiprocessing():
     pass
 
 
-def compare_stack():
-    """Test detection with stack"""
-    pass
-
-
 @pytest.mark.timeout(35)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
-    try:
-        import sep
-
-        compare_sep()
-        compare_sep_multiprocessing()
-    except ModuleNotFoundError:
-        print("skipping sep test")
+    compare_sep()
+    compare_sep_multiprocessing()

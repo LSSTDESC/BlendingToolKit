@@ -3,29 +3,8 @@ import numpy as np
 
 
 @pytest.fixture(scope="session")
-def input_args():
-    return Input_Args
-
-
-@pytest.fixture(scope="session")
 def match_images():
     return Match_Images
-
-
-class Input_Args(object):
-    """Class that returns values in the same format as argparse in btk_input."""
-
-    def __init__(
-        self,
-        simulation="two_gal",
-        name="unit_test",
-        configfile="tests/test-config.yaml",
-        verbose=True,
-    ):
-        self.simulation = simulation
-        self.configfile = configfile
-        self.name = name
-        self.verbose = verbose
 
 
 class Match_Images(object):

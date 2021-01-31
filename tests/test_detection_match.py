@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
-import btk
 from astropy.table import Table
+import btk
+import btk.metrics
 
 
 def test_true_detected_catalog():
@@ -22,7 +23,7 @@ def test_true_detected_catalog():
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[0.1], [0.1]], names=["dx", "dy"])]
     # det is list of true catalog, detected catalog, detection summary
-    det = btk.compute_metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     target_num_detections = np.array([1, 0])
     np.testing.assert_array_equal(
@@ -91,7 +92,7 @@ def no_detection():
     cols = [[0.0], [0.0], [1.0], [0.0], [20], [0.1]]
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[], []], names=["dx", "dy"])]
-    det = btk.compute_metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 0, 1, 0, 0, 0, 1, 0, 0]])
     np.testing.assert_array_equal(
         det[2], target_summary, err_msg="Incorrect detection summary"
@@ -110,7 +111,7 @@ def one_detection():
     cols = [[0.0], [0.0], [1.0], [0.0], [20], [0.1]]
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[0.1], [0.1]], names=["dx", "dy"])]
-    det = btk.compute_metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 1, 0, 0, 0, 1, 0, 0, 0]])
     np.testing.assert_array_equal(
         det[2], target_summary, err_msg="Incorrect detection summary"
@@ -131,7 +132,7 @@ def one_undetected():
     cols = [[-1.0, 1.0], [0.0, 0.0], [1.0, 2.0], [100, 101], [21, 21.5], [0.1, 0.3]]
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[0.0], [0.0]], names=["dx", "dy"])]
-    det = btk.compute_metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     np.testing.assert_array_equal(
         det[0]["num_detections1"], [1, 0], err_msg="Incorrect detection algorithm 1"
@@ -187,7 +188,7 @@ def one_undetected():
 
 def test_m_z_diff():
     """Test is correct dz_match and dr_match values are computed in
-    compute_metrics.get_m_z_diff. One detection has no match."""
+    metrics.get_m_z_diff. One detection has no match."""
     names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
     cols = [
         [-6.0, 0.0, 1.0],
@@ -199,7 +200,7 @@ def test_m_z_diff():
     ]
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[0.1, 1.1], [0.1, 1.1]], names=["dx", "dy"])]
-    det = btk.compute_metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     np.testing.assert_array_equal(
         det[0]["num_detections1"], [0, 1, 1], err_msg="Incorrect detection algorithm 1"

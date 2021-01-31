@@ -4,3 +4,4 @@ scipy>=1.2.0
 black==20.8b1
 matplotlib>=3.3.3
 pre-commit>=2.9.3
+sep>=1.1.1
