@@ -67,8 +67,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)"""
 
     components = []
-
-    total_flux = get_flux(entry["ab_magnitude"], filt, survey)
+    total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = (
         entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
@@ -82,49 +81,25 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     if disk_flux + bulge_flux + agn_flux == 0:
         raise SourceNotVisible
 
-    # Calculate the position of angle of the Sersic components, which are assumed to be the same.
     if disk_flux > 0:
         beta_radians = np.radians(entry["pa_disk"])
         if bulge_flux > 0:
             assert (
                 entry["pa_disk"] == entry["pa_bulge"]
             ), "Sersic components have different beta."
-    elif bulge_flux > 0:
-        beta_radians = np.radians(entry["pa_bulge"])
-    else:
-        # This might happen if we only have an AGN component.
-        beta_radians = None
-    # Calculate shapes hlr = sqrt(a*b) and q = b/a of Sersic components.
-    if disk_flux > 0:
         a_d, b_d = entry["a_d"], entry["b_d"]
         disk_hlr_arcsecs = np.sqrt(a_d * b_d)
         disk_q = b_d / a_d
-    else:
-        disk_hlr_arcsecs, disk_q = None, None
+        disk = galsim.Exponential(
+            flux=disk_flux, half_light_radius=disk_hlr_arcsecs
+        ).shear(q=disk_q, beta=beta_radians * galsim.radians)
+        components.append(disk)
+
     if bulge_flux > 0:
+        beta_radians = np.radians(entry["pa_bulge"])
         a_b, b_b = entry["a_b"], entry["b_b"]
         bulge_hlr_arcsecs = np.sqrt(a_b * b_b)
         bulge_q = b_b / a_b
-    else:
-        bulge_hlr_arcsecs, bulge_q = None, None
-
-    if disk_flux > 0:
-        disk = galsim.Exponential(
-            flux=disk_flux, half_light_radius=disk_hlr_arcsecs
-        ).shear(q=disk_q, beta=beta_radians * galsim.radians)
-        components.append(disk)
-
-    a_b, b_b = entry["a_b"], entry["b_b"]
-    bulge_hlr_arcsecs = np.sqrt(a_b * b_b)
-    bulge_q = b_b / a_b
-
-    if disk_flux > 0:
-        disk = galsim.Exponential(
-            flux=disk_flux, half_light_radius=disk_hlr_arcsecs
-        ).shear(q=disk_q, beta=beta_radians * galsim.radians)
-        components.append(disk)
-
-    if bulge_flux > 0:
         bulge = galsim.DeVaucouleurs(
             flux=bulge_flux, half_light_radius=bulge_hlr_arcsecs
         ).shear(q=bulge_q, beta=beta_radians * galsim.radians)
@@ -135,7 +110,6 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         components.append(agn)
 
     profile = galsim.Add(components)
-
     return profile
 
 
@@ -155,7 +129,6 @@ class DrawBlendsGenerator(ABC):
         cpus=1,
         verbose=False,
         add_noise=True,
-        min_snr=0.05,
         shifts=None,
         indexes=None,
         atmospheric_model="Kolmogorov",
@@ -192,6 +165,8 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
+        if not isinstance(surveys, list):
+            raise TypeError("surveys must be a list of Survey objects.")
         self.surveys = surveys
         self.stamp_size = stamp_size
 
@@ -200,7 +175,6 @@ class DrawBlendsGenerator(ABC):
             self.meas_bands[s.name] = meas_bands[i]
 
         self.add_noise = add_noise
-        self.min_snr = min_snr
         self.verbose = verbose
 
         # psf
@@ -248,7 +222,7 @@ class DrawBlendsGenerator(ABC):
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, s))
+                input_args.append((cat, psf, wcs, s))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -433,6 +407,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.convolve.Convolution(gal, psf)
+            gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
                 nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale
             )

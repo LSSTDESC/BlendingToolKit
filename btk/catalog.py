@@ -53,7 +53,6 @@ class CatsimCatalog(Catalog):
     def _prepare_table(self):
         table = deepcopy(self._raw_catalog)
 
-        # TODO: does the WLDCatalog require the 'ra' and 'dec' columns
         # convert ra dec from degrees to arcsec in catalog.
         if "ra" in table.colnames:
             table["ra"] *= 3600
@@ -67,7 +66,7 @@ class CatsimCatalog(Catalog):
             self._raw_catalog["a_d"] * (1 - f) ** 0.5 * 4.66,
             self._raw_catalog["a_b"] * f ** 0.5 * 1.46,
         )
-        # BTK now requires ref_mags, but WLD still wants magnitudes
+        # BTK now requires ref_mags, but Catsim still wants magnitudes
         table["ref_mag"] = self._raw_catalog["i_ab"]
         table["btk_size"] = r_sec
         # Adds the extra columns to both catalogs just to be sure

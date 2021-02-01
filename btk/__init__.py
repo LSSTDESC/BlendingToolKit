@@ -13,7 +13,6 @@ from . import catalog
 from . import create_blend_generator
 from . import draw_blends
 from . import measure
-from . import compute_metrics
-from . import utils
+from . import metrics
 from . import sampling_functions
 from . import survey

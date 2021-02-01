@@ -11,15 +11,15 @@ def get_draw_generator(batch_size=3):
 
     max_number = 10
     stamp_size = 24
-    survey = btk.obs_conditions.Rubin
+    survey = btk.survey.Rubin
     pixel_scale = 0.2
     shift = [0.8, -0.7]
-    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.GroupSamplingFunctionNumbered(
         max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
     )
-    draw_blend_generator = btk.draw_blends.WLDGenerator(
-        catalog, sampling_function, survey, obs_conds=obs_conds, batch_size=batch_size
+    draw_blend_generator = btk.draw_blends.CatsimGenerator(
+        catalog, sampling_function, survey, batch_size=batch_size
     )
     return draw_blend_generator
 
@@ -42,14 +42,14 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         [[0.2, 2.4], [-1.8, -2.0]],
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
-    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    draw_blend_generator = btk.draw_blends.WLDGenerator(
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    draw_blend_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
         survey,
-        obs_conds=obs_conds,
         shifts=shifts,
         indexes=indexes,
+        stamp_size=stamp_size,
     )
     meas_generator = btk.measure.MeasureGenerator(
         meas_params, draw_blend_generator, multiprocessing=multiprocessing, cpus=cpus
@@ -57,7 +57,6 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     return meas_generator
 
 
-@pytest.mark.timeout(15)
 def test_group_sampling():
     """Test blends drawn with group sampling function"""
     draw_blend_generator = get_draw_generator()
@@ -123,7 +122,6 @@ def compare_sep_multiprocessing():
     pass
 
 
-@pytest.mark.timeout(35)
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     compare_sep()

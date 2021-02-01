@@ -12,6 +12,7 @@ Survey = namedtuple(
         "mirror_diameter",  # in meters [m]
         "airmass",  # Optical path length through atmosphere relative to zenith path length.
         "filters",
+        "zeropoint_airmass",
     ],
 )
 
@@ -141,60 +142,6 @@ HSC = Survey(
     ],
 )
 
-# Sigma of the psf profile in arcseconds.
-# https://arxiv.org/pdf/1702.01747.pdf Z-band
-Roman = Survey(
-    name="Roman",
-    pixel_scale=0.11,
-    effective_area=1.0,  # TODO: placeholder
-    mirror_diameter=1.0,  # TODO: placeholder
-    airmass=1.0,  # TODO: double-check
-    zeropoint_airmass=1.0,  # TODO: double-check
-    filters=[
-        Filter(
-            name="F062",
-            atmospheric_psf_fwhm=0.1848,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=26.99,
-        ),
-        Filter(
-            name="Z087",
-            atmospheric_psf_fwhm=0.1859,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=26.39,
-        ),
-        Filter(
-            name="Y106",
-            atmospheric_psf_fwhm=0.2046,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=26.41,
-        ),
-        Filter(
-            name="J129",
-            atmospheric_psf_fwhm=0.2332,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=26.35,
-        ),
-        Filter(
-            name="H158",
-            atmospheric_psf_fwhm=0.2684,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=26.41,
-        ),
-        Filter(
-            name="F184",
-            atmospheric_psf_fwhm=0.2981,
-            sky_brigthness=22,  # TODO: double-check
-            exp_time=3000,  # TODO: double-check
-            zeropoint=25.96,
-        ),
-    ],
-)
 
 # https://www.lsst.org/about/camera/features
 Rubin = Survey(
@@ -226,7 +173,7 @@ Rubin = Survey(
             atmospheric_psf_fwhm=0.748,
             sky_brightness=20.5,
             exp_time=5520,
-            ero_point=32.36,
+            zeropoint=32.36,
             extinction=0.07,
         ),
         Filter(
@@ -329,6 +276,7 @@ CFHT = Survey(
             name="r",
             atmospheric_psf_fwhm=0.71,
             sky_brightness=20.8,
+            exp_time=2000,
             zeropoint=10.72,
             extinction=0.10,
         ),
@@ -346,8 +294,8 @@ def get_flux(ab_magnitude, filt, survey):
     Returns:
         float: Flux in detected electrons.
     """
-    mag = ab_magnitude + filt.extinction * (filt.airmass - filt.zeropoint_airmass)
-    return filt.exposure_time * filt.zeropoint * 10 ** (-0.4 * (mag - 24))
+    mag = ab_magnitude + filt.extinction * (survey.airmass - survey.zeropoint_airmass)
+    return filt.exp_time * filt.zeropoint * 10 ** (-0.4 * (mag - 24))
 
 
 def get_mean_sky_level(survey, filt):

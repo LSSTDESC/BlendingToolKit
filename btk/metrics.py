@@ -438,7 +438,7 @@ def run(metrics_params, test_size=1000):
 
     Args:
         metrics_params: Instance from class
-        `btk.compute_metrics.Metrics_params` describing functions to return
+        `btk.metrics.Metrics_params` describing functions to return
         results of detection/deblending/measurement algorithm.
         test_size(int): Number of times Metrics_params is run and results
             summarized.

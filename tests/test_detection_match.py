@@ -200,7 +200,7 @@ def test_m_z_diff():
     ]
     true_tables = [Table(cols, names=names)]
     detected_tables = [Table([[0.1, 1.1], [0.1, 1.1]], names=["dx", "dy"])]
-    det = metrics.evaluate_detection(true_tables, detected_tables, 0)
+    det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     np.testing.assert_array_equal(
         det[0]["num_detections1"], [0, 1, 1], err_msg="Incorrect detection algorithm 1"
@@ -228,7 +228,6 @@ def test_m_z_diff():
     )
 
 
-@pytest.mark.timeout(5)
 def test_detection():
     no_detection()
     one_detection()
