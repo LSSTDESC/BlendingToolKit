@@ -47,7 +47,6 @@ class CatsimCatalog(Catalog):
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
         catalog = astropy.table.Table.read(catalog_file, format=fmt)
-
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self):
@@ -80,9 +79,8 @@ class CosmosCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
         """
-        Paramters
-        ---------
-        catalog_files: list of galsim cataolgs
+        Args:
+            catalog_files: list of galsim cataolgs
         """
         catalog_coord = astropy.table.Table.read(catalog_files[0], "fits")
         catalog_fit = astropy.table.Table.read(catalog_files[1], "fits")
