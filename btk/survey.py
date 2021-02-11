@@ -180,7 +180,7 @@ Rubin = Survey(
             name="r",
             atmospheric_psf_fwhm=0.781,
             sky_brightness=21.2,
-            exp_time=520,
+            exp_time=5520,
             zeropoint=43.70,
             extinction=0.10,
         ),
@@ -195,7 +195,7 @@ Rubin = Survey(
         Filter(
             name="u",
             atmospheric_psf_fwhm=0.859,
-            sky_brightness=2.9,
+            sky_brightness=22.9,
             exp_time=1680,
             zeropoint=9.16,
             extinction=0.451,

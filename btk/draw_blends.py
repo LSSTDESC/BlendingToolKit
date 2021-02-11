@@ -131,6 +131,7 @@ class DrawBlendsGenerator(ABC):
         shifts=None,
         indexes=None,
         atmospheric_model="Kolmogorov",
+        snr=200,
     ):
         """Class that generates images of blended objects, individual isolated
         objects, for each blend in the batch.
@@ -156,6 +157,7 @@ class DrawBlendsGenerator(ABC):
             raise TypeError("surveys must be a list of Survey objects.")
         self.surveys = surveys
         self.stamp_size = stamp_size
+        self.snr = snr
 
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
@@ -426,10 +428,11 @@ class CosmosGenerator(DrawBlendsGenerator):
         # so gaussian kernel convolution smoothes it out.
         # It has the slight disadvantage of adding some band-limitedeness to the image,
         # but with a small kernel, it's better than doing nothing.
-        gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
+        gal = galsim.Convolution(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
+
         # Randomly shifts the galaxy in the patch
         galaxy = (
-            galsim.Convolve(gal, psf)
+            galsim.Convolution(gal, psf)
             .drawImage(
                 nx=pix_stamp_size,
                 ny=pix_stamp_size,
