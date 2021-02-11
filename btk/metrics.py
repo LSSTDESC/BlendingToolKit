@@ -5,7 +5,7 @@ import numpy as np
 import scipy.spatial
 
 
-class Metrics_params(ABC):
+class MetricsParams(ABC):
     def __init__(self, meas_generator, batch_size):
         """Class describing functions to return results of
         detection/deblending/measurement algorithm in meas_generator. Each
@@ -54,7 +54,7 @@ class Metrics_params(ABC):
         pass
 
 
-class Basic_metric_params(Metrics_params):
+class BasicMetricsParams(MetricsParams):
     """Class describing functions to return results of
     detection/deblending/measurement algorithm in meas_generator. Each
     time the algorithm is called, it is run on a batch of blends yielded

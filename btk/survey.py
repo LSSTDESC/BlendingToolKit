@@ -24,7 +24,7 @@ Filter = namedtuple(
         "sky_brightness",  # mags/sq.arcsec
         "exp_time",  # in seconds [s]
         "zeropoint",  # in electrons per second at 24th magnitude.
-        "extinction",  # Exponential exctinction coefficient for atmospheric absorption.
+        "extinction",  # Exponential extinction coefficient for atmospheric absorption.
     ],
 )
 

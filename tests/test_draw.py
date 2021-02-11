@@ -1,8 +1,8 @@
 import multiprocessing as mp
 import numpy as np
+
 import btk
 import btk.sampling_functions
-import btk.survey
 from btk.survey import Rubin
 
 
