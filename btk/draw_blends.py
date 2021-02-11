@@ -337,7 +337,7 @@ class DrawBlendsGenerator(ABC):
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = np.int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
@@ -390,7 +390,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         if self.verbose:
             print("Draw isolated object")
 
-        pix_stamp_size = np.int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.convolve.Convolution(gal, psf)
@@ -420,7 +420,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
         cat = self.catalog.get
         gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
-        pix_stamp_size = np.int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
         # Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
         # so gaussian kernel convolution smoothes it out.
