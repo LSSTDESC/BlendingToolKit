@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 import btk.sampling_functions
 import btk.survey
@@ -19,7 +18,7 @@ def get_draw_generator(batch_size=3):
         max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
     )
     draw_blend_generator = btk.draw_blends.CatsimGenerator(
-        catalog, sampling_function, survey, batch_size=batch_size
+        catalog, sampling_function, [survey], batch_size=batch_size
     )
     return draw_blend_generator
 
@@ -46,7 +45,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
     draw_blend_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         btk.sampling_functions.DefaultSampling(),
-        survey,
+        [survey],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,
@@ -94,7 +93,7 @@ def compare_sep():
     """Test detection with sep"""
     meas_param = btk.measure.SEP_params()
     meas_generator = get_meas_generator(meas_param)
-    output, deb, _ = next(meas_generator)
+    _, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
     target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
@@ -103,14 +102,13 @@ def compare_sep():
         decimal=3,
         err_msg="Did not get desired detections",
     )
-    pass
 
 
 def compare_sep_multiprocessing():
     """Test detection with sep"""
     meas_param = btk.measure.SEP_params()
     meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
-    output, deb, _ = next(meas_generator)
+    _, deb, _ = next(meas_generator)
     detected_centers = deb[0]["peaks"]
     target_detection = np.array([[65.588, 50.982]])
     np.testing.assert_array_almost_equal(
@@ -119,7 +117,6 @@ def compare_sep_multiprocessing():
         decimal=3,
         err_msg="Did not get desired detections",
     )
-    pass
 
 
 def test_algorithms():

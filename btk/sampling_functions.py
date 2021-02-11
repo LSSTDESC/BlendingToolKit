@@ -272,7 +272,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "WLDCatalog"
+        return "CatsimCatalog"
 
     def __call__(self, table, **kwargs):
         """The group is centered on the middle of the postage stamp.

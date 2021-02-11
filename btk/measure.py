@@ -1,4 +1,8 @@
 from abc import ABC
+import sep
+import numpy as np
+from skimage.feature import peak_local_max
+
 from btk.multiprocess import multiprocess
 
 
@@ -37,7 +41,7 @@ class Measurement_params(ABC):
         return None
 
 
-class Basic_measure_params(Measurement_params):
+class BasicMeasureParams(Measurement_params):
     """Class to perform detection by identifying peaks with skimage"""
 
     @staticmethod
@@ -53,9 +57,7 @@ class Basic_measure_params(Measurement_params):
         """
         # set detection threshold to 5 times std of image
         threshold = 5 * np.std(image)
-        coordinates = skimage.feature.peak_local_max(
-            image, min_distance=2, threshold_abs=threshold
-        )
+        coordinates = peak_local_max(image, min_distance=2, threshold_abs=threshold)
         return np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
 
     def get_deblended_images(self, data, index):
@@ -82,7 +84,6 @@ class SEP_params(Measurement_params):
         Returns:
             centers: x and y coordinates of detected  centroids
         """
-        sep = __import__("sep")
         bkg = sep.Background(image)
         self.catalog, self.segmentation = sep.extract(
             image, 1.5, err=bkg.globalrms, segmentation_map=True

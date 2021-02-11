@@ -48,10 +48,9 @@ def get_size(catalog, psf, pixel_scale):
     The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
 
     Args:
-        pixel_scale: arcseconds per pixel
         catalog: Catalog with entries corresponding to one blend.
-        cutout: `btk.Cutout.cutout` class describing
-                observing conditions in bands to take measurement in.
+        psf: Galsim object corresponding to a PSF.
+        pixel_scale: arcseconds per pixel
 
     Returns:
         `astropy.table.Column`: size of the galaxy in pixels.
@@ -141,18 +140,6 @@ class DrawBlendsGenerator(ABC):
         dict with results of entire batch. If multiprocessing is true, then each of
         the mini-batches are run in parallel.
 
-        Args:
-            blend_generator: Object generator to create blended object
-            observing_generator: Observing generator to get observing conditions.
-                                    The observing conditions are the same for the
-                                    whole batch.
-            multiprocessing: Divides batch of blends to draw into mini-batches and
-                runs each on different core
-            cpus: If multiprocessing, then number of parallel processes to run.
-            meas_bands (tuple): For each survey in `self.observing_generator.surveys`,
-                               the band in that survey for which measurements of e.g.
-                               size will be made. Tuple order should be same as
-                               `surveys`.
         """
 
         self.blend_generator = BlendGenerator(

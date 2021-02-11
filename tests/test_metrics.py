@@ -4,7 +4,6 @@ import btk
 import btk.metrics
 
 
-@pytest.mark.timeout(3)
 def test_detection_eff_matrix():
     """Tests detection efficiency matrix computation in utils by inputting a
     summary table with 4 entries, with number of true sources between 1-4 and
