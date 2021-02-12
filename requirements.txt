@@ -7,3 +7,4 @@ pre-commit>=2.9.3
 sep>=1.1.1
 Cython>=0.29.21
 pybind11>=2.2
+scikit-image>=0.18.0

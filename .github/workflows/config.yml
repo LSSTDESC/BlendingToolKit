@@ -47,7 +47,7 @@ jobs:
           pip install --upgrade pip
 
       # galsim needs this.
-      - name: Instal FFTW
+      - name: Instal FFTW + Eigen
         run: |
           sudo apt-get install libfftw3-dev libeigen3-dev
 
