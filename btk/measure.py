@@ -1,6 +1,7 @@
 from abc import ABC
-import sep
 import numpy as np
+
+import sep
 from skimage.feature import peak_local_max
 
 from btk.multiprocess import multiprocess
