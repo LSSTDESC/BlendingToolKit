@@ -6,7 +6,7 @@ from skimage.feature import peak_local_max
 from btk.multiprocess import multiprocess
 
 
-class Measurement_params(ABC):
+class MeasurementParams(ABC):
     """Class with functions to perform detection/deblending/measurement."""
 
     def make_measurement(self, data, index):
