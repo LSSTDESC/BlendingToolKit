@@ -131,7 +131,6 @@ class DrawBlendsGenerator(ABC):
         shifts=None,
         indexes=None,
         atmospheric_model="Kolmogorov",
-        snr=200,
     ):
         """Class that generates images of blended objects, individual isolated
         objects, for each blend in the batch.
@@ -157,7 +156,6 @@ class DrawBlendsGenerator(ABC):
             raise TypeError("surveys must be a list of Survey objects.")
         self.surveys = surveys
         self.stamp_size = stamp_size
-        self.snr = snr
 
         self.meas_bands = {}
         for i, s in enumerate(self.surveys):
