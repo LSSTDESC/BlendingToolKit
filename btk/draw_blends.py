@@ -385,7 +385,7 @@ class CatsimGenerator(DrawBlendsGenerator):
             band:
 
         Return:
-            galsim.Image
+            galsim.Image object
         """
         if self.verbose:
             print("Draw isolated object")
