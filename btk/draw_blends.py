@@ -304,7 +304,7 @@ class DrawBlendsGenerator(ABC):
             )
             for b, _ in enumerate(survey.filters):
                 single_band_output = self.render_blend(
-                    blend, psf[b], survey.filters[b], survey
+                    blend, psf[b], filter, survey
                 )
                 blend_image_multi[:, :, b] = single_band_output[0]
                 iso_image_multi[:, :, :, b] = single_band_output[1]
