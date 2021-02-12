@@ -41,7 +41,7 @@ class Measurement_params(ABC):
         return None
 
 
-class BasicMeasureParams(Measurement_params):
+class BasicMeasureParams(MeasurementParams):
     """Class to perform detection by identifying peaks with skimage"""
 
     @staticmethod
