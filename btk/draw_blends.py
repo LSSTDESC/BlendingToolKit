@@ -395,7 +395,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
-            gal_conv = galsim.convolve.Convolution(gal, psf)
+            gal_conv = galsim.Convolution(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
                 nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale
