@@ -54,6 +54,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install galsim
           pip install pytest pytest-cov pytest-timeout
 
       - name: Run Tests
