@@ -302,7 +302,7 @@ class DrawBlendsGenerator(ABC):
             blend_image_multi = np.zeros(
                 (pix_stamp_size, pix_stamp_size, len(survey.filters))
             )
-            for b, _ in enumerate(survey.filters):
+            for b, filter in enumerate(survey.filters):
                 single_band_output = self.render_blend(
                     blend, psf[b], filter, survey
                 )
