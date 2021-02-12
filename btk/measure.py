@@ -67,7 +67,7 @@ class BasicMeasureParams(MeasurementParams):
         return {"deblend_image": None, "peaks": peaks}
 
 
-class SEP_params(Measurement_params):
+class SepParams(MeasurementParams):
     """Class to perform detection and deblending with SEP"""
 
     def __init__(self):
