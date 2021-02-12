@@ -41,7 +41,6 @@ jobs:
 
       - name: Install dev dependencies
         run: |
-          pip install numpy
           pip install -r dev-requirements.txt
 
       - name: Install dependencies
