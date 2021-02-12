@@ -416,7 +416,6 @@ class CosmosGenerator(DrawBlendsGenerator):
             gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
         """
         k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
-        cat = self.catalog.get
         gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
