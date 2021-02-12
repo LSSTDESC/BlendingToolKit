@@ -46,9 +46,13 @@ jobs:
         run: |
           pip install --upgrade pip
 
-      - name: Install dependencies
+      # galsim needs this.
+      - name: Instal FFTW
         run: |
           sudo apt-get install libfftw3-dev
+
+      - name: Install dependencies
+        run: |
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-timeout
 
