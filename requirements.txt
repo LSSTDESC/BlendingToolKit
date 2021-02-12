@@ -6,5 +6,4 @@ matplotlib>=3.3.3
 pre-commit>=2.9.3
 sep>=1.1.1
 Cython>=0.29.21
-eigency>=1.77
 pybind11>=2.2
