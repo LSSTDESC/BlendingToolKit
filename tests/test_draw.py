@@ -51,7 +51,7 @@ def match_background_noise(blend_images):
     the i band. This is compared to the values measured a priori for the
     default input settings.
     """
-    test_batch_noise = 129661.1961517334
+    test_batch_noise = 129660.6576538086
     batch_noise = np.var(blend_images[1, 0:32, 0:32, 3])
     np.testing.assert_almost_equal(
         batch_noise,
