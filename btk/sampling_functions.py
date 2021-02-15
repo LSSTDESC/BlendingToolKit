@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import astropy.table
 
-from btk.catalog import WLDCatalog
+from btk.catalog import CatsimCatalog
 
 
 def _get_random_center_shift(num_objects, maxshift):
@@ -57,7 +57,7 @@ class DefaultSampling(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "WLDCatalog", "CosmosCatalog"
+        return "CatsimCatalog", "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
         """Applies default sampling to the input CatSim-like catalog and returns an
@@ -114,7 +114,7 @@ class BasicSamplingFunction(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "WLDCatalog"
+        return "CatsimCatalog"
 
     def __call__(self, table, **kwargs):
         """Samples galaxies from input catalog to make blend scene.
@@ -180,7 +180,7 @@ class GroupSamplingFunction(SamplingFunction):
         """
         super().__init__(max_number)
 
-        self.wld_catalog = WLDCatalog.from_file(wld_catalog_name).get_raw_catalog()
+        self.wld_catalog = CatsimCatalog.from_file(wld_catalog_name).get_raw_catalog()
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.shift = shift
@@ -188,7 +188,7 @@ class GroupSamplingFunction(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "WLDCatalog"
+        return "CatsimCatalog"
 
     def __call__(self, table, **kwargs):
         """We use self.wld_catalog created above to sample groups, but ultimately returns
@@ -256,7 +256,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         count. If the count is larger than the number of groups input,
         the generator is forced to exit.
 
-        Note: the pre-run WLD images are not used here. We only use the pre-run
+        NOTE: the pre-run WLD images are not used here. We only use the pre-run
         catalog to identify galaxies that belong to a group.
 
         Args:
@@ -272,7 +272,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "WLDCatalog"
+        return "CatsimCatalog"
 
     def __call__(self, table, **kwargs):
         """The group is centered on the middle of the postage stamp.

@@ -14,13 +14,11 @@ class Catalog(ABC):
             verbose: Whether to print information related to loading catalog.
 
         Attributes:
-            self.table (`astropy.table`): CatSim-like catalog with selection criteria applied
-                and recorded in the `_selection_functions` list.
+            self.table (`astropy.table`): CatSim-like catalog.
         """
         self._raw_catalog = catalog
         self.verbose = verbose
         self.table = self._prepare_table()
-        self._selection_functions = []
 
         if self.verbose:
             print("Catalog loaded")
@@ -41,36 +39,19 @@ class Catalog(ABC):
     def get_raw_catalog(self):
         return self._raw_catalog
 
-    def apply_selection_function(self, selection_function, *kwargs):
-        """Apply a selection cut to the current table.
 
-        Parameters
-        ----------
-        selection_function: callable
-            logical selection on the catalog table columns/rows.
-
-        """
-        if not callable(selection_function):
-            raise TypeError("selection_function must be callable")
-
-        self.table = selection_function(self.table, *kwargs)
-        self._selection_functions.append((selection_function, kwargs))
-
-
-class WLDCatalog(Catalog):
+class CatsimCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
         # catalog returned is an astropy table.
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
         catalog = astropy.table.Table.read(catalog_file, format=fmt)
-
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self):
         table = deepcopy(self._raw_catalog)
 
-        # TODO: does the WLDCatalog require the 'ra' and 'dec' columns
         # convert ra dec from degrees to arcsec in catalog.
         if "ra" in table.colnames:
             table["ra"] *= 3600
@@ -84,7 +65,7 @@ class WLDCatalog(Catalog):
             self._raw_catalog["a_d"] * (1 - f) ** 0.5 * 4.66,
             self._raw_catalog["a_b"] * f ** 0.5 * 1.46,
         )
-        # BTK now requires ref_mags, but WLD still wants magnitudes
+        # BTK now requires ref_mags, but Catsim still wants magnitudes
         table["ref_mag"] = self._raw_catalog["i_ab"]
         table["btk_size"] = r_sec
         # Adds the extra columns to both catalogs just to be sure
@@ -98,12 +79,9 @@ class CosmosCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
         """
-
-        Paramters
-        ---------
-        catalog_files: list of galsim cataolgs
+        Args:
+            catalog_files: list of galsim cataolgs
         """
-        # This will return a COSMOSCatalog object.
         catalog_coord = astropy.table.Table.read(catalog_files[0], "fits")
         catalog_fit = astropy.table.Table.read(catalog_files[1], "fits")
         catalog = astropy.table.hstack([catalog_coord, catalog_fit])

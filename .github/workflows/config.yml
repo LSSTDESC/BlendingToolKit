@@ -5,79 +5,60 @@ name: tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7]
 
     steps:
-    - name: Checkout github repo (+ download lfs dependencies)
-      uses: actions/checkout@v2
-      with:
-        lfs: true
+      - name: Checkout github repo (+ download lfs dependencies)
+        uses: actions/checkout@v2
+        with:
+          lfs: true
 
-    - name: Checkout LFS objects
-      run: git lfs checkout
+      - name: Checkout LFS objects
+        run: git lfs checkout
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      id: cache
-      with:
-        # This path is specific to Ubuntu
-        path: ~/.cache/pip
-        # Look to see if there is a cache hit for the corresponding requirements file
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -U setuptools
-        sudo apt-get install libfftw3-dev libeigen3-dev
-        sudo pip install --upgrade uncertainties
-        pip install -r requirements.txt
+      # galsim needs this.
+      - name: Instal FFTW + Eigen
+        run: |
+          sudo apt-get install libfftw3-dev libeigen3-dev
 
-    - name: Extra dependencies
-      run: |
-        pip install galsim
-        pip install git+https://github.com/pmelchior/scarlet
-        git clone https://github.com/LSSTDESC/WeakLensingDeblending
-        cd WeakLensingDeblending
-        python setup.py install
-        cd ..
-        pip install .
+      - name: Install dev dependencies
+        run: |
+          pip install -r dev-requirements.txt
+          pip install eigency>=1.77
 
-    - name: Testing dependencies
-      run: |
-        pip install pytest pytest-cov pytest-timeout
-        pip install black==20.8b1
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
-    - name: Run Tests
-      run: |
-        black --check ./btk ./btk_input.py ./tests
-        pytest --cov=./btk --cov-report=xml --durations=0
+      - name: Run Tests
+        run: |
+          black --check ./btk ./tests
+          pytest --cov=./btk --cov-report=xml --durations=0
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-        flags: unittests
-        env_vars: OS,PYTHON
-        name: codecov-umbrella
-        fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: true

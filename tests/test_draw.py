@@ -1,10 +1,9 @@
 import multiprocessing as mp
 import numpy as np
-import pytest
+
 import btk
 import btk.sampling_functions
-import btk.obs_conditions
-from btk.obs_conditions import Rubin, HSC
+from btk.survey import Rubin
 
 
 def get_draw_generator(
@@ -30,15 +29,12 @@ def get_draw_generator(
     else:
         shifts = None
         indexes = None
-    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    survey = btk.obs_conditions.Rubin
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    draw_generator = btk.draw_blends.WLDGenerator(
+    draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        survey,
-        obs_conds=obs_conds,
+        [Rubin],
         batch_size=batch_size,
         stamp_size=stamp_size,
         shifts=shifts,
@@ -55,7 +51,7 @@ def match_background_noise(blend_images):
     the i band. This is compared to the values measured a priori for the
     default input settings.
     """
-    test_batch_noise = 129661.1961517334
+    test_batch_noise = 129660.6576538086
     batch_noise = np.var(blend_images[1, 0:32, 0:32, 3])
     np.testing.assert_almost_equal(
         batch_noise,
@@ -65,7 +61,6 @@ def match_background_noise(blend_images):
     )
 
 
-@pytest.mark.timeout(10)
 def test_default(match_images):
     default_draw_generator = get_draw_generator(fixed_parameters=True)
     draw_output = next(default_draw_generator)
@@ -74,21 +69,15 @@ def test_default(match_images):
         len(draw_output["blend_list"][3]) < 3
     ), "Default max_number should \
         generate 2 or 1 galaxies per blend."
-    assert (
-        draw_output["obs_condition"][0].survey_name == "LSST"
-    ), "Default observing survey is LSST."
     match_images.match_blend_images_default(draw_output["blend_images"])
     match_images.match_isolated_images_default(draw_output["isolated_images"])
     match_background_noise(draw_output["blend_images"])
 
 
-@pytest.mark.timeout(15)
-def test_multi_processing():
+def test_multiprocessing():
     b_size = 16
-    try:
-        cpus = np.min([mp.cpu_count(), 16])
-    except NotImplementedError:
-        cpus = 2
+    cpus = np.min([mp.cpu_count(), 16])
+
     parallel_im_gen = get_draw_generator(
         b_size, cpus, multiprocessing=True, add_noise=False
     )
@@ -103,46 +92,3 @@ def test_multi_processing():
     np.testing.assert_array_equal(
         parallel_im["isolated_images"], serial_im["isolated_images"]
     )
-    pass
-
-
-@pytest.mark.timeout(10)
-def test_multiresolution():
-    catalog_name = "data/sample_input_catalog.fits"
-
-    np.random.seed(0)
-    stamp_size = 24.0
-    batch_size = 8
-    cpus = 1
-    multiprocessing = False
-    add_noise = True
-
-    catalog = btk.catalog.WLDCatalog.from_file(catalog_name)
-    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    obs_conds = btk.obs_conditions.WLDObsConditions(stamp_size)
-    draw_generator = btk.draw_blends.WLDGenerator(
-        catalog,
-        sampling_function,
-        [Rubin, HSC],
-        obs_conds=obs_conds,
-        stamp_size=stamp_size,
-        batch_size=batch_size,
-        multiprocessing=multiprocessing,
-        cpus=cpus,
-        add_noise=add_noise,
-        meas_bands=("i", "i"),
-    )
-    draw_output = next(draw_generator)
-
-    assert (
-        "LSST" in draw_output["blend_list"].keys()
-    ), "Both surveys get well defined outputs"
-    assert (
-        "HSC" in draw_output["blend_list"].keys()
-    ), "Both surveys get well defined outputs"
-    assert draw_output["blend_images"]["LSST"][0].shape[0] == int(
-        24.0 / 0.2
-    ), "LSST survey should have a pixel scale of 0.2"
-    assert draw_output["blend_images"]["HSC"][0].shape[0] == int(
-        24.0 / 0.167
-    ), "HSC survey should have a pixel scale of 0.167"
