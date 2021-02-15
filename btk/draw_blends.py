@@ -344,15 +344,12 @@ class DrawBlendsGenerator(ABC):
             iso_image[k] = single_image.array
             _blend_image += single_image
 
-        # add background
-        _blend_image += mean_sky_level
-
         # add noise.
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
-            noise = galsim.PoissonNoise(rng=generator)
+            noise = galsim.PoissonNoise(rng=generator,sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
         blend_image = _blend_image.array
