@@ -15,7 +15,6 @@ def get_draw_generator(
 ):
     """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = "data/sample_input_catalog.fits"
-
     np.random.seed(0)
     stamp_size = 24.0
     if fixed_parameters:
