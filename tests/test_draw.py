@@ -6,6 +6,72 @@ import btk.sampling_functions
 from btk.survey import Rubin
 
 
+def match_isolated_images_default(isolated_images):
+    """Compares the max value of isolated image for each of the band along with
+    the mean and std values in the batch. This is compared to the values
+    measured a proiri for the default input settings.
+    """
+    test_batch_max = np.array(
+        [4772.817, 8506.056, 10329.56, 7636.189, 1245.693, 90.721]
+    )
+    test_batch_mean = 3.1101762559117585
+    test_batch_std = 90.74182140645624
+    batch_max = isolated_images.max(axis=0).max(axis=0).max(axis=0).max(axis=0)
+    batch_mean = isolated_images.mean()
+    batch_std = isolated_images.std()
+    np.testing.assert_array_almost_equal(
+        batch_max,
+        test_batch_max,
+        decimal=3,
+        err_msg="Did not get desired maximum pixel values of isolated images",
+    )
+    np.testing.assert_almost_equal(
+        batch_mean,
+        test_batch_mean,
+        decimal=3,
+        err_msg="Did not get desired mean pixel values of isolated images",
+    )
+    np.testing.assert_almost_equal(
+        batch_std,
+        test_batch_std,
+        decimal=3,
+        err_msg="Did not get desired std of pixel values of isolated images",
+    )
+
+
+def match_blend_images_default(blend_images):
+    """Compares the max value of blend image for each of the band along with
+    the mean and std values in the batch. This is compared to the values
+    measured a priori for the default input settings.
+    """
+    test_batch_max = np.array(
+        [5428.147, 8947.227, 11190.504, 8011.935, 1536.116, 191.629]
+    )
+    test_batch_mean = 5.912076135028083
+    test_batch_std = 403.5577217178115
+    batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
+    batch_mean = blend_images.mean()
+    batch_std = blend_images.std()
+    np.testing.assert_array_almost_equal(
+        batch_max,
+        test_batch_max,
+        decimal=3,
+        err_msg="Did not get desired maximum pixel values of blend images",
+    )
+    np.testing.assert_almost_equal(
+        batch_mean,
+        test_batch_mean,
+        decimal=3,
+        err_msg="Did not get desired mean pixel values of blend images",
+    )
+    np.testing.assert_almost_equal(
+        batch_std,
+        test_batch_std,
+        decimal=3,
+        err_msg="Did not get desired std of pixel values of blend images",
+    )
+
+
 def get_draw_generator(
     batch_size=8, cpus=1, multiprocessing=False, add_noise=True, fixed_parameters=False
 ):
@@ -56,12 +122,12 @@ def match_background_noise(blend_images):
     np.testing.assert_almost_equal(
         batch_noise,
         test_batch_noise,
-        decimal=5,
+        decimal=3,
         err_msg="Did not get desired mean pixel values of blend images",
     )
 
 
-def test_default(match_images):
+def test_default():
     default_draw_generator = get_draw_generator(fixed_parameters=True)
     draw_output = next(default_draw_generator)
     assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
@@ -69,8 +135,8 @@ def test_default(match_images):
         len(draw_output["blend_list"][3]) < 3
     ), "Default max_number should \
         generate 2 or 1 galaxies per blend."
-    match_images.match_blend_images_default(draw_output["blend_images"])
-    match_images.match_isolated_images_default(draw_output["isolated_images"])
+    match_blend_images_default(draw_output["blend_images"])
+    match_isolated_images_default(draw_output["isolated_images"])
     match_background_noise(draw_output["blend_images"])
 
 
