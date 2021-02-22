@@ -7,7 +7,6 @@ from btk.survey import Rubin, HSC
 def test_multiresolution():
     catalog_name = "data/sample_input_catalog.fits"
 
-    np.random.seed(0)
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
