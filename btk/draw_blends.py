@@ -9,7 +9,7 @@ from astropy.table import Column
 
 from btk.multiprocess import multiprocess
 from btk.create_blend_generator import BlendGenerator
-from btk.survey import get_mean_sky_level, get_psf, make_wcs, get_flux
+from btk.survey import get_mean_sky_level, make_wcs, get_flux
 
 
 class SourceNotVisible(Exception):
@@ -130,7 +130,6 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
-        atmospheric_model="Kolmogorov",
     ):
         """Class that generates images of blended objects, individual isolated
         objects, for each blend in the batch.
@@ -164,8 +163,6 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-        # psf
-        self.atmospheric_model = atmospheric_model
 
     def __iter__(self):
         return self
@@ -187,8 +184,8 @@ class DrawBlendsGenerator(ABC):
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s.pixel_scale)
 
-            # create WCS and PSF information
-            psf = [get_psf(s, filt, self.atmospheric_model) for filt in s.filters]
+            # create WCS information
+            psf = [filt.psf for filt in s.filters]
             wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
@@ -209,7 +206,7 @@ class DrawBlendsGenerator(ABC):
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s))
+                input_args.append((cat, wcs, s))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -248,7 +245,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey):
+    def render_mini_batch(self, blend_list, wcs, survey):
         """Returns isolated and blended images for blend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -286,7 +283,7 @@ class DrawBlendsGenerator(ABC):
             blend.add_column(dy)
             # TODO: How to get size for COSMOS?
             if "CatsimCatalog" in self.compatible_catalogs:
-                size = get_size(blend, psf[indx_meas_band], pixel_scale)
+                size = get_size(blend, survey.filters[indx_meas_band].psf, pixel_scale)
                 blend_list[i].add_column(size)
 
             iso_image_multi = np.zeros(
@@ -301,14 +298,14 @@ class DrawBlendsGenerator(ABC):
                 (pix_stamp_size, pix_stamp_size, len(survey.filters))
             )
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, psf[b], filt, survey)
+                single_band_output = self.render_blend(blend, filt, survey)
                 blend_image_multi[:, :, b] = single_band_output[0]
                 iso_image_multi[:, :, :, b] = single_band_output[1]
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey):
+    def render_blend(self, blend_catalog, filt, survey):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -340,7 +337,7 @@ class DrawBlendsGenerator(ABC):
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
         for k, entry in enumerate(blend_catalog):
-            single_image = self.render_single(entry, psf, filt, survey)
+            single_image = self.render_single(entry, filt, survey)
             iso_image[k] = single_image.array
             _blend_image += single_image
 
@@ -356,7 +353,7 @@ class DrawBlendsGenerator(ABC):
         return blend_image, iso_image
 
     @abstractmethod
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, survey):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
@@ -370,7 +367,7 @@ class DrawBlendsGenerator(ABC):
 class CatsimGenerator(DrawBlendsGenerator):
     compatible_catalogs = ("CatsimCatalog",)
 
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, survey):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
@@ -388,7 +385,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
-            gal_conv = galsim.Convolve(gal, psf)
+            gal_conv = galsim.Convolve(gal, filt.psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
                 nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale
@@ -403,7 +400,7 @@ class CatsimGenerator(DrawBlendsGenerator):
 class CosmosGenerator(DrawBlendsGenerator):
     compatible_catalogs = ("CosmosCatalog",)
 
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, survey):
         """Draws a single random galaxy profile in a random location of the image
         Args:
             shift (np.array): pixel center of the single galaxy in the postage stamp
@@ -424,7 +421,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # Randomly shifts the galaxy in the patch
         galaxy = (
-            galsim.Convolve(gal, psf)
+            galsim.Convolve(gal, filt.psf)
             .drawImage(
                 nx=pix_stamp_size,
                 ny=pix_stamp_size,

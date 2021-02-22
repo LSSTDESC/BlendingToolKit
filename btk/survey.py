@@ -20,7 +20,7 @@ Filter = namedtuple(
     "Filter",
     [
         "name",
-        "atmospheric_psf_fwhm",  # in arcseconds.
+        "psf",  # galsim psf model
         "sky_brightness",  # mags/sq.arcsec
         "exp_time",  # in seconds [s]
         "zeropoint",  # in electrons per second at 24th magnitude.
@@ -43,6 +43,54 @@ _central_wavelength = {
 }
 
 
+def define_psf(mirror_diameter, effective_area, filt_wavelength, fwhm, atmospheric_model="Kolmogorov"):
+    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
+    Defines a PSF model for a given filter of a given survey.
+    Args:
+        mirror_diameter (float): in meters [m]
+        effective_area (float): effective total light collecting area in square meters [m2]
+        filt_wavelength (string): filter wavelength
+        fwhm (float): fwhm of the atmospheric component
+        atmospheric_model (string): type of atmospheric model
+    Returns:
+        psf_model: galsim psf model
+    """
+
+    # define atmospheric psf
+    if atmospheric_model == "Kolmogorov":
+        atmospheric_psf_model = galsim.Kolmogorov(fwhm=fwhm)
+    elif atmospheric_model == "Moffat":
+        atmospheric_psf_model = galsim.Moffat(2, fwhm=fwhm)
+    else:
+        raise NotImplementedError(
+            f"The atmospheric model request '{atmospheric_model}' is incorrect or not implemented."
+        )
+
+    # define optical psf if available
+    if mirror_diameter > 0:
+        mirror_area = np.pi * (0.5 * mirror_diameter) ** 2
+        area_ratio = effective_area / mirror_area
+        if area_ratio <= 0 or area_ratio > 1:
+            raise RuntimeError(
+                "Incompatible effective-area and mirror-diameter values."
+            )
+        obscuration_fraction = np.sqrt(1 - area_ratio)
+        lambda_over_diameter = 3600 * np.degrees(
+            1e-10 * _central_wavelength[filt_wavelength] / mirror_diameter
+        )
+        optical_psf_model = galsim.Airy(
+            lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
+        )
+        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model).withFlux(
+            1.0
+        )
+
+    else:
+        psf_model = atmospheric_model.withFlux(1.0)
+
+    return psf_model
+
+
 # https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
 # http://www.mssl.ucl.ac.uk/~smn2/instrument.html
 # area in square meters after 13% obscuration as in: https://arxiv.org/pdf/1608.08603.pdf
@@ -59,7 +107,7 @@ Euclid = Survey(
     filters=[
         Filter(
             name="VIS",
-            atmospheric_psf_fwhm=0.17,
+            psf=define_psf(1.3, 1.15, "VIS", 0.17),
             sky_brightness=22.9207,
             exp_time=2260,
             zeropoint=6.85,
@@ -74,13 +122,13 @@ HST = Survey(
     name="HST",
     pixel_scale=0.06,
     effective_area=1.0,  # TODO: placeholder
-    mirror_diameter=1.0,  # TODO: placeholder
+    mirror_diameter=2.4,  # TODO: placeholder
     airmass=1.0,  # TODO: double-check
     zeropoint_airmass=1.0,  # TODO: double-check
     filters=[
         Filter(
             name="f814w",
-            atmospheric_psf_fwhm=0.074,
+            psf=define_psf(2.4, 1.0, "f814w", 0.074),
             sky_brightness=22,
             exp_time=3000,
             zeropoint=20,
@@ -101,7 +149,7 @@ HSC = Survey(
     filters=[
         Filter(
             name="g",
-            atmospheric_psf_fwhm=0.72,
+            psf=define_psf(8.2, 52.81, "g", 0.72),
             sky_brightness=21.4,
             exp_time=600,
             zeropoint=91.11,
@@ -109,7 +157,7 @@ HSC = Survey(
         ),
         Filter(
             name="r",
-            atmospheric_psf_fwhm=0.67,
+            psf=define_psf(8.2, 52.81, "r", 0.67),
             sky_brightness=20.6,
             exp_time=600,
             zeropoint=87.74,
@@ -117,7 +165,7 @@ HSC = Survey(
         ),
         Filter(
             name="i",
-            atmospheric_psf_fwhm=0.56,
+            psf=define_psf(8.2, 52.81, "i", 0.56),
             sky_brightness=19.7,
             exp_time=1200,
             zeropoint=69.80,
@@ -125,7 +173,7 @@ HSC = Survey(
         ),
         Filter(
             name="y",
-            atmospheric_psf_fwhm=0.64,
+            psf=define_psf(8.2, 52.81, "y", 0.64),
             sky_brightness=18.3,
             exp_time=1200,
             zeropoint=29.56,
@@ -133,7 +181,7 @@ HSC = Survey(
         ),
         Filter(
             name="z",
-            atmospheric_psf_fwhm=0.64,
+            psf=define_psf(8.2, 52.81, "z", 0.64),
             sky_brightness=17.9,
             exp_time=1200,
             zeropoint=21.53,
@@ -154,7 +202,7 @@ Rubin = Survey(
     filters=[
         Filter(
             name="y",
-            atmospheric_psf_fwhm=0.703,
+            psf=define_psf(8.36, 32.4, "y", 0.703),
             sky_brightness=18.6,
             exp_time=4800,
             zeropoint=10.58,
@@ -162,7 +210,7 @@ Rubin = Survey(
         ),
         Filter(
             name="z",
-            atmospheric_psf_fwhm=0.725,
+            psf=define_psf(8.36, 32.4, "z", 0.725),
             sky_brightness=19.6,
             exp_time=4800,
             zeropoint=22.68,
@@ -170,7 +218,7 @@ Rubin = Survey(
         ),
         Filter(
             name="i",
-            atmospheric_psf_fwhm=0.748,
+            psf=define_psf(8.36, 32.4, "i", 0.748),
             sky_brightness=20.5,
             exp_time=5520,
             zeropoint=32.36,
@@ -178,7 +226,7 @@ Rubin = Survey(
         ),
         Filter(
             name="r",
-            atmospheric_psf_fwhm=0.781,
+            psf=define_psf(8.36, 32.4, "r", 0.781),
             sky_brightness=21.2,
             exp_time=5520,
             zeropoint=43.70,
@@ -186,7 +234,7 @@ Rubin = Survey(
         ),
         Filter(
             name="g",
-            atmospheric_psf_fwhm=0.814,
+            psf=define_psf(8.36, 32.4, "g", 0.814),
             sky_brightness=22.3,
             exp_time=2400,
             zeropoint=50.70,
@@ -194,7 +242,7 @@ Rubin = Survey(
         ),
         Filter(
             name="u",
-            atmospheric_psf_fwhm=0.859,
+            psf=define_psf(8.36, 32.4, "u", 0.859),
             sky_brightness=22.9,
             exp_time=1680,
             zeropoint=9.16,
@@ -212,14 +260,14 @@ Rubin = Survey(
 DES = Survey(
     name="DES",
     pixel_scale=0.263,
-    mirror_diameter=3.934,
     effective_area=10.014,
+    mirror_diameter=3.934,
     airmass=1.0,
     zeropoint_airmass=1.3,
     filters=[
         Filter(
             name="i",
-            atmospheric_psf_fwhm=0.96,
+            psf=define_psf(3.934, 10.014, "i", 0.96),
             sky_brightness=20.5,
             exp_time=1000,
             zeropoint=13.94,
@@ -227,7 +275,7 @@ DES = Survey(
         ),
         Filter(
             name="r",
-            atmospheric_psf_fwhm=1.03,
+            psf=define_psf(3.934, 10.014, "r", 1.03),
             sky_brightness=21.4,
             exp_time=800,
             zeropoint=15.65,
@@ -235,7 +283,7 @@ DES = Survey(
         ),
         Filter(
             name="g",
-            atmospheric_psf_fwhm=1.24,
+            psf=define_psf(3.934, 10.014, "g", 1.24),
             sky_brightness=22.3,
             exp_time=800,
             zeropoint=12.29,
@@ -243,7 +291,7 @@ DES = Survey(
         ),
         Filter(
             name="z",
-            atmospheric_psf_fwhm=1.12,
+            psf=define_psf(3.934, 10.014, "z", 1.12),
             sky_brightness=18.7,
             exp_time=800,
             zeropoint=10.81,
@@ -259,14 +307,14 @@ DES = Survey(
 CFHT = Survey(
     name="CFHT",
     pixel_scale=0.185,
-    mirror_diameter=3.592,
     effective_area=8.022,
+    mirror_diameter=3.592,
     airmass=1.0,  # TODO: double-check
     zeropoint_airmass=1.0,  # TODO: double-check
     filters=[
         Filter(
             name="i",
-            atmospheric_psf_fwhm=0.64,
+            psf=define_psf(3.592, 8.022, "i", 0.64),
             sky_brightness=20.3,
             exp_time=4300,
             zeropoint=8.46,
@@ -274,7 +322,7 @@ CFHT = Survey(
         ),
         Filter(
             name="r",
-            atmospheric_psf_fwhm=0.71,
+            psf=define_psf(3.592, 8.022, "r", 0.71),
             sky_brightness=20.8,
             exp_time=2000,
             zeropoint=10.72,
@@ -326,41 +374,3 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
     w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
-
-
-def get_psf(survey, filt, atmospheric_model="Kolmogorov"):
-    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)"""
-
-    # get atmospheric psf
-    if atmospheric_model == "Kolmogorov":
-        atmospheric_psf_model = galsim.Kolmogorov(fwhm=filt.atmospheric_psf_fwhm)
-    elif atmospheric_model == "Moffat":
-        atmospheric_psf_model = galsim.Moffat(2, fwhm=filt.atmospheric_psf_fwhm)
-    else:
-        raise NotImplementedError(
-            f"The atmospheric model request '{atmospheric_model}' is incorrect or not implemented."
-        )
-
-    # get optical psf if available
-    if survey.mirror_diameter > 0:
-        mirror_area = np.pi * (0.5 * survey.mirror_diameter) ** 2
-        area_ratio = survey.effective_area / mirror_area
-        if area_ratio <= 0 or area_ratio > 1:
-            raise RuntimeError(
-                "Incompatible effective-area and mirror-diameter values."
-            )
-        obscuration_fraction = np.sqrt(1 - area_ratio)
-        lambda_over_diameter = 3600 * np.degrees(
-            1e-10 * _central_wavelength[filt.name] / survey.mirror_diameter
-        )
-        optical_psf_model = galsim.Airy(
-            lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
-        )
-        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model).withFlux(
-            1.0
-        )
-
-    else:
-        psf_model = atmospheric_model.withFlux(1.0)
-
-    return psf_model
