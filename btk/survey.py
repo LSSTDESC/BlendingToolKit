@@ -1,7 +1,8 @@
-import astropy.wcs as WCS
-import numpy as np
-import galsim
 from collections import namedtuple
+
+import astropy.wcs as WCS
+import galsim
+import numpy as np
 
 Survey = namedtuple(
     "Survey",

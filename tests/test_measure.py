@@ -1,8 +1,8 @@
 import numpy as np
 
+import btk.catalog
 import btk.sampling_functions
 import btk.survey
-import btk.catalog
 
 
 def get_meas_generator(meas_params, multiprocessing=False, cpus=1):

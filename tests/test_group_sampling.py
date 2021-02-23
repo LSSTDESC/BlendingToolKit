@@ -1,9 +1,9 @@
 import numpy as np
 
 import btk.catalog
+import btk.draw_blends
 import btk.sampling_functions
 import btk.survey
-import btk.draw_blends
 
 
 def get_group_sampling_draw_generator(batch_size=3):

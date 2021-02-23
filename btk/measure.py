@@ -1,6 +1,6 @@
 from abc import ABC
-import numpy as np
 
+import numpy as np
 import sep
 from skimage.feature import peak_local_max
 

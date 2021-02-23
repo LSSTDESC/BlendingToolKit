@@ -1,7 +1,8 @@
 import numpy as np
 
 import btk
-from btk.survey import Rubin, HSC
+from btk.survey import HSC
+from btk.survey import Rubin
 
 
 def test_multiresolution():

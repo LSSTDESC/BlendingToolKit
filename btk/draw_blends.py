@@ -1,15 +1,18 @@
 import copy
+from abc import ABC
+from abc import abstractmethod
 from itertools import chain
-from abc import ABC, abstractmethod
 
 import galsim
 import numpy as np
 from astropy.table import Column
 
-
-from btk.multiprocess import multiprocess
 from btk.create_blend_generator import BlendGenerator
-from btk.survey import get_mean_sky_level, get_psf, make_wcs, get_flux
+from btk.multiprocess import multiprocess
+from btk.survey import get_flux
+from btk.survey import get_mean_sky_level
+from btk.survey import get_psf
+from btk.survey import make_wcs
 
 
 class SourceNotVisible(Exception):

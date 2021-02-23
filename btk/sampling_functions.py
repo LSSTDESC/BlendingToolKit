@@ -1,7 +1,9 @@
 import warnings
-from abc import ABC, abstractmethod
-import numpy as np
+from abc import ABC
+from abc import abstractmethod
+
 import astropy.table
+import numpy as np
 
 from btk.catalog import CatsimCatalog
 
