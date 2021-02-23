@@ -6,3 +6,4 @@ pytest>=6.2.1
 pytest-cov>=2.10.1
 numpy>=1.12
 wheel>=0.36.2
+reorder-python-imports>=2.4.0
