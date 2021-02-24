@@ -21,7 +21,11 @@ def get_rgb(image, min_val=None, max_val=None):
         uint8 array [height, width, bands] of the input image.
     """
     if image.shape[0] != 3:
+<<<<<<< HEAD
         raise ValueError("Must be 3 channel in dimension 1 of image. Found {image.shape[0]}")
+=======
+        raise ValueError("Must be 3 channel in dimension 1 of image" f"Found {image.shape[0]}")
+>>>>>>> added flake8 as a pre-commit hook with custom arguments
     if min_val is None:
         min_val = image.min(axis=-1).min(axis=-1)
     if max_val is None:
