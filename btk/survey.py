@@ -139,7 +139,10 @@ Euclid = Survey(
     filters=[
         Filter(
             name="VIS",
-            psf=define_synthetic_psf(1.3, 1.15, _central_wavelength["VIS"], 0.17),
+            psf=define_synthetic_psf(mirror_diameter=1.3,
+                                     effective_area=1.15,
+                                     filt_wavelength=_central_wavelength["VIS"],
+                                     fwhm=0.17),
             fwhm=0.17,
             psf_path=None,
             sky_brightness=22.9207,
@@ -162,7 +165,10 @@ HST = Survey(
     filters=[
         Filter(
             name="f814w",
-            psf=define_synthetic_psf(2.4, 1.0, _central_wavelength["f814w"], 0.074),
+            psf=define_synthetic_psf(mirror_diameter=2.4,
+                                     effective_area=1.0,
+                                     filt_wavelength=_central_wavelength["f814w"],
+                                     fwhm=0.074),
             fwhm=0.074,
             psf_path=None,
             sky_brightness=22,
@@ -185,7 +191,10 @@ HSC = Survey(
     filters=[
         Filter(
             name="g",
-            psf=define_synthetic_psf(8.2, 52.81, _central_wavelength["g"], 0.72),
+            psf=define_synthetic_psf(mirror_diameter=8.2,
+                                     effective_area=52.81,
+                                     filt_wavelength=_central_wavelength["g"],
+                                     fwhm=0.72),
             fwhm=0.72,
             psf_path=None,
             sky_brightness=21.4,
@@ -195,7 +204,10 @@ HSC = Survey(
         ),
         Filter(
             name="r",
-            psf=define_synthetic_psf(8.2, 52.81, _central_wavelength["r"], 0.67),
+            psf=define_synthetic_psf(mirror_diameter=8.2,
+                                     effective_area=52.81,
+                                     filt_wavelength=_central_wavelength["r"],
+                                     fwhm=0.67),
             fwhm=0.67,
             psf_path=None,
             sky_brightness=20.6,
@@ -205,7 +217,10 @@ HSC = Survey(
         ),
         Filter(
             name="i",
-            psf=define_synthetic_psf(8.2, 52.81, _central_wavelength["i"], 0.56),
+            psf=define_synthetic_psf(mirror_diameter=8.2,
+                                     effective_area=52.81,
+                                     filt_wavelength=_central_wavelength["i"],
+                                     fwhm=0.56),
             fwhm=0.56,
             psf_path=None,
             sky_brightness=19.7,
@@ -215,7 +230,10 @@ HSC = Survey(
         ),
         Filter(
             name="y",
-            psf=define_synthetic_psf(8.2, 52.81, _central_wavelength["y"], 0.64),
+            psf=define_synthetic_psf(mirror_diameter=8.2,
+                                     effective_area=52.81,
+                                     filt_wavelength=_central_wavelength["y"],
+                                     fwhm=0.64),
             fwhm=0.64,
             psf_path=None,
             sky_brightness=18.3,
@@ -225,7 +243,10 @@ HSC = Survey(
         ),
         Filter(
             name="z",
-            psf=define_synthetic_psf(8.2, 52.81, _central_wavelength["z"], 0.64),
+            psf=define_synthetic_psf(mirror_diameter=8.2,
+                                     effective_area=52.81,
+                                     filt_wavelength=_central_wavelength["z"],
+                                     fwhm=0.64),
             fwhm=0.64,
             psf_path=None,
             sky_brightness=17.9,
@@ -325,7 +346,10 @@ DES = Survey(
     filters=[
         Filter(
             name="i",
-            psf=define_synthetic_psf(3.934, 10.014, _central_wavelength["i"], 0.96),
+            psf=define_synthetic_psf(mirror_diameter=3.934,
+                                     effective_area=10.014,
+                                     filt_wavelength=_central_wavelength["i"],
+                                     fwhm=0.96),
             fwhm=0.96,
             psf_path=None,
             sky_brightness=20.5,
@@ -335,7 +359,10 @@ DES = Survey(
         ),
         Filter(
             name="r",
-            psf=define_synthetic_psf(3.934, 10.014, _central_wavelength["r"], 1.03),
+            psf=define_synthetic_psf(mirror_diameter=3.934,
+                                     effective_area=10.014,
+                                     filt_wavelength=_central_wavelength["r"],
+                                     fwhm=1.03),
             fwhm=1.03,
             psf_path=None,
             sky_brightness=21.4,
@@ -345,7 +372,10 @@ DES = Survey(
         ),
         Filter(
             name="g",
-            psf=define_synthetic_psf(3.934, 10.014, _central_wavelength["g"], 1.24),
+            psf=define_synthetic_psf(mirror_diameter=3.934,
+                                     effective_area=10.014,
+                                     filt_wavelength=_central_wavelength["g"],
+                                     fwhm=1.24),
             fwhm=1.24,
             psf_path=None,
             sky_brightness=22.3,
@@ -355,7 +385,10 @@ DES = Survey(
         ),
         Filter(
             name="z",
-            psf=define_synthetic_psf(3.934, 10.014, _central_wavelength["z"], 1.12),
+            psf=define_synthetic_psf(mirror_diameter=3.934,
+                                     effective_area=10.014,
+                                     filt_wavelength=_central_wavelength["z"],
+                                     fwhm=1.12),
             fwhm=1.12,
             psf_path=None,
             sky_brightness=18.7,
@@ -380,7 +413,10 @@ CFHT = Survey(
     filters=[
         Filter(
             name="i",
-            psf=define_synthetic_psf(3.592, 8.022, _central_wavelength["i"], 0.64),
+            psf=define_synthetic_psf(mirror_diameter=3.592,
+                                     effective_area=8.022,
+                                     filt_wavelength=_central_wavelength["i"],
+                                     fwhm=0.64),
             fwhm=0.64,
             psf_path=None,
             sky_brightness=20.3,
@@ -390,7 +426,10 @@ CFHT = Survey(
         ),
         Filter(
             name="r",
-            psf=define_synthetic_psf(3.592, 8.022, _central_wavelength["r"], 0.71),
+            psf=define_synthetic_psf(mirror_diameter=3.592,
+                                     effective_area=8.022,
+                                     filt_wavelength=_central_wavelength["r"],
+                                     fwhm=0.71),
             fwhm=0.71,
             psf_path=None,
             sky_brightness=20.8,
