@@ -23,7 +23,7 @@ Filter = namedtuple(
     [
         "name",
         "psf",  # galsim psf model or function to generate it
-        "fwhm", # in arcsec: must be None is psf_path is used
+        "fwhm", # in arcsec: must be None if psf_path is used
         "psf_path", # path to retrieve the PSF from a FITS image: must be None if fwhm is used
         "sky_brightness",  # mags/sq.arcsec
         "exp_time",  # in seconds [s]
@@ -85,14 +85,11 @@ def define_synthetic_psf(mirror_diameter, effective_area, filt_wavelength, fwhm,
         optical_psf_model = galsim.Airy(
             lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
         )
-        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model).withFlux(
-            1.0
-        )
-
+        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model)
     else:
-        psf_model = atmospheric_model.withFlux(1.0)
+        psf_model = atmospheric_psf_model
         
-    return psf_model
+    return psf_model.withFlux(1.0)
 
 
 def make_psf(survey, filt):
@@ -104,18 +101,19 @@ def make_psf(survey, filt):
         psf_model: galsim PSF model
     """
 
-    assert((filt.fwhm==None) ^ (filt.psf_path==None))
+    # xor operation: if one of fwhm or psf_path is set the other must be None
+    assert((filt.fwhm is None) ^ (filt.psf_path is None))
 
     # synthetic PSF model
-    if filt.psf_path==None:
-        if type(filt.fwhm)==list:
+    if filt.psf_path is None:
+        if isinstance(filt.fwhm, list):
             fwhm = rd.choice(filt.fwhm)
         else:
             fwhm = filt.fwhm
         psf_model = define_synthetic_psf(survey.mirror_diameter, survey.effective_area, _central_wavelength[filt.name], fwhm)
     # FITS image PSF model
     else:
-        if type(filt.psf_path)==list:
+        if isinstance(filt.psf_path, list):
             psf_file = rd.choice(filt.psf_path)
         else:
             psf_file = filt.psf_path
