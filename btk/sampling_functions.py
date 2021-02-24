@@ -210,9 +210,7 @@ class GroupSamplingFunction(SamplingFunction):
 
         # get all galaxies belonging to the group.
         ids = self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id]
-        blend_table = astropy.table.vstack(
-            [table[table["galtileid"] == i] for i in ids]
-        )
+        blend_table = astropy.table.vstack([table[table["galtileid"] == i] for i in ids])
 
         # Set mean x and y coordinates of the group galaxies to the center of the
         # postage stamp.
@@ -298,12 +296,8 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         self.group_id_count += 1
         # get all galaxies belonging to the group.
         # make sure some group or galaxy was not repeated in wld_catalog
-        ids = np.unique(
-            self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id]
-        )
-        blend_table = astropy.table.vstack(
-            [table[table["galtileid"] == i] for i in ids]
-        )
+        ids = np.unique(self.wld_catalog["db_id"][self.wld_catalog["grp_id"] == group_id])
+        blend_table = astropy.table.vstack([table[table["galtileid"] == i] for i in ids])
         # Set mean x and y coordinates of the group galaxies to the center of the
         # postage stamp.
         blend_table["ra"] -= np.mean(blend_table["ra"])

@@ -147,9 +147,7 @@ class MeasureGenerator:
         deblend_results = self.measurement_params.get_deblended_images(
             data=blend_output, index=index
         )
-        measured_results = self.measurement_params.make_measurement(
-            data=blend_output, index=index
-        )
+        measured_results = self.measurement_params.make_measurement(data=blend_output, index=index)
         return [deblend_results, measured_results]
 
     def __next__(self):
