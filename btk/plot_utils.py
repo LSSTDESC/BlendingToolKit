@@ -22,10 +22,14 @@ def get_rgb(image, min_val=None, max_val=None):
     """
     if image.shape[0] != 3:
 <<<<<<< HEAD
+<<<<<<< HEAD
         raise ValueError("Must be 3 channel in dimension 1 of image. Found {image.shape[0]}")
 =======
         raise ValueError("Must be 3 channel in dimension 1 of image" f"Found {image.shape[0]}")
 >>>>>>> added flake8 as a pre-commit hook with custom arguments
+=======
+        raise ValueError("Must be 3 channel in dimension 1 of image. Found {image.shape[0]}")
+>>>>>>> cleaning up some newly merged lines of text
     if min_val is None:
         min_val = image.min(axis=-1).min(axis=-1)
     if max_val is None:

@@ -35,19 +35,27 @@ class BlendGenerator:
         if not hasattr(sampling_function, "max_number"):
             raise AttributeError(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "Please change your custom sampling function to have an attribute 'max_number'."
 =======
                 "Please change your custom sampling function to have " "an attribute 'max_number'."
 >>>>>>> added flake8 as a pre-commit hook with custom arguments
+=======
+                "Please change your custom sampling function to have an attribute 'max_number'."
+>>>>>>> cleaning up some newly merged lines of text
             )
 
         if self.catalog.name not in self.sampling_function.compatible_catalogs:
             raise AttributeError(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "Your catalog and sampling functions are not compatible with each other."
 =======
                 "Your catalog and sampling functions are not " "compatible with each other."
 >>>>>>> added flake8 as a pre-commit hook with custom arguments
+=======
+                "Your catalog and sampling functions are not compatible with each other."
+>>>>>>> cleaning up some newly merged lines of text
             )
 
         self.max_number = self.sampling_function.max_number
