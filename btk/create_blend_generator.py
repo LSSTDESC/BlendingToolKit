@@ -1,3 +1,6 @@
+"""Contains class `BlendGenerator` to combine entries from a given catalog into blends."""
+
+
 class BlendGenerator:
     def __init__(
         self,
