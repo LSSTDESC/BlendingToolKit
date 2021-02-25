@@ -38,13 +38,3 @@ jobs:
 
       - name: Run pre-commit checks
         uses: pre-commit/action@v2.0.0
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-      - name: Run flake8
-        run: |
-          flake8 btk/*.py tests/*.py
->>>>>>> update workflow to include linting
-=======
->>>>>>> added flake8 as a pre-commit hook with custom arguments
