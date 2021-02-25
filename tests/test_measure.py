@@ -1,6 +1,7 @@
 import numpy as np
 
 import btk.catalog
+import btk.measure
 import btk.sampling_functions
 import btk.survey
 
