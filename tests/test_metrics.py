@@ -8,9 +8,7 @@ def test_detection_eff_matrix():
     summary table with 4 entries, with number of true sources between 1-4 and
     all detected and expecting matrix with
     secondary diagonal being one"""
-    summary = np.array(
-        [[1, 1, 0, 0, 0], [2, 2, 0, 0, 0], [3, 3, 0, 0, 0], [4, 4, 0, 0, 0]]
-    )
+    summary = np.array([[1, 1, 0, 0, 0], [2, 2, 0, 0, 0], [3, 3, 0, 0, 0], [4, 4, 0, 0, 0]])
     num = 4
     eff_matrix = btk.metrics.get_detection_eff_matrix(summary, num)
     test_eff_matrix = np.eye(num + 2)[:, : num + 1] * 100

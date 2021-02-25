@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: tests
+name: lint
 
 on:
   push:
@@ -17,14 +17,11 @@ jobs:
         python-version: [3.8]
 
     steps:
-      - name: Checkout github repo (+ download lfs dependencies)
+      - name: Checkout github repo
         uses: actions/checkout@v2
         with:
           lfs: true
           fetch-depth: 0
-
-      - name: Checkout LFS objects
-        run: git lfs checkout
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -35,33 +32,9 @@ jobs:
         run: |
           pip install --upgrade pip
 
-      # galsim needs this.
-      - name: Instal FFTW + Eigen
-        run: |
-          sudo apt-get install libfftw3-dev libeigen3-dev
-
-      - name: Install dev dependencies
+      - name: Install lint dependencies
         run: |
           pip install -r dev-requirements.txt
-          pip install eigency>=1.77
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
 
       - name: Run pre-commit checks
         uses: pre-commit/action@v2.0.0
-
-      - name: Run Tests
-        run: |
-          pytest --cov=./btk --cov-report=xml --durations=0
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
-          env_vars: OS,PYTHON
-          name: codecov-umbrella
-          fail_ci_if_error: true

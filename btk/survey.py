@@ -347,9 +347,7 @@ def get_psf(survey, filt, atmospheric_model="Kolmogorov"):
         mirror_area = np.pi * (0.5 * survey.mirror_diameter) ** 2
         area_ratio = survey.effective_area / mirror_area
         if area_ratio <= 0 or area_ratio > 1:
-            raise RuntimeError(
-                "Incompatible effective-area and mirror-diameter values."
-            )
+            raise RuntimeError("Incompatible effective-area and mirror-diameter values.")
         obscuration_fraction = np.sqrt(1 - area_ratio)
         lambda_over_diameter = 3600 * np.degrees(
             1e-10 * _central_wavelength[filt.name] / survey.mirror_diameter
@@ -357,9 +355,7 @@ def get_psf(survey, filt, atmospheric_model="Kolmogorov"):
         optical_psf_model = galsim.Airy(
             lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
         )
-        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model).withFlux(
-            1.0
-        )
+        psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model).withFlux(1.0)
 
     else:
         psf_model = atmospheric_model.withFlux(1.0)

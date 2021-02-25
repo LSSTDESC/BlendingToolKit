@@ -7,3 +7,4 @@ pytest>=6.2.1
 pytest-cov>=2.10.1
 numpy>=1.12
 wheel>=0.36.2
+flake8-absolute-import>=1.0

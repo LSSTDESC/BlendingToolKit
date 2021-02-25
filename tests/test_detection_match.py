@@ -56,12 +56,8 @@ def test_true_detected_catalog():
         [1.0, 1.0],
         err_msg="Incorrect distance between true centers",
     )
-    np.testing.assert_array_equal(
-        det[0]["dm_match"], [0, 1], err_msg="Incorrect dm_match"
-    )
-    np.testing.assert_array_equal(
-        det[0]["dz_match"], [0, 0.1], err_msg="Incorrect dz_match"
-    )
+    np.testing.assert_array_equal(det[0]["dm_match"], [0, 1], err_msg="Incorrect dm_match")
+    np.testing.assert_array_equal(det[0]["dz_match"], [0, 0.1], err_msg="Incorrect dz_match")
     # Test detection catalog
     np.testing.assert_array_equal(
         det[1]["match_true_id1"], [0], err_msg="Incorrect match algorithm 1"
@@ -93,15 +89,9 @@ def no_detection():
     detected_tables = [Table([[], []], names=["dx", "dy"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 0, 1, 0, 0, 0, 1, 0, 0]])
-    np.testing.assert_array_equal(
-        det[2], target_summary, err_msg="Incorrect detection summary"
-    )
-    np.testing.assert_array_almost_equal(
-        det[0]["dm_match"], [0], err_msg="Incorrect dm_match"
-    )
-    np.testing.assert_array_almost_equal(
-        det[0]["dz_match"], [0], err_msg="Incorrect dz_match"
-    )
+    np.testing.assert_array_equal(det[2], target_summary, err_msg="Incorrect detection summary")
+    np.testing.assert_array_almost_equal(det[0]["dm_match"], [0], err_msg="Incorrect dm_match")
+    np.testing.assert_array_almost_equal(det[0]["dz_match"], [0], err_msg="Incorrect dz_match")
 
 
 def one_detection():
@@ -112,15 +102,9 @@ def one_detection():
     detected_tables = [Table([[0.1], [0.1]], names=["dx", "dy"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 1, 0, 0, 0, 1, 0, 0, 0]])
-    np.testing.assert_array_equal(
-        det[2], target_summary, err_msg="Incorrect detection summary"
-    )
-    np.testing.assert_array_almost_equal(
-        det[0]["dm_match"], [0], err_msg="Incorrect dm_match"
-    )
-    np.testing.assert_array_almost_equal(
-        det[0]["dz_match"], [0], err_msg="Incorrect dz_match"
-    )
+    np.testing.assert_array_equal(det[2], target_summary, err_msg="Incorrect detection summary")
+    np.testing.assert_array_almost_equal(det[0]["dm_match"], [0], err_msg="Incorrect dm_match")
+    np.testing.assert_array_almost_equal(det[0]["dz_match"], [0], err_msg="Incorrect dz_match")
 
 
 def one_undetected():
@@ -154,12 +138,8 @@ def one_undetected():
         [2.0, 2.0],
         err_msg="Incorrect distance between true centers",
     )
-    np.testing.assert_array_almost_equal(
-        det[0]["dm_match"], [0, 0.5], err_msg="Incorrect dm_match"
-    )
-    np.testing.assert_array_almost_equal(
-        det[0]["dz_match"], [0, 0.2], err_msg="Incorrect dm_match"
-    )
+    np.testing.assert_array_almost_equal(det[0]["dm_match"], [0, 0.5], err_msg="Incorrect dm_match")
+    np.testing.assert_array_almost_equal(det[0]["dz_match"], [0, 0.2], err_msg="Incorrect dm_match")
     # Test detection catalog
     np.testing.assert_array_equal(
         det[1]["match_true_id1"], [0], err_msg="Incorrect match algorithm in 1"
@@ -180,9 +160,7 @@ def one_undetected():
         det[1]["d_min"], [1.0], err_msg="Incorrect minimum match distance"
     )
     target_summary = np.array([[2, 1, 1, 0, 0, 1, 1, 0, 0]])
-    np.testing.assert_array_equal(
-        det[2], target_summary, err_msg="Incorrect detection summary"
-    )
+    np.testing.assert_array_equal(det[2], target_summary, err_msg="Incorrect detection summary")
 
 
 def test_m_z_diff():
