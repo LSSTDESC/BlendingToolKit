@@ -89,7 +89,7 @@ def get_psf(mirror_diameter, effective_area, filt_wavelength, fwhm, atmospheric_
     return psf_model.withFlux(1.0)
 
 
-def get_custom_psf(psf_dir):
+def get_psf_from_file(psf_dir):
     """Generates a custom PSF galsim model from FITS file(s)
     Args:
         psf_dir (string): directory where the PSF FITS files are
@@ -256,11 +256,10 @@ Rubin = Survey(
     filters=[
         Filter(
             name="y",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["y"],
-                                 fwhm=0.703,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["y"],
+                        fwhm=0.703),
             sky_brightness=18.6,
             exp_time=4800,
             zeropoint=10.58,
@@ -268,11 +267,10 @@ Rubin = Survey(
         ),
         Filter(
             name="z",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["z"],
-                                 fwhm=0.725,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["z"],
+                        fwhm=0.725),
             sky_brightness=19.6,
             exp_time=4800,
             zeropoint=22.68,
@@ -280,11 +278,10 @@ Rubin = Survey(
         ),
         Filter(
             name="i",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["i"],
-                                 fwhm=0.748,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["i"],
+                        fwhm=0.748),
             sky_brightness=20.5,
             exp_time=5520,
             zeropoint=32.36,
@@ -292,11 +289,10 @@ Rubin = Survey(
         ),
         Filter(
             name="r",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["r"],
-                                 fwhm=0.781,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["r"],
+                        fwhm=0.781),
             sky_brightness=21.2,
             exp_time=5520,
             zeropoint=43.70,
@@ -304,11 +300,10 @@ Rubin = Survey(
         ),
         Filter(
             name="g",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["g"],
-                                 fwhm=0.814,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["g"],
+                        fwhm=0.814),
             sky_brightness=22.3,
             exp_time=2400,
             zeropoint=50.70,
@@ -316,11 +311,10 @@ Rubin = Survey(
         ),
         Filter(
             name="u",
-            psf=lambda : get_psf(mirror_diameter=8.36,
-                                 effective_area=32.4,
-                                 filt_wavelength=_central_wavelength["u"],
-                                 fwhm=0.859,
-                                 atmospheric_model="Kolmogorov"),
+            psf=get_psf(mirror_diameter=8.36,
+                        effective_area=32.4,
+                        filt_wavelength=_central_wavelength["u"],
+                        fwhm=0.859),
             sky_brightness=22.9,
             exp_time=1680,
             zeropoint=9.16,

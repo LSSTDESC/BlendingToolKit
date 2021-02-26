@@ -188,11 +188,17 @@ class DrawBlendsGenerator(ABC):
             psf = []
             for filt in s.filters:
                 if callable(filt.psf):
-                    psf.append(filt.psf()) # generate the PSF with the provided function
+                    generated_psf = filt.psf() # generate the PSF with the provided function
+                    if isinstance(generated_psf, galsim.GSObject):
+                        psf.append(generated_psf)
+                    else:
+                        raise TypeError(
+                            f"The generated PSF with the provided function for filter '{filt.name}' is not a galsim object"
+                        )
                 elif isinstance(filt.psf, galsim.GSObject):
                     psf.append(filt.psf) # or directly retrieve the PSF
                 else:
-                    raise RuntimeError(
+                    raise TypeError(
                         f"The PSF within filter '{filt.name}' is neither a function nor a galsim object"
                     )
             wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
