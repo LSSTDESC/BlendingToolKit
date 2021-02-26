@@ -1,3 +1,4 @@
+"""Contains information for surveys available in BTK."""
 from collections import namedtuple
 
 import astropy.wcs as WCS
