@@ -3,8 +3,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/master/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
 
-**NOTE:** BTK is currently in development and rapidly changing, as such the documentation and most jupyter notebooks are deprecated. We will release a new stable version of BTK in the near future and fix these issues. 
-
+**NOTE:** BTK is currently undergoing heavy development and rapidly changing, as such the documentation and most jupyter could be deprecated. Please feel free to contact @ismael-mendoza if you would like to use `BTK` for a current project or contribute.
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
 producing multi-band postage stamp images of blend scenes.
@@ -21,21 +20,11 @@ This repository includes sample input catalogs with a small number of galaxies t
 - CatSim Catalog corresponding to one square degree of sky and processed WeakLensingDeblending catalogs can be downloaded from [here](https://stanford.app.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk).
 - [Cosmo DC2](https://arxiv.org/abs/1907.06530) catalog requires pre-processing in order to be used as input catalog to btk. Refer to this [notebook](https://github.com/LSSTDESC/WeakLensingDeblending/blob/cosmoDC2_ingestion/notebooks/wld_ingestion_cosmoDC2.ipynb) on how to convert the DC2 catalog into a CatSim-like catalog that can be analyzed with btk.
 
-## Requirements
-The code is intended to run in python >=3.7.
-To run btk you need to install
-- [WeakLensingDeblending](https://github.com/LSSTDESC/WeakLensingDeblending)
-- [GalSim](https://github.com/GalSim-developers/GalSim/)
-- numpy
-- astropy
-- fitsio
-- scipy
-- lmfit
+## Installation
+For required packages, see [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/master/requirements.txt)
 
 More detailed installation instructions can be found [here](https://blendingtoolkit.readthedocs.io/en/latest/install.html).
 
-### Optional
-The tutorials include examples of using btk with some detection, deblending or measurement packages including
-- [scarlet](https://github.com/fred3m/scarlet/) (multi-band deblender)
-- [sep](https://sep.readthedocs.io/en/v1.0.x/index.html) (Source Extraction and Photometry)
-- [lsst](https://pipelines.lsst.io) (LSST science pipeline)
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/LSSTDESC/BlendingToolKit/blob/master/CONTRIBUTING.md)
