@@ -36,4 +36,4 @@ git rebase origin/master
 git push --force
 ```
 
-7. Finally ask for at least one approving review from @ismael-mendoza or other collaborators.
+7. Finally ask for at least one approving review from [@ismael-mendoza](https://github.com/ismael-mendoza) or other collaborators.
