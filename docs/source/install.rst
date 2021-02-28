@@ -41,19 +41,6 @@ However you may have to install FFTW and Eigen manually. Refer to
 `this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
 for more details.
 
-Install WeakLensingDeblending package
----------------------------------------
-
-WeakLensingDeblending package must first be cloned:
-::
-
-    git clone https://github.com/DarkEnergyScienceCollaboration/WeakLensingDeblending.git
-
-Then run the following inside the WeakLensingDeblending folder:
-::
-
-    cd WeakLensingDeblending
-    python setup.py install
 
 Install *BlendingToolKit* with GIT
 ------------------------------------
