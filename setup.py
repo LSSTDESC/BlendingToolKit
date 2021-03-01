@@ -1,20 +1,25 @@
-from setuptools import setup
+import setuptools
 
-setup(
-    name="btk",
-    version="0.1",
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name="bltk",
+    version="0.0.1",
+    author="Ismael Mendoza",
+    author_email="imendoza@umich.edu",
     description="Toolkit for on the fly generation of blend images.",
-    long_description="Weak lensing fast simulations and analysis for the " "LSST DESC",
-    author="btk developers",
-    author_email="sowmyak@stanford.edu",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/LSSTDESC/BlendingToolKit",
-    packages=["btk"],
-    # scripts = [ ],
-    # include_package_data=True,
-    # zip_safe=False,
-    install_requires=[
-        "lmfit",
-        "fitsio",
+    project_urls={
+        "Bug Tracker": "https://github.com/LSSTDESC/BlendingToolKit/issues",
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
-    license="MIT",
+    packages=setuptools.find_packages(),
+    python_requires=">=3.7",
 )
