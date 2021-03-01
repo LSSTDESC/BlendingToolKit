@@ -5,9 +5,7 @@
 # This file does only contain a selection of the most common options. For a
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
-
 # -- Path setup --------------------------------------------------------------
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -15,14 +13,12 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
-
 # -- Project information -----------------------------------------------------
 import os
 import sys
 
-# import mock.Mock as MagicMock
 from mock import Mock as MagicMock
+# import mock.Mock as MagicMock
 
 # from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath("../.."))
@@ -99,11 +95,11 @@ extensions = [
 ]
 
 autodoc_default_options = {
-    'members': True,
-    'special-members': '__init__',
-    'undoc-members': True,
-    'show-inheritance': True,
-    'exclude-members': '__weakref__'
+    "members": True,
+    "special-members": "__init__",
+    "undoc-members": True,
+    "show-inheritance": True,
+    "exclude-members": "__weakref__",
 }
 
 # Add any paths that contain templates here, relative to this directory.
