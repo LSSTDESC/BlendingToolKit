@@ -3,3 +3,6 @@
 /my-notebooks/
 .vscode/
 .pytest_cache/
+blending_toolkit.egg-info/
+build/
+dist/
