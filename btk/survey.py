@@ -1,11 +1,11 @@
 """Contains information for surveys available in BTK."""
+import os
+import random as rd
 from collections import namedtuple
 
 import astropy.wcs as WCS
-import random as rd
-import numpy as np
 import galsim
-from collections import namedtuple
+import numpy as np
 from astropy.io import fits
 
 
@@ -71,13 +71,9 @@ def get_psf(
         mirror_area = np.pi * (0.5 * mirror_diameter) ** 2
         area_ratio = effective_area / mirror_area
         if area_ratio <= 0 or area_ratio > 1:
-            raise RuntimeError(
-                "Incompatible effective-area and mirror-diameter values."
-            )
+            raise RuntimeError("Incompatible effective-area and mirror-diameter values.")
         obscuration_fraction = np.sqrt(1 - area_ratio)
-        lambda_over_diameter = 3600 * np.degrees(
-            1e-10 * filt_wavelength / mirror_diameter
-        )
+        lambda_over_diameter = 3600 * np.degrees(1e-10 * filt_wavelength / mirror_diameter)
         optical_psf_model = galsim.Airy(
             lam_over_diam=lambda_over_diameter, obscuration=obscuration_fraction
         )
@@ -89,23 +85,17 @@ def get_psf(
         optical_psf_model, galsim.GSObject
     ):
         psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model)
-    elif (
-        isinstance(atmospheric_psf_model, galsim.GSObject) and optical_psf_model is None
-    ):
+    elif isinstance(atmospheric_psf_model, galsim.GSObject) and optical_psf_model is None:
         psf_model = atmospheric_psf_model
-    elif atmospheric_psf_model is None and isinstance(
-        optical_psf_model, galsim.GSObject
-    ):
+    elif atmospheric_psf_model is None and isinstance(optical_psf_model, galsim.GSObject):
         psf_model = optical_psf_model
     elif atmospheric_psf_model is None and optical_psf_model is None:
-        raise RuntimeError(
-            f"Neither the atmospheric nor the optical PSF components are defined."
-        )
+        raise RuntimeError("Neither the atmospheric nor the optical PSF components are defined.")
 
     return psf_model.withFlux(1.0)
 
 
-def get_psf_from_file(psf_dir):
+def get_psf_from_file(psf_dir, survey):
     """Generates a custom PSF galsim model from FITS file(s)
     Args:
         psf_dir (string): directory where the PSF FITS files are
