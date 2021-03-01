@@ -95,6 +95,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "numpydoc",
     "sphinx.ext.napoleon",
+    "jupyter_sphinx",
 ]
 
 autodoc_default_options = {
