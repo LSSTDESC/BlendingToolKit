@@ -1,8 +1,10 @@
 import os
+from abc import ABC
+from abc import abstractmethod
 from copy import deepcopy
-import numpy as np
-from abc import ABC, abstractmethod
+
 import astropy.table
+import numpy as np
 
 
 class Catalog(ABC):

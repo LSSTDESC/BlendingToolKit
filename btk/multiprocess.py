@@ -1,6 +1,6 @@
 """Tools for multiprocessing in BTK."""
-from itertools import starmap
 import multiprocessing as mp
+from itertools import starmap
 
 
 def multiprocess(func, input_args, cpus, multiprocessing=False, verbose=False):

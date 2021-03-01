@@ -1,15 +1,18 @@
 import copy
+from abc import ABC
+from abc import abstractmethod
 from itertools import chain
-from abc import ABC, abstractmethod
 
 import galsim
 import numpy as np
 from astropy.table import Column
 
-
-from btk.multiprocess import multiprocess
 from btk.create_blend_generator import BlendGenerator
-from btk.survey import get_mean_sky_level, make_wcs, get_flux
+from btk.multiprocess import multiprocess
+from btk.survey import get_flux
+from btk.survey import get_mean_sky_level
+from btk.survey import get_psf
+from btk.survey import make_wcs
 
 
 class SourceNotVisible(Exception):
@@ -31,9 +34,7 @@ def get_center_in_pixels(blend_catalog, wcs):
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    dx, dy = wcs.all_world2pix(
-        blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0
-    )
+    dx, dy = wcs.all_world2pix(blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0)
     dx_col = Column(dx, name="dx")
     dy_col = Column(dy, name="dy")
     return dx_col, dy_col
@@ -68,13 +69,9 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     components = []
     total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
     # Calculate the flux of each component in detected electrons.
-    total_fluxnorm = (
-        entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
-    )
+    total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
-    bulge_flux = (
-        0.0 if no_bulge else entry["fluxnorm_bulge"] / total_fluxnorm * total_flux
-    )
+    bulge_flux = 0.0 if no_bulge else entry["fluxnorm_bulge"] / total_fluxnorm * total_flux
     agn_flux = 0.0 if no_agn else entry["fluxnorm_agn"] / total_fluxnorm * total_flux
 
     if disk_flux + bulge_flux + agn_flux == 0:
@@ -83,15 +80,13 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     if disk_flux > 0:
         beta_radians = np.radians(entry["pa_disk"])
         if bulge_flux > 0:
-            assert (
-                entry["pa_disk"] == entry["pa_bulge"]
-            ), "Sersic components have different beta."
+            assert entry["pa_disk"] == entry["pa_bulge"], "Sersic components have different beta."
         a_d, b_d = entry["a_d"], entry["b_d"]
         disk_hlr_arcsecs = np.sqrt(a_d * b_d)
         disk_q = b_d / a_d
-        disk = galsim.Exponential(
-            flux=disk_flux, half_light_radius=disk_hlr_arcsecs
-        ).shear(q=disk_q, beta=beta_radians * galsim.radians)
+        disk = galsim.Exponential(flux=disk_flux, half_light_radius=disk_hlr_arcsecs).shear(
+            q=disk_q, beta=beta_radians * galsim.radians
+        )
         components.append(disk)
 
     if bulge_flux > 0:
@@ -99,9 +94,9 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         a_b, b_b = entry["a_b"], entry["b_b"]
         bulge_hlr_arcsecs = np.sqrt(a_b * b_b)
         bulge_q = b_b / a_b
-        bulge = galsim.DeVaucouleurs(
-            flux=bulge_flux, half_light_radius=bulge_hlr_arcsecs
-        ).shear(q=bulge_q, beta=beta_radians * galsim.radians)
+        bulge = galsim.DeVaucouleurs(flux=bulge_flux, half_light_radius=bulge_hlr_arcsecs).shear(
+            q=bulge_q, beta=beta_radians * galsim.radians
+        )
         components.append(bulge)
 
     if agn_flux > 0:
@@ -215,9 +210,7 @@ class DrawBlendsGenerator(ABC):
                 len(s.filters),
             )
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
-            isolated_images[s.name] = np.zeros(
-                (self.batch_size, self.max_number, *image_shape)
-            )
+            isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
 
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
@@ -310,9 +303,7 @@ class DrawBlendsGenerator(ABC):
                     len(survey.filters),
                 )
             )
-            blend_image_multi = np.zeros(
-                (pix_stamp_size, pix_stamp_size, len(survey.filters))
-            )
+            blend_image_multi = np.zeros((pix_stamp_size, pix_stamp_size, len(survey.filters)))
             for b, filt in enumerate(survey.filters):
                 single_band_output = self.render_blend(blend, psf[b], filt, survey)
                 blend_image_multi[:, :, b] = single_band_output[0]
@@ -429,8 +420,8 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
-        # Convolution by a smal gaussian: The galsim models actally have noise in a little patch around them,
-        # so gaussian kernel convolution smoothes it out.
+        # Convolution by a smal gaussian: The galsim models actally have noise in a little patch
+        # around them, so gaussian kernel convolution smoothes it out.
         # It has the slight disadvantage of adding some band-limitedeness to the image,
         # but with a small kernel, it's better than doing nothing.
         gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))

@@ -1,9 +1,13 @@
+"""Contains information for surveys available in BTK."""
+from collections import namedtuple
+
 import astropy.wcs as WCS
 import random as rd
 import numpy as np
 import galsim
 from collections import namedtuple
 from astropy.io import fits
+
 
 Survey = namedtuple(
     "Survey",

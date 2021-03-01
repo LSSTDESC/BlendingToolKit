@@ -1,3 +1,6 @@
+"""Contains class `BlendGenerator` to combine entries from a given catalog into blends."""
+
+
 class BlendGenerator:
     def __init__(
         self,
@@ -34,14 +37,12 @@ class BlendGenerator:
 
         if not hasattr(sampling_function, "max_number"):
             raise AttributeError(
-                "Please change your custom sampling function to have "
-                "an attribute 'max_number'."
+                "Please change your custom sampling function to have an attribute 'max_number'."
             )
 
         if self.catalog.name not in self.sampling_function.compatible_catalogs:
             raise AttributeError(
-                "Your catalog and sampling functions are not "
-                "compatible with each other."
+                "Your catalog and sampling functions are not compatible with each other."
             )
 
         self.max_number = self.sampling_function.max_number

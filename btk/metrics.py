@@ -1,4 +1,5 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 import astropy.table
 import numpy as np
@@ -135,9 +136,7 @@ def get_m_z_diff(true_table, detected_true):
     if len(detected_true) == 0 or len(true_table) == 0:
         # No match since either no true or no matched true objects
         return
-    det_centers = np.stack(
-        [np.array(detected_true["dx"]), np.array(detected_true["dy"])]
-    ).T
+    det_centers = np.stack([np.array(detected_true["dx"]), np.array(detected_true["dy"])]).T
     z_tree = scipy.spatial.KDTree(det_centers)
     true_centers = np.stack([np.array(true_table["dx"]), np.array(true_table["dy"])]).T
     match = detected_true[z_tree.query(true_centers)[1]]
@@ -148,9 +147,7 @@ def get_m_z_diff(true_table, detected_true):
     true_table["ddist_match"] = np.hypot(dx, dy)
 
 
-def initialize_detection_tables(
-    detected_table, true_table, batch_index, batch_size, blend_index
-):
+def initialize_detection_tables(detected_table, true_table, batch_index, batch_size, blend_index):
     """Initialize column entries of true objects and detection catalog to their
     default values.
 
@@ -398,18 +395,14 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
         true_table = true_tables[i]
         detected_table = detected_tables[i]
         # initialize columns to default values
-        initialize_detection_tables(
-            detected_table, true_table, batch_index, batch_size, i
-        )
+        initialize_detection_tables(detected_table, true_table, batch_index, batch_size, i)
         # match detection and true source
         get_detection_match(true_table, detected_table)
         # summarize blend detection results to table
         blend_summary = get_blend_detection_summary(true_table, detected_table)
         batch_blend_summary.append(blend_summary)
         # add results to batch table
-        batch_detected_table = astropy.table.vstack(
-            (batch_detected_table, detected_table)
-        )
+        batch_detected_table = astropy.table.vstack((batch_detected_table, detected_table))
         batch_true_table = astropy.table.vstack((batch_true_table, true_table))
     return batch_true_table, batch_detected_table, batch_blend_summary
 
@@ -476,12 +469,8 @@ def run(metrics_params, test_size=1000):
         true_table, detected_table, detection_summary = evaluate_detection(
             batch_detection_result[0], batch_detection_result[1], batch_index=i
         )
-        results["detection"][0] = astropy.table.vstack(
-            [results["detection"][0], true_table]
-        )
-        results["detection"][1] = astropy.table.vstack(
-            [results["detection"][1], detected_table]
-        )
+        results["detection"][0] = astropy.table.vstack([results["detection"][0], true_table])
+        results["detection"][1] = astropy.table.vstack([results["detection"][1], detected_table])
         results["detection"][2].extend(detection_summary)
         # Evaluate segmentation algorithm
         segmentation = metrics_params.get_segmentation()

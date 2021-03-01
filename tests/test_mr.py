@@ -1,13 +1,11 @@
-import numpy as np
-
 import btk
-from btk.survey import Rubin, HSC
+from btk.survey import HSC
+from btk.survey import Rubin
 
 
 def test_multiresolution():
     catalog_name = "data/sample_input_catalog.fits"
 
-    np.random.seed(0)
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
@@ -29,12 +27,8 @@ def test_multiresolution():
     )
     draw_output = next(draw_generator)
 
-    assert (
-        "LSST" in draw_output["blend_list"].keys()
-    ), "Both surveys get well defined outputs"
-    assert (
-        "HSC" in draw_output["blend_list"].keys()
-    ), "Both surveys get well defined outputs"
+    assert "LSST" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
+    assert "HSC" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
     assert draw_output["blend_images"]["LSST"][0].shape[0] == int(
         24.0 / 0.2
     ), "LSST survey should have a pixel scale of 0.2"

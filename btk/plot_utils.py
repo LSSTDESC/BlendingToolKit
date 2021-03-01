@@ -21,9 +21,7 @@ def get_rgb(image, min_val=None, max_val=None):
         uint8 array [height, width, bands] of the input image.
     """
     if image.shape[0] != 3:
-        raise ValueError(
-            "Must be 3 channel in dimension 1 of image" f"Found {image.shape[0]}"
-        )
+        raise ValueError("Must be 3 channel in dimension 1 of image. Found {image.shape[0]}")
     if min_val is None:
         min_val = image.min(axis=-1).min(axis=-1)
     if max_val is None:
@@ -75,9 +73,7 @@ def get_rgb_image(image, normalize_with_image=None):
     return img_rgb
 
 
-def plot_blends(
-    blend_images, blend_list, detected_centers=None, limits=None, band_indices=None
-):
+def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, band_indices=None):
     """Plots blend images as RGB image, sum in all bands, and RGB image with
     centers of objects marked.
 
@@ -105,10 +101,7 @@ def plot_blends(
         band_indices = [1, 2, 3]
     batch_size = len(blend_list)
     if len(band_indices) != 3:
-        raise ValueError(
-            f"band_indices must be a list with 3 entries, not \
-            {band_indices}"
-        )
+        raise ValueError(f"band_indices must be a list with 3 entries, not {band_indices}")
     if detected_centers is None:
         detected_centers = [[]] * batch_size
     if len(detected_centers) != batch_size or blend_images.shape[0] != batch_size:
@@ -239,9 +232,7 @@ def plot_with_isolated(
         plt.show()
 
 
-def plot_cumulative(
-    table, column_name, ax=None, bins=40, color="red", label=None, xlabel=None
-):
+def plot_cumulative(table, column_name, ax=None, bins=40, color="red", label=None, xlabel=None):
     """Plot cumulative counts of input column_name in table.
 
     Args:
