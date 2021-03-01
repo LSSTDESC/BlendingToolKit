@@ -163,7 +163,6 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-
     def __iter__(self):
         return self
 
@@ -188,7 +187,9 @@ class DrawBlendsGenerator(ABC):
             psf = []
             for filt in s.filters:
                 if callable(filt.psf):
-                    generated_psf = filt.psf() # generate the PSF with the provided function
+                    generated_psf = (
+                        filt.psf()
+                    )  # generate the PSF with the provided function
                     if isinstance(generated_psf, galsim.GSObject):
                         psf.append(generated_psf)
                     else:
@@ -196,7 +197,7 @@ class DrawBlendsGenerator(ABC):
                             f"The generated PSF with the provided function for filter '{filt.name}' is not a galsim object"
                         )
                 elif isinstance(filt.psf, galsim.GSObject):
-                    psf.append(filt.psf) # or directly retrieve the PSF
+                    psf.append(filt.psf)  # or directly retrieve the PSF
                 else:
                     raise TypeError(
                         f"The PSF within filter '{filt.name}' is neither a function nor a galsim object"

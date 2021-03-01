@@ -31,7 +31,13 @@ Filter = namedtuple(
 )
 
 
-def get_psf(mirror_diameter, effective_area, filt_wavelength, fwhm, atmospheric_model="Kolmogorov"):
+def get_psf(
+    mirror_diameter,
+    effective_area,
+    filt_wavelength,
+    fwhm,
+    atmospheric_model="Kolmogorov",
+):
     """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
     Defines a synthetic galsim PSF model
     Args:
@@ -75,17 +81,23 @@ def get_psf(mirror_diameter, effective_area, filt_wavelength, fwhm, atmospheric_
         optical_psf_model = None
 
     # define the psf model according to the components we have
-    if isinstance(atmospheric_psf_model, galsim.GSObject) and isinstance(optical_psf_model, galsim.GSObject):
+    if isinstance(atmospheric_psf_model, galsim.GSObject) and isinstance(
+        optical_psf_model, galsim.GSObject
+    ):
         psf_model = galsim.Convolve(atmospheric_psf_model, optical_psf_model)
-    elif isinstance(atmospheric_psf_model, galsim.GSObject) and optical_psf_model is None:
+    elif (
+        isinstance(atmospheric_psf_model, galsim.GSObject) and optical_psf_model is None
+    ):
         psf_model = atmospheric_psf_model
-    elif atmospheric_psf_model is None and isinstance(optical_psf_model, galsim.GSObject):
+    elif atmospheric_psf_model is None and isinstance(
+        optical_psf_model, galsim.GSObject
+    ):
         psf_model = optical_psf_model
     elif atmospheric_psf_model is None and optical_psf_model is None:
         raise RuntimeError(
             f"Neither the atmospheric nor the optical PSF components are defined."
         )
-    
+
     return psf_model.withFlux(1.0)
 
 
@@ -98,18 +110,19 @@ def get_psf_from_file(psf_dir):
     """
 
     psf_files = os.listdir(psf_dir)
-    if len(psf_files)>1:
+    if len(psf_files) > 1:
         psf_file = rd.choice(psf_files)
-    elif len(psf_files)==1:
+    elif len(psf_files) == 1:
         psf_file = psf_files[0]
     else:
-        raise RuntimeError(
-            f"Not psf files found in '{psf_dir}'."
-        )
+        raise RuntimeError(f"Not psf files found in '{psf_dir}'.")
     psf_array = fits.getdata(psf_file)
-    psf_model = galsim.InterpolatedImage(galsim.Image(psf_array), scale=survey.pixel_scale).withFlux(1.0)
-        
+    psf_model = galsim.InterpolatedImage(
+        galsim.Image(psf_array), scale=survey.pixel_scale
+    ).withFlux(1.0)
+
     return psf_model
+
 
 # Central wavelengths in Angstroms for each filter band, calculated from the
 # baseline total filter throughputs tabulated at
@@ -141,10 +154,12 @@ Euclid = Survey(
     filters=[
         Filter(
             name="VIS",
-            psf=get_psf(mirror_diameter=1.3,
-                        effective_area=1.15,
-                        filt_wavelength=_central_wavelength["VIS"],
-                        fwhm=0.17),
+            psf=get_psf(
+                mirror_diameter=1.3,
+                effective_area=1.15,
+                filt_wavelength=_central_wavelength["VIS"],
+                fwhm=0.17,
+            ),
             sky_brightness=22.9207,
             exp_time=2260,
             zeropoint=6.85,
@@ -165,10 +180,12 @@ HST = Survey(
     filters=[
         Filter(
             name="f814w",
-            psf=get_psf(mirror_diameter=2.4,
-                        effective_area=1.0,
-                        filt_wavelength=_central_wavelength["f814w"],
-                        fwhm=0.074),
+            psf=get_psf(
+                mirror_diameter=2.4,
+                effective_area=1.0,
+                filt_wavelength=_central_wavelength["f814w"],
+                fwhm=0.074,
+            ),
             sky_brightness=22,
             exp_time=3000,
             zeropoint=20,
@@ -188,10 +205,12 @@ HSC = Survey(
     filters=[
         Filter(
             name="g",
-            psf=get_psf(mirror_diameter=8.2,
-                        effective_area=52.81,
-                        filt_wavelength=_central_wavelength["g"],
-                        fwhm=0.72),
+            psf=get_psf(
+                mirror_diameter=8.2,
+                effective_area=52.81,
+                filt_wavelength=_central_wavelength["g"],
+                fwhm=0.72,
+            ),
             sky_brightness=21.4,
             exp_time=600,
             zeropoint=91.11,
@@ -199,10 +218,12 @@ HSC = Survey(
         ),
         Filter(
             name="r",
-            psf=get_psf(mirror_diameter=8.2,
-                        effective_area=52.81,
-                        filt_wavelength=_central_wavelength["r"],
-                        fwhm=0.67),
+            psf=get_psf(
+                mirror_diameter=8.2,
+                effective_area=52.81,
+                filt_wavelength=_central_wavelength["r"],
+                fwhm=0.67,
+            ),
             sky_brightness=20.6,
             exp_time=600,
             zeropoint=87.74,
@@ -210,10 +231,12 @@ HSC = Survey(
         ),
         Filter(
             name="i",
-            psf=get_psf(mirror_diameter=8.2,
-                        effective_area=52.81,
-                        filt_wavelength=_central_wavelength["i"],
-                        fwhm=0.56),
+            psf=get_psf(
+                mirror_diameter=8.2,
+                effective_area=52.81,
+                filt_wavelength=_central_wavelength["i"],
+                fwhm=0.56,
+            ),
             sky_brightness=19.7,
             exp_time=1200,
             zeropoint=69.80,
@@ -221,10 +244,12 @@ HSC = Survey(
         ),
         Filter(
             name="y",
-            psf=get_psf(mirror_diameter=8.2,
-                        effective_area=52.81,
-                        filt_wavelength=_central_wavelength["y"],
-                        fwhm=0.64),
+            psf=get_psf(
+                mirror_diameter=8.2,
+                effective_area=52.81,
+                filt_wavelength=_central_wavelength["y"],
+                fwhm=0.64,
+            ),
             sky_brightness=18.3,
             exp_time=1200,
             zeropoint=29.56,
@@ -232,10 +257,12 @@ HSC = Survey(
         ),
         Filter(
             name="z",
-            psf=get_psf(mirror_diameter=8.2,
-                        effective_area=52.81,
-                        filt_wavelength=_central_wavelength["z"],
-                        fwhm=0.64),
+            psf=get_psf(
+                mirror_diameter=8.2,
+                effective_area=52.81,
+                filt_wavelength=_central_wavelength["z"],
+                fwhm=0.64,
+            ),
             sky_brightness=17.9,
             exp_time=1200,
             zeropoint=21.53,
@@ -256,10 +283,12 @@ Rubin = Survey(
     filters=[
         Filter(
             name="y",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["y"],
-                        fwhm=0.703),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["y"],
+                fwhm=0.703,
+            ),
             sky_brightness=18.6,
             exp_time=4800,
             zeropoint=10.58,
@@ -267,10 +296,12 @@ Rubin = Survey(
         ),
         Filter(
             name="z",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["z"],
-                        fwhm=0.725),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["z"],
+                fwhm=0.725,
+            ),
             sky_brightness=19.6,
             exp_time=4800,
             zeropoint=22.68,
@@ -278,10 +309,12 @@ Rubin = Survey(
         ),
         Filter(
             name="i",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["i"],
-                        fwhm=0.748),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["i"],
+                fwhm=0.748,
+            ),
             sky_brightness=20.5,
             exp_time=5520,
             zeropoint=32.36,
@@ -289,10 +322,12 @@ Rubin = Survey(
         ),
         Filter(
             name="r",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["r"],
-                        fwhm=0.781),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["r"],
+                fwhm=0.781,
+            ),
             sky_brightness=21.2,
             exp_time=5520,
             zeropoint=43.70,
@@ -300,10 +335,12 @@ Rubin = Survey(
         ),
         Filter(
             name="g",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["g"],
-                        fwhm=0.814),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["g"],
+                fwhm=0.814,
+            ),
             sky_brightness=22.3,
             exp_time=2400,
             zeropoint=50.70,
@@ -311,10 +348,12 @@ Rubin = Survey(
         ),
         Filter(
             name="u",
-            psf=get_psf(mirror_diameter=8.36,
-                        effective_area=32.4,
-                        filt_wavelength=_central_wavelength["u"],
-                        fwhm=0.859),
+            psf=get_psf(
+                mirror_diameter=8.36,
+                effective_area=32.4,
+                filt_wavelength=_central_wavelength["u"],
+                fwhm=0.859,
+            ),
             sky_brightness=22.9,
             exp_time=1680,
             zeropoint=9.16,
@@ -339,10 +378,12 @@ DES = Survey(
     filters=[
         Filter(
             name="i",
-            psf=get_psf(mirror_diameter=3.934,
-                        effective_area=10.014,
-                        filt_wavelength=_central_wavelength["i"],
-                        fwhm=0.96),
+            psf=get_psf(
+                mirror_diameter=3.934,
+                effective_area=10.014,
+                filt_wavelength=_central_wavelength["i"],
+                fwhm=0.96,
+            ),
             sky_brightness=20.5,
             exp_time=1000,
             zeropoint=13.94,
@@ -350,10 +391,12 @@ DES = Survey(
         ),
         Filter(
             name="r",
-            psf=get_psf(mirror_diameter=3.934,
-                        effective_area=10.014,
-                        filt_wavelength=_central_wavelength["r"],
-                        fwhm=1.03),
+            psf=get_psf(
+                mirror_diameter=3.934,
+                effective_area=10.014,
+                filt_wavelength=_central_wavelength["r"],
+                fwhm=1.03,
+            ),
             sky_brightness=21.4,
             exp_time=800,
             zeropoint=15.65,
@@ -361,10 +404,12 @@ DES = Survey(
         ),
         Filter(
             name="g",
-            psf=get_psf(mirror_diameter=3.934,
-                        effective_area=10.014,
-                        filt_wavelength=_central_wavelength["g"],
-                        fwhm=1.24),
+            psf=get_psf(
+                mirror_diameter=3.934,
+                effective_area=10.014,
+                filt_wavelength=_central_wavelength["g"],
+                fwhm=1.24,
+            ),
             sky_brightness=22.3,
             exp_time=800,
             zeropoint=12.29,
@@ -372,10 +417,12 @@ DES = Survey(
         ),
         Filter(
             name="z",
-            psf=get_psf(mirror_diameter=3.934,
-                        effective_area=10.014,
-                        filt_wavelength=_central_wavelength["z"],
-                        fwhm=1.12),
+            psf=get_psf(
+                mirror_diameter=3.934,
+                effective_area=10.014,
+                filt_wavelength=_central_wavelength["z"],
+                fwhm=1.12,
+            ),
             sky_brightness=18.7,
             exp_time=800,
             zeropoint=10.81,
@@ -398,10 +445,12 @@ CFHT = Survey(
     filters=[
         Filter(
             name="i",
-            psf=get_psf(mirror_diameter=3.592,
-                        effective_area=8.022,
-                        filt_wavelength=_central_wavelength["i"],
-                        fwhm=0.64),
+            psf=get_psf(
+                mirror_diameter=3.592,
+                effective_area=8.022,
+                filt_wavelength=_central_wavelength["i"],
+                fwhm=0.64,
+            ),
             sky_brightness=20.3,
             exp_time=4300,
             zeropoint=8.46,
@@ -409,10 +458,12 @@ CFHT = Survey(
         ),
         Filter(
             name="r",
-            psf=get_psf(mirror_diameter=3.592,
-                        effective_area=8.022,
-                        filt_wavelength=_central_wavelength["r"],
-                        fwhm=0.71),
+            psf=get_psf(
+                mirror_diameter=3.592,
+                effective_area=8.022,
+                filt_wavelength=_central_wavelength["r"],
+                fwhm=0.71,
+            ),
             sky_brightness=20.8,
             exp_time=2000,
             zeropoint=10.72,
