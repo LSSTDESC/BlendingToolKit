@@ -11,7 +11,6 @@ from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
-from btk.survey import get_psf
 from btk.survey import make_wcs
 
 
@@ -125,7 +124,6 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
-        atmospheric_model="Kolmogorov",
     ):
         """Class that generates images of blended objects, individual isolated
         objects, for each blend in the batch.
@@ -159,9 +157,6 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-        # psf
-        self.atmospheric_model = atmospheric_model
-
     def __iter__(self):
         return self
 
@@ -182,8 +177,25 @@ class DrawBlendsGenerator(ABC):
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s.pixel_scale)
 
-            # create WCS and PSF information
-            psf = [get_psf(s, filt, self.atmospheric_model) for filt in s.filters]
+            # make PSF and WCS
+            psf = []
+            for filt in s.filters:
+                if callable(filt.psf):
+                    generated_psf = filt.psf()  # generate the PSF with the provided function
+                    if isinstance(generated_psf, galsim.GSObject):
+                        psf.append(generated_psf)
+                    else:
+                        raise TypeError(
+                            f"The generated PSF with the provided function"
+                            f"for filter '{filt.name}' is not a galsim object"
+                        )
+                elif isinstance(filt.psf, galsim.GSObject):
+                    psf.append(filt.psf)  # or directly retrieve the PSF
+                else:
+                    raise TypeError(
+                        f"The PSF within filter '{filt.name}' is neither a "
+                        f"function nor a galsim object"
+                    )
             wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
@@ -331,7 +343,7 @@ class DrawBlendsGenerator(ABC):
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
         for k, entry in enumerate(blend_catalog):
-            single_image = self.render_single(entry, psf, filt, survey)
+            single_image = self.render_single(entry, filt, psf, survey)
             iso_image[k] = single_image.array
             _blend_image += single_image
 
@@ -347,7 +359,7 @@ class DrawBlendsGenerator(ABC):
         return blend_image, iso_image
 
     @abstractmethod
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, psf, survey):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
@@ -361,7 +373,7 @@ class DrawBlendsGenerator(ABC):
 class CatsimGenerator(DrawBlendsGenerator):
     compatible_catalogs = ("CatsimCatalog",)
 
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, psf, survey):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
@@ -394,7 +406,7 @@ class CatsimGenerator(DrawBlendsGenerator):
 class CosmosGenerator(DrawBlendsGenerator):
     compatible_catalogs = ("CosmosCatalog",)
 
-    def render_single(self, entry, psf, filt, survey):
+    def render_single(self, entry, filt, psf, survey):
         """Draws a single random galaxy profile in a random location of the image
         Args:
             shift (np.array): pixel center of the single galaxy in the postage stamp
