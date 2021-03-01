@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bltk",
+    name="blending_toolkit",
     version="0.0.1",
     author="Ismael Mendoza",
     author_email="imendoza@umich.edu",
