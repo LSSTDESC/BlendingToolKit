@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="blending_toolkit",
-    version="0.0.1",
+    version="0.0.1-alpha.1",
     author="Ismael Mendoza",
     author_email="imendoza@umich.edu",
     description="Toolkit for on the fly generation of blend images.",
