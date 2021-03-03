@@ -11,9 +11,7 @@ class BlendGenerator:
         indexes=None,
         verbose=False,
     ):
-        """Generates a list of blend tables of length batch_size. Each blend
-        table has entries numbered between 1 and max_number, corresponding
-        to overlapping objects in the blend.
+        """Initializes the BlendGenerator.
 
         Args:
             catalog (btk.catalog.Catalog): BTK Catalog object
@@ -23,7 +21,7 @@ class BlendGenerator:
             batch_size (int): Size of batches returned.
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
-                           with ids.
+                           with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
             verbose: Whether to print additional information.
@@ -51,6 +49,12 @@ class BlendGenerator:
         return self
 
     def __next__(self):
+        """Generates a list of blend tables of length batch_size. Each blend
+        table has entries numbered between 1 and max_number, corresponding
+        to overlapping objects in the blend.
+
+        Returns:
+            blend_tables (list): a list of astropy tables, each one corresponding to a blend."""
         try:
             blend_tables = []
             for i in range(self.batch_size):
