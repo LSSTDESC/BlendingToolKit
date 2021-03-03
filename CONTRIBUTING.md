@@ -9,10 +9,10 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 cd BlendingToolKit
 ```
 
-2. You need to install the packages in both `dev-requirements.txt` (developer requirements) and `requirement.txt` (general requirements). It is recommend to have a separate environment (either using `virtualenv` or `conda`) when you are developing `BTK`. To install the requirements you can run:
+2. You need to install the packages in both `requirements.dev.txt` (developer requirements) and `requirement.txt` (general requirements). It is recommend to have a separate environment (either using `virtualenv` or `conda`) when you are developing `BTK`. To install the requirements you can run:
 
 ```
-pip install -r dev-requirements.txt
+pip install -r requirements.dev.txt
 pip install -r requirements.txt
 ```
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 4. Every pull request must pass the workflows specified in `.github/workflows` before merging. 
 
-    - The tool known as `pre-commit` will make it easy to for you to pass the linting workflow, install it in your local repository by running `pre-commit install` (it was installed from `dev-requirements.txt`)
+    - The tool known as `pre-commit` will make it easy to for you to pass the linting workflow, install it in your local repository by running `pre-commit install` (it was installed from `requirements.dev.txt`)
 
     - For `BTK` we are using the `black` formatter, you can format your code by running `black .` which formats all python files accessible from your current directory. If you have an IDE that you like there are also [options](https://black.readthedocs.io/en/stable/editor_integration.html) to format on save.
 

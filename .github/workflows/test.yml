@@ -52,7 +52,7 @@ jobs:
 
       - name: Install dev dependencies
         run: |
-          pipenv install -r dev-requirements.txt
+          pipenv install -r requirements.dev.txt
 
       - name: Install dependencies
         run: |
