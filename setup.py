@@ -20,6 +20,15 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(include=["btk", "btk.*"]),
+    install_requires=[
+        "numpy>=1.12",
+        "astropy>=2.0",
+        "scipy>=1.2.0",
+        "matplotlib>=3.3.3",
+        "sep>=1.1.1",
+        "scikit-image>=0.18.0",
+        "galsim>=2.2.5",
+    ],
     python_requires=">=3.7",
 )
