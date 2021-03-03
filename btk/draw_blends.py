@@ -63,7 +63,21 @@ def get_size(catalog, psf, pixel_scale):
 
 
 def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn=False):
-    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)"""
+    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
+    Returns a composite Galsim galaxy profile with bulge, disk and AGN based on the
+    parameters in the entry, and using observing conditions defined by the survey
+    and the filter.
+
+    Args:
+        entry (astropy Table) : single astropy line containing information on the galaxy
+        survey (btk Survey) : BTK Survey object
+        filt (btk Filter) : BTK Filter object
+        no_disk (bool) : Sets the flux for the disk to zero
+        no_bulge (bool) : Sets the flux for the bulge to zero
+        no_agn (bool) : Sets the flux for the AGN to zero
+
+    Returns:
+        profile : Galsim galaxy profile"""
 
     components = []
     total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
@@ -107,6 +121,15 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
 
 
 class DrawBlendsGenerator(ABC):
+    """Class that generates images of blended objects, individual isolated
+    objects, for each blend in the batch.
+
+    Batch is divided into mini batches of size blend_generator.batch_size//cpus and
+    each mini-batch analyzed separately. The results are then combined to output a
+    dict with results of entire batch. If multiprocessing is true, then each of
+    the mini-batches are run in parallel.
+
+    """
 
     compatible_catalogs = ("Catalog",)
 
@@ -125,15 +148,25 @@ class DrawBlendsGenerator(ABC):
         shifts=None,
         indexes=None,
     ):
-        """Class that generates images of blended objects, individual isolated
-        objects, for each blend in the batch.
+        """Initializes the DrawBlendsGenerator class.
 
-        Batch is divided into mini batches of size blend_generator.batch_size//cpus and
-        each mini-batch analyzed separately. The results are then combined to output a
-        dict with results of entire batch. If multiprocessing is true, then each of
-        the mini-batches are run in parallel.
-
-        """
+        Args:
+            catalog (btk Catalog) : BTK catalog object from which galaxies are taken
+            sampling_function (btk SamplingFunction) : BTK sampling function to use
+            surveys (list): List of btk Survey objects defining the observing conditions
+            batch_size (int) : Number of blends generated per batch
+            stamp_size (float) : Size of the stamps, in arcseconds
+            meas_bands=("i",) : Tuple containing the bands in which the measurements are carried
+            multiprocessing (bool) : Indicates whether the mini batches should be ran in
+                                     parallel
+            cpus (int) : Number of cpus to use ; defines the number of minibatches
+            verbose (bool) : Indicates whether additionnal information should be printed
+            add_noise (bool) : Indicates if the blends should be generated with noise
+            shifts (list): Contains arbitrary shifts to be applied instead of
+                           random shifts. Must be of length batch_size. Must be used
+                           with indexes.
+            indexes (list): Contains the ids of the galaxies to use in the stamp.
+                        Must be of length batch_size. Must be used with shifts."""
 
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -163,8 +196,8 @@ class DrawBlendsGenerator(ABC):
     def __next__(self):
         """
         Returns:
-            Dictionary with blend images, isolated object images, blend catalog,
-            and observing conditions.
+            output : Dictionary with blend images, isolated object images, blend catalog,
+            PSF images and WCS.
         """
         batch_blend_cat, batch_obs_cond = {}, {}
         blend_images = {}
@@ -262,14 +295,15 @@ class DrawBlendsGenerator(ABC):
         was not drawn and object centers in pixel coordinates.
 
         Args:
-            blend_list (list): List of catalogs with entries corresponding to one
+            blend_list (list) : List of catalogs with entries corresponding to one
                                blend. The size of this list is equal to the
                                mini_batch_size.
-            cutouts (list): List of `btk.cutout.Cutout` objects describing
+            psf (list) : List of Galsim objects containing the PSF
+            cutouts (list) : List of `btk.cutout.Cutout` objects describing
                             observing conditions in different bands for given survey
                             `survey_name`. The order of cutouts corresponds to order in
                             `survey['bands']`.
-            survey (dict): Dictionary containing survey information.
+            survey (dict) : Dictionary containing survey information.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -327,7 +361,8 @@ class DrawBlendsGenerator(ABC):
         If a galaxy was not drawn by descwl, then this flag is set to 1.
 
         Args:
-            blend_catalog: Catalog with entries corresponding to one blend.
+            blend_catalog (astropy Table) : Catalog with entries corresponding to one blend.
+            psf : Galsim object containing the psf for the given filter
             filt(string): Name of filter to draw images in.
 
         Returns:
@@ -364,6 +399,7 @@ class DrawBlendsGenerator(ABC):
         using the cutout information.
 
         The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
+        This method should be implemented in subclasses
 
         Return:
             galsim.Image
@@ -371,19 +407,25 @@ class DrawBlendsGenerator(ABC):
 
 
 class CatsimGenerator(DrawBlendsGenerator):
+    """Implementation of DrawBlendsGenerator for drawing galaxies from
+    a Catsim-like catalog. Most of the code is taken from the package
+    WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending).
+    """
+
     compatible_catalogs = ("CatsimCatalog",)
 
     def render_single(self, entry, filt, psf, survey):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
-            entry: `descwl.model.Galaxy` class that models galaxies.
-            cutout: `descwl.survey.Survey` class describing observing conditions.
-                The input galaxy is rendered and stored in here.
-            band:
+            entry (astropy Table): Line from astropy describing the galaxy to draw
+            filt (btk Filter) : BTK Filter object corresponding to the band where
+                                the image is drawn `
+            psf : Galsim object containing the PSF relative to the chosen filter
+            survey (btk Survey) : BTK Survey object
 
-        Return:
-            galsim.Image object
+        Returns:
+            gal : galsim.Image object
         """
         if self.verbose:
             print("Draw isolated object")
@@ -404,16 +446,24 @@ class CatsimGenerator(DrawBlendsGenerator):
 
 
 class CosmosGenerator(DrawBlendsGenerator):
+    """Implementation of DrawBlendsGenerator for drawing real galaxies from
+    the COSMOS catalog, using the Galsim implementation.
+    """
+
     compatible_catalogs = ("CosmosCatalog",)
 
     def render_single(self, entry, filt, psf, survey):
-        """Draws a single random galaxy profile in a random location of the image
+        """Returns the Galsim Image of an isolated galaxy.
+
         Args:
-            shift (np.array): pixel center of the single galaxy in the postage stamp
-                              with size self.stamp_size
+            entry (astropy Table): Line from astropy describing the galaxy to draw
+            filt (btk Filter) : BTK Filter object corresponding to the band where
+                                the image is drawn `
+            psf : Galsim object containing the PSF relative to the chosen filter
+            survey (btk Survey) : BTK Survey object
 
         Returns:
-            gal (galsim.InterpolatedImage): The galsim profile of a single galaxy
+            gal : galsim.Image object
         """
         k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
         gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
