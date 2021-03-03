@@ -13,7 +13,7 @@ def _get_random_center_shift(num_objects, maxshift):
     in arcseconds.
 
     Args:
-        num_objects(int) : Number of x and y shifts to return.
+        num_objects (int) : Number of x and y shifts to return.
 
     Returns:
         dx (float) : random shift along the x axis

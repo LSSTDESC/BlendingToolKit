@@ -29,7 +29,7 @@ def get_center_in_pixels(blend_catalog, wcs):
 
     Args:
         blend_catalog: Catalog with entries corresponding to one blend.
-        wcs: astropy.wcs.WCS object corresponding to the image
+        wcs (astropy.wcs.WCS) : astropy WCS object corresponding to the image
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
@@ -69,15 +69,15 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     and the filter.
 
     Args:
-        entry (astropy Table) : single astropy line containing information on the galaxy
-        survey (btk Survey) : BTK Survey object
-        filt (btk Filter) : BTK Filter object
+        entry (astropy.table.Table) : single astropy line containing information on the galaxy
+        survey (btk.survey.Survey) : BTK Survey object
+        filt (btk.survey.Filter) : BTK Filter object
         no_disk (bool) : Sets the flux for the disk to zero
         no_bulge (bool) : Sets the flux for the bulge to zero
         no_agn (bool) : Sets the flux for the AGN to zero
 
     Returns:
-        profile : Galsim galaxy profile"""
+        Galsim galaxy profile"""
 
     components = []
     total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
@@ -151,8 +151,9 @@ class DrawBlendsGenerator(ABC):
         """Initializes the DrawBlendsGenerator class.
 
         Args:
-            catalog (btk Catalog) : BTK catalog object from which galaxies are taken
-            sampling_function (btk SamplingFunction) : BTK sampling function to use
+            catalog (btk.catalog.Catalog) : BTK catalog object from which galaxies are taken
+            sampling_function (btk.sampling_function.SamplingFunction) : BTK sampling function
+                                                                         to use
             surveys (list): List of btk Survey objects defining the observing conditions
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
@@ -299,10 +300,7 @@ class DrawBlendsGenerator(ABC):
                                blend. The size of this list is equal to the
                                mini_batch_size.
             psf (list) : List of Galsim objects containing the PSF
-            cutouts (list) : List of `btk.cutout.Cutout` objects describing
-                            observing conditions in different bands for given survey
-                            `survey_name`. The order of cutouts corresponds to order in
-                            `survey['bands']`.
+            wcs (astropy.wcs.WCS) : astropy WCS object
             survey (dict) : Dictionary containing survey information.
 
         Returns:
@@ -361,9 +359,10 @@ class DrawBlendsGenerator(ABC):
         If a galaxy was not drawn by descwl, then this flag is set to 1.
 
         Args:
-            blend_catalog (astropy Table) : Catalog with entries corresponding to one blend.
+            blend_catalog (astropy.table.Table) : Catalog with entries corresponding to one blend.
             psf : Galsim object containing the psf for the given filter
-            filt(string): Name of filter to draw images in.
+            filt (btk.survey.Filter): BTK Filter object
+            survey (btk.survey.Survey): BTK Survey object
 
         Returns:
             Images of blend and isolated galaxies as `numpy.ndarray`.
@@ -399,10 +398,10 @@ class DrawBlendsGenerator(ABC):
         using the cutout information.
 
         The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
-        This method should be implemented in subclasses
+        This method should be implemented in subclasses.
 
         Return:
-            galsim.Image
+            galsim.Image object
         """
 
 
@@ -418,14 +417,14 @@ class CatsimGenerator(DrawBlendsGenerator):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
-            entry (astropy Table): Line from astropy describing the galaxy to draw
-            filt (btk Filter) : BTK Filter object corresponding to the band where
+            entry (astropy.table.Table): Line from astropy describing the galaxy to draw
+            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
                                 the image is drawn `
             psf : Galsim object containing the PSF relative to the chosen filter
-            survey (btk Survey) : BTK Survey object
+            survey (btk.survey.Survey) : BTK Survey object
 
         Returns:
-            gal : galsim.Image object
+            galsim.Image object
         """
         if self.verbose:
             print("Draw isolated object")
@@ -457,13 +456,13 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         Args:
             entry (astropy Table): Line from astropy describing the galaxy to draw
-            filt (btk Filter) : BTK Filter object corresponding to the band where
+            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
                                 the image is drawn `
             psf : Galsim object containing the PSF relative to the chosen filter
-            survey (btk Survey) : BTK Survey object
+            survey (btk.survey.Survey) : BTK Survey object
 
         Returns:
-            gal : galsim.Image object
+            galsim.Image object
         """
         k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
         gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
