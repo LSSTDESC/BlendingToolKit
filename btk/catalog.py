@@ -8,15 +8,20 @@ import numpy as np
 
 
 class Catalog(ABC):
+    """Base class containing the catalog for BTK.
+    Each different catalog should have a corresponding subclass of Catalog.
+
+    Attributes:
+        self.table (astropy.table) : standardized table containing information from the catalog
+        self._raw_catalog : contains the raw catalog given by the user
+    """
+
     def __init__(self, catalog, verbose=False):
         """Returns astropy table with catalog name from input class.
 
         Args:
             catalog : CatSim-like catalog or galsim COSMOS catalog to draw galaxies from.
             verbose: Whether to print information related to loading catalog.
-
-        Attributes:
-            self.table (`astropy.table`): CatSim-like catalog.
         """
         self._raw_catalog = catalog
         self.verbose = verbose
@@ -47,6 +52,8 @@ class Catalog(ABC):
 
 
 class CatsimCatalog(Catalog):
+    """Implementation of Catalog for the Catsim catalog."""
+
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
         """Constructs the catalog object from a file.
@@ -91,6 +98,7 @@ class CosmosCatalog(Catalog):
     def from_file(cls, catalog_files, verbose=False):
         """
         Constructs the catalog object from a file.
+
         Args:
             catalog_files: list containing the two paths to the COSMOS data
         """
