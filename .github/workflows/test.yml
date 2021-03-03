@@ -54,6 +54,10 @@ jobs:
         run: |
           pipenv install -r dev-requirements.txt
 
+      - name: Install doc dependencies
+        run: |
+          pipenv install -r doc-requirements.txt
+
       - name: Install dependencies
         run: |
           pipenv install -r requirements.txt
@@ -71,3 +75,9 @@ jobs:
           env_vars: OS,PYTHON
           name: codecov-umbrella
           fail_ci_if_error: true
+
+      - name: Build documentation
+        uses: ammaraskar/sphinx-action@master
+        with:
+          docs-folder: "docs/"
+
