@@ -17,13 +17,14 @@
 import os
 import sys
 
+import sphinx_rtd_theme
 from mock import Mock as MagicMock
+
 # import mock.Mock as MagicMock
 
 # from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath(".."))
-import sphinx_rtd_theme
 
 
 project = "btk"
@@ -99,7 +100,7 @@ autodoc_default_options = {
     "special-members": "__init__",
     "undoc-members": True,
     "show-inheritance": True,
-    "exclude-members": "__weakref__",
+    # "exclude-members": "__weakref__",
 }
 
 # Add any paths that contain templates here, relative to this directory.
