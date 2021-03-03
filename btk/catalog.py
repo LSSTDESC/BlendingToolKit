@@ -12,8 +12,8 @@ class Catalog(ABC):
     Each different catalog should have a corresponding subclass of Catalog.
 
     Attributes:
-        self.table (astropy.table) : standardized table containing information from the catalog
-        self._raw_catalog : contains the raw catalog given by the user
+        self.table (astropy.table) : Standardized table containing information from the catalog
+        self._raw_catalog : Contains the raw catalog given by the user
     """
 
     def __init__(self, catalog, verbose=False):

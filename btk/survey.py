@@ -31,7 +31,7 @@ Args:
     effective_area (float) : Effective total light collecting area, in square meters
     mirror_diameter (float) : Diameter of the primary mirror, in meters
     airmass (float) : Optical path length through atmosphere relative to zenith path length
-    filters (list) : List of Filter objects
+    filters (list) : List of Filter objects corresponding to the filters of this survey
     zeropoint_airmass (float)"""
 
 Filter = namedtuple(
@@ -129,7 +129,7 @@ def get_psf_from_file(psf_dir, survey):
         survey (btk Survey) : BTK Survey object
 
     Returns:
-        psf_model: galsim PSF model
+        galsim PSF model
     """
 
     psf_files = os.listdir(psf_dir)
@@ -503,11 +503,11 @@ def get_flux(ab_magnitude, filt, survey):
 
     Args:
         ab_magnitude(float): AB magnitude of source.
-        filt (btk Filter) : BTK Filter object
-        survey (btk Survey) : BTK Survey object
+        filt (btk.survey.Filter) : BTK Filter object
+        survey (btk.survey.Survey) : BTK Survey object
 
     Returns:
-        float: Flux in detected electrons.
+        Flux in detected electrons.
     """
     mag = ab_magnitude + filt.extinction * (survey.airmass - survey.zeropoint_airmass)
     return filt.exp_time * filt.zeropoint * 10 ** (-0.4 * (mag - 24))
@@ -518,11 +518,11 @@ def get_mean_sky_level(survey, filt):
     using information about the survey and filter.
 
     Args:
-        survey (btk Survey) : BTK Survey object
-        filt (btk Filter) : BTK Filter object
+        survey (btk.survey.Survey) : BTK Survey object
+        filt (btk.survey.Filter) : BTK Filter object
 
     Returns:
-        float : Corresponding mean sky level"""
+        Corresponding mean sky level"""
     return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale ** 2
 
 
@@ -539,7 +539,7 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
                             types can be found in astropy.wcs documentation
 
     Returns:
-        wcs: astropy WCS
+        astropy WCS
     """
     if center_pix is None:
         center_pix = [(s + 1) / 2 for s in shape]
