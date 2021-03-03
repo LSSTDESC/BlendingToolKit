@@ -13,7 +13,11 @@ def _get_random_center_shift(num_objects, maxshift):
     in arcseconds.
 
     Args:
-        num_objects(int): Number of x and y shifts to return.
+        num_objects(int) : Number of x and y shifts to return.
+
+    Returns:
+        dx (float) : random shift along the x axis
+        dy (float) : random shift along the x axis
     """
     dx = np.random.uniform(-maxshift, maxshift, size=num_objects)
     dy = np.random.uniform(-maxshift, maxshift, size=num_objects)
@@ -21,9 +25,14 @@ def _get_random_center_shift(num_objects, maxshift):
 
 
 class SamplingFunction(ABC):
+    """Class representing sampling functions to sample input catalog
+    from which to draw blends. The object can be called to
+    return an astropy table with entries corresponding to the
+    galaxies chosen for the blend.
+    """
+
     def __init__(self, max_number):
-        """Class representing sampling functions to sample input catalog
-        from which to draw blends.
+        """Initializes the SamplingFunction.
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
@@ -33,20 +42,22 @@ class SamplingFunction(ABC):
     @abstractmethod
     def __call__(self, table, **kwargs):
         """Returns a sample from the given astropy table with at most self.max_number of
-        objects."""
+        objects. This method should be implemented in subclasses."""
         pass
 
     @property
     @abstractmethod
     def compatible_catalogs(self):
-        # return a tuple of compatible catalogs by their name in `catalogs.py`.
+        """Get a tuple of compatible catalogs by their name in `catalog.py`.
+        This method should be implemented in subclasses."""
         pass
 
 
 class DefaultSampling(SamplingFunction):
+    """Default sampling function used for producing blend tables."""
+
     def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
         """
-        Default sampling function used for producing blend tables.
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
@@ -109,7 +120,17 @@ class DefaultSampling(SamplingFunction):
 
 
 class BasicSamplingFunction(SamplingFunction):
+    """Example of basic sampling function features : magnitude cut,
+    restriction on the shape, shift randomization"""
+
     def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
+        """
+        Args:
+            max_number (int): Defined in parent class
+            stamp_size (float): Size of the desired stamp.
+            maxshift (float): Magnitude of maximum value of shift. If None then it
+                             is set as one-tenth the stamp size. (in arcseconds)
+        """
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
@@ -177,8 +198,10 @@ class GroupSamplingFunction(SamplingFunction):
         catalog (in i band) to identify galaxies that belong to a group.
 
         Args:
-            max_number: Same as in SamplingFunction
-            wld_catalog_name: File path to a pre-analyzed WLD Catsim catalog.
+            max_number (int) : Same as in SamplingFunction
+            wld_catalog_name: File path to a pre-analyzed WLD Catsim catalog
+            stamp_size (int) : Size of the generated stamps
+            pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
         """
         super().__init__(max_number)
 
@@ -262,6 +285,8 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         Args:
             max_number: Same as SamplingFunction
             wld_catalog_name: Same as GroupSamplingFunction
+            stamp_size (int) : Size of the generated stamps
+            pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
         """
         super().__init__(max_number)
         self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format=fmt)
