@@ -6,6 +6,7 @@ from copy import deepcopy
 import astropy.table
 import galsim
 import numpy as np
+import galsim
 
 
 class Catalog(ABC):
