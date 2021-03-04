@@ -30,7 +30,7 @@ jobs:
 
       - name: Install doc dependencies
         run: |
-          pip install -r doc-requirements.txt
+          pip install -r docs-requirements.txt
 
       - name: build docs
         uses: ammaraskar/sphinx-action@master
