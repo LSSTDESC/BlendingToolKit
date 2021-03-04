@@ -16,8 +16,7 @@
 # -- Project information -----------------------------------------------------
 import os
 import sys
-
-from mock import Mock as MagicMock
+from unittest.mock import Mock as MagicMock
 
 # import mock.Mock as MagicMock
 
