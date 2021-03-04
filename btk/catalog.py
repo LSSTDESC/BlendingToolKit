@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import astropy.table
 import numpy as np
+import galsim
 
 
 class Catalog(ABC):
@@ -94,6 +95,11 @@ class CatsimCatalog(Catalog):
 
 
 class CosmosCatalog(Catalog):
+
+    def __init__(self, catalog, galsim_catalog, verbose=False):
+        super().__init__(catalog, verbose=verbose)
+        self.galsim_catalog = galsim_catalog
+    
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
         """
@@ -102,11 +108,12 @@ class CosmosCatalog(Catalog):
         Args:
             catalog_files: list containing the two paths to the COSMOS data
         """
-        catalog_coord = astropy.table.Table.read(catalog_files[0], "fits")
-        catalog_fit = astropy.table.Table.read(catalog_files[1], "fits")
+        catalog_coord = astropy.table.Table.read(catalog_files[0])
+        catalog_fit = astropy.table.Table.read(catalog_files[1])
         catalog = astropy.table.hstack([catalog_coord, catalog_fit])
 
-        return cls(catalog, verbose=verbose)
+        galsim_catalog = galsim.COSMOSCatalog(catalog_files[0])
+        return cls(catalog, galsim_catalog, verbose=verbose)
 
     def _prepare_table(self):
         """Carries operations to generate a standardized table."""
@@ -116,8 +123,9 @@ class CosmosCatalog(Catalog):
         table.rename_column("RA", "ra")
         table.rename_column("DEC", "dec")
         table.rename_column("MAG", "ref_mag")
-        index = np.where(t["IDENT_1"] == self._raw_catalog["IDENT_1"] for t in table)
-
+        #index = np.where(t["IDENT_1"] == self._raw_catalog["IDENT_1"] for t in table)
+        index = np.arange(0, len(table))
+        
         # convert ra dec from degrees to arcsec in catalog.
         table["ra"] *= 3600
         table["dec"] *= 3600
@@ -129,3 +137,6 @@ class CosmosCatalog(Catalog):
         self._raw_catalog["ref_mag"] = self._raw_catalog["MAG"]
         self._raw_catalog["btk_size"] = size
         return table
+
+    def get_galsim_catalog(self):
+        return self.galsim_catalog

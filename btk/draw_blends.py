@@ -478,8 +478,10 @@ class CosmosGenerator(DrawBlendsGenerator):
         Returns:
             galsim.Image object
         """
-        k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
-        gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
+
+        galsim_catalog = self.catalog.get_galsim_catalog()
+        gal_flux = get_flux(entry['ref_mag'], filt, survey)
+        gal = galsim_catalog.makeGalaxy(entry['btk_index'], gal_type="real", noise_pad_size=0).withFlux(gal_flux)
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
         # Convolution by a smal gaussian: The galsim models actally have noise in a little patch
