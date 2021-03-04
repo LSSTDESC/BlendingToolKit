@@ -24,9 +24,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
       - name: Install doc dependencies
         run: |
-          pipenv install -r doc-requirements.txt
+          pip install -r doc-requirements.txt
 
       - name: build docs
         uses: ammaraskar/sphinx-action@master
