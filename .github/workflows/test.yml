@@ -54,10 +54,6 @@ jobs:
         run: |
           pipenv install -r dev-requirements.txt
 
-      - name: Install doc dependencies
-        run: |
-          pipenv install -r doc-requirements.txt
-
       - name: Install dependencies
         run: |
           pipenv install -r requirements.txt

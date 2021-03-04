@@ -22,6 +22,10 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v2
 
+      - name: Install doc dependencies
+        run: |
+          pipenv install -r doc-requirements.txt
+
       - name: build docs
       - uses: ammaraskar/sphinx-action@master
         with:
