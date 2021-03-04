@@ -75,8 +75,3 @@ jobs:
           env_vars: OS,PYTHON
           name: codecov-umbrella
           fail_ci_if_error: true
-
-      - name: Build documentation
-        uses: ammaraskar/sphinx-action@master
-        with:
-          docs-folder: "docs/"
