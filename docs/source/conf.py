@@ -83,7 +83,6 @@ MOCK_MODULES = [
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
-    "numpydoc",
     "sphinx.ext.napoleon",
     "jupyter_sphinx",
 ]
