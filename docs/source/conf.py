@@ -17,7 +17,6 @@
 import os
 import sys
 
-import sphinx_rtd_theme
 from mock import Mock as MagicMock
 
 # import mock.Mock as MagicMock
@@ -35,9 +34,6 @@ author = "btk developers"
 version = ""
 # The full version, including alpha/beta/rc tags
 release = "0.1"
-
-# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 
 class Mock(MagicMock):
@@ -75,8 +71,6 @@ MOCK_MODULES = [
     "skimage",
     "skimage.feature",
 ]
-if on_rtd:
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ---------------------------------------------------
 
@@ -100,7 +94,6 @@ autodoc_default_options = {
     "special-members": "__init__",
     "undoc-members": True,
     "show-inheritance": True,
-    # "exclude-members": "__weakref__",
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -142,9 +135,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = "alabaster"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
