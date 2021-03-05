@@ -33,6 +33,7 @@ jobs:
           pip install -r docs-requirements.txt
 
       - name: build docs
-        uses: ammaraskar/sphinx-action@master
+        run: |
+          make html
         with:
-          docs-folder: "docs/"
+          path: "./docs/"
