@@ -58,9 +58,8 @@ jobs:
       - name: Commit documentation changes
         run: |
           git clone https://github.com/LSSTDESC/BlendingToolKit.git --branch gh-pages --single-branch gh-pages
-          mkdir gh-pages/docs/build/
-          cp -r docs/build/html/* gh-pages/docs/build/
-          cd gh-pages/docs/build
+          cp -r docs/build/html/* gh-pages/docs/
+          cd gh-pages/docs
           touch .nojekyll
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
