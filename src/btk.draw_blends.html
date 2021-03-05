@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>btk.draw_blends module &#8212; btk 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="btk.measure module" href="btk.measure.html" />
+    <link rel="prev" title="btk.create_blend_generator module" href="btk.create_blend_generator.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="btk-draw-blends-module">
+<h1>btk.draw_blends module<a class="headerlink" href="#btk-draw-blends-module" title="Permalink to this headline">¶</a></h1>
+<p>The draw_blends module defines the <code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code> class, which is used for generating blended stamps. It also features implementations of this class for WeakLensingDeblending and COSMOS. A custom class may be created by an experienced user to modify the way blends are rendered ; we advise to modify only the <code class="xref py py-meth docutils literal notranslate"><span class="pre">render_single()</span></code> method if possible.</p>
+<span class="target" id="module-btk.draw_blends"></span><dl class="py class">
+<dt id="btk.draw_blends.CatsimGenerator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">CatsimGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('i')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.CatsimGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.draw_blends.DrawBlendsGenerator</span></code></a></p>
+<p>Implementation of DrawBlendsGenerator for drawing galaxies from
+a Catsim-like catalog. Most of the code is taken from the package
+WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>).</p>
+<dl class="py attribute">
+<dt id="btk.draw_blends.CatsimGenerator.compatible_catalogs">
+<code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('CatsimCatalog',)</span></em><a class="headerlink" href="#btk.draw_blends.CatsimGenerator.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="btk.draw_blends.CatsimGenerator.render_single">
+<code class="sig-name descname"><span class="pre">render_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.CatsimGenerator.render_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Galsim Image of an isolated galaxy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>astropy.table.Table</em>) – Line from astropy describing the galaxy to draw</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object corresponding to the band where
+the image is drawn `</p></li>
+<li><p><strong>psf</strong> – Galsim object containing the PSF relative to the chosen filter</p></li>
+<li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>galsim.Image object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="btk.draw_blends.CosmosGenerator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">CosmosGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('i')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.CosmosGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.draw_blends.DrawBlendsGenerator</span></code></a></p>
+<p>Implementation of DrawBlendsGenerator for drawing real galaxies from
+the COSMOS catalog, using the Galsim implementation.</p>
+<dl class="py attribute">
+<dt id="btk.draw_blends.CosmosGenerator.compatible_catalogs">
+<code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('CosmosCatalog',)</span></em><a class="headerlink" href="#btk.draw_blends.CosmosGenerator.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="btk.draw_blends.CosmosGenerator.render_single">
+<code class="sig-name descname"><span class="pre">render_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.CosmosGenerator.render_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Galsim Image of an isolated galaxy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>astropy Table</em>) – Line from astropy describing the galaxy to draw</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object corresponding to the band where
+the image is drawn `</p></li>
+<li><p><strong>psf</strong> – Galsim object containing the PSF relative to the chosen filter</p></li>
+<li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>galsim.Image object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="btk.draw_blends.DrawBlendsGenerator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">DrawBlendsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('i')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Class that generates images of blended objects, individual isolated
+objects, for each blend in the batch.</p>
+<p>Batch is divided into mini batches of size blend_generator.batch_size//cpus and
+each mini-batch analyzed separately. The results are then combined to output a
+dict with results of entire batch. If multiprocessing is true, then each of
+the mini-batches are run in parallel.</p>
+<dl class="py method">
+<dt id="btk.draw_blends.DrawBlendsGenerator.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('i')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the DrawBlendsGenerator class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog</strong> (<a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><em>btk.catalog.Catalog</em></a>) – BTK catalog object from which galaxies are taken</p></li>
+<li><p><strong>sampling_function</strong> (<em>btk.sampling_function.SamplingFunction</em>) – BTK sampling function
+to use</p></li>
+<li><p><strong>surveys</strong> (<em>list</em>) – List of btk Survey objects defining the observing conditions</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of blends generated per batch</p></li>
+<li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the stamps, in arcseconds</p></li>
+<li><p><strong>meas_bands=</strong> (<em>&quot;i&quot;</em><em>,</em>) – Tuple containing the bands in which the measurements are carried</p></li>
+<li><p><strong>multiprocessing</strong> (<em>bool</em>) – Indicates whether the mini batches should be ran in
+parallel</p></li>
+<li><p><strong>cpus</strong> (<em>int</em>) – Number of cpus to use ; defines the number of minibatches</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Indicates whether additionnal information should be printed</p></li>
+<li><p><strong>add_noise</strong> (<em>bool</em>) – Indicates if the blends should be generated with noise</p></li>
+<li><p><strong>shifts</strong> (<em>list</em>) – Contains arbitrary shifts to be applied instead of
+random shifts. Must be of length batch_size. Must be used
+with indexes.</p></li>
+<li><p><strong>indexes</strong> (<em>list</em>) – Contains the ids of the galaxies to use in the stamp.
+Must be of length batch_size. Must be used with shifts.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="btk.draw_blends.DrawBlendsGenerator.compatible_catalogs">
+<code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('Catalog',)</span></em><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="btk.draw_blends.DrawBlendsGenerator.render_blend">
+<code class="sig-name descname"><span class="pre">render_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_blend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws image of isolated galaxies along with the blend image in the
+single input band.</p>
+<p>The WLDeblending package (descwl) renders galaxies corresponding to the
+blend_catalog entries and with observing conditions determined by
+cutout. The rendered objects are stored in the observing conditions
+class. So as to not overwrite images across different blends, we make a
+copy of the cutout while drawing each galaxy. Images of isolated
+galaxies are drawn with the WLDeblending and them summed to produce the
+blend image.</p>
+<p>A column ‘not_drawn_{band}’ is added to blend_catalog initialized as zero.
+If a galaxy was not drawn by descwl, then this flag is set to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_catalog</strong> (<em>astropy.table.Table</em>) – Catalog with entries corresponding to one blend.</p></li>
+<li><p><strong>psf</strong> – Galsim object containing the psf for the given filter</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
+<li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Images of blend and isolated galaxies as <cite>numpy.ndarray</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.draw_blends.DrawBlendsGenerator.render_mini_batch">
+<code class="sig-name descname"><span class="pre">render_mini_batch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_mini_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns isolated and blended images for blend catalogs in blend_list</p>
+<p>Function loops over blend_list and draws blend and isolated images in each
+band. Even though blend_list was input to the function, we return it since,
+the blend catalogs now include additional columns that flag if an object
+was not drawn and object centers in pixel coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_list</strong> (<em>list</em>) – List of catalogs with entries corresponding to one
+blend. The size of this list is equal to the
+mini_batch_size.</p></li>
+<li><p><strong>psf</strong> (<em>list</em>) – List of Galsim objects containing the PSF</p></li>
+<li><p><strong>wcs</strong> (<em>astropy.wcs.WCS</em>) – astropy WCS object</p></li>
+<li><p><strong>survey</strong> (<em>dict</em>) – Dictionary containing survey information.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>numpy.ndarray</cite> of blend images and isolated galaxy images, along with
+list of blend catalogs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.draw_blends.DrawBlendsGenerator.render_single">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">render_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders single galaxy in single band in the location given by its entry
+using the cutout information.</p>
+<p>The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
+This method should be implemented in subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>galsim.Image object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="btk.draw_blends.SourceNotVisible">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">SourceNotVisible</span></code><a class="headerlink" href="#btk.draw_blends.SourceNotVisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Custom exception to indicate that a source has no visible model components.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.draw_blends.get_catsim_galaxy">
+<code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">get_catsim_galaxy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_disk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_bulge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_agn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.get_catsim_galaxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)
+Returns a composite Galsim galaxy profile with bulge, disk and AGN based on the
+parameters in the entry, and using observing conditions defined by the survey
+and the filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>astropy.table.Table</em>) – single astropy line containing information on the galaxy</p></li>
+<li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
+<li><p><strong>no_disk</strong> (<em>bool</em>) – Sets the flux for the disk to zero</p></li>
+<li><p><strong>no_bulge</strong> (<em>bool</em>) – Sets the flux for the bulge to zero</p></li>
+<li><p><strong>no_agn</strong> (<em>bool</em>) – Sets the flux for the AGN to zero</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Galsim galaxy profile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.draw_blends.get_center_in_pixels">
+<code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">get_center_in_pixels</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.get_center_in_pixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns center of objects in blend_catalog in pixel coordinates of
+postage stamp.</p>
+<p>blend_catalog contains ra dec of object center with the postage stamp
+center being 0,0. The size of the postage stamp and pixel scale is used to
+compute the object centers in pixel coordinates. Coordinates are in pixels
+where bottom left corner of postage stamp is (0, 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_catalog</strong> – Catalog with entries corresponding to one blend.</p></li>
+<li><p><strong>wcs</strong> (<em>astropy.wcs.WCS</em>) – astropy WCS object corresponding to the image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>x and y coordinates of object centroid</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>astropy.table.Column</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.draw_blends.get_size">
+<code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">get_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a astropy.table.column with the size of the galaxy in pixels.</p>
+<p>Galaxy size is estimated as second moments size (r_sec) computed as
+described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
+is computed by galsim from the PSF model in obs_conds in the i band.
+The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog</strong> – Catalog with entries corresponding to one blend.</p></li>
+<li><p><strong>psf</strong> – Galsim object corresponding to a PSF.</p></li>
+<li><p><strong>pixel_scale</strong> – arcseconds per pixel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>size of the galaxy in pixels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>astropy.table.Column</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">btk</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="btk.html">btk package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="btk.html#module-btk">Module contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="btk.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="btk.html">btk package</a><ul>
+      <li>Previous: <a href="btk.create_blend_generator.html" title="previous chapter">btk.create_blend_generator module</a></li>
+      <li>Next: <a href="btk.measure.html" title="next chapter">btk.measure module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, btk developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/btk.draw_blends.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

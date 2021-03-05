@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>btk.survey module &#8212; btk 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="btk.sampling_functions module" href="btk.sampling_functions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="btk-survey-module">
+<h1>btk.survey module<a class="headerlink" href="#btk-survey-module" title="Permalink to this headline">¶</a></h1>
+<p>The survey module defines the <a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code></a> class as a namedtuple, which contains the information relevant to observing conditions for a given survey. A Survey contains several instances of <a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a>, which are also namedtuples containing information specific to each filter.</p>
+<span class="target" id="module-btk.survey"></span><p>Contains information for surveys available in BTK.</p>
+<dl class="py class">
+<dt id="btk.survey.Survey">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">Survey</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airmass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint_airmass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class containing the informations relative to a survey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the survey</p></li>
+<li><p><strong>pixel_scale</strong> (<em>float</em>) – Pixel scale of the survey, in arcseconds per pixel</p></li>
+<li><p><strong>effective_area</strong> (<em>float</em>) – Effective total light collecting area, in square meters</p></li>
+<li><p><strong>mirror_diameter</strong> (<em>float</em>) – Diameter of the primary mirror, in meters</p></li>
+<li><p><strong>airmass</strong> (<em>float</em>) – Optical path length through atmosphere relative to zenith path length</p></li>
+<li><p><strong>filters</strong> (<em>list</em>) – List of Filter objects corresponding to the filters of this survey</p></li>
+<li><p><strong>zeropoint_airmass</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="btk.survey.Filter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">Filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sky_brightness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extinction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class containing the informations relative to a filter (for a specific survey).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the filter</p></li>
+<li><p><strong>psf</strong> – Contains the PSF information, either as a Galsim object,
+or as a function returning a Galsim object</p></li>
+<li><p><strong>sky_brightness</strong> (<em>float</em>) – Sky brightness, in mags/sq.arcsec</p></li>
+<li><p><strong>exp_time</strong> (<em>int</em>) – Total exposition time, in seconds</p></li>
+<li><p><strong>zeropoint</strong> (<em>float</em>) – Simulated camera zero point in electrons per second at 24th magnitude</p></li>
+<li><p><strong>extinction</strong> (<em>float</em>) – Exponential extinction coefficient for atmospheric absorption</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.survey.get_flux">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_flux</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ab_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert source magnitude to flux.
+The calculation includes the effects of atmospheric extinction.
+Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ab_magnitude</strong> (<em>float</em>) – AB magnitude of source.</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
+<li><p><strong>survey</strong> (<a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flux in detected electrons.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.survey.get_mean_sky_level">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_mean_sky_level</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_mean_sky_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the mean sky level given to Galsim for noise generation,
+using information about the survey and filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>survey</strong> (<a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+<li><p><strong>filt</strong> (<a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corresponding mean sky level</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.survey.get_psf">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_psf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmospheric_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Kolmogorov'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_psf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)
+Defines a synthetic galsim PSF model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mirror_diameter</strong> (<em>float</em>) – in meters [m]</p></li>
+<li><p><strong>effective_area</strong> (<em>float</em>) – effective total light collecting area in square meters [m2]</p></li>
+<li><p><strong>filt_wavelength</strong> (<em>string</em>) – filter wavelength</p></li>
+<li><p><strong>fwhm</strong> (<em>float</em>) – fwhm of the atmospheric component</p></li>
+<li><p><strong>atmospheric_model</strong> (<em>string</em>) – type of atmospheric model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>galsim psf model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>psf_model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.survey.get_psf_from_file">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_psf_from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psf_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_psf_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a custom PSF galsim model from FITS file(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>psf_dir</strong> (<em>string</em>) – directory where the PSF FITS files are</p></li>
+<li><p><strong>survey</strong> (<em>btk Survey</em>) – BTK Survey object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>galsim PSF model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.survey.make_wcs">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">make_wcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_pix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_sky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TAN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.make_wcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates WCS for an image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pixel_scale</strong> (<em>float</em>) – pixel size in arcseconds</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em>) – shape of the image in pixels.</p></li>
+<li><p><strong>center_pix</strong> (<em>tuple</em>) – tuple representing the center of the image in pixels</p></li>
+<li><p><strong>center_sky</strong> (<em>tuple</em>) – tuple representing the center of the image in sky coordinates
+(RA,DEC) in arcseconds.</p></li>
+<li><p><strong>projection</strong> (<em>str</em>) – projection type, default to TAN. A list of available
+types can be found in astropy.wcs documentation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>astropy WCS</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">btk</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="btk.html">btk package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="btk.html#module-btk">Module contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="btk.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="btk.html">btk package</a><ul>
+      <li>Previous: <a href="btk.sampling_functions.html" title="previous chapter">btk.sampling_functions module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, btk developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/btk.survey.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>btk.metrics module &#8212; btk 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="btk.sampling_functions module" href="btk.sampling_functions.html" />
+    <link rel="prev" title="btk.measure module" href="btk.measure.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="btk-metrics-module">
+<h1>btk.metrics module<a class="headerlink" href="#btk-metrics-module" title="Permalink to this headline">¶</a></h1>
+<p>This module should be updated in a near future.
+The metrics module contains everything related to getting metrics for evaluating detection/deblending algorithms. Particular points of interest are the <a class="reference internal" href="#btk.metrics.MetricsParams" title="btk.metrics.MetricsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricsParams</span></code></a> class and the <code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code> function.</p>
+<span class="target" id="module-btk.metrics"></span><dl class="py class">
+<dt id="btk.metrics.BasicMetricsParams">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">BasicMetricsParams</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.BasicMetricsParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.metrics.MetricsParams" title="btk.metrics.MetricsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.metrics.MetricsParams</span></code></a></p>
+<p>Class describing functions to return results of
+detection/deblending/measurement algorithm in meas_generator. Each
+time the algorithm is called, it is run on a batch of blends yielded
+by the meas_generator.</p>
+<dl class="py method">
+<dt id="btk.metrics.BasicMetricsParams.get_detections">
+<code class="sig-name descname"><span class="pre">get_detections</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.BasicMetricsParams.get_detections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns input blend catalog and detection catalog for
+the detection performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>true_tables: List of astropy Table of the blend catalogs of the</dt><dd><p>batch. Length of tables must be the batch size. x and y
+coordinate values must be under columns named ‘dx’ and ‘dy’
+respectively, in pixels from bottom left corner as (0, 0).</p>
+</dd>
+<dt>detected_tables: List of astropy Table of output from detection</dt><dd><p>algorithm. Length of tables must be the batch size. x and y
+coordinate values must be under columns named ‘dx’ and ‘dy’
+respectively, in pixels from bottom left corner as (0, 0).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Results of the detection algorithm are returned as</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="btk.metrics.MetricsParams">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsParams</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="py method">
+<dt id="btk.metrics.MetricsParams.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class describing functions to return results of
+detection/deblending/measurement algorithm in meas_generator. Each
+blend results yielded by the meas_generator for a batch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.metrics.MetricsParams.get_detections">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">get_detections</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_detections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns detection results as two catalogs one with entries of true
+objects in blend and the other with the detection.</p>
+<p>Overwrite this function to return results from the detection algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>List of astropy tables with the blend catalogs used to draw</dt><dd><p>the blend scene in the batch. Length of tables must be equal to
+the batch size. x and y coordinate values must be under columns
+named ‘dx’ and ‘dy’ respectively, in pixels from bottom left
+corner as (0, 0).</p>
+</dd>
+</dl>
+<p>list: List of astropy Tables of output with the outputs of the
+detection algorithm. Length of tables must be equal to the batch
+size. x and y coordinate values must be under columns named ‘dx’
+and ‘dy’ respectively, in pixels from bottom left corner as (0, 0).</p>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.metrics.MetricsParams.get_flux">
+<code class="sig-name descname"><span class="pre">get_flux</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define function here to return results from the flux measurement
+algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.metrics.MetricsParams.get_segmentation">
+<code class="sig-name descname"><span class="pre">get_segmentation</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_segmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define function here to return results from the segmentation
+algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.metrics.MetricsParams.get_shapes">
+<code class="sig-name descname"><span class="pre">get_shapes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define function here to return results from the shape measurement
+algorithm.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.evaluate_detection">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_detection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the true centers and detected centers to identify the
+number of true detections, number of sources that were undetected
+and number of spurious detections.
+:param true_tables: List of astropy Tables of the blend catalogs of the</p>
+<blockquote>
+<div><p>batch. Length of tables must be the batch size. x and y coordinate
+values must be under columns named ‘dx’ and ‘dy’ respectively, in
+pixels from bottom left corner as (0, 0).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>detected_tables</strong> – List of astropy Tables of output from detection
+algorithm. Length of tables must be the batch size. x and y
+coordinate values must be under columns named ‘dx’ and ‘dy’
+respectively, in pixels from bottom left corner as (0, 0).</p></li>
+<li><p><strong>batch_index</strong> (<em>int</em>) – Index number of the batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>astropy.table.Table with parameters of true galaxy in</dt><dd><p>the batch.</p>
+</dd>
+<dt>batch_detected_table: astropy.table.Table with parameters of detected</dt><dd><p>objects in the batch.</p>
+</dd>
+</dl>
+<p>batch_blend_list: List summarizing detection match results.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>batch_true_table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.evaluate_flux">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_flux</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_flux" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.evaluate_segmentation">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_segmentation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segmentation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_segmentation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.evaluate_shapes">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_shapes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.get_blend_detection_summary">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_blend_detection_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blend_detection_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list summarizing results of detection metric computation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>true_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding to
+the true object parameter values in one blend.</p></li>
+<li><p><strong>det_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding
+to output of measurement algorithm in one blend.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>num_true: number of true objects.
+num_detected: Number of correct detections by algorithm.
+num_undetected: Number of true objects not detected by algorithm.
+num_spurious: Number of spurious detections.
+num_shred: Number of true objects shredded by algorithm.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of detection metrics summary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.get_closest_neighbor_distance">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_closest_neighbor_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_closest_neighbor_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a astropy.table.column with the distance to the closest object.</p>
+<p>Function uses scipy.spatial to compute distance between the object centers.
+If object is the only one in the blend then the <cite>min_dist</cite> value is set to
+np.inf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>true_table</strong> – Catalog with entries corresponding to one blend.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>size of the galaxy.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a href="#id1"><span class="problematic" id="id2">`</span></a>astropy.table.Column`s</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.get_detection_eff_matrix">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_eff_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_eff_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the detection efficiency matrix for the input detection summary
+table.</p>
+<p>Input argument num sets the maximum number of true objects per blend in the
+test set for which the
+detection efficiency matrix is to be created for. Detection efficiency is
+computed for a number of true objects in the range (0-num) as columns and
+the detection percentage as rows. The percentage values in a column sum to
+100.</p>
+<p>The input summary table must be a numpy array of shape [N, 5], where N is
+the test set size. The 5 columns in the summary_table are number of true
+objects, detected sources, undetected objects, spurious detections and
+shredded objects for each of the N blend scenes in the test set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_table</strong> (<cite>numpy.array</cite>) – Detection summary as a table [N, 5].</p></li>
+<li><p><strong>num</strong> (<em>int</em>) – Maximum number of true objects to create matrix for. Number
+of columns in efficiency matrix will be num+1. The first column
+will correspond to no true objects.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy.ndarray of size[num+2, num+1] that shows detection efficiency.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.get_detection_match">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match detections to true objects and update values in the input
+blend catalog and detection catalog.</p>
+<p>Function does not return anything, only the astropy tables are updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>true_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding to
+the true object parameter values in one blend.</p></li>
+<li><p><strong>detected_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding
+to output of measurement algorithm in one blend.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.get_m_z_diff">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_m_z_diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_m_z_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the input astropy.table.column with the difference in magnitude,
+and redshift between an object and it’s algorithm matches. It also computes
+the true distance between an object and its closest detection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>detected_true</strong> – </p></li>
+<li><p><strong>true_table</strong> – Catalog with entries corresponding to one blend.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.initialize_detection_tables">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">initialize_detection_tables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.initialize_detection_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize column entries of true objects and detection catalog to their
+default values.</p>
+<p>This is necessary since, if either true objects or detection table is
+empty, then there is no match in get_detection_match and those column
+entries would not otherwise be present in the tables.</p>
+<p>Function does not return anything, only the astropy tables are updates.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.make_true_seg_map">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">make_true_seg_map</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.make_true_seg_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean segmentation map corresponding to pixels in
+image above a certain threshold value.
+:param image: Image to estimate segmentation map of
+:param threshold: Pixels above this threshold are marked as belonging to</p>
+<blockquote>
+<div><p>segmentation map</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Boolean segmentation map of the image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.run">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs detection/segmentation/flux/shape measurement algorithm defined in
+the input metrics params for input test_size number of btk runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics_params</strong> – Instance from class</p></li>
+<li><p><strong>describing functions to return</strong> (<em>btk.metrics.Metrics_params</em>) – </p></li>
+<li><p><strong>of detection/deblending/measurement algorithm.</strong> (<em>results</em>) – </p></li>
+<li><p><strong>test_size</strong> (<em>int</em>) – Number of times Metrics_params is run and results
+summarized.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict summarizing detection/deblending/measurement results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">btk</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="btk.html">btk package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="btk.html#module-btk">Module contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="btk.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="btk.html">btk package</a><ul>
+      <li>Previous: <a href="btk.measure.html" title="previous chapter">btk.measure module</a></li>
+      <li>Next: <a href="btk.sampling_functions.html" title="next chapter">btk.sampling_functions module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, btk developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/btk.metrics.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
