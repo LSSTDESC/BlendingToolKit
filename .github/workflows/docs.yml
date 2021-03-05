@@ -28,6 +28,14 @@ jobs:
         run: |
           pip install --upgrade pip
 
+      - name: Instal FFTW + Eigen
+        run: |
+          sudo apt-get install libfftw3-dev libeigen3-dev
+          
+      - name: Install dependencies
+        run: |
+          pipenv install -r requirements.txt  
+
       - name: Install doc dependencies
         run: |
           pip install -r docs-requirements.txt
