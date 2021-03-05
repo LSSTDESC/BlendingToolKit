@@ -34,6 +34,8 @@ Importing relevant modules
   import btk
   import btk.plot_utils
   import btk.survey
+  import btk.sampling_functions
+  import btk.catalog
   import btk.draw_blends
   import astropy.table
 
