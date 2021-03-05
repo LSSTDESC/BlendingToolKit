@@ -31,14 +31,14 @@ jobs:
       - name: Instal FFTW + Eigen
         run: |
           sudo apt-get install libfftw3-dev libeigen3-dev
-      
+
       - name: Install dev dependencies
         run: |
           pip install -r dev-requirements.txt
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt  
+          pip install -r requirements.txt
 
       - name: Install doc dependencies
         run: |
@@ -67,6 +67,7 @@ jobs:
           git commit -m "Update documentation" -a || true
           # The above command will fail if no changes were present, so we ignore
           # that.
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
