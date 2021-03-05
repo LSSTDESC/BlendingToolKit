@@ -31,7 +31,11 @@ jobs:
       - name: Instal FFTW + Eigen
         run: |
           sudo apt-get install libfftw3-dev libeigen3-dev
-          
+      
+      - name: Install dev dependencies
+        run: |
+          pip install -r dev-requirements.txt
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt  
