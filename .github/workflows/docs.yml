@@ -34,10 +34,8 @@ jobs:
 
       - name: build docs
         run: |
+          cd docs
           make html
           cd build/html
           touch .nojekyll
-        with:
-          path: "./docs/"
-
 
