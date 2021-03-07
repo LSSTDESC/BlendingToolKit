@@ -1,5 +1,5 @@
-btk package
-==============
+BlendingToolKit API
+====================
 
 
 Module contents

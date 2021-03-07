@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 project = "btk"
-copyright = "2019, btk developers"
+copyright = "2020, btk developers"
 author = "btk developers"
 
 # The short X.Y version
