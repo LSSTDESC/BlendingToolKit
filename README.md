@@ -1,5 +1,4 @@
 ![tests](https://github.com/LSSTDESC/BlendingToolKit/workflows/tests/badge.svg)
-[![Documentation Status](https://readthedocs.org/projects/blendingtoolkit/badge/?version=latest)](https://blendingtoolkit.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/master/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
 
@@ -8,7 +7,7 @@
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
 producing multi-band postage stamp images of blend scenes.
 
-Documentation can be found at https://blendingtoolkit.readthedocs.io/en/latest/
+Documentation can be found at https://lsstdesc.org/BlendingToolKit/index.html
 
 ## Workflow
 <img src="docs/source/images/current_flowchart.png" alt="btk workflow" width="450"/>
@@ -28,7 +27,7 @@ This repository includes sample input catalogs with a small number of galaxies t
 ## Installation
 For required packages, see [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/master/requirements.txt)
 
-More detailed installation instructions can be found [here](https://blendingtoolkit.readthedocs.io/en/latest/install.html).
+More detailed installation instructions can be found [here](https://lsstdesc.org/BlendingToolKit/install.html).
 
 ## Contributing
 
