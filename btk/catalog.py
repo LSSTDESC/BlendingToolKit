@@ -6,12 +6,15 @@ from copy import deepcopy
 import astropy.table
 import galsim
 import numpy as np
-import galsim
 
 
 class Catalog(ABC):
     """Base class containing the catalog for BTK.
     Each different catalog should have a corresponding subclass of Catalog.
+
+    Arguments:
+        raw_catalog: Raw catalog containing information to create table.
+        verbose: Whether to print information related to loading catalog.
 
     Attributes:
         self.table (astropy.table) : Standardized table containing information from the catalog
