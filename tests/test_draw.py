@@ -45,6 +45,7 @@ def get_draw_generator(
         multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
+        verbose=True,
     )
     return draw_generator
 

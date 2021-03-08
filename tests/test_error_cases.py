@@ -1,6 +1,6 @@
 import pytest
 
-import btk.sampling_functions
+import btk
 from btk.survey import Rubin
 
 
@@ -125,26 +125,49 @@ def test_sampling_too_much_objects():
     assert "Number of objects per blend must be less than max_number" in str(excinfo.value)
 
 
-# def test_multiresolution():
-#     catalog_name = "data/sample_input_catalog.fits"
+def test_source_not_visible():
+    filt = btk.survey.Filter(
+        name="u",
+        psf=btk.survey.get_psf(
+            mirror_diameter=8.36,
+            effective_area=32.4,
+            filt_wavelength=3592.13,
+            fwhm=0.859,
+        ),
+        sky_brightness=22.9,
+        exp_time=1680,
+        zeropoint=9.16,
+        extinction=0.451,
+    )
+    catalog_name = "data/sample_input_catalog.fits"
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    with pytest.raises(btk.draw_blends.SourceNotVisible):
+        gal = btk.draw_blends.get_catsim_galaxy(  # noqa: F841
+            catalog.table[0], filt, Rubin, True, True, True
+        )
 
-#     stamp_size = 24.0
-#     batch_size = 8
-#     cpus = 1
-#     multiprocessing = False
-#     add_noise = True
 
-#     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
-#     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-#     draw_generator = btk.draw_blends.CatsimGenerator(
-#         catalog,
-#         sampling_function,
-#         [Rubin, HSC],
-#         stamp_size=stamp_size,
-#         batch_size=batch_size,
-#         multiprocessing=multiprocessing,
-#         cpus=cpus,
-#         add_noise=add_noise,
-#         meas_bands=("i", "i"),
-#     )
-#     draw_output = next(draw_generator)
+def test_survey_not_list():
+    catalog_name = "data/sample_input_catalog.fits"
+
+    stamp_size = 24.0
+    batch_size = 8
+    cpus = 1
+    multiprocessing = False
+    add_noise = True
+
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    with pytest.raises(TypeError):
+        draw_generator = btk.draw_blends.CatsimGenerator(
+            catalog,
+            sampling_function,
+            3,
+            stamp_size=stamp_size,
+            batch_size=batch_size,
+            multiprocessing=multiprocessing,
+            cpus=cpus,
+            add_noise=add_noise,
+            meas_bands=("i"),
+        )
+        draw_output = next(draw_generator)  # noqa: F841
