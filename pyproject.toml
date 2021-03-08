@@ -1,9 +1,29 @@
 [tool.poetry]
-authors = ["BlendingToolKit contributors"]
+classifiers=[
+      "Programming Language :: Python :: 3",
+      "License :: OSI Approved :: MIT License",
+      "Operating System :: OS Independent",
+  ],
+authors = [
+  "Ismael Mendoza <imendoza@umich.edu>",
+  "Somwya Kamath",
+  "Thomas Sainrat",
+  "Maxime Paillasa",
+  "Alexandre Boucaud",
+  "Remy Joseph",
+  "Patricia Burchat",
+  "Cyrille Doux",
+  "Eric Aubourg",
+]
 description = "Blending ToolKit"
+documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
+keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
 license = "MIT"
 name = "btk"
-version = "0.0.1"
+packages = [{include = "btk"}]
+readme = "README.md"
+repository = "https://github.com/LSSTDESC/BlendingToolKit"
+version = "0.0.1-alpha0.2"
 
 [tool.poetry.dependencies]
 astropy = "^4.2"
@@ -25,6 +45,9 @@ pytest = "^6.1.2"
 pytest-cov = "^2.10.1"
 reorder-python-imports = "^2.4.0"
 wheel = "^0.36.2"
+
+[tool.poetry.ulrs]
+"Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
