@@ -1,9 +1,4 @@
 [tool.poetry]
-classifiers=[
-      "Programming Language :: Python :: 3",
-      "License :: OSI Approved :: MIT License",
-      "Operating System :: OS Independent",
-  ],
 authors = [
   "Ismael Mendoza <imendoza@umich.edu>",
   "Somwya Kamath",
@@ -14,6 +9,11 @@ authors = [
   "Patricia Burchat",
   "Cyrille Doux",
   "Eric Aubourg",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
 description = "Blending ToolKit"
 documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
