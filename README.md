@@ -1,6 +1,6 @@
 ![tests](https://github.com/LSSTDESC/BlendingToolKit/workflows/tests/badge.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/master/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
+[![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/main/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
 
 **NOTE:** BTK is currently undergoing heavy development and rapidly changing, as such the documentation and most jupyter could be deprecated. Please feel free to contact [@ismael-mendoza](https://github.com/ismael-mendoza) if you would like to use `BTK` for a current project or contribute.
 # BlendingToolKit
@@ -20,15 +20,15 @@ Color code for this flowchart :
 
 ## Running BlendingToolKit
 - BlendingToolKit (btk) requires an input catalog that contains information required to simulate galaxies and blends.
-This repository includes sample input catalogs with a small number of galaxies that can be used to draw blend images with btk. See [tutorials](https://github.com/LSSTDESC/BlendingToolKit/tree/master/notebooks) to learn how to run btk with these catalogs.
+This repository includes sample input catalogs with a small number of galaxies that can be used to draw blend images with btk. See [tutorials](https://github.com/LSSTDESC/BlendingToolKit/tree/main/notebooks) to learn how to run btk with these catalogs.
 - CatSim Catalog corresponding to one square degree of sky and processed WeakLensingDeblending catalogs can be downloaded from [here](https://stanford.app.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk).
 - [Cosmo DC2](https://arxiv.org/abs/1907.06530) catalog requires pre-processing in order to be used as input catalog to btk. Refer to this [notebook](https://github.com/LSSTDESC/WeakLensingDeblending/blob/cosmoDC2_ingestion/notebooks/wld_ingestion_cosmoDC2.ipynb) on how to convert the DC2 catalog into a CatSim-like catalog that can be analyzed with btk.
 
 ## Installation
-For required packages, see [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/master/requirements.txt)
+For required packages, see [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt)
 
 More detailed installation instructions can be found [here](https://lsstdesc.org/BlendingToolKit/install.html).
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/LSSTDESC/BlendingToolKit/blob/master/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/LSSTDESC/BlendingToolKit/blob/main/CONTRIBUTING.md)
