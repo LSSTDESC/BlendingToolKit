@@ -18,6 +18,7 @@ Install fitsio and lmfit
 -----------------------------
 These two uncommon packages can be installed via:
 ::
+
     # in conda.
     conda install -c conda-forge fitsio
     conda install -c conda-forge lmfit
@@ -33,23 +34,13 @@ Install GalSim
 GalSim is a python module that has much of its implementation in C++ for
 improved computational efficiency. It can be installed with
 ::
+
     pip install galsim
 
 However you may have to install FFTW and Eigen manually. Refer to
 `this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
 for more details.
 
-Install WeakLensingDeblending package
----------------------------------------
-
-WeakLensingDeblending package must first be cloned:
-::
-    git clone https://github.com/DarkEnergyScienceCollaboration/WeakLensingDeblending.git
-
-Then run the following inside the WeakLensingDeblending folder:
-::
-    cd WeakLensingDeblending
-    python setup.py install
 
 Install *BlendingToolKit* with GIT
 ------------------------------------
@@ -57,10 +48,12 @@ Install *BlendingToolKit* with GIT
 The code is hosted on `github <https://github.com/LSSTDESC/BlendingToolKit>`_.
 First download the repo:
 ::
+
     git clone https://github.com/LSSTDESC/BlendingToolKit.git
 
 Then install using
 ::
+
     cd BlendingToolKit
     python setup.py install
 

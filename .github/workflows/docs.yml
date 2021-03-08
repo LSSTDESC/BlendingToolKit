@@ -1,0 +1,74 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - name: Checkout github repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Instal FFTW + Eigen
+        run: |
+          sudo apt-get install libfftw3-dev libeigen3-dev
+
+      - name: Install dev dependencies
+        run: |
+          pip install -r dev-requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install doc dependencies
+        run: |
+          pip install -r docs-requirements.txt
+
+      - name: Install btk
+        run: |
+          python setup.py install
+
+      - name: build docs
+        run: |
+          cd docs
+          make html
+          cd build/html
+          touch .nojekyll
+
+      - name: Commit documentation changes
+        run: |
+          git clone https://github.com/LSSTDESC/BlendingToolKit.git --branch gh-pages --single-branch gh-pages
+          cp -r docs/build/html/* gh-pages/docs/
+          cd gh-pages/docs
+          touch .nojekyll
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+
+        # The above command will fail if no changes were present, so we ignore
+        # that.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}

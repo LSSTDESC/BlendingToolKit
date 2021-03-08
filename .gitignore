@@ -3,3 +3,5 @@
 /my-notebooks/
 .vscode/
 .pytest_cache/
+/build/
+.coverage

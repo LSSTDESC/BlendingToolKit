@@ -1,14 +1,12 @@
-btk package
-==============
+BlendingToolKit API
+====================
 
 
 Module contents
 ----------------
 
 .. automodule:: btk
-    :members:
-    :undoc-members:
-    :show-inheritance:
+
 
 
 Submodules
@@ -16,9 +14,10 @@ Submodules
 
 .. toctree::
 
-   btk.config
-   btk.get_input_catalog
+   btk.catalog
    btk.create_blend_generator
-   btk.create_observing_generator
    btk.draw_blends
    btk.measure
+   btk.metrics
+   btk.sampling_functions
+   btk.survey

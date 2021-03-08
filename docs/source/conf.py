@@ -16,9 +16,10 @@
 # -- Project information -----------------------------------------------------
 import os
 import sys
+from unittest.mock import Mock as MagicMock
 
-import sphinx_rtd_theme
-from mock import Mock as MagicMock
+import sphinx_rtd_theme  # noqa: F401
+
 
 # import mock.Mock as MagicMock
 
@@ -28,16 +29,13 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 project = "btk"
-copyright = "2019, btk developers"
+copyright = "2020, btk developers"
 author = "btk developers"
 
 # The short X.Y version
 version = ""
 # The full version, including alpha/beta/rc tags
 release = "0.1"
-
-# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 
 class Mock(MagicMock):
@@ -75,8 +73,6 @@ MOCK_MODULES = [
     "skimage",
     "skimage.feature",
 ]
-if on_rtd:
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ---------------------------------------------------
 
@@ -87,12 +83,21 @@ if on_rtd:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = [
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
-    "numpydoc",
     "sphinx.ext.napoleon",
+    "jupyter_sphinx",
+    "sphinx_rtd_theme",
 ]
+
+autodoc_default_options = {
+    "members": True,
+    "special-members": "__init__,__call__",
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -133,10 +138,8 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
+# html_theme = "alabaster"
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -147,7 +150,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

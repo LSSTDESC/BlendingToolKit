@@ -22,6 +22,18 @@ Survey = namedtuple(
     ],
 )
 
+Survey.__doc__ = """
+Class containing the informations relative to a survey.
+
+Args:
+    name (str) : Name of the survey
+    pixel_scale (float) : Pixel scale of the survey, in arcseconds per pixel
+    effective_area (float) : Effective total light collecting area, in square meters
+    mirror_diameter (float) : Diameter of the primary mirror, in meters
+    airmass (float) : Optical path length through atmosphere relative to zenith path length
+    filters (list) : List of Filter objects corresponding to the filters of this survey
+    zeropoint_airmass (float)"""
+
 Filter = namedtuple(
     "Filter",
     [
@@ -34,6 +46,18 @@ Filter = namedtuple(
     ],
 )
 
+Filter.__doc__ = """
+Class containing the informations relative to a filter (for a specific survey).
+
+Args:
+    name (str) : Name of the filter
+    psf : Contains the PSF information, either as a Galsim object,
+          or as a function returning a Galsim object
+    sky_brightness (float) : Sky brightness, in mags/sq.arcsec
+    exp_time (int) : Total exposition time, in seconds
+    zeropoint (float) : Simulated camera zero point in electrons per second at 24th magnitude
+    extinction (float) : Exponential extinction coefficient for atmospheric absorption"""
+
 
 def get_psf(
     mirror_diameter,
@@ -44,12 +68,14 @@ def get_psf(
 ):
     """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
     Defines a synthetic galsim PSF model
+
     Args:
         mirror_diameter (float): in meters [m]
         effective_area (float): effective total light collecting area in square meters [m2]
         filt_wavelength (string): filter wavelength
         fwhm (float): fwhm of the atmospheric component
         atmospheric_model (string): type of atmospheric model
+
     Returns:
         psf_model: galsim psf model
     """
@@ -97,10 +123,13 @@ def get_psf(
 
 def get_psf_from_file(psf_dir, survey):
     """Generates a custom PSF galsim model from FITS file(s)
+
     Args:
         psf_dir (string): directory where the PSF FITS files are
+        survey (btk Survey) : BTK Survey object
+
     Returns:
-        psf_model: galsim PSF model
+        galsim PSF model
     """
 
     psf_files = os.listdir(psf_dir)
@@ -474,29 +503,43 @@ def get_flux(ab_magnitude, filt, survey):
 
     Args:
         ab_magnitude(float): AB magnitude of source.
+        filt (btk.survey.Filter) : BTK Filter object
+        survey (btk.survey.Survey) : BTK Survey object
+
     Returns:
-        float: Flux in detected electrons.
+        Flux in detected electrons.
     """
     mag = ab_magnitude + filt.extinction * (survey.airmass - survey.zeropoint_airmass)
     return filt.exp_time * filt.zeropoint * 10 ** (-0.4 * (mag - 24))
 
 
 def get_mean_sky_level(survey, filt):
+    """Computes the mean sky level given to Galsim for noise generation,
+    using information about the survey and filter.
+
+    Args:
+        survey (btk.survey.Survey) : BTK Survey object
+        filt (btk.survey.Filter) : BTK Filter object
+
+    Returns:
+        Corresponding mean sky level"""
     return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale ** 2
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
     """Creates WCS for an image.
+
     Args:
         pixel_scale (float): pixel size in arcseconds
         shape (tuple): shape of the image in pixels.
-        center_pix: tuple representing the center of the image in pixels
-        center_sky: tuple representing the center of the image in sky coordinates
+        center_pix (tuple) : tuple representing the center of the image in pixels
+        center_sky (tuple) : tuple representing the center of the image in sky coordinates
                      (RA,DEC) in arcseconds.
         projection(str): projection type, default to TAN. A list of available
                             types can be found in astropy.wcs documentation
+
     Returns:
-        wcs: WCS
+        astropy WCS
     """
     if center_pix is None:
         center_pix = [(s + 1) / 2 for s in shape]
