@@ -31,7 +31,7 @@ pip install -r requirements.txt
 5. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging: 
 
 ```
-git rebase origin/master
+git rebase origin/main
 # follow the instructions and resolve conflicts...
 git push --force
 ```
