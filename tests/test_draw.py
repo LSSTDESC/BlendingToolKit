@@ -13,6 +13,7 @@ def get_draw_generator(
     multiprocessing=False,
     add_noise=True,
     fixed_parameters=False,
+    sampling_function=None,
 ):
     """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = "data/sample_input_catalog.fits"
@@ -34,7 +35,8 @@ def get_draw_generator(
         shifts = None
         indexes = None
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
-    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    if sampling_function is None:
+        sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
@@ -156,3 +158,10 @@ class TestBasicDraw:
         self.match_blend_images_default(draw_output["blend_images"])
         self.match_isolated_images_default(draw_output["isolated_images"])
         self.match_background_noise(draw_output["blend_images"])
+
+    def test_basic_sampling(self):
+        sampling_function = btk.sampling_functions.BasicSamplingFunction()
+        draw_generator = get_draw_generator(
+            fixed_parameters=True, sampling_function=sampling_function
+        )
+        draw_output = next(draw_generator)  # noqa: F841
