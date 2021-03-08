@@ -1,8 +1,9 @@
 import multiprocessing as mp
+from unittest.mock import patch
 
 import numpy as np
 
-import btk.sampling_functions
+import btk.plot_utils
 from btk.survey import Rubin
 
 
@@ -142,9 +143,11 @@ class TestBasicDraw:
             err_msg="Did not get desired mean pixel values of blend images",
         )
 
-    def test_default(self):
+    @patch("btk.plot_utils.plt.show")
+    def test_default(self, mock_show):
         default_draw_generator = get_draw_generator(fixed_parameters=True)
         draw_output = next(default_draw_generator)
+        btk.plot_utils.plot_blends(draw_output["blend_images"], draw_output["blend_list"])
         assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
         assert (
             len(draw_output["blend_list"][3]) < 3
