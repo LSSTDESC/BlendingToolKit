@@ -1,33 +1,23 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Installation &mdash; btk 0.1 documentation</title>
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
-  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
-
+  
   
   
 
   
-  
-
-  
-
-  
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -41,6 +31,12 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Input Catalog" href="catalog.html" />
@@ -81,7 +77,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -91,10 +86,8 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-fitsio-and-lmfit">Install fitsio and lmfit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-galsim">Install GalSim</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-blendingtoolkit-with-git">Install <em>BlendingToolKit</em> with GIT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-packages">Optional Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-btk">Install BTK</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
@@ -108,7 +101,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -143,20 +135,18 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
       <li>Installation</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -172,67 +162,41 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p><em>BlendingToolKit</em> (btk) is essentially a wrapper around the
-<a class="reference external" href="https://weaklensingdeblending.readthedocs.io/en/latest/">WeakLensingDeblending</a>
-package, which uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images.
-These packages along with their dependencies need to be installed first.</p>
-<p>The following dependencies are pip installable:</p>
+<p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python&gt;=3.8</span></code>.
+The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
 <ul class="simple">
-<li><p>numpy</p></li>
 <li><p>astropy</p></li>
+<li><p>galsim</p></li>
+<li><p>matplotlib</p></li>
+<li><p>numpy</p></li>
 <li><p>fitsio</p></li>
+<li><p>scikit-image</p></li>
 <li><p>scipy</p></li>
-<li><p>lmfit</p></li>
+<li><p>sep</p></li>
 </ul>
-<div class="section" id="install-fitsio-and-lmfit">
-<h2>Install fitsio and lmfit<a class="headerlink" href="#install-fitsio-and-lmfit" title="Permalink to this headline">¶</a></h2>
-<p>These two uncommon packages can be installed via:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># in conda.</span>
-<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">fitsio</span>
-<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">lmfit</span>
-
-<span class="c1"># in pip.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">fitsio</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">lmfit</span>
-</pre></div>
-</div>
-</div>
+<p>And their specific versions are listed in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> block.</p>
 <div class="section" id="install-galsim">
 <h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this headline">¶</a></h2>
 <p>GalSim is a python module that has much of its implementation in C++ for
-improved computational efficiency. It can be installed with</p>
+improved computational efficiency. It can be installed with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">galsim</span>
 </pre></div>
 </div>
-<p>However you may have to install FFTW and Eigen manually. Refer to
+<p>However, you may have to install FFTW and Eigen manually. Refer to
 <a class="reference external" href="https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md">this</a>
 for more details.</p>
 </div>
-<div class="section" id="install-blendingtoolkit-with-git">
-<h2>Install <em>BlendingToolKit</em> with GIT<a class="headerlink" href="#install-blendingtoolkit-with-git" title="Permalink to this headline">¶</a></h2>
-<p>The code is hosted on <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit">github</a>.
-First download the repo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">LSSTDESC</span><span class="o">/</span><span class="n">BlendingToolKit</span><span class="o">.</span><span class="n">git</span>
+<div class="section" id="install-btk">
+<h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this headline">¶</a></h2>
+<p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest released version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span>
 </pre></div>
 </div>
-<p>Then install using</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">BlendingToolKit</span>
-<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+<p>This should install all other missing dependencies if necessary. You can then import the package as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk</span>
+<span class="kn">import</span> <span class="nn">btk.catalog</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="optional-packages">
-<h2>Optional Packages<a class="headerlink" href="#optional-packages" title="Permalink to this headline">¶</a></h2>
-<p><em>BlendingToolKit</em> is meant to perform detection/deblending/measurement with any
-user input algorithm; therefore, no detection/deblending/measurement algorithm is hard-coded into the basic
-framework. However, the tutorial notebooks include several examples of detection/deblending/measurement
-algorithms that can be performed with btk.
-These tutorial notebooks require:</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="https://scarlet.readthedocs.io/en/latest/index.html">scarlet</a> (multi-band deblender)</p></li>
-<li><p><a class="reference external" href="https://sep.readthedocs.io/en/v1.0.x/index.html">sep</a> (Python library for Source Extraction and Photometry)</p></li>
-<li><p><a class="reference external" href="https://pipelines.lsst.io">lsst</a> (LSST science pipeline)</p></li>
-</ol>
 </div>
 </div>
 
@@ -241,29 +205,29 @@ These tutorial notebooks require:</p>
            
           </div>
           <footer>
+  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="catalog.html" class="btn btn-neutral float-right" title="Input Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="index.html" class="btn btn-neutral float-left" title="BlendingToolKit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+        <a href="catalog.html" class="btn btn-neutral float-right" title="Input Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="BlendingToolKit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, btk developers.
+        &copy; Copyright 2020, btk developers
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
@@ -271,6 +235,7 @@ These tutorial notebooks require:</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {
