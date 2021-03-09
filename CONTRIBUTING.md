@@ -27,6 +27,7 @@ conda install -c conda-forge galsim
 
 # poetry allows us to install all dependencies directly from pyproject.toml (except galsim!)
 # need to be inside your local BTK repo for this to work.
+# poetry reuses the current "btk" virtual environment from conda.
 conda install -c conda-forge poetry
 poetry install
 ```
@@ -48,7 +49,7 @@ in your desired virtual environment. But I find the first method is more robust 
 
 1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :)
 
-5. Every pull request must pass the workflows specified in `.github/workflows` before merging. 
+2. Every pull request must pass the workflows specified in `.github/workflows` before merging. 
 
     - The tool known as `pre-commit` will make it easy to for you to pass the linting workflow, install it in your local repository by running `pre-commit install`.
 
@@ -56,7 +57,7 @@ in your desired virtual environment. But I find the first method is more robust 
 
     - You can run all the tests locally by simply running `poetry run pytest` inside your local repository.
 
-6. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging: 
+3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging: 
 
 ```
 git rebase origin/main
@@ -64,4 +65,4 @@ git rebase origin/main
 git push --force
 ```
 
-7. Finally, ask for at least one approving review from [@ismael-mendoza](https://github.com/ismael-mendoza) or other collaborators.
+4. Finally, ask for at least one approving review from [@ismael-mendoza](https://github.com/ismael-mendoza) or other collaborators.
