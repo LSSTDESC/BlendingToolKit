@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.plot_utils
@@ -161,6 +162,7 @@ class TestBasicDraw:
         self.match_blend_images_default(draw_output["blend_images"])
         self.match_isolated_images_default(draw_output["isolated_images"])
         self.match_background_noise(draw_output["blend_images"])
+        plt.close("all")
 
     def test_basic_sampling(self):
         sampling_function = btk.sampling_functions.BasicSamplingFunction()
