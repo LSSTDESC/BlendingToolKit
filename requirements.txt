@@ -1,7 +1,0 @@
-numpy>=1.12
-astropy>=2.0
-scipy>=1.2.0
-matplotlib>=3.3.3
-sep>=1.1.1
-scikit-image>=0.18.0
-galsim>=2.2.5

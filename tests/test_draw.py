@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.plot_utils
@@ -150,9 +151,11 @@ class TestBasicDraw:
         default_draw_generator = get_draw_generator(fixed_parameters=True)
         draw_output = next(default_draw_generator)
         btk.plot_utils.plot_blends(draw_output["blend_images"], draw_output["blend_list"])
+        plt.close("all")
         btk.plot_utils.plot_with_isolated(
             draw_output["blend_images"], draw_output["isolated_images"], draw_output["blend_list"]
         )
+        plt.close("all")
         assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
         assert (
             len(draw_output["blend_list"][3]) < 3
