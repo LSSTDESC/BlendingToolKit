@@ -1,77 +1,46 @@
 Installation
 ===============
 
-*BlendingToolKit* (btk) is essentially a wrapper around the
-`WeakLensingDeblending <https://weaklensingdeblending.readthedocs.io/en/latest/>`_
-package, which uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images.
-These packages along with their dependencies need to be installed first.
+*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python>=3.8``. 
+The required packages for ``btk`` are:
 
-The following dependencies are pip installable:
-
-* numpy
 * astropy
+* galsim
+* matplotlib
+* numpy
 * fitsio
+* scikit-image 
 * scipy
-* lmfit
+* sep
 
-Install fitsio and lmfit
------------------------------
-These two uncommon packages can be installed via:
-::
-
-    # in conda.
-    conda install -c conda-forge fitsio
-    conda install -c conda-forge lmfit
-
-    # in pip.
-    pip install fitsio
-    pip install lmfit
-
+And their specific versions are listed in the ``pyproject.toml`` file under the ``[tool.poetry.dependencies]`` block.
 
 Install GalSim
 -------------------------------
 
 GalSim is a python module that has much of its implementation in C++ for
-improved computational efficiency. It can be installed with
-::
+improved computational efficiency. It can be installed with:
+
+.. code-block::
 
     pip install galsim
 
-However you may have to install FFTW and Eigen manually. Refer to
+However, you may have to install FFTW and Eigen manually. Refer to
 `this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
 for more details.
 
 
-Install *BlendingToolKit* with GIT
-------------------------------------
+Install BTK
+------------------------------
+Once you installed ``galsim``, you can install the latest released version of ``btk`` with ``pip``:
 
-The code is hosted on `github <https://github.com/LSSTDESC/BlendingToolKit>`_.
-First download the repo:
-::
+.. code-block::
 
-    git clone https://github.com/LSSTDESC/BlendingToolKit.git
+    pip install blending_toolkit
 
-Then install using
-::
+This should install all other missing dependencies if necessary. You can then import the package as follows:
 
-    cd BlendingToolKit
-    python setup.py install
+.. code-block:: python
 
-Optional Packages
--------------------------------
-
-*BlendingToolKit* is meant to perform detection/deblending/measurement with any
-user input algorithm; therefore, no detection/deblending/measurement algorithm is hard-coded into the basic
-framework. However, the tutorial notebooks include several examples of detection/deblending/measurement
-algorithms that can be performed with btk.
-These tutorial notebooks require:
-
-#. scarlet_ (multi-band deblender)
-#. sep_ (Python library for Source Extraction and Photometry)
-#. lsst_ (LSST science pipeline)
-
-
-.. _scarlet: https://scarlet.readthedocs.io/en/latest/index.html
-.. _sep: https://sep.readthedocs.io/en/v1.0.x/index.html
-.. _numpy: http://www.numpy.org
-.. _lsst: https://pipelines.lsst.io
+    import btk
+    import btk.catalog

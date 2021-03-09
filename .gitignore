@@ -7,3 +7,4 @@
 /build/
 .coverage
 /dist/
+/docs/build
