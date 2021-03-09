@@ -25,7 +25,7 @@ This repository includes sample input catalogs with a small number of galaxies t
 - [Cosmo DC2](https://arxiv.org/abs/1907.06530) catalog requires pre-processing in order to be used as input catalog to btk. Refer to this [notebook](https://github.com/LSSTDESC/WeakLensingDeblending/blob/cosmoDC2_ingestion/notebooks/wld_ingestion_cosmoDC2.ipynb) on how to convert the DC2 catalog into a CatSim-like catalog that can be analyzed with btk.
 
 ## Installation
-For required packages, see [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt)
+For required packages, see [pyproject.toml](https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml) under the `[tool.poetry.dependencies]` block. For developers, you will also need the packages under the `[tool.poetry.dev-dependencies]` block.
 
 More detailed installation instructions can be found [here](https://lsstdesc.org/BlendingToolKit/install.html).
 
