@@ -1,5 +1,6 @@
 *.ipynb_checkpoints
 *__pycache__
+*.DS_Store
 /my-notebooks/
 .vscode/
 .pytest_cache/
