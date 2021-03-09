@@ -46,7 +46,7 @@ pytest-cov = "^2.10.1"
 reorder-python-imports = "^2.4.0"
 wheel = "^0.36.2"
 
-[tool.poetry.ulrs]
+[tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
 [build-system]
