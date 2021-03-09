@@ -224,7 +224,7 @@ pybind11 = ">=2.2"
 
 [[package]]
 name = "identify"
-version = "2.1.0"
+version = "2.1.1"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -884,8 +884,8 @@ galsim = [
     {file = "GalSim-2.2.5.tar.gz", hash = "sha256:a265d7af9862307890a3609ffad2a50717818884099b03612ae7b946683331c3"},
 ]
 identify = [
-    {file = "identify-2.1.0-py2.py3-none-any.whl", hash = "sha256:2a5fdf2f5319cc357eda2550bea713a404392495961022cf2462624ce62f0f46"},
-    {file = "identify-2.1.0.tar.gz", hash = "sha256:2179e7359471ab55729f201b3fdf7dc2778e221f868410fedcb0987b791ba552"},
+    {file = "identify-2.1.1-py2.py3-none-any.whl", hash = "sha256:220169a38a0c977c8fef377dc808d6a3330641b5211ec7356c7bbe73cda487c7"},
+    {file = "identify-2.1.1.tar.gz", hash = "sha256:da3d757c94596c50865aae63db6ba4e2e5e3f666c3ea6a6da0cd09a8b2d34abc"},
 ]
 imageio = [
     {file = "imageio-2.9.0-py3-none-any.whl", hash = "sha256:3604d751f03002e8e0e7650aa71d8d9148144a87daf17cb1f3228e80747f2e6b"},
