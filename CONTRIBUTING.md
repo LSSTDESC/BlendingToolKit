@@ -12,7 +12,7 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 cd BlendingToolKit
 ```
 
-2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. I find that the following steps work well for me (after having installed `conda`).
+2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
 ```
 
