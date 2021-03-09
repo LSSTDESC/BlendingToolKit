@@ -171,3 +171,54 @@ def test_survey_not_list():
             meas_bands=("i"),
         )
         draw_output = next(draw_generator)  # noqa: F841
+
+
+def test_psf():
+    btk.survey.get_psf(
+        mirror_diameter=8.36,
+        effective_area=32.4,
+        filt_wavelength=7528.51,
+        fwhm=0.748,
+        atmospheric_model="Moffat",
+    )
+    btk.survey.get_psf(
+        mirror_diameter=8.36,
+        effective_area=32.4,
+        filt_wavelength=7528.51,
+        fwhm=0.748,
+        atmospheric_model=None,
+    )
+    with pytest.raises(NotImplementedError) as excinfo:
+        btk.survey.get_psf(
+            mirror_diameter=8.36,
+            effective_area=32.4,
+            filt_wavelength=7528.51,
+            fwhm=0.748,
+            atmospheric_model="Layered",
+        )
+
+    assert "atmospheric model request" in str(excinfo.value)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        btk.survey.get_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
+
+    assert "Incompatible effective-area and mirror-diameter values." in str(excinfo.value)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        btk.survey.get_psf(
+            mirror_diameter=0,
+            effective_area=0,
+            filt_wavelength=7528.51,
+            fwhm=0.748,
+            atmospheric_model=None,
+        )
+
+    assert "Neither the atmospheric nor the optical PSF components are defined." in str(
+        excinfo.value
+    )
+
+    btk.survey.get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
+
+    btk.survey.get_psf_from_file("tests/example_psf", Rubin)
+    btk.survey.get_psf_from_file("tests/multi_psf", Rubin)
+    # The case where the folder is empty cannot be tested as you cannot add an empty folder to git
