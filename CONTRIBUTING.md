@@ -1,6 +1,5 @@
 # Contributing
 
-
 ## Installation
 
 Please makes sure to complete the following steps if you are interested in contributing to `BTK`: 
