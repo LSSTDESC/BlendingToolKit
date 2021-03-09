@@ -44,6 +44,8 @@ in your desired virtual environment. But I find the first method is more robust 
 
 3. If you encounter problems during installation with `galsim` you might not have the correct pre-requisites. Please visit this [page](https://github.com/GalSim-developers/GalSim/blob/releases/2.2/INSTALL.rst) for instructions on how to install `galsim`. After successfully installing `galsim` try running step 2. again.
 
+4. One advantage of `conda`+`poetry` is that all code developers will be working in the same environment. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them.
+
 ## Pull Requests
 
 1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :)
