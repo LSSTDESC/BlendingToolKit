@@ -138,8 +138,8 @@ def get_psf_from_file(psf_dir, survey):
     elif len(psf_files) == 1:
         psf_file = psf_files[0]
     else:
-        raise RuntimeError(f"Not psf files found in '{psf_dir}'.")
-    psf_array = fits.getdata(psf_file)
+        raise RuntimeError(f"No psf files found in '{psf_dir}'.")
+    psf_array = fits.getdata(psf_dir + "/" + psf_file)
     psf_model = galsim.InterpolatedImage(
         galsim.Image(psf_array), scale=survey.pixel_scale
     ).withFlux(1.0)

@@ -1,8 +1,9 @@
 import multiprocessing as mp
+from unittest.mock import patch
 
 import numpy as np
 
-import btk.sampling_functions
+import btk.plot_utils
 from btk.survey import Rubin
 
 
@@ -12,6 +13,7 @@ def get_draw_generator(
     multiprocessing=False,
     add_noise=True,
     fixed_parameters=False,
+    sampling_function=None,
 ):
     """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = "data/sample_input_catalog.fits"
@@ -33,7 +35,8 @@ def get_draw_generator(
         shifts = None
         indexes = None
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
-    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    if sampling_function is None:
+        sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
@@ -45,6 +48,7 @@ def get_draw_generator(
         multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
+        verbose=True,
     )
     return draw_generator
 
@@ -141,9 +145,14 @@ class TestBasicDraw:
             err_msg="Did not get desired mean pixel values of blend images",
         )
 
-    def test_default(self):
+    @patch("btk.plot_utils.plt.show")
+    def test_default(self, mock_show):
         default_draw_generator = get_draw_generator(fixed_parameters=True)
         draw_output = next(default_draw_generator)
+        btk.plot_utils.plot_blends(draw_output["blend_images"], draw_output["blend_list"])
+        btk.plot_utils.plot_with_isolated(
+            draw_output["blend_images"], draw_output["isolated_images"], draw_output["blend_list"]
+        )
         assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
         assert (
             len(draw_output["blend_list"][3]) < 3
@@ -152,3 +161,10 @@ class TestBasicDraw:
         self.match_blend_images_default(draw_output["blend_images"])
         self.match_isolated_images_default(draw_output["isolated_images"])
         self.match_background_noise(draw_output["blend_images"])
+
+    def test_basic_sampling(self):
+        sampling_function = btk.sampling_functions.BasicSamplingFunction()
+        draw_generator = get_draw_generator(
+            fixed_parameters=True, sampling_function=sampling_function
+        )
+        draw_output = next(draw_generator)  # noqa: F841
