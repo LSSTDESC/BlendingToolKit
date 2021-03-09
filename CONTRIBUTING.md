@@ -50,7 +50,6 @@ pre-commit install
 
 But I find the first method is more robust (works on a MAC too).
 
-
 4. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on.
 
 ## Pull Requests
