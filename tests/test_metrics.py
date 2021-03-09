@@ -16,4 +16,3 @@ def test_detection_eff_matrix():
     np.testing.assert_array_equal(
         eff_matrix, test_eff_matrix, err_msg="Incorrect efficiency matrix"
     )
-    pass
