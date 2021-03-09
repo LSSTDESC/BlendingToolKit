@@ -12,7 +12,9 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 cd BlendingToolKit
 ```
 
-2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
+2. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`. 
+
+3. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
 ```
 # create virtual environment.
@@ -29,22 +31,26 @@ conda install -c conda-forge galsim
 # poetry reuses the current "btk" virtual environment from conda.
 conda install -c conda-forge poetry
 poetry install
+
+# finally activate pre-commit 
+pre-commit install
 ```
 
-In Ubuntu/Linux, you might getaway with simply running:
+In Ubuntu/Linux, you might getaway with simply running (and avoid having to use conda):
 
 ```
 sudo apt-get install libfftw3-dev libeigen3-dev
 pip install --upgrade pip
 pip install poetry
 poetry install
+pre-commit install
 ```
 
 in your desired virtual environment. But I find the first method is more robust (works on a MAC too).
 
-3. If you encounter problems during installation with `galsim` you might not have the correct pre-requisites. Please visit this [page](https://github.com/GalSim-developers/GalSim/blob/releases/2.2/INSTALL.rst) for instructions on how to install `galsim`. After successfully installing `galsim` try running step 2. again.
+4. If you encounter problems during installation with `galsim` you might not have the correct pre-requisites. Please visit this [page](https://github.com/GalSim-developers/GalSim/blob/releases/2.2/INSTALL.rst) for instructions on how to install `galsim`. After successfully installing `galsim` try running step 2. again.
 
-4. One advantage of `conda`+`poetry` is that all code developers will be working in the same environment. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them.
+4. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on.
 
 ## Pull Requests
 
