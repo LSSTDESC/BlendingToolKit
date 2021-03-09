@@ -15,7 +15,6 @@ cd BlendingToolKit
 2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
 ```
-
 # create virtual environment.
 conda create -n btk python=3.8
 conda activate btk
