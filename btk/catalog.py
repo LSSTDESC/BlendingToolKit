@@ -12,20 +12,17 @@ class Catalog(ABC):
     """Base class containing the catalog for BTK.
     Each different catalog should have a corresponding subclass of Catalog.
 
-    Arguments:
-        raw_catalog: Raw catalog containing information to create table.
-        verbose: Whether to print information related to loading catalog.
-
     Attributes:
         self.table (astropy.table) : Standardized table containing information from the catalog
     """
 
     def __init__(self, raw_catalog, verbose=False):
-        """Returns astropy table with catalog name from input class.
+        """Creates Catalog object and standarizes raw_catalog information into attribute table.
 
         Args:
-            raw_catalog : CatSim-like catalog to draw galaxies from.
+            raw_catalog: Raw catalog containing information to create table.
             verbose: Whether to print information related to loading catalog.
+
         """
         self.verbose = verbose
         self.table = self._prepare_table(raw_catalog)
