@@ -17,7 +17,8 @@ class Catalog(ABC):
     """
 
     def __init__(self, raw_catalog, verbose=False):
-        """Creates Catalog object and standarizes raw_catalog information into attribute table.
+        """Creates Catalog object and standarizes raw_catalog information into
+        attribute self.table via _prepare_table method.
 
         Args:
             raw_catalog: Raw catalog containing information to create table.
