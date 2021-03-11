@@ -31,7 +31,7 @@ def test_group_sampling():
     draw_blend_generator = get_group_sampling_draw_generator()
     output = next(draw_blend_generator)
     blend_images = output["blend_images"]
-    batch_max = blend_images.max(axis=0).max(axis=0).max(axis=0)
+    batch_max = blend_images.max(axis=(0, 2, 3))
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
     test_batch_max = np.array([17e3, 30e3, 45e3, 43e3, 13e3, 13e2])

@@ -238,9 +238,9 @@ class DrawBlendsGenerator(ABC):
             batch_blend_cat[s.name] = []
             batch_obs_cond[s.name] = []
             image_shape = (
-                pix_stamp_size,
-                pix_stamp_size,
                 len(s.filters),
+                pix_stamp_size,
+                pix_stamp_size,
             )
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
@@ -329,16 +329,16 @@ class DrawBlendsGenerator(ABC):
             iso_image_multi = np.zeros(
                 (
                     self.max_number,
-                    pix_stamp_size,
-                    pix_stamp_size,
                     len(survey.filters),
+                    pix_stamp_size,
+                    pix_stamp_size,
                 )
             )
-            blend_image_multi = np.zeros((pix_stamp_size, pix_stamp_size, len(survey.filters)))
+            blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
                 single_band_output = self.render_blend(blend, psf[b], filt, survey)
-                blend_image_multi[:, :, b] = single_band_output[0]
-                iso_image_multi[:, :, :, b] = single_band_output[1]
+                blend_image_multi[b, :, :] = single_band_output[0]
+                iso_image_multi[:, b, :, :] = single_band_output[1]
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
         return outputs
