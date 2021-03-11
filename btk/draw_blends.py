@@ -147,6 +147,7 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
+        dim_order=(0, 1, 2),
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -167,7 +168,10 @@ class DrawBlendsGenerator(ABC):
                            random shifts. Must be of length batch_size. Must be used
                            with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
-                        Must be of length batch_size. Must be used with shifts."""
+                        Must be of length batch_size. Must be used with shifts.
+            dim_order (tuple): Transpose arrays so that image dimensions following
+                               a specific order. Default order (0, 1, 2) corresponds to
+                               [n_bands, nx, ny]"""
 
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -190,6 +194,7 @@ class DrawBlendsGenerator(ABC):
 
         self.add_noise = add_noise
         self.verbose = verbose
+        self.dim_order = dim_order
 
     def __iter__(self):
         return self
@@ -339,6 +344,11 @@ class DrawBlendsGenerator(ABC):
                 single_band_output = self.render_blend(blend, psf[b], filt, survey)
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
+
+            # transpose if requested.
+            dim_order = np.array(self.dim_order)
+            blend_image_multi = blend_image_multi.transpose(dim_order)
+            iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
         return outputs
