@@ -105,7 +105,7 @@ class SepParams(MeasurementParams):
             dict with the centers of sources detected by SEP detection
             algorithm.
         """
-        image = np.mean(data["blend_images"][index], axis=2)
+        image = np.mean(data["blend_images"][index], axis=0)
         peaks = self.get_centers(image)
         return {"deblend_image": None, "peaks": peaks}
 

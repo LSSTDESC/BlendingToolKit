@@ -147,6 +147,7 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
+        dim_order="NCHW",
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -167,7 +168,11 @@ class DrawBlendsGenerator(ABC):
                            random shifts. Must be of length batch_size. Must be used
                            with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
-                        Must be of length batch_size. Must be used with shifts."""
+                        Must be of length batch_size. Must be used with shifts.
+            dim_order (str): Whether to return images as numpy arrays with the channel
+                                (band) dimension before the pixel dimensions 'NCHW' (default) or
+                                after 'NHWC'.
+        """
 
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -190,6 +195,10 @@ class DrawBlendsGenerator(ABC):
 
         self.add_noise = add_noise
         self.verbose = verbose
+
+        if dim_order not in ("NCHW", "NHWC"):
+            raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
+        self.dim_order = (0, 1, 2) if dim_order == "NCHW" else (1, 2, 0)
 
     def __iter__(self):
         return self
@@ -238,9 +247,9 @@ class DrawBlendsGenerator(ABC):
             batch_blend_cat[s.name] = []
             batch_obs_cond[s.name] = []
             image_shape = (
-                pix_stamp_size,
-                pix_stamp_size,
                 len(s.filters),
+                pix_stamp_size,
+                pix_stamp_size,
             )
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
@@ -329,16 +338,21 @@ class DrawBlendsGenerator(ABC):
             iso_image_multi = np.zeros(
                 (
                     self.max_number,
-                    pix_stamp_size,
-                    pix_stamp_size,
                     len(survey.filters),
+                    pix_stamp_size,
+                    pix_stamp_size,
                 )
             )
-            blend_image_multi = np.zeros((pix_stamp_size, pix_stamp_size, len(survey.filters)))
+            blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
                 single_band_output = self.render_blend(blend, psf[b], filt, survey)
-                blend_image_multi[:, :, b] = single_band_output[0]
-                iso_image_multi[:, :, :, b] = single_band_output[1]
+                blend_image_multi[b, :, :] = single_band_output[0]
+                iso_image_multi[:, b, :, :] = single_band_output[1]
+
+            # transpose if requested.
+            dim_order = np.array(self.dim_order)
+            blend_image_multi = blend_image_multi.transpose(dim_order)
+            iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
         return outputs

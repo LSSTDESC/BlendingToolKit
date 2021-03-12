@@ -83,7 +83,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
 
     Args:
         blend_images (array_like): Array of blend scene images to plot
-            [batch, height, width, bands].
+            [batch, bands, height, width].
         blend_list (list) : List of `astropy.table.Table` with entries of true
             objects. Length of list must be the batch size.
         detected_centers (list, default=`None`): List of `numpy.ndarray` or
@@ -112,7 +112,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
         )
     for i in range(batch_size):
         num = len(blend_list[i])
-        images = np.transpose(blend_images[i], axes=(2, 0, 1))
+        images = blend_images[i]
         blend_img_rgb = get_rgb_image(images[band_indices])
         _, ax = plt.subplots(1, 3, figsize=(8, 3))
         ax[0].imshow(blend_img_rgb)
@@ -121,7 +121,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
             ax[0].set_ylim(limits)
         ax[0].set_title("gri bands")
         ax[0].axis("off")
-        ax[1].imshow(np.sum(blend_images[i, :, :, :], axis=2))
+        ax[1].imshow(np.sum(blend_images[i, :, :, :], axis=0))
         ax[1].set_title("Sum")
         if limits:
             ax[1].set_xlim(limits)
@@ -194,7 +194,7 @@ def plot_with_isolated(
             {len(detected_centers), len(blend_list), len(blend_images)}"
         )
     for i in range(len(blend_list)):
-        images = np.transpose(blend_images[i], axes=(2, 0, 1))
+        images = blend_images[i]
         blend_img_rgb = get_rgb_image(
             images[band_indices], normalize_with_image=images[band_indices]
         )
@@ -212,7 +212,7 @@ def plot_with_isolated(
         num = iso_blend.shape[0]
         plt.figure(figsize=(2 * num, 2))
         for j in range(num):
-            iso_images = np.transpose(iso_blend[j], axes=(2, 0, 1))
+            iso_images = iso_blend[j]
             iso_img_rgb = get_rgb_image(
                 iso_images[band_indices], normalize_with_image=images[band_indices]
             )

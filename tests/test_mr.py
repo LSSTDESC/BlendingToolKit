@@ -29,9 +29,9 @@ def test_multiresolution():
 
     assert "LSST" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
     assert "HSC" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert draw_output["blend_images"]["LSST"][0].shape[0] == int(
+    assert draw_output["blend_images"]["LSST"][0].shape[-1] == int(
         24.0 / 0.2
     ), "LSST survey should have a pixel scale of 0.2"
-    assert draw_output["blend_images"]["HSC"][0].shape[0] == int(
+    assert draw_output["blend_images"]["HSC"][0].shape[-1] == int(
         24.0 / 0.167
     ), "HSC survey should have a pixel scale of 0.167"
