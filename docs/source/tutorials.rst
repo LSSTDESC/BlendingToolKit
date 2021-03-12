@@ -248,7 +248,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example : 
+Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -293,6 +293,7 @@ Please note that several surveys can be provided as a list to the generator. In 
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
+<<<<<<< HEAD
 
 Using COSMOS galaxies
 ----------------------
@@ -381,3 +382,5 @@ Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
+=======
+>>>>>>> precommit run
