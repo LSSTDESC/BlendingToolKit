@@ -8,6 +8,10 @@ It should return a dictionary containing a subset of the following keys/values:
                                   [batch_size, max_sources, n_bands, nx, ny]
     - peaks (np.ndarray): Array of predicted centroids in pixels.
                           Shape: [batch_size, max_sources, 2].
+    - segmentation (np.ndarray): Array of integers with same shape as images. Pixels not
+                                 belonging to any object have value 0. All pixels belonging
+                                 to the ``i``-th object (e.g., ``objects[i]``) have value ``i+1``.
+                                 The order corresponds to the order in the returned 'peaks'.
 
 Omitted entries are automatically assigned a `None` value.
 """
@@ -39,7 +43,7 @@ def basic_measure(batch, idx):
     threshold = 5 * np.std(image)
     coordinates = peak_local_max(image, min_distance=2, threshold_abs=threshold)
     peaks = np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
-    return {"deblend_image": None, "peaks": peaks}
+    return {"peaks": peaks}
 
 
 def sep_measure(batch, idx):
@@ -59,12 +63,14 @@ def sep_measure(batch, idx):
 
     image = np.mean(batch["blend_images"][idx], axis=0)
     bkg = sep.Background(image)
-    catalog = sep.extract(image, 1.5, err=bkg.globalrms, segmentation_map=False)
+    catalog, segmentation = sep.extract(image, 1.5, err=bkg.globalrms, segmentation_map=True)
     centers = np.stack((catalog["x"], catalog["y"]), axis=1)
-    return {"deblended_image": None, "peaks": centers}
+    return {"peaks": centers, "segmentation": segmentation}
 
 
 class MeasureGenerator:
+    measure_params = {"deblended_images", "peaks", "segmentation"}
+
     def __init__(
         self,
         measure_functions,
@@ -111,7 +117,9 @@ class MeasureGenerator:
     def run_batch(self, batch, index):
         output = []
         for f in self.measure_functions:
-            output.append(f(batch, index))
+            out = f(batch, index)
+            out = {k: out.get(k, None) for k in self.measure_params}
+            output.append(out)
         return output
 
     def __next__(self):
