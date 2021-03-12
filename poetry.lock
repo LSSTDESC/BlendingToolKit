@@ -292,7 +292,7 @@ python-versions = "*"
 name = "flake8"
 version = "3.8.4"
 description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 
@@ -625,7 +625,7 @@ python-dateutil = ">=2.1"
 name = "mccabe"
 version = "0.6.1"
 description = "McCabe checker, plugin for flake8"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -952,7 +952,7 @@ global = ["pybind11-global (==2.6.2)"]
 name = "pycodestyle"
 version = "2.6.0"
 description = "Python style guide checker"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -983,7 +983,7 @@ test = ["pytest", "pytest-doctestplus (>=0.7)"]
 name = "pyflakes"
 version = "2.2.0"
 description = "passive checker of Python programs"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -1478,7 +1478,7 @@ notebook = ">=4.4.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c0a0a3cbc310531d981f4a81b634049dc4de4d1933385fb29cac3d5c5006a2bb"
+content-hash = "681ee5589d0dd7e8d8a1319920e84010fcb39d87f32adaadab40273b1a70b037"
 
 [metadata.files]
 alabaster = [

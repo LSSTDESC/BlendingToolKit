@@ -147,7 +147,7 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
-        dim_order=(0, 1, 2),
+        dim_order="NCHW",
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -169,9 +169,10 @@ class DrawBlendsGenerator(ABC):
                            with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
-            dim_order (tuple): Transpose arrays so that image dimensions following
-                               a specific order. Default order (0, 1, 2) corresponds to
-                               [n_bands, nx, ny]"""
+            dim_order (str): Whether to return images as numpy arrays with the channel
+                                (band) dimension before the pixel dimensions 'NCHW' (default) or
+                                after 'NHWC'.
+        """
 
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -194,7 +195,10 @@ class DrawBlendsGenerator(ABC):
 
         self.add_noise = add_noise
         self.verbose = verbose
-        self.dim_order = dim_order
+
+        if dim_order not in ("NCHW", "NHWC"):
+            raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
+        self.dim_order = (0, 1, 2) if dim_order == "NCHW" else (1, 2, 0)
 
     def __iter__(self):
         return self
