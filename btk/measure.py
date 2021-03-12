@@ -4,9 +4,10 @@
  in the batch to measure.
 
 It should return a dictionary containing a subset of the following keys/values:
-    - deblend_image (np.ndarray): Array of deblended isolated images with shape:
+    - deblended_image (np.ndarray): Array of deblended isolated images with shape:
                                   [batch_size, max_sources, n_bands, nx, ny]
-    - peaks (np.ndarray): Array of predicted centroids in pixels (batch_size, max_sources, 2).
+    - peaks (np.ndarray): Array of predicted centroids in pixels.
+                          Shape: [batch_size, max_sources, 2].
 
 Omitted entries are automatically assigned a `None` value.
 """
@@ -32,7 +33,7 @@ def basic_measure(batch, idx):
             dict containing subset of keys from: ['deblend_image', 'peaks']
     """
 
-    image = np.mean(batch["blend_images"][idx], axis=2)
+    image = np.mean(batch["blend_images"][idx], axis=0)
 
     # set detection threshold to 5 times std of image
     threshold = 5 * np.std(image)
@@ -53,15 +54,14 @@ def sep_measure(batch, idx):
             measurement on.
 
     Returns:
-        dict with the centers of sources detected by SEP detection
-        algorithm.
+        dict with the centers of sources detected by SEP detection algorithm.
     """
 
-    image = np.mean(batch["blend_images"][idx], axis=2)
+    image = np.mean(batch["blend_images"][idx], axis=0)
     bkg = sep.Background(image)
     catalog = sep.extract(image, 1.5, err=bkg.globalrms, segmentation_map=False)
     centers = np.stack((catalog["x"], catalog["y"]), axis=1)
-    return {"deblend_image": None, "peaks": centers}
+    return {"deblended_image": None, "peaks": centers}
 
 
 class MeasureGenerator:
