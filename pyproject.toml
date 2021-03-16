@@ -52,6 +52,7 @@ reorder-python-imports = "^2.4.0"
 sphinx = "^3.3"
 sphinx-rtd-theme = "^0.4.3"
 wheel = "^0.36.2"
+pydocstyle = "^5.1.1"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"

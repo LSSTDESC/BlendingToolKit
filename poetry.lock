@@ -1135,6 +1135,17 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "pydocstyle"
+version = "5.1.1"
+description = "Python docstring style checker"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+snowballstemmer = "*"
+
+[[package]]
 name = "pyerfa"
 version = "1.7.2"
 description = "Python bindings for ERFA"
@@ -1762,8 +1773,17 @@ galsim-hub = ["galsim-hub"]
 
 [metadata]
 lock-version = "1.1"
+<<<<<<< HEAD
 python-versions = "~3.7"
 content-hash = "3a5e5d8b60137548ca2533789134dd702e2a9fae3ac5a385c9b59ac78c0b8dee"
+=======
+python-versions = "^3.8"
+<<<<<<< HEAD
+content-hash = "1b6b362c7e601df6f172f391df07f914e3c1c46f1121102c30f1cec595018e5e"
+=======
+content-hash = "b113e10ae1f2136151df77e45d196107358ff952fb07d1c3af72b6d232514af2"
+>>>>>>> adding pydocstyle and checking how that changes formatting.
+>>>>>>> adding pydocstyle and checking how that changes formatting.
 
 [metadata.files]
 absl-py = [
@@ -2519,6 +2539,10 @@ pycodestyle = [
 pycparser = [
     {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
     {file = "pycparser-2.20.tar.gz", hash = "sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"},
+]
+pydocstyle = [
+    {file = "pydocstyle-5.1.1-py3-none-any.whl", hash = "sha256:aca749e190a01726a4fb472dd4ef23b5c9da7b9205c0a7857c06533de13fd678"},
+    {file = "pydocstyle-5.1.1.tar.gz", hash = "sha256:19b86fa8617ed916776a11cd8bc0197e5b9856d5433b777f51a3defe13075325"},
 ]
 pyerfa = [
     {file = "pyerfa-1.7.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:8609be0e659c99fde396b723bbbae9d5074deb0afeba5736c42591877ec01115"},

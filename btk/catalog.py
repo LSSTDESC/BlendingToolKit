@@ -9,8 +9,9 @@ import numpy as np
 
 
 class Catalog(ABC):
-    """Base class containing the catalog for BTK.
-    Each different catalog should have a corresponding subclass of Catalog.
+    """Abstract base class containing the catalog for BTK.
+
+    Each new catalog should be a subclass of Catalog.
 
     Attributes:
         self.table (astropy.table) : Standardized table containing information from the catalog
@@ -38,8 +39,8 @@ class Catalog(ABC):
 
     @abstractmethod
     def _prepare_table(self, raw_catalog):
-        """Carries operations to generate a standardized table.
-        Should be implemented in subclasses."""
+        """Carries operations to generate a standardized table. Should be implemented
+        in subclasses."""
 
     @property
     def name(self):
@@ -67,8 +68,10 @@ class CatsimCatalog(Catalog):
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self, raw_catalog):
-        """Carries operations to generate a standardized table. Uses the preexisting
-        astropy table and calculates some parameters of interest."""
+        """Carries operations to generate a standardized table.
+
+        Uses the preexisting astropy table and calculates some parameters of interest.
+        """
         table = deepcopy(raw_catalog)
 
         # convert ra dec from degrees to arcsec in catalog.
@@ -98,11 +101,11 @@ class CosmosCatalog(Catalog):
 
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
-        """
-        Constructs the catalog object from a file.
+        """Constructs the catalog object from a file.
 
         Args:
-            catalog_files: list containing the two paths to the COSMOS data
+            catalog_files(list): list containing the two paths to the COSMOS data.
+            verbose: whether to print verbose info.
         """
         catalog_coord = astropy.table.Table.read(catalog_files[0])
         catalog_fit = astropy.table.Table.read(catalog_files[1])
