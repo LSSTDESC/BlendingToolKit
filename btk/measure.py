@@ -5,12 +5,12 @@
 
 It should return a dictionary containing a subset of the following keys/values:
     - deblended_image (np.ndarray): Array of deblended isolated images with shape:
-                                  [batch_size, max_sources, n_bands, nx, ny]
+                                  [max_sources, n_bands, nx, ny]
     - peaks (np.ndarray): Array of predicted centroids in pixels.
-                          Shape: [batch_size, max_sources, 2].
-    - segmentation (np.ndarray): Array of integers with same shape as images. Pixels not
-                                 belonging to any object have value 0. All pixels belonging
-                                 to the ``i``-th object (e.g., ``objects[i]``) have value ``i+1``.
+                          Shape: [max_sources, 2].
+    - segmentation (np.ndarray): Array of booleans with shape (n_objects,stamp_size,stamp_size)
+                                 where n_objects is the number of detected objects. The pixels
+                                 set to True in the i-th channel correspond to the i-th object.
                                  The order corresponds to the order in the returned 'peaks'.
 
 Omitted entries are automatically assigned a `None` value.
@@ -60,12 +60,22 @@ def sep_measure(batch, idx):
     Returns:
         dict with the centers of sources detected by SEP detection algorithm.
     """
-
-    image = np.mean(batch["blend_images"][idx], axis=0)
-    bkg = sep.Background(image)
-    catalog, segmentation = sep.extract(image, 1.5, err=bkg.globalrms, segmentation_map=True)
+    image = batch["blend_images"][idx]
+    coadd = np.mean(image, axis=0)
+    bkg = sep.Background(coadd)
+    catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
+    n_objects = len(catalog)
+    segmentation_exp = np.zeros((n_objects, image.shape[1], image.shape[2]))
+    deblended_images = np.zeros((n_objects, image.shape[0], image.shape[1], image.shape[2]))
+    for i in range(n_objects):
+        segmentation_exp[i][np.where(segmentation == i + 1)] = True
+        deblended_images[i] = segmentation[i] * image
     centers = np.stack((catalog["x"], catalog["y"]), axis=1)
-    return {"peaks": centers, "segmentation": segmentation}
+    return {
+        "peaks": centers,
+        "segmentation": segmentation_exp,
+        "deblended_images": deblended_images,
+    }
 
 
 class MeasureGenerator:
