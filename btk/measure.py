@@ -88,6 +88,8 @@ def sep_measure(batch, idx):
         segmentation_exp[i][np.where(segmentation == i + 1)] = True
         deblended_images[i] = segmentation[i].reshape(1, stamp_size, stamp_size) * image
 
+    # TODO: maybe change to using 'ra', 'dec' looking towards MR feature. We can use WCS for this.
+    #  Or make it optional if not using MR.
     # construct astropy table
     t = astropy.table.Table()
     t["dx"] = catalog["x"]
