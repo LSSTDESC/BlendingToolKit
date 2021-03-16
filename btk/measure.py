@@ -4,17 +4,24 @@
  in the batch to measure.
 
 It should return a dictionary containing a subset of the following keys/values:
+    - catalog (astropy.table.Table): An astropy table containing measurement information. The
+                                     `len` of the table should be `n_objects`. Currently the
+                                     following column names are supported:
+                                        - dx: horizontal centroid position in pixels.
+                                        - dy: vertical centroid positoin in pixels.
+                                     This key/value pair is mandatory, as well as the columns
+                                     `dx` and `dy`.
     - deblended_image (np.ndarray): Array of deblended isolated images with shape:
-                                  [max_sources, n_bands, nx, ny]
-    - peaks (np.ndarray): Array of predicted centroids in pixels.
-                          Shape: [max_sources, 2].
-    - segmentation (np.ndarray): Array of booleans with shape (n_objects,stamp_size,stamp_size)
-                                 where n_objects is the number of detected objects. The pixels
-                                 set to True in the i-th channel correspond to the i-th object.
-                                 The order corresponds to the order in the returned 'peaks'.
-
-Omitted entries are automatically assigned a `None` value.
+                                    `(n_objects, n_bands, stamp_size, stamp_size)`. The order
+                                    should correspond to the order in the returned `catalog`.
+    - segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
+                                 The pixels set to True in the i-th channel correspond to the i-th
+                                 object. The order should correspond to the order in the returned
+                                 `catalog`.
+where `n_objects` is the number of detected objects. Omitted keys in the returned dictionary are
+automatically assigned a `None` value (except for `catalog` which is a mandatory entry).
 """
+import astropy
 import numpy as np
 import sep
 from skimage.feature import peak_local_max
@@ -34,16 +41,22 @@ def basic_measure(batch, idx):
             measurement on.
 
     Returns:
-            dict containing subset of keys from: ['deblend_image', 'peaks']
+            dict containing catalog with entries corresponding to measured peaks.
     """
+    if isinstance(batch["blend_images"], dict):
+        raise NotImplementedError("This function does not support the multi-resolution feature.")
 
     image = np.mean(batch["blend_images"][idx], axis=0)
 
     # set detection threshold to 5 times std of image
     threshold = 5 * np.std(image)
     coordinates = peak_local_max(image, min_distance=2, threshold_abs=threshold)
-    peaks = np.stack((coordinates[:, 1], coordinates[:, 0]), axis=1)
-    return {"peaks": peaks}
+
+    # construct catalog from measurement.
+    catalog = astropy.table.Table()
+    catalog["dx"] = coordinates[:, 1]
+    catalog["dy"] = coordinates[:, 0]
+    return {"catalog": catalog}
 
 
 def sep_measure(batch, idx):
@@ -60,6 +73,9 @@ def sep_measure(batch, idx):
     Returns:
         dict with the centers of sources detected by SEP detection algorithm.
     """
+    if isinstance(batch["blend_images"], dict):
+        raise NotImplementedError("This function does not support the multi-resolution feature.")
+
     image = batch["blend_images"][idx]
     coadd = np.mean(image, axis=0)
     bkg = sep.Background(coadd)
@@ -70,9 +86,13 @@ def sep_measure(batch, idx):
     for i in range(n_objects):
         segmentation_exp[i][np.where(segmentation == i + 1)] = True
         deblended_images[i] = segmentation[i] * image
-    centers = np.stack((catalog["x"], catalog["y"]), axis=1)
+
+    # construct astropy table
+    t = astropy.table.Table()
+    t["dx"] = catalog["x"]
+    t["dy"] = catalog["y"]
     return {
-        "peaks": centers,
+        "catalog": t,
         "segmentation": segmentation_exp,
         "deblended_images": deblended_images,
     }
@@ -111,7 +131,7 @@ class MeasureGenerator:
                     )
             self.measure_functions = measure_functions
         else:
-            ValueError("measure_functions must be a list of functions or a function.")
+            ValueError("measure_functions must be a list of functions or a single function.")
 
         self.draw_blend_generator = draw_blend_generator
         self.multiprocessing = multiprocessing
@@ -125,9 +145,41 @@ class MeasureGenerator:
         return self
 
     def run_batch(self, batch, index):
+        # get some parameters for error-checking.
+        # stamp_size = batch["blend_images"].shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
+        # max_sources = max(len(t) for t in batch["blend_list"])
+
         output = []
         for f in self.measure_functions:
+
             out = f(batch, index)
+
+            # make sure output is in the correct format.
+            if not isinstance(out["catalog"], astropy.table.table.Table):
+                raise TypeError(
+                    "The output dictionary of at least one of your measurement functions does not"
+                    "contain an astropy table as the value of the key 'catalog'."
+                )
+
+            if not ("dx" in out["catalog"].colnames and "dy" in out["catalog"].colnames):
+                raise ValueError(
+                    "The output catalog of at least one of your measurement functions does not"
+                    "contain the 'dx' and 'dy' columns which are mandatory."
+                )
+
+            for key in ["deblended_images", "segmentation"]:
+                if key in out and out[key] is not None:
+                    if not isinstance(out[key], np.ndarray):
+                        TypeError(
+                            f"The output '{key}' of at least one of your measurement"
+                            f"functions is not a numpy array."
+                        )
+                    if (
+                        not out[key].shape[-1] == batch["blend_images"][index].shape[-1]
+                        or not out[key].shape[-2] == batch["blend_images"][index].shape[-2]
+                    ):
+                        pass
+
             out = {k: out.get(k, None) for k in self.measure_params}
             output.append(out)
         return output
