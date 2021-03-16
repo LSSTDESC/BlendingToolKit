@@ -77,15 +77,16 @@ def sep_measure(batch, idx):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
     image = batch["blend_images"][idx]
+    stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
     coadd = np.mean(image, axis=0)
     bkg = sep.Background(coadd)
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
     n_objects = len(catalog)
-    segmentation_exp = np.zeros((n_objects, image.shape[1], image.shape[2]))
-    deblended_images = np.zeros((n_objects, image.shape[0], image.shape[1], image.shape[2]))
+    segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size))
+    deblended_images = np.zeros((n_objects, *image.shape))
     for i in range(n_objects):
         segmentation_exp[i][np.where(segmentation == i + 1)] = True
-        deblended_images[i] = segmentation[i] * image
+        deblended_images[i] = segmentation[i].reshape(1, stamp_size, stamp_size) * image
 
     # construct astropy table
     t = astropy.table.Table()
