@@ -14,8 +14,11 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 
 ```
 cd BlendingToolKit
-pip install -r dev-requirements.txt
+pip install -r requirements.txt # includes all requirements you need.
+pre-commit install
 ```
+
+If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again.
 
 ## Pull Requests
 
