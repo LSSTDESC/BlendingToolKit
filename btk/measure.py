@@ -3,12 +3,15 @@
  DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
  in the batch to measure.
 
-It should return a dictionary containing a subset of the following keys/values:
+It should return a dictionary containing a subset of the following keys/values (note the key
+`catalog` is mandatory):
     - catalog (astropy.table.Table): An astropy table containing measurement information. The
-                                     `len` of the table should be `n_objects`. Currently the
-                                     following column names are supported:
+                                     `len` of the table should be `n_objects`. If your
+                                     DrawBlendsGenerator uses a single survey, the following
+                                     column names are required:
                                         - dx: horizontal centroid position in pixels.
                                         - dy: vertical centroid positoin in pixels.
+                                     For multiple surveys (multi-resolution), we instead require:
                                         - ra: object centroid right ascension in arcseconds,
                                         following the convention from the `wcs` object included in
                                         the input batch.
@@ -19,17 +22,15 @@ It should return a dictionary containing a subset of the following keys/values:
                                     `(n_objects, n_bands, stamp_size, stamp_size)` or
                                     `(n_objects, stamp_size, stamp_size, n_bands)` depending on
                                     convention. The order of this array should correspond to the
-                                    order in the returned `catalog`.
+                                    order in the returned `catalog`. Where `n_objects` is the
+                                    number of detected objects
     - segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
                                  The pixels set to True in the i-th channel correspond to the i-th
                                  object. The order should correspond to the order in the returned
                                  `catalog`.
-where `n_objects` is the number of detected objects. Omitted keys in the returned dictionary are
-automatically assigned a `None` value (except for `catalog` which is a mandatory entry).
 
-This catalog key/value pair is mandatory, as well as the columns `dx` and `dy`. In the case of a
-multi-resolution study (multiple surveys were specified in the DrawBlendGenerator), the catalog
-should instead contain `ra` and `dec` columns.
+Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
+`catalog` which is a mandatory entry).
 """
 import astropy
 import numpy as np
@@ -42,6 +43,8 @@ from btk.multiprocess import multiprocess
 def basic_measure(batch, idx):
     """Return centers detected when object detection is performed on the
     input image with skimage.feature.peak_local_max.
+
+    NOTE: This function does not support the multi-resolution feature.
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
@@ -70,6 +73,8 @@ def basic_measure(batch, idx):
 def sep_measure(batch, idx):
     """Return centers detected when object detection and photometry
     is done on input image with SEP.
+
+    NOTE: This function does not support the multi-resolution feature.
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
