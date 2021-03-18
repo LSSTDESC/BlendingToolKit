@@ -4,8 +4,10 @@ from abc import abstractmethod
 from itertools import chain
 
 import galsim
+import galsim_hub
 import numpy as np
 from astropy.table import Column
+from astropy.table import Table
 
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
@@ -493,3 +495,100 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
+
+
+
+class GalsimHubGenerator(DrawBlendsGenerator):
+    """Implementation of DrawBlendsGenerator for drawing real galaxies from
+    the COSMOS catalog, using the Galsim implementation.
+    """
+
+    compatible_catalogs = ("CosmosCatalog",)
+
+    def __init__(
+        self,
+        catalog,
+        sampling_function,
+        surveys: list,
+        batch_size=8,
+        stamp_size=24,
+        meas_bands=("i",),
+        multiprocessing=False,
+        cpus=1,
+        verbose=False,
+        add_noise=True,
+        shifts=None,
+        indexes=None,
+        dim_order="NCHW",
+        galsim_hub_model="hub:Lanusse2020",
+    ):
+        """Initializes the DrawBlendsGenerator class.
+
+        Args:
+            catalog (btk.catalog.Catalog) : BTK catalog object from which galaxies are taken
+            sampling_function (btk.sampling_function.SamplingFunction) : BTK sampling function
+                                                                         to use
+            surveys (list): List of btk Survey objects defining the observing conditions
+            batch_size (int) : Number of blends generated per batch
+            stamp_size (float) : Size of the stamps, in arcseconds
+            meas_bands=("i",) : Tuple containing the bands in which the measurements are carried
+            multiprocessing (bool) : Indicates whether the mini batches should be ran in
+                                     parallel
+            cpus (int) : Number of cpus to use ; defines the number of minibatches
+            verbose (bool) : Indicates whether additionnal information should be printed
+            add_noise (bool) : Indicates if the blends should be generated with noise
+            shifts (list): Contains arbitrary shifts to be applied instead of
+                           random shifts. Must be of length batch_size. Must be used
+                           with indexes.
+            indexes (list): Contains the ids of the galaxies to use in the stamp.
+                        Must be of length batch_size. Must be used with shifts.
+            dim_order (str): Whether to return images as numpy arrays with the channel
+                                (band) dimension before the pixel dimensions 'NCHW' (default) or
+                                after 'NHWC'.
+        """
+        super().__init__(
+            catalog,
+            sampling_function,
+            surveys,
+            batch_size=batch_size,
+            stamp_size=stamp_size,
+            meas_bands=meas_bands,
+            multiprocessing=multiprocessing,
+            cpus=cpus,
+            verbose=verbose,
+            add_noise=add_noise,
+            shifts=shifts,
+            indexes=indexes,
+            dim_order=dim_order,
+        )
+        self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
+
+    def render_single(self, entry, filt, psf, survey):
+        """Returns the Galsim Image of an isolated galaxy.
+
+        Args:
+            entry (astropy Table): Line from astropy describing the galaxy to draw
+            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
+                                the image is drawn `
+            psf : Galsim object containing the PSF relative to the chosen filter
+            survey (btk.survey.Survey) : BTK Survey object
+
+        Returns:
+            galsim.Image object
+        """
+        galsim_hub_params = Table(
+            [[entry["flux_radius"]], [entry["ref_mag"]], [entry["zphot"]]],
+            names=["flux_radius", "mag_auto", "zphot"],
+        )
+        profile = self.galsim_hub_model.sample(galsim_hub_params)
+
+        gal_flux = get_flux(entry["ref_mag"], filt, survey)
+        profile = profile.withFlux(gal_flux)
+        profile = profile.shift(entry["ra"], entry["dec"])
+
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        galaxy_image = profile.drawImage(
+            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
+        )
+        return galaxy_image
+>>>>>>> Added support for galsim_hub
