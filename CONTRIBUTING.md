@@ -20,6 +20,17 @@ pre-commit install
 
 If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again.
 
+3. If you would like to install the current `btk` package from your local repo into your python environment, then you need to use `poetry`. The following commands should enable this (again inside your python virtual environment):
+
+```
+cd BlendingToolKit
+pip install --user poetry
+poetry install
+pre-commit install
+```
+
+You can skip step `2.` if you are OK using poetry. 
+
 ## Pull Requests
 
 1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :)
