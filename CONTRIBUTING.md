@@ -14,7 +14,7 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 
 ```
 cd BlendingToolKit
-pip install -r requirements.txt
+pip install -r dev-requirements.txt
 ```
 
 ## Pull Requests
