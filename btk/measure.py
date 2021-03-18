@@ -1,5 +1,5 @@
 """Contains examples of functions that can be used to apply a measurement algorithm to the blends
- simulated by BTK. Every measurement function should take as an input a batch returned from a
+ simulated by BTK. Every measurement function should take as an input a `batch` returned from a
  DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
  in the batch to measure.
 
@@ -9,17 +9,27 @@ It should return a dictionary containing a subset of the following keys/values:
                                      following column names are supported:
                                         - dx: horizontal centroid position in pixels.
                                         - dy: vertical centroid positoin in pixels.
-                                     This key/value pair is mandatory, as well as the columns
-                                     `dx` and `dy`.
+                                        - ra: object centroid right ascension in arcseconds,
+                                        following the convention from the `wcs` object included in
+                                        the input batch.
+                                        - dec: vertical centroid position in arcseconds,
+                                        following the convention from the `wcs` object included in
+                                        the input batch.
     - deblended_image (np.ndarray): Array of deblended isolated images with shape:
-                                    `(n_objects, n_bands, stamp_size, stamp_size)`. The order
-                                    should correspond to the order in the returned `catalog`.
+                                    `(n_objects, n_bands, stamp_size, stamp_size)` or
+                                    `(n_objects, stamp_size, stamp_size, n_bands)` depending on
+                                    convention. The order of this array should correspond to the
+                                    order in the returned `catalog`.
     - segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
                                  The pixels set to True in the i-th channel correspond to the i-th
                                  object. The order should correspond to the order in the returned
                                  `catalog`.
 where `n_objects` is the number of detected objects. Omitted keys in the returned dictionary are
 automatically assigned a `None` value (except for `catalog` which is a mandatory entry).
+
+This catalog key/value pair is mandatory, as well as the columns `dx` and `dy`. In the case of a
+multi-resolution study (multiple surveys were specified in the DrawBlendGenerator), the catalog
+should instead contain `ra` and `dec` columns.
 """
 import astropy
 import numpy as np
@@ -32,8 +42,6 @@ from btk.multiprocess import multiprocess
 def basic_measure(batch, idx):
     """Return centers detected when object detection is performed on the
     input image with skimage.feature.peak_local_max.
-
-    NOTE: Assumes at least 3 bands are present in the images produced.
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
@@ -63,8 +71,6 @@ def sep_measure(batch, idx):
     """Return centers detected when object detection and photometry
     is done on input image with SEP.
 
-    NOTE: Assumes at least 3 bands are present in the images produced.
-
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
@@ -86,11 +92,9 @@ def sep_measure(batch, idx):
     deblended_images = np.zeros((n_objects, *image.shape))
     for i in range(n_objects):
         segmentation_exp[i][np.where(segmentation == i + 1)] = True
-        deblended_images[i] = segmentation[i].reshape(1, stamp_size, stamp_size) * image
+        seg_i = (segmentation == i + 1).reshape(1, stamp_size, stamp_size)
+        deblended_images[i] = seg_i * image
 
-    # TODO: maybe change to using 'ra', 'dec' looking towards MR feature. We can use WCS for this.
-    #  Or make it optional if not using MR.
-    # construct astropy table
     t = astropy.table.Table()
     t["dx"] = catalog["x"]
     t["dy"] = catalog["y"]
@@ -102,7 +106,15 @@ def sep_measure(batch, idx):
 
 
 class MeasureGenerator:
-    measure_params = {"deblended_images", "peaks", "segmentation"}
+    """Generates output of deblender and measurement algorithm.
+
+    Attributes:
+        self.measure_functions (list): List of functions that take as input the output from
+                                        DrawBlendsGenerator and return the output of a measurement
+                                        (see module docstring).
+    """
+
+    measure_params = {"deblended_images", "catalog", "segmentation"}
 
     def __init__(
         self,
@@ -112,7 +124,7 @@ class MeasureGenerator:
         cpus=1,
         verbose=False,
     ):
-        """Generates output of deblender and measurement algorithm.
+        """
 
         Args:
             measure_function: Function or list of functions that returns a dict with
@@ -123,7 +135,7 @@ class MeasureGenerator:
             cpus: If multiprocessing is True, then number of parallel processes to
                  run [Default :1].
         """
-        # setup measure_functions
+        # setup and verify measure_functions.
         if callable(measure_functions):
             self.measure_functions = [measure_functions]
         elif isinstance(measure_functions, list):
@@ -141,6 +153,7 @@ class MeasureGenerator:
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
+        self.dim_order = self.draw_blend_generator.dim_order
 
         self.verbose = verbose
 
@@ -148,10 +161,6 @@ class MeasureGenerator:
         return self
 
     def run_batch(self, batch, index):
-        # get some parameters for error-checking.
-        # stamp_size = batch["blend_images"].shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-        # max_sources = max(len(t) for t in batch["blend_list"])
-
         output = []
         for f in self.measure_functions:
 
@@ -164,24 +173,34 @@ class MeasureGenerator:
                     "contain an astropy table as the value of the key 'catalog'."
                 )
 
-            if not ("dx" in out["catalog"].colnames and "dy" in out["catalog"].colnames):
-                raise ValueError(
-                    "The output catalog of at least one of your measurement functions does not"
-                    "contain the 'dx' and 'dy' columns which are mandatory."
-                )
+            if isinstance(batch["blend_images"], np.ndarray):
+                if not ("dx" in out["catalog"].colnames and "dy" in out["catalog"].colnames):
+                    raise ValueError(
+                        "The output catalog of at least one of your measurement functions does not"
+                        "contain the 'dx' and 'dy' columns which are mandatory for a single"
+                        "survey study."
+                    )
+
+            if isinstance(batch["blend_images"], dict):
+                if not ("ra" in out["catalog"].colnames and "dec" in out["catalog"].colnames):
+                    raise ValueError(
+                        "The output catalog of at least one of your measurement functions does not"
+                        "contain the 'ra' and 'dec' columns which are mandatory for a"
+                        "multi-resolution study."
+                    )
 
             for key in ["deblended_images", "segmentation"]:
                 if key in out and out[key] is not None:
                     if not isinstance(out[key], np.ndarray):
-                        TypeError(
+                        raise TypeError(
                             f"The output '{key}' of at least one of your measurement"
                             f"functions is not a numpy array."
                         )
-                    if (
-                        not out[key].shape[-1] == batch["blend_images"][index].shape[-1]
-                        or not out[key].shape[-2] == batch["blend_images"][index].shape[-2]
-                    ):
-                        pass
+                    if not out[key].shape[-2:] == batch["blend_images"].shape[-2:]:
+                        raise ValueError(
+                            f"The shapes of the blended images in your {key} don't"
+                            f"match for at least one your measurement functions."
+                        )
 
             out = {k: out.get(k, None) for k in self.measure_params}
             output.append(out)
@@ -190,7 +209,7 @@ class MeasureGenerator:
     def __next__(self):
         """
         Returns:
-            draw_blend_generator output
+            draw_blend_generator output from `__next__` method.
             measurement output: List of len(batch_size), where each element is a list of
                                 len(measure_functions) corresponding to the measurements made by
                                 each function on each element of the batch. If only one

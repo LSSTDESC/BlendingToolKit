@@ -527,14 +527,16 @@ def get_mean_sky_level(survey, filt):
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
-    """Creates WCS for an image.
+    """Creates WCS for an image. The default (`center_pix=None` AND `center_sky=None`) is
+    that the center of the image in pixels [(s + 1) / 2, (s + 1) / 2]
+    corresponds to (ra, dec) = [0, 0].
 
     Args:
         pixel_scale (float): pixel size in arcseconds
         shape (tuple): shape of the image in pixels.
         center_pix (tuple) : tuple representing the center of the image in pixels
         center_sky (tuple) : tuple representing the center of the image in sky coordinates
-                     (RA,DEC) in arcseconds.
+                     (RA,DEC) in arcseconds. The default value is the top-left corner of the image.
         projection(str): projection type, default to TAN. A list of available
                             types can be found in astropy.wcs documentation
 

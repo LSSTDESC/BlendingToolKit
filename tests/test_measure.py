@@ -46,7 +46,8 @@ def compare_sep():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure)
     _, results = next(meas_generator)
-    detected_centers = results[0]["peaks"]
+    dx, dy = (results[0]["catalog"]["dx"].item(), results[0]["catalog"]["dy"].item())
+    detected_centers = np.array([[dx, dy]])
     target_detection = np.array([[65.495, 51.012]])
     np.testing.assert_array_almost_equal(
         detected_centers,
@@ -60,7 +61,8 @@ def compare_sep_multiprocessing():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure, multiprocessing=True, cpus=4)
     _, results = next(meas_generator)
-    detected_centers = results[0]["peaks"]
+    dx, dy = (results[0]["catalog"]["dx"].item(), results[0]["catalog"]["dy"].item())
+    detected_centers = np.array([[dx, dy]])
     target_detection = np.array([[65.495, 51.012]])
     np.testing.assert_array_almost_equal(
         detected_centers,
