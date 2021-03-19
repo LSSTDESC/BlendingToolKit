@@ -1,3 +1,4 @@
+"""Contains classes of function for extracing information from catalog in blend batches."""
 import warnings
 from abc import ABC
 from abc import abstractmethod
@@ -9,8 +10,7 @@ from btk.catalog import CatsimCatalog
 
 
 def _get_random_center_shift(num_objects, maxshift):
-    """Returns random shifts in x and y coordinates between + and - max-shift
-    in arcseconds.
+    """Returns random shifts in x and y coordinates between + and - max-shift in arcseconds.
 
     Args:
         num_objects (int) : Number of x and y shifts to return.
@@ -25,9 +25,9 @@ def _get_random_center_shift(num_objects, maxshift):
 
 
 class SamplingFunction(ABC):
-    """Class representing sampling functions to sample input catalog
-    from which to draw blends. The object can be called to
-    return an astropy table with entries corresponding to the
+    """Class representing sampling functions to sample input catalog from which to draw blends.
+
+    The object can be called to return an astropy table with entries corresponding to the
     galaxies chosen for the blend.
     """
 
@@ -41,23 +41,23 @@ class SamplingFunction(ABC):
 
     @abstractmethod
     def __call__(self, table, **kwargs):
-        """Returns a sample from the given astropy table with at most self.max_number of
-        objects. This method should be implemented in subclasses."""
-        pass
+        """Outputs a sample from the given astropy table.
+
+        NOTE: The sample must contain at most self.max_number of objects.
+        """
 
     @property
     @abstractmethod
     def compatible_catalogs(self):
-        """Get a tuple of compatible catalogs by their name in `catalog.py`.
-        This method should be implemented in subclasses."""
-        pass
+        """Get a tuple of compatible catalogs by their name in `catalog.py`."""
 
 
 class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
     def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
-        """
+        """Initializes default sampling function.
+
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
@@ -70,11 +70,13 @@ class DefaultSampling(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
+        """Tuple of compatible catalogs for this sampling function."""
         return "CatsimCatalog", "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
-        """Applies default sampling to the input CatSim-like catalog and returns an
-        astropy table with entries corresponding to a blend centered close to postage
+        """Applies default sampling to the input CatSim-like catalog.
+
+        Returns an astropy table with entries corresponding to a blend centered close to postage
         stamp center.
 
         Function selects entries from input table that are brighter than 25.3 mag
@@ -181,11 +183,14 @@ class DefaultSamplingGalsimHub(SamplingFunction):
 
 
 class BasicSamplingFunction(SamplingFunction):
-    """Example of basic sampling function features : magnitude cut,
-    restriction on the shape, shift randomization"""
+    """Example of basic sampling function features.
+
+    Includes magnitude cut, restriction on the shape, shift randomization.
+    """
 
     def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
-        """
+        """Initializes the basic sampling function.
+
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
@@ -198,7 +203,8 @@ class BasicSamplingFunction(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "CatsimCatalog"
+        """Tuple of compatible catalogs for this sampling function."""
+        return ("CatsimCatalog",)
 
     def __call__(self, table, **kwargs):
         """Samples galaxies from input catalog to make blend scene.
@@ -217,7 +223,6 @@ class BasicSamplingFunction(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-
         number_of_objects = np.random.randint(0, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
@@ -243,6 +248,8 @@ class BasicSamplingFunction(SamplingFunction):
 
 
 class GroupSamplingFunction(SamplingFunction):
+    """Uses a pre-analyzed WLD catalog to draw blends."""
+
     def __init__(
         self,
         max_number,
@@ -252,8 +259,7 @@ class GroupSamplingFunction(SamplingFunction):
         shift=None,
         group_id=None,
     ):
-        """Blends are defined from *groups* of galaxies from the CatSim
-            catalog previously analyzed with WLD.
+        """Blends are defined from *groups* of galaxies from a CatSim-like catalog.
 
         Note: the pre-run WLD images are not used here. We only use the pre-run
         catalog (in i band) to identify galaxies that belong to a group.
@@ -263,6 +269,8 @@ class GroupSamplingFunction(SamplingFunction):
             wld_catalog_name: File path to a pre-analyzed WLD Catsim catalog
             stamp_size (int) : Size of the generated stamps
             pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
+            shift (list): List containing shifts to apply (useful to avoid randomization)
+            group_id (list): List containing which group_ids to analyze (avoid randomization)
         """
         super().__init__(max_number)
 
@@ -274,16 +282,17 @@ class GroupSamplingFunction(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "CatsimCatalog"
+        """Tuple of compatible catalogs for this sampling function."""
+        return ("CatsimCatalog",)
 
     def __call__(self, table, **kwargs):
-        """We use self.wld_catalog created above to sample groups, but ultimately returns
-        rows from the input `table` (by matching the corresponding galaxy ids).
+        """Retrun blend info based on self.wld_catalog.
 
-        The group is centered on the middle of the postage stamp. Function only draws
-        galaxies that lie within the postage stamp size.
+        We use self.wld_catalog created above to sample groups, but ultimately returns
+        rows from the input `table` (by matching the corresponding galaxy ids). The group is
+        centered on the middle of the postage stamp. Function only draws galaxies that lie within
+        the postage stamp size.
         """
-
         # randomly sample a group om wld_catalog
         bool_groups = self.wld_catalog["grp_size"] >= 2
         group_ids = np.unique(self.wld_catalog["grp_id"][bool_groups])
@@ -323,6 +332,8 @@ class GroupSamplingFunction(SamplingFunction):
 
 
 class GroupSamplingFunctionNumbered(SamplingFunction):
+    """Defines blends based on previously analyzed WLD catalog & exits once all groups are used."""
+
     def __init__(
         self,
         max_number,
@@ -332,8 +343,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         shift=None,
         fmt="fits",
     ):
-        """Blends are defined from *groups* of galaxies from a CatSim-like
-        catalog previously analyzed with WLD.
+        """Blends defined from *groups* of galaxies from a catalog previously analyzed with WLD.
 
         This function has an extra attribute group_id_count which tracks the
         group id returned. Each time the generator is called, 1 gets added to the
@@ -348,6 +358,8 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
             wld_catalog_name: Same as GroupSamplingFunction
             stamp_size (int) : Size of the generated stamps
             pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
+            fmt (str): Format of input wld_catalog used to define groups.
+            shift (list): List of shifts to apply (usefult to avoid randomization)
         """
         super().__init__(max_number)
         self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format=fmt)
@@ -358,15 +370,16 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
-        return "CatsimCatalog"
+        """Tuple of compatible catalogs for this sampling function."""
+        return ("CatsimCatalog",)
 
     def __call__(self, table, **kwargs):
-        """The group is centered on the middle of the postage stamp.
-        This function only returns galaxies whose centers lie within 1 arcsec the
-        postage stamp edge, which may cause the number of galaxies in the blend to
-        be smaller than the group size.
-        """
+        """Return info for one blend from a given astropy table based on groups from wld_catalog.
 
+        The group is centered on the middle of the postage stamp. This function only returns
+        galaxies whose centers lie within 1 arcsec the postage stamp edge, which may cause the
+        number of galaxies in the blend to be smaller than the group size.
+        """
         # randomly sample a group.
         group_ids = np.unique(
             self.wld_catalog["grp_id"][

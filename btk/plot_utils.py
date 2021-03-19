@@ -1,3 +1,4 @@
+"""Utility functions for plotting and displaying images in BTK."""
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -74,8 +75,7 @@ def get_rgb_image(image, normalize_with_image=None):
 
 
 def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, band_indices=None):
-    """Plots blend images as RGB image, sum in all bands, and RGB image with
-    centers of objects marked.
+    """Plots blend images as RGB image, sum in all bands, and RGB image with centers of objects.
 
     Outputs of btk draw are plotted here. Blend_list must contain true  centers
     of the objects. If detected_centers are input, then the centers are also
@@ -148,8 +148,7 @@ def plot_with_isolated(
     limits=None,
     band_indices=None,
 ):
-    """Plots blend images and isolated images of all objects in the blend as
-    RGB images.
+    """Plots blend images and isolated images of all objects in the blend as RGB images.
 
     Outputs of btk draw are plotted here. Blend_list must contain true  centers
     of the objects. If detected_centers are input, then the centers are also
@@ -321,6 +320,7 @@ def show_scarlet_residual(blend, observation, limits=(30, 90)):
     """Plot scarlet model and residual image in rgb and i band.
 
     Note: this requires scarlet to be installed.
+
     Args:
         blend: output of scarlet containing blend fit.
         observation: `~scarlet.Observation`
