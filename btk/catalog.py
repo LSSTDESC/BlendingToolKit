@@ -1,3 +1,4 @@
+"""Contains abstract base class `Catalog` that standarizes catalog usage across BTK."""
 import os
 from abc import ABC
 from abc import abstractmethod
@@ -44,8 +45,10 @@ class Catalog(ABC):
 
     @property
     def name(self):
-        """Property containing the name of the (sub)class. Is used to check whether
-        the catalog is compatible with the chosen DrawBlendsGenerator"""
+        """Property containing the name of the (sub)class.
+
+        It is used to check whether the catalog is compatible with the chosen DrawBlendsGenerator.
+        """
         return self.__class__.__name__
 
     def get_raw_catalog(self):
@@ -59,8 +62,10 @@ class CatsimCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
         """Constructs the catalog object from a file.
+
         Args:
             catalog_file: path to a file containing a readable astropy table
+            verbose (bool): Whether to print info.
         """
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
@@ -95,6 +100,8 @@ class CatsimCatalog(Catalog):
 
 
 class CosmosCatalog(Catalog):
+    """Class containing catalog information for drawing COSMOS galaxies from galsim."""
+
     def __init__(self, raw_catalog, galsim_catalog, verbose=False):
         super().__init__(raw_catalog, verbose=verbose)
         self.galsim_catalog = galsim_catalog
