@@ -36,4 +36,8 @@ repos:
     - id: pydocstyle
       args:
       - --config=.pydocstyle.ini
-      exclude: btk/measure.py, btk/metrics.py
+      exclude: |
+          (?x)(
+              ^btk/measure.py|
+              ^btk/metrics.py
+          )
