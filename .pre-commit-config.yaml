@@ -35,5 +35,5 @@ repos:
     hooks:
     - id: pydocstyle
       args:
-      - --convention=google
-      exclude: measure.py, metrics.py
+      - --config=.pydocstyle.ini
+      exclude: btk/measure.py, btk/metrics.py
