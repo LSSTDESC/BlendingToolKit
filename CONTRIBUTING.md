@@ -2,11 +2,7 @@
 
 Please makes sure to complete the following steps if you are interested in contributing to `BTK`.
 
-<<<<<<< HEAD
 ## Installing
-=======
-Please makes sure to complete the following steps if you are interested in contributing to `BTK`:
->>>>>>> precommit run
 
 1. Start by git cloning the `BTK` repository:
 
@@ -14,11 +10,7 @@ Please makes sure to complete the following steps if you are interested in contr
 git clone https://github.com/LSSTDESC/BlendingToolKit.git
 ```
 
-<<<<<<< HEAD
 2. It is highly recommended that you have a separate virtual environment (e.g. conda) for your BTK development. Then, inside your favorite python virtual environment run the following:
-=======
-2. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`.
->>>>>>> precommit run
 
 ```
 cd BlendingToolKit
@@ -107,23 +99,7 @@ But I find the first method is more robust (works on a MAC too).
 
 3. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on. 
 
-<<<<<<< HEAD
 4. You might also want to update the `requirements.txt` file every now and then: 
-=======
-## Pull Requests
-
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :)
-
-2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
-
-    - The tool known as `pre-commit` will make it easy to for you to pass the linting workflow, install it in your local repository by running `pre-commit install`.
-
-    - For `BTK` we are using the `black` formatter, you can format your code by running `black .` which formats all python files accessible from your current directory. If you have an IDE that you like there are also [options](https://black.readthedocs.io/en/stable/editor_integration.html) to format on save.
-
-    - You can run all the tests locally by simply running `poetry run pytest` inside your local repository.
-
-3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging:
->>>>>>> precommit run
 
 ```
 poetry export -f requirements.txt --output requirements.txt
