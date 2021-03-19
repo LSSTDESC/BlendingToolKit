@@ -521,6 +521,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         indexes=None,
         dim_order="NCHW",
         galsim_hub_model="hub:Lanusse2020",
+        param_names=["flux_radius", "mag_auto", "zphot"],
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -562,6 +563,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             dim_order=dim_order,
         )
         self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
+        self.param_names = param_names
 
     def render_mini_batch(self, blend_list, psf, wcs, survey):
         """Returns isolated and blended images for blend catalogs in blend_list
@@ -584,8 +586,15 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             list of blend catalogs.
         """
         outputs = []
-        for i, blend in enumerate(blend_list):
+        galsim_hub_params = Table()
+        for p in self.param_names:
+            column = Column(np.concatenate([blend[p] for blend in blend_list]), p)
+            galsim_hub_params.add_column(column)
 
+        base_images = self.galsim_hub_model.sample(galsim_hub_params)
+
+        index = 0
+        for i, blend in enumerate(blend_list):
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale
             pix_stamp_size = int(self.stamp_size / pixel_scale)
@@ -611,15 +620,11 @@ class GalsimHubGenerator(DrawBlendsGenerator):
                 )
             )
 
-            galsim_hub_params = Table(
-                [blend["flux_radius"], blend["ref_mag"], blend["zphot"]],
-                names=["flux_radius", "mag_auto", "zphot"],
-            )
-            base_images = self.galsim_hub_model.sample(galsim_hub_params)
-
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, base_images, psf[b], filt, survey)
+                single_band_output = self.render_blend(
+                    blend, base_images[index : index + len(blend)], psf[b], filt, survey
+                )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
@@ -629,6 +634,8 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
+            index += len(blend)
+
         return outputs
 
     def render_blend(self, blend_catalog, base_images, psf, filt, survey):
@@ -664,8 +671,6 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
-        if len(blend_catalog) == 1:
-            base_images = [base_images]
         for k, entry in enumerate(blend_catalog):
             single_image = self.render_single(entry, base_images[k], filt, psf, survey)
             iso_image[k] = single_image.array
