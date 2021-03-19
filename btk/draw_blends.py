@@ -293,7 +293,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, *args):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -315,6 +315,9 @@ class DrawBlendsGenerator(ABC):
         """
         outputs = []
         index = 0
+
+        if extra_data is None:
+            extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
         for i, blend in enumerate(blend_list):
 
             # All bands in same survey have same pixel scale, WCS
@@ -343,7 +346,7 @@ class DrawBlendsGenerator(ABC):
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, psf[b], filt, survey, index, *args)
+                single_band_output = self.render_blend(blend, psf[b], filt, survey, extra_data[i])
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
@@ -356,7 +359,7 @@ class DrawBlendsGenerator(ABC):
             index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey, index, *args):
+    def render_blend(self, blend_catalog, psf, filt, survey, extra_data):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -390,7 +393,7 @@ class DrawBlendsGenerator(ABC):
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
         for k, entry in enumerate(blend_catalog):
-            single_image = self.render_single(entry, filt, psf, survey, k, *args)
+            single_image = self.render_single(entry, filt, psf, survey, extra_data[k])
             iso_image[k] = single_image.array
             _blend_image += single_image
 
@@ -406,7 +409,7 @@ class DrawBlendsGenerator(ABC):
         return blend_image, iso_image
 
     @abstractmethod
-    def render_single(self, entry, filt, psf, survey, index, *args):
+    def render_single(self, entry, filt, psf, survey, extra_data):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
@@ -426,7 +429,7 @@ class CatsimGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CatsimCatalog",)
 
-    def render_single(self, entry, filt, psf, survey):
+    def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
@@ -464,7 +467,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CosmosCatalog",)
 
-    def render_single(self, entry, filt, psf, survey):
+    def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
@@ -575,17 +578,15 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             galsim_hub_params.add_column(column)
 
         base_images = self.galsim_hub_model.sample(galsim_hub_params)
+        base_images_l = []
+        index = 0
+        for blend in blend_list:
+            base_images_l.append(base_images[index : index + len(blend)])
+            index += len(blend)
 
-        return super().render_mini_batch(blend_list, psf, wcs, survey, base_images)
+        return super().render_mini_batch(blend_list, psf, wcs, survey, base_images_l)
 
-    def render_blend(self, blend_catalog, psf, filt, survey, index, base_images):
-        """Draws image of isolated galaxies along with the blend image in the
-        single input band."""
-        return super().render_blend(
-            blend_catalog, psf, filt, survey, base_images[index : index + len(blend_catalog)]
-        )
-
-    def render_single(self, entry, filt, psf, survey, index, base_images):
+    def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy.
 
         Args:
@@ -598,7 +599,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         Returns:
             galsim.Image object
         """
-        base_image = base_images[index]
+        base_image = extra_data
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
         base_image = base_image.withFlux(gal_flux)
         base_image = base_image.shift(entry["ra"], entry["dec"])
