@@ -172,7 +172,7 @@ class MeasureGenerator:
             out = f(batch, index)
 
             # make sure output is in the correct format.
-            if not isinstance(out["catalog"], astropy.table.table.Table):
+            if not isinstance(out["catalog"], astropy.table.Table):
                 raise TypeError(
                     "The output dictionary of at least one of your measurement functions does not"
                     "contain an astropy table as the value of the key 'catalog'."
