@@ -94,7 +94,7 @@ def sep_measure(batch, idx):
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
-    deblended_images = np.zeros((n_objects, *image.shape))
+    deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
     for i in range(n_objects):
         segmentation_exp[i][np.where(segmentation == i + 1)] = True
         seg_i = (segmentation == i + 1).reshape(1, stamp_size, stamp_size)
