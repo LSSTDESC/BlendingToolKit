@@ -223,7 +223,7 @@ class MeasureGenerator:
         """
 
         blend_output = next(self.draw_blend_generator)
-        input_args = [(blend_output, i) for i in range(self.batch_size)]
+        input_args = ((blend_output, i) for i in range(self.batch_size))
         measure_results = multiprocess(
             self.run_batch,
             input_args,
