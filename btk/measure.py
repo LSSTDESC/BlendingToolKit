@@ -9,8 +9,8 @@ It should return a dictionary containing a subset of the following keys/values (
                                      `len` of the table should be `n_objects`. If your
                                      DrawBlendsGenerator uses a single survey, the following
                                      column names are required:
-                                        - dx: horizontal centroid position in pixels.
-                                        - dy: vertical centroid positoin in pixels.
+                                        - x_peak: horizontal centroid position in pixels.
+                                        - y_peak: vertical centroid position in pixels.
                                      For multiple surveys (multi-resolution), we instead require:
                                         - ra: object centroid right ascension in arcseconds,
                                         following the convention from the `wcs` object included in
@@ -65,8 +65,8 @@ def basic_measure(batch, idx):
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
-    catalog["dx"] = coordinates[:, 1]
-    catalog["dy"] = coordinates[:, 0]
+    catalog["x_peak"] = coordinates[:, 1]
+    catalog["y_peak"] = coordinates[:, 0]
     return {"catalog": catalog}
 
 
@@ -102,8 +102,8 @@ def sep_measure(batch, idx):
         deblended_images[i] = image * seg_i[np.newaxis, ...]
 
     t = astropy.table.Table()
-    t["dx"] = catalog["x"]
-    t["dy"] = catalog["y"]
+    t["x_peak"] = catalog["x"]
+    t["y_peak"] = catalog["y"]
     return {
         "catalog": t,
         "segmentation": segmentation_exp,
@@ -180,10 +180,12 @@ class MeasureGenerator:
                 )
 
             if isinstance(batch["blend_images"], np.ndarray):
-                if not ("dx" in out["catalog"].colnames and "dy" in out["catalog"].colnames):
+                if not (
+                    "x_peak" in out["catalog"].colnames and "y_peak" in out["catalog"].colnames
+                ):
                     raise ValueError(
                         "The output catalog of at least one of your measurement functions does not"
-                        "contain the 'dx' and 'dy' columns which are mandatory for a single"
+                        "contain the 'x_peak' and 'y_peak' columns which are mandatory for a single"
                         "survey study."
                     )
 

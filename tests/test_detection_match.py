@@ -17,10 +17,10 @@ def test_true_detected_catalog():
     match_galtileid2, minimum distances: d and dSigma.
 
     """
-    names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
+    names = ["x_peak", "y_peak", "size", "galtileid", "i_ab", "redshift"]
     cols = [[0.0, 1.0], [0.0, 0.0], [2.0, 0.5], [1, 2], [20, 21], [0.1, 0.2]]
     true_tables = [Table(cols, names=names)]
-    detected_tables = [Table([[0.1], [0.1]], names=["dx", "dy"])]
+    detected_tables = [Table([[0.1], [0.1]], names=["x_peak", "y_peak"])]
     # det is list of true catalog, detected catalog, detection summary
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
@@ -83,10 +83,10 @@ def test_true_detected_catalog():
 
 def no_detection():
     """When no detection, make sure no match is returned"""
-    names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
+    names = ["x_peak", "y_peak", "size", "galtileid", "i_ab", "redshift"]
     cols = [[0.0], [0.0], [1.0], [0.0], [20], [0.1]]
     true_tables = [Table(cols, names=names)]
-    detected_tables = [Table([[], []], names=["dx", "dy"])]
+    detected_tables = [Table([[], []], names=["x_peak", "y_peak"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 0, 1, 0, 0, 0, 1, 0, 0]])
     np.testing.assert_array_equal(det[2], target_summary, err_msg="Incorrect detection summary")
@@ -96,10 +96,10 @@ def no_detection():
 
 def one_detection():
     """When one detection, make sure correct match is returned"""
-    names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
+    names = ["x_peak", "y_peak", "size", "galtileid", "i_ab", "redshift"]
     cols = [[0.0], [0.0], [1.0], [0.0], [20], [0.1]]
     true_tables = [Table(cols, names=names)]
-    detected_tables = [Table([[0.1], [0.1]], names=["dx", "dy"])]
+    detected_tables = [Table([[0.1], [0.1]], names=["x_peak", "y_peak"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     target_summary = np.array([[1, 1, 0, 0, 0, 1, 0, 0, 0]])
     np.testing.assert_array_equal(det[2], target_summary, err_msg="Incorrect detection summary")
@@ -111,10 +111,10 @@ def one_undetected():
     """When one detection, if detection is equidistant to two true centers, but
     second object is larger, then algorithm 1 returns match with object 2 while
     algorithm 2 returns match with object 1"""
-    names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
+    names = ["x_peak", "y_peak", "size", "galtileid", "i_ab", "redshift"]
     cols = [[-1.0, 1.0], [0.0, 0.0], [1.0, 2.0], [100, 101], [21, 21.5], [0.1, 0.3]]
     true_tables = [Table(cols, names=names)]
-    detected_tables = [Table([[0.0], [0.0]], names=["dx", "dy"])]
+    detected_tables = [Table([[0.0], [0.0]], names=["x_peak", "y_peak"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     np.testing.assert_array_equal(
@@ -166,7 +166,7 @@ def one_undetected():
 def test_m_z_diff():
     """Test is correct dz_match and dr_match values are computed in
     metrics.get_m_z_diff. One detection has no match."""
-    names = ["dx", "dy", "size", "galtileid", "i_ab", "redshift"]
+    names = ["x_peak", "y_peak", "size", "galtileid", "i_ab", "redshift"]
     cols = [
         [-6.0, 0.0, 1.0],
         [-6.0, 0.0, 1],
@@ -176,7 +176,7 @@ def test_m_z_diff():
         [0.1, 0.3, 0.05],
     ]
     true_tables = [Table(cols, names=names)]
-    detected_tables = [Table([[0.1, 1.1], [0.1, 1.1]], names=["dx", "dy"])]
+    detected_tables = [Table([[0.1, 1.1], [0.1, 1.1]], names=["x_peak", "y_peak"])]
     det = btk.metrics.evaluate_detection(true_tables, detected_tables, 0)
     # Test true catalog
     np.testing.assert_array_equal(

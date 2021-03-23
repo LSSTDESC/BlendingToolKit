@@ -16,12 +16,12 @@ def _get_random_center_shift(num_objects, maxshift):
         num_objects (int) : Number of x and y shifts to return.
 
     Returns:
-        dx (float) : random shift along the x axis
-        dy (float) : random shift along the x axis
+        x_peak (float) : random shift along the x axis
+        y_peak (float) : random shift along the x axis
     """
-    dx = np.random.uniform(-maxshift, maxshift, size=num_objects)
-    dy = np.random.uniform(-maxshift, maxshift, size=num_objects)
-    return dx, dy
+    x_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
+    y_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
+    return x_peak, y_peak
 
 
 class SamplingFunction(ABC):
@@ -89,7 +89,7 @@ class DefaultSampling(SamplingFunction):
             table (Astropy.table): Table containing entries corresponding to galaxies
                                    from which to sample.
             shifts (list): Contains arbitrary shifts to be applied instead of random ones.
-                           Should of the form [dx,dy] where dx and dy are the lists
+                           Should of the form [x_peak,y_peak] where x_peak and y_peak are the lists
                            containing the x and y shifts.
             indexes (list): Contains the indexes of the galaxies to use.
 
@@ -106,11 +106,11 @@ class DefaultSampling(SamplingFunction):
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         if shifts is None:
-            dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+            x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift)
         else:
-            dx, dy = shifts
-        blend_table["ra"] += dx
-        blend_table["dec"] += dy
+            x_peak, y_peak = shifts
+        blend_table["ra"] += x_peak
+        blend_table["dec"] += y_peak
 
         if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
             blend_table["dec"] > self.stamp_size / 2.0
@@ -175,9 +175,9 @@ class BasicSamplingFunction(SamplingFunction):
         blend_table["dec"] = 0.0
         # keep number density of objects constant
         maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
-        dx, dy = _get_random_center_shift(number_of_objects + 1, maxshift)
-        blend_table["ra"] += dx
-        blend_table["dec"] += dy
+        x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, maxshift)
+        blend_table["ra"] += x_peak
+        blend_table["dec"] += y_peak
         return blend_table
 
 
@@ -243,11 +243,11 @@ class GroupSamplingFunction(SamplingFunction):
         # Add small random shift so that center does not perfectly align with
         # the stamp center
         if self.shift is None:
-            dx, dy = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
+            x_peak, y_peak = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
         else:
-            dx, dy = self.shift
-        blend_table["ra"] += dx
-        blend_table["dec"] += dy
+            x_peak, y_peak = self.shift
+        blend_table["ra"] += x_peak
+        blend_table["dec"] += y_peak
         # make sure galaxy centers don't lie too close to edge
         cond1 = np.abs(blend_table["ra"]) < self.stamp_size / 2.0 - 3
         cond2 = np.abs(blend_table["dec"]) < self.stamp_size / 2.0 - 3
@@ -330,11 +330,11 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         # Add small random shift so that center does not perfectly align with stamp
         # center
         if self.shift is None:
-            dx, dy = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
+            x_peak, y_peak = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
         else:
-            dx, dy = self.shift
-        blend_table["ra"] += dx
-        blend_table["dec"] += dy
+            x_peak, y_peak = self.shift
+        blend_table["ra"] += x_peak
+        blend_table["dec"] += y_peak
         # make sure galaxy centers don't lie too close to edge
         cond1 = np.abs(blend_table["ra"]) < self.stamp_size / 2.0 - 1
         cond2 = np.abs(blend_table["dec"]) < self.stamp_size / 2.0 - 1
