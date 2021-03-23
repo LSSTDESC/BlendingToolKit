@@ -527,7 +527,9 @@ def get_mean_sky_level(survey, filt):
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
-    """Creates WCS for an image.
+    """Creates WCS for an image. The default (`center_pix=None` AND `center_sky=None`) is
+    that the center of the image in pixels [(s + 1) / 2, (s + 1) / 2] corresponds to
+    (ra, dec) = [0, 0].
 
     Args:
         pixel_scale (float): pixel size in arcseconds

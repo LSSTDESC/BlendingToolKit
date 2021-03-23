@@ -6,7 +6,7 @@ import btk.sampling_functions
 import btk.survey
 
 
-def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
+def get_meas_generator(meas_function, multiprocessing=False, cpus=1):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -34,7 +34,7 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
         stamp_size=stamp_size,
     )
     meas_generator = btk.measure.MeasureGenerator(
-        meas_params,
+        meas_function,
         draw_blend_generator,
         multiprocessing=multiprocessing,
         cpus=cpus,
@@ -44,10 +44,13 @@ def get_meas_generator(meas_params, multiprocessing=False, cpus=1):
 
 def compare_sep():
     """Test detection with sep"""
-    meas_param = btk.measure.SepParams()
-    meas_generator = get_meas_generator(meas_param)
-    _, deb, _ = next(meas_generator)
-    detected_centers = deb[0]["peaks"]
+    meas_generator = get_meas_generator(btk.measure.sep_measure)
+    _, results = next(meas_generator)
+    x_peak, y_peak = (
+        results[0][0]["catalog"]["x_peak"].item(),
+        results[0][0]["catalog"]["y_peak"].item(),
+    )
+    detected_centers = np.array([[x_peak, y_peak]])
     target_detection = np.array([[65.495, 51.012]])
     np.testing.assert_array_almost_equal(
         detected_centers,
@@ -59,10 +62,13 @@ def compare_sep():
 
 def compare_sep_multiprocessing():
     """Test detection with sep"""
-    meas_param = btk.measure.SepParams()
-    meas_generator = get_meas_generator(meas_param, multiprocessing=True, cpus=4)
-    _, deb, _ = next(meas_generator)
-    detected_centers = deb[0]["peaks"]
+    meas_generator = get_meas_generator(btk.measure.sep_measure, multiprocessing=True, cpus=4)
+    _, results = next(meas_generator)
+    x_peak, y_peak = (
+        results[0][0]["catalog"]["x_peak"].item(),
+        results[0][0]["catalog"]["y_peak"].item(),
+    )
+    detected_centers = np.array([[x_peak, y_peak]])
     target_detection = np.array([[65.495, 51.012]])
     np.testing.assert_array_almost_equal(
         detected_centers,

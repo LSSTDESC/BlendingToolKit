@@ -130,7 +130,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
         ax[2].imshow(blend_img_rgb)
         ax[2].set_title(f"{num} objects with centers")
         for entry in blend_list[i]:
-            ax[2].plot(entry["dx"], entry["dy"], "rx")
+            ax[2].plot(entry["x_peak"], entry["y_peak"], "rx")
         if limits:
             ax[2].set_xlim(limits)
             ax[2].set_ylim(limits)

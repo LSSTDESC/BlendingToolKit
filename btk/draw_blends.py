@@ -33,9 +33,9 @@ def get_center_in_pixels(blend_catalog, wcs):
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    dx, dy = wcs.all_world2pix(blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0)
-    dx_col = Column(dx, name="dx")
-    dy_col = Column(dy, name="dy")
+    x_peak, y_peak = wcs.all_world2pix(blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0)
+    dx_col = Column(x_peak, name="x_peak")
+    dy_col = Column(y_peak, name="y_peak")
     return dx_col, dy_col
 
 
@@ -327,9 +327,9 @@ class DrawBlendsGenerator(ABC):
             meas_band = self.meas_bands[survey.name]
             indx_meas_band = [filt.name for filt in survey.filters].index(meas_band)
 
-            dx, dy = get_center_in_pixels(blend, wcs)
-            blend.add_column(dx)
-            blend.add_column(dy)
+            x_peak, y_peak = get_center_in_pixels(blend, wcs)
+            blend.add_column(x_peak)
+            blend.add_column(y_peak)
             # TODO: How to get size for COSMOS?
             if "CatsimCatalog" in self.compatible_catalogs:
                 size = get_size(blend, psf[indx_meas_band], pixel_scale)

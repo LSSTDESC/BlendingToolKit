@@ -27,12 +27,12 @@ class MetricsParams(ABC):
             list:  List of astropy tables with the blend catalogs used to draw
                 the blend scene in the batch. Length of tables must be equal to
                 the batch size. x and y coordinate values must be under columns
-                named 'dx' and 'dy' respectively, in pixels from bottom left
+                named 'x_peak' and 'y_peak' respectively, in pixels from bottom left
                 corner as (0, 0).
             list: List of astropy Tables of output with the outputs of the
             detection algorithm. Length of tables must be equal to the batch
-            size. x and y coordinate values must be under columns named 'dx'
-            and 'dy' respectively, in pixels from bottom left corner as (0, 0).
+            size. x and y coordinate values must be under columns named 'x_peak'
+            and 'y_peak' respectively, in pixels from bottom left corner as (0, 0).
         """
         pass
 
@@ -70,11 +70,11 @@ class BasicMetricsParams(MetricsParams):
             Results of the detection algorithm are returned as:
                 true_tables: List of astropy Table of the blend catalogs of the
                     batch. Length of tables must be the batch size. x and y
-                    coordinate values must be under columns named 'dx' and 'dy'
+                    coordinate values must be under columns named 'x_peak' and 'y_peak'
                     respectively, in pixels from bottom left corner as (0, 0).
                 detected_tables: List of astropy Table of output from detection
                     algorithm. Length of tables must be the batch size. x and y
-                    coordinate values must be under columns named 'dx' and 'dy'
+                    coordinate values must be under columns named 'x_peak' and 'y_peak'
                     respectively, in pixels from bottom left corner as (0, 0).
         """
         blend_op, deblend_op, _ = next(self.meas_generator)
@@ -82,7 +82,7 @@ class BasicMetricsParams(MetricsParams):
         detected_tables = []
         for i in range(len(true_tables)):
             detected_centers = deblend_op[i]["peaks"]
-            detected_table = astropy.table.Table(detected_centers, names=["dx", "dy"])
+            detected_table = astropy.table.Table(detected_centers, names=["x_peak", "y_peak"])
             detected_tables.append(detected_table)
         return true_tables, detected_tables
 
@@ -117,7 +117,7 @@ def get_closest_neighbor_distance(true_table):
     Returns:
         `astropy.table.Column`s: size of the galaxy.
     """
-    peaks = np.stack([np.array(true_table["dx"]), np.array(true_table["dy"])]).T
+    peaks = np.stack([np.array(true_table["x_peak"]), np.array(true_table["y_peak"])]).T
     if peaks.shape[0] > 1:
         distance = scipy.spatial.distance.cdist(peaks, peaks, metric="euclidean")
         min_dist = [np.min(distance[i][distance[i] > 0]) for i in range(len(distance))]
@@ -136,15 +136,15 @@ def get_m_z_diff(true_table, detected_true):
     if len(detected_true) == 0 or len(true_table) == 0:
         # No match since either no true or no matched true objects
         return
-    det_centers = np.stack([np.array(detected_true["dx"]), np.array(detected_true["dy"])]).T
+    det_centers = np.stack([np.array(detected_true["x_peak"]), np.array(detected_true["y_peak"])]).T
     z_tree = scipy.spatial.KDTree(det_centers)
-    true_centers = np.stack([np.array(true_table["dx"]), np.array(true_table["dy"])]).T
+    true_centers = np.stack([np.array(true_table["x_peak"]), np.array(true_table["y_peak"])]).T
     match = detected_true[z_tree.query(true_centers)[1]]
     true_table["dm_match"] = true_table["i_ab"] - match["i_ab"]
     true_table["dz_match"] = true_table["redshift"] - match["redshift"]
-    dx = true_table["dx"] - match["dx"]
-    dy = true_table["dy"] - match["dy"]
-    true_table["ddist_match"] = np.hypot(dx, dy)
+    x_peak = true_table["x_peak"] - match["x_peak"]
+    y_peak = true_table["y_peak"] - match["y_peak"]
+    true_table["ddist_match"] = np.hypot(x_peak, y_peak)
 
 
 def initialize_detection_tables(detected_table, true_table, batch_index, batch_size, blend_index):
@@ -212,8 +212,8 @@ def get_detection_match(true_table, detected_table):
     if len(detected_table) == 0 or len(true_table) == 0:
         # No match since either no detection or no true objects
         return
-    t_x = true_table["dx"][:, np.newaxis] - detected_table["dx"]
-    t_y = true_table["dy"][:, np.newaxis] - detected_table["dy"]
+    t_x = true_table["x_peak"][:, np.newaxis] - detected_table["x_peak"]
+    t_y = true_table["y_peak"][:, np.newaxis] - detected_table["y_peak"]
     dist = np.hypot(t_x, t_y)
     norm_size = true_table["size"]
     norm_dist = dist / norm_size[:, np.newaxis]
@@ -373,11 +373,11 @@ def evaluate_detection(true_tables, detected_tables, batch_index):
     Args:
         true_tables:  List of astropy Tables of the blend catalogs of the
             batch. Length of tables must be the batch size. x and y coordinate
-            values must be under columns named 'dx' and 'dy' respectively, in
+            values must be under columns named 'x_peak' and 'y_peak' respectively, in
             pixels from bottom left corner as (0, 0).
         detected_tables: List of astropy Tables of output from detection
             algorithm. Length of tables must be the batch size. x and y
-            coordinate values must be under columns named 'dx' and 'dy'
+            coordinate values must be under columns named 'x_peak' and 'y_peak'
             respectively, in pixels from bottom left corner as (0, 0).
         batch_index(int): Index number of the batch.
     Returns:
