@@ -97,9 +97,9 @@ def sep_measure(batch, idx):
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
     for i in range(n_objects):
-        segmentation_exp[i][segmentation == i + 1] = True
-        seg_i = (segmentation == i + 1).reshape(1, stamp_size, stamp_size)
-        deblended_images[i] = seg_i * image
+        seg_i = segmentation == i + 1
+        segmentation_exp[i] = seg_i
+        deblended_images[i] = image * seg_i[np.newaxis, ...]
 
     t = astropy.table.Table()
     t["dx"] = catalog["x"]
