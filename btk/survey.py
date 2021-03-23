@@ -537,6 +537,7 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
         center_pix (tuple) : tuple representing the center of the image in pixels
         center_sky (tuple) : tuple representing the center of the image in sky coordinates
                      (RA,DEC) in arcseconds.
+        projection(str): projection type, default to TAN. A list of available
                             types can be found in astropy.wcs documentation
 
     Returns:

@@ -32,7 +32,7 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
-import astropy
+import astropy.table
 import numpy as np
 import sep
 from skimage.feature import peak_local_max
@@ -57,11 +57,11 @@ def basic_measure(batch, idx):
     if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
-    image = np.mean(batch["blend_images"][idx], axis=0)
+    coadd = np.mean(batch["blend_images"][idx], axis=0)
 
     # set detection threshold to 5 times std of image
-    threshold = 5 * np.std(image)
-    coordinates = peak_local_max(image, min_distance=2, threshold_abs=threshold)
+    threshold = 5 * np.std(coadd)
+    coordinates = peak_local_max(coadd, min_distance=2, threshold_abs=threshold)
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
@@ -91,12 +91,13 @@ def sep_measure(batch, idx):
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
     coadd = np.mean(image, axis=0)
     bkg = sep.Background(coadd)
+    # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
     for i in range(n_objects):
-        segmentation_exp[i][np.where(segmentation == i + 1)] = True
+        segmentation_exp[i][segmentation == i + 1] = True
         seg_i = (segmentation == i + 1).reshape(1, stamp_size, stamp_size)
         deblended_images[i] = seg_i * image
 
