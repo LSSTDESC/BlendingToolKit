@@ -286,7 +286,7 @@
 <span class="sd">            table (astropy.table): Table containing entries corresponding to galaxies</span>
 <span class="sd">                                   from which to sample.</span>
 <span class="sd">            shifts (list): Contains arbitrary shifts to be applied instead of random ones.</span>
-<span class="sd">                           Should of the form [dx,dy] where dx and dy are the lists</span>
+<span class="sd">                           Should of the form [x_peak,y_peak] where x_peak and y_peak are the lists</span>
 <span class="sd">                           containing the x and y shifts.</span>
 <span class="sd">            indexes (list): Contains the indexes of the galaxies to use.</span>
 
@@ -303,11 +303,11 @@
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">if</span> <span class="n">shifts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">_get_random_center_shift</span><span class="p">(</span><span class="n">number_of_objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxshift</span><span class="p">)</span>
+            <span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span> <span class="o">=</span> <span class="n">_get_random_center_shift</span><span class="p">(</span><span class="n">number_of_objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxshift</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">shifts</span>
-        <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dx</span>
-        <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dy</span>
+            <span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span> <span class="o">=</span> <span class="n">shifts</span>
+        <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x_peak</span>
+        <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y_peak</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stamp_size</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
             <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stamp_size</span> <span class="o">/</span> <span class="mf">2.0</span>

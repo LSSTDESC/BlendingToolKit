@@ -108,7 +108,7 @@ As a reference, here is the code for this sampling function.::
               table (astropy.table): Table containing entries corresponding to galaxies
                                      from which to sample.
               shifts (list): Contains arbitrary shifts to be applied instead of random ones.
-                             Should of the form [dx,dy] where dx and dy are the lists
+                             Should of the form [x_peak,y_peak] where x_peak and y_peak are the lists
                              containing the x and y shifts.
               indexes (list): Contains the indexes of the galaxies to use.
 
@@ -125,11 +125,11 @@ As a reference, here is the code for this sampling function.::
           blend_table["ra"] = 0.0
           blend_table["dec"] = 0.0
           if shifts is None:
-              dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+              x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift)
           else:
-              dx, dy = shifts
-          blend_table["ra"] += dx
-          blend_table["dec"] += dy
+              x_peak, y_peak = shifts
+          blend_table["ra"] += x_peak
+          blend_table["dec"] += y_peak
 
           if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
               blend_table["dec"] > self.stamp_size / 2.0

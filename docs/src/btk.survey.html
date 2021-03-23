@@ -296,7 +296,9 @@ Defines a synthetic galsim PSF model</p>
 <dl class="py function">
 <dt id="btk.survey.make_wcs">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">make_wcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_pix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_sky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TAN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.make_wcs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates WCS for an image.</p>
+<dd><p>Creates WCS for an image. The default (<cite>center_pix=None</cite> AND <cite>center_sky=None</cite>) is
+that the center of the image in pixels [(s + 1) / 2, (s + 1) / 2] corresponds to
+(ra, dec) = [0, 0].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
