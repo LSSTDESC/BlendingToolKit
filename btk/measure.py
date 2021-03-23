@@ -218,11 +218,9 @@ class MeasureGenerator:
         """
         Returns:
             draw_blend_generator output from `__next__` method.
-            measurement output: List of len(batch_size), where each element is a list of
-                                len(measure_functions) corresponding to the measurements made by
-                                each function on each element of the batch. If only one
-                                measure_function was passed in, then each sub-list is converted
-                                to a single element.
+            measurement output: List of length `batch_size`, where each element is a list of
+                                `len(measure_functions)` corresponding to the measurements made by
+                                each function on each element of the batch.
         """
 
         blend_output = next(self.draw_blend_generator)
@@ -234,9 +232,6 @@ class MeasureGenerator:
             self.multiprocessing,
             self.verbose,
         )
-        for i, r in enumerate(measure_results):
-            if len(r) == 1:
-                measure_results[i] = r[0]
         if self.verbose:
             print("Measurement performed on batch")
         return blend_output, measure_results

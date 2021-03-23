@@ -47,8 +47,8 @@ def compare_sep():
     meas_generator = get_meas_generator(btk.measure.sep_measure)
     _, results = next(meas_generator)
     x_peak, y_peak = (
-        results[0]["catalog"]["x_peak"].item(),
-        results[0]["catalog"]["y_peak"].item(),
+        results[0][0]["catalog"]["x_peak"].item(),
+        results[0][0]["catalog"]["y_peak"].item(),
     )
     detected_centers = np.array([[x_peak, y_peak]])
     target_detection = np.array([[65.495, 51.012]])
@@ -65,8 +65,8 @@ def compare_sep_multiprocessing():
     meas_generator = get_meas_generator(btk.measure.sep_measure, multiprocessing=True, cpus=4)
     _, results = next(meas_generator)
     x_peak, y_peak = (
-        results[0]["catalog"]["x_peak"].item(),
-        results[0]["catalog"]["y_peak"].item(),
+        results[0][0]["catalog"]["x_peak"].item(),
+        results[0][0]["catalog"]["y_peak"].item(),
     )
     detected_centers = np.array([[x_peak, y_peak]])
     target_detection = np.array([[65.495, 51.012]])
