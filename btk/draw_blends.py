@@ -478,28 +478,23 @@ class CosmosGenerator(DrawBlendsGenerator):
         Returns:
             galsim.Image object
         """
-        k = int(np.random.rand(1) * len(self.catalog))  # catalog_line["btk_index"][0]
-        gal = self.catalog.makeGalaxy(k, gal_type="real", noise_pad_size=0).withFlux(1)
+
+        galsim_catalog = self.catalog.get_galsim_catalog()
+        gal_flux = get_flux(entry["ref_mag"], filt, survey)
+        gal = galsim_catalog.makeGalaxy(
+            entry["btk_index"], gal_type="real", noise_pad_size=0
+        ).withFlux(gal_flux)
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
-        # Convolution by a smal gaussian: The galsim models actally have noise in a little patch
-        # around them, so gaussian kernel convolution smoothes it out.
-        # It has the slight disadvantage of adding some band-limitedeness to the image,
+        # Convolution by a small gaussian: the galsim models actually have noise in a little patch
+        # around them, so a gaussian kernel convolution smoothes it out.
+        # It has the slight disadvantage of adding some band-limitedness to the image,
         # but with a small kernel, it's better than doing nothing.
         gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
 
-        # Randomly shifts the galaxy in the patch
-        galaxy = (
-            galsim.Convolve(gal, psf)
-            .drawImage(
-                nx=pix_stamp_size,
-                ny=pix_stamp_size,
-                use_true_center=True,
-                method="real_space",
-                scale=survey.pixel_scale,
-                dtype=np.float64,
-            )
-            .array
-        )
+        # Convolve the galaxy with the PSF
+        gal_conv = galsim.Convolve(gal, psf)
+        # Apply the shift
+        gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
-        return galsim.Image(galaxy)
+        return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
