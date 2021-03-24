@@ -1,3 +1,2 @@
 *.ipynb filter=nbstripout
 *.ipynb diff=ipynb
-*.fits filter=lfs diff=lfs merge=lfs -text
