@@ -3,8 +3,8 @@ from btk.catalog import CosmosCatalog
 
 CATALOG_PATH = "data/sample_input_catalog.fits"
 COSMOS_CATALOG_PATHS = [
-    "data/real_galaxy_catalog_25.2.fits",
-    "data/real_galaxy_catalog_25.2_fits.fits",
+    "data/cosmos/real_galaxy_catalog_25.2.fits",
+    "data/cosmos/real_galaxy_catalog_25.2_fits.fits",
 ]
 
 
