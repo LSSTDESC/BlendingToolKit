@@ -22,6 +22,15 @@ def test_reading_cosmos_catalog():
     return cosmos_catalog
 
 
+def test_getting_galsim_catalog():
+    """Returns the galsim catalog"""
+
+    cosmos_catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    galsim_catalog = cosmos_catalog.get_galsim_catalog()
+    return galsim_catalog
+
+
 def test_verbose():
-    # for coverage.
+    """Testing the verbose option"""
     CatsimCatalog.from_file(CATALOG_PATH, verbose=True)
+    CosmosCatalog.from_file(COSMOS_CATALOG_PATHS, verbose=True)
