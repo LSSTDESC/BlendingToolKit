@@ -4,7 +4,6 @@ from abc import abstractmethod
 from itertools import chain
 
 import galsim
-import galsim_hub
 import numpy as np
 from astropy.table import Column
 from astropy.table import Table
@@ -548,6 +547,8 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             indexes=indexes,
             dim_order=dim_order,
         )
+        import galsim_hub
+
         self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
         self.param_names = param_names
 

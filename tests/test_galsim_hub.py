@@ -2,8 +2,8 @@ import btk.draw_blends
 import btk.survey
 
 COSMOS_CATALOG_PATHS = [
-    "data/real_galaxy_catalog_25.2.fits",
-    "data/real_galaxy_catalog_25.2_fits.fits",
+    "data/cosmos/real_galaxy_catalog_23.5_example.fits",
+    "data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
 ]
 
 
