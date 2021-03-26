@@ -158,7 +158,7 @@ class DefaultSamplingGalsimHub(SamplingFunction):
             Astropy.table with entries corresponding to one blend.
         """
         number_of_objects = np.random.randint(1, self.max_number + 1)
-        (q,) = np.where(table["ref_mag"] <= 25.3 and table["flux_radius"] <= 24.0)
+        (q,) = np.where((table["ref_mag"] <= 25.3) & (table["flux_radius"] <= 24.0))
 
         if indexes is None:
             blend_table = table[np.random.choice(q, size=number_of_objects)]
