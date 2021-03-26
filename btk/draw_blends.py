@@ -549,6 +549,8 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         )
         import galsim_hub
 
+        galsim_hub.tf.compat.v1.disable_eager_execution()
+
         self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
         self.param_names = param_names
 
