@@ -473,8 +473,7 @@ class CosmosGenerator(DrawBlendsGenerator):
     compatible_catalogs = ("CosmosCatalog",)
 
     def render_single(self, entry, filt, psf, survey, extra_data):
-        """Returns the Galsim Image of an isolated galaxy.
-        """
+        """Returns the Galsim Image of an isolated galaxy."""
 
         galsim_catalog = self.catalog.get_galsim_catalog()
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
@@ -496,7 +495,6 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
-
 
 
 class GalsimHubGenerator(DrawBlendsGenerator):
@@ -583,4 +581,3 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
         )
         return galaxy_image
->>>>>>> Added support for galsim_hub
