@@ -44,7 +44,7 @@ jobs:
       - name: Instal FFTW + Eigen
         run: |
           sudo apt-get install libfftw3-dev libeigen3-dev
-          pip install eigency
+          pip install galsim
 
       - name: Install poetry dependencies
         run: |
