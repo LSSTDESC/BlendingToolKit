@@ -48,6 +48,9 @@ jobs:
       - name: Install poetry dependencies
         run: |
           poetry install
+
+      - name: Install optional dependencies
+        run: |
           pip install tensorflow==1.15
           pip install galsim-hub
 
