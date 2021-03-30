@@ -26,11 +26,13 @@ jobs:
       - name: Install miniconda and environment
         uses: conda-incubator/setup-miniconda@v2
         with:
+          miniconda-version: "latest"
           activate-environment: test
           python-version: ${{ matrix.python-version }}
 
       - name: Install conda dependencies
         run: |
+          conda --version
           conda env list
           conda activate test
           which python
