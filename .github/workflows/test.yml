@@ -35,6 +35,8 @@ jobs:
           environment-file: conda_env.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: true
+
+      - name: Activate conda environment
         run: |
           conda info
           conda env list
