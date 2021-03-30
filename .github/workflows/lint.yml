@@ -45,4 +45,7 @@ jobs:
           poetry install --extras "galsim-hub"
 
       - name: Run pre-commit checks
-        uses: pre-commit/action@v2.0.0
+        shell: bash -l {0}
+        run: |
+          pre-commit install
+          pre-commit run --all-files
