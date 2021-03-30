@@ -9,7 +9,6 @@ def test_multiresolution():
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
-    multiprocessing = False
     add_noise = True
 
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
@@ -20,7 +19,6 @@ def test_multiresolution():
         [Rubin, HSC],
         stamp_size=stamp_size,
         batch_size=batch_size,
-        multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
         meas_bands=("i", "i"),

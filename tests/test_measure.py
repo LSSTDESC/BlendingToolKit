@@ -6,7 +6,7 @@ import btk.sampling_functions
 import btk.survey
 
 
-def get_meas_generator(meas_function, multiprocessing=False, cpus=1):
+def get_meas_generator(meas_function, cpus=1):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -36,7 +36,6 @@ def get_meas_generator(meas_function, multiprocessing=False, cpus=1):
     meas_generator = btk.measure.MeasureGenerator(
         meas_function,
         draw_blend_generator,
-        multiprocessing=multiprocessing,
         cpus=cpus,
     )
     return meas_generator
@@ -62,7 +61,7 @@ def compare_sep():
 
 def compare_sep_multiprocessing():
     """Test detection with sep"""
-    meas_generator = get_meas_generator(btk.measure.sep_measure, multiprocessing=True, cpus=4)
+    meas_generator = get_meas_generator(btk.measure.sep_measure, cpus=4)
     _, results = next(meas_generator)
     x_peak, y_peak = (
         results[0][0]["catalog"]["x_peak"].item(),

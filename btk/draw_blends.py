@@ -126,7 +126,7 @@ class DrawBlendsGenerator(ABC):
 
     Batch is divided into mini batches of size blend_generator.batch_size//cpus and
     each mini-batch analyzed separately. The results are then combined to output a
-    dict with results of entire batch. If multiprocessing is true, then each of
+    dict with results of entire batch. If the number of cpus is greater than one, then each of
     the mini-batches are run in parallel.
 
     """
@@ -141,7 +141,6 @@ class DrawBlendsGenerator(ABC):
         batch_size=8,
         stamp_size=24,
         meas_bands=("i",),
-        multiprocessing=False,
         cpus=1,
         verbose=False,
         add_noise=True,
@@ -159,8 +158,6 @@ class DrawBlendsGenerator(ABC):
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
             meas_bands=("i",) : Tuple containing the bands in which the measurements are carried
-            multiprocessing (bool) : Indicates whether the mini batches should be ran in
-                                     parallel
             cpus (int) : Number of cpus to use ; defines the number of minibatches
             verbose (bool) : Indicates whether additionnal information should be printed
             add_noise (bool) : Indicates if the blends should be generated with noise
@@ -178,7 +175,6 @@ class DrawBlendsGenerator(ABC):
             catalog, sampling_function, batch_size, shifts, indexes, verbose
         )
         self.catalog = self.blend_generator.catalog
-        self.multiprocessing = multiprocessing
         self.cpus = cpus
 
         self.batch_size = self.blend_generator.batch_size
@@ -265,7 +261,6 @@ class DrawBlendsGenerator(ABC):
                 self.render_mini_batch,
                 input_args,
                 self.cpus,
-                self.multiprocessing,
                 self.verbose,
             )
 

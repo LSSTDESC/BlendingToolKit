@@ -126,7 +126,6 @@ class MeasureGenerator:
         self,
         measure_functions,
         draw_blend_generator,
-        multiprocessing=False,
         cpus=1,
         verbose=False,
     ):
@@ -155,7 +154,6 @@ class MeasureGenerator:
             ValueError("measure_functions must be a list of functions or a single function.")
 
         self.draw_blend_generator = draw_blend_generator
-        self.multiprocessing = multiprocessing
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
@@ -229,7 +227,6 @@ class MeasureGenerator:
             self.run_batch,
             input_args,
             self.cpus,
-            self.multiprocessing,
             self.verbose,
         )
         if self.verbose:

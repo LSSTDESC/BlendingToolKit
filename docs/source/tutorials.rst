@@ -274,7 +274,6 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       stamp_size=stamp_size,
       shifts=None,
       indexes=None,
-      multiprocessing=False,
       cpus=1,
       add_noise=True,
   )

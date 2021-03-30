@@ -24,7 +24,6 @@ def test_sampling_no_max_number():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        multiprocessing = False
         add_noise = True
 
         catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
@@ -35,7 +34,6 @@ def test_sampling_no_max_number():
             [Rubin],
             stamp_size=stamp_size,
             batch_size=batch_size,
-            multiprocessing=multiprocessing,
             cpus=cpus,
             add_noise=add_noise,
             meas_bands=("i"),
@@ -63,7 +61,6 @@ def test_sampling_incompatible_catalog():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        multiprocessing = False
         add_noise = True
 
         catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
@@ -74,7 +71,6 @@ def test_sampling_incompatible_catalog():
             [Rubin],
             stamp_size=stamp_size,
             batch_size=batch_size,
-            multiprocessing=multiprocessing,
             cpus=cpus,
             add_noise=add_noise,
             meas_bands=("i"),
@@ -104,7 +100,6 @@ def test_sampling_too_much_objects():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        multiprocessing = False
         add_noise = True
 
         catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
@@ -115,7 +110,6 @@ def test_sampling_too_much_objects():
             [Rubin],
             stamp_size=stamp_size,
             batch_size=batch_size,
-            multiprocessing=multiprocessing,
             cpus=cpus,
             add_noise=add_noise,
             meas_bands=("i"),
@@ -153,7 +147,6 @@ def test_survey_not_list():
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
-    multiprocessing = False
     add_noise = True
 
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
@@ -165,7 +158,6 @@ def test_survey_not_list():
             3,
             stamp_size=stamp_size,
             batch_size=batch_size,
-            multiprocessing=multiprocessing,
             cpus=cpus,
             add_noise=add_noise,
             meas_bands=("i"),
