@@ -27,10 +27,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
-          auto-activate-base: true
 
       - name: Install conda dependencies
         run: |
+          conda env list
           which python
           python --version
           conda install fftw 
