@@ -23,31 +23,27 @@ jobs:
           lfs: true
           fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Install miniconda and environment
+        uses: conda-incubator/setup-miniconda@v2
         with:
+          miniconda-version: "latest"
+          activate-environment: btk_py37
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
+      - name: Install conda dependencies
+        shell: bash -l {0} # setup and activate conda environment.
         run: |
-          pip install --upgrade pip
-          pip install poetry
-
-      - name: Poetry cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ hashFiles('./poetry.lock') }}
-
-      # galsim needs this.
-      - name: Instal FFTW + Eigen
-        run: |
-          sudo apt-get install libfftw3-dev libeigen3-dev
+          conda install fftw 
+          conda install -c conda-forge eigen
+          conda install -c conda-forge galsim
+          conda install tensorflow==1.15
+          conda install -c conda-forge poetry
 
       - name: Install poetry dependencies
+        shell: bash -l {0}
         run: |
-          poetry install
+          poetry install --extras "galsim-hub"
 
       - name: Run pre-commit checks
+        shell: bash -l {0}
         uses: pre-commit/action@v2.0.0
