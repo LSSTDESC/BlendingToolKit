@@ -57,10 +57,13 @@ wheel = "^0.36.2"
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
-
 [tool.black]
 line-length = 100
 target-version = ['py38']
+
+[tool.poetry.extras]
+galsim-hub = ["galsim-hub", "tensorflow"]
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
