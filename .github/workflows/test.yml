@@ -32,6 +32,7 @@ jobs:
       - name: Install conda dependencies
         run: |
           conda env list
+          conda activate test
           which python
           python --version
           conda install fftw 
