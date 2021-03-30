@@ -34,7 +34,7 @@ jobs:
         run: |
           conda --version
           conda env list
-          conda activate test
+          source activate test
           which python
           python --version
           conda install fftw 
