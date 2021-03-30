@@ -11,7 +11,6 @@ from btk.survey import Rubin
 def get_draw_generator(
     batch_size=8,
     cpus=1,
-    multiprocessing=False,
     add_noise=True,
     fixed_parameters=False,
     sampling_function=None,
@@ -46,7 +45,6 @@ def get_draw_generator(
         stamp_size=stamp_size,
         shifts=shifts,
         indexes=indexes,
-        multiprocessing=multiprocessing,
         cpus=cpus,
         add_noise=add_noise,
         verbose=True,
@@ -60,9 +58,9 @@ class TestMultiprocessing:
         b_size = 16
         cpus = np.min([mp.cpu_count(), 16])
 
-        parallel_im_gen = get_draw_generator(b_size, cpus, multiprocessing=True, add_noise=False)
+        parallel_im_gen = get_draw_generator(b_size, cpus, add_noise=False)
         parallel_im = next(parallel_im_gen)
-        serial_im_gen = get_draw_generator(b_size, cpus, multiprocessing=False, add_noise=False)
+        serial_im_gen = get_draw_generator(b_size, cpus=1, add_noise=False)
         serial_im = next(serial_im_gen)
         np.testing.assert_array_equal(parallel_im["blend_images"], serial_im["blend_images"])
         np.testing.assert_array_equal(parallel_im["isolated_images"], serial_im["isolated_images"])

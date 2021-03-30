@@ -3,8 +3,8 @@ import multiprocessing as mp
 from itertools import starmap
 
 
-def multiprocess(func, input_args, cpus, multiprocessing=False, verbose=False):
-    if multiprocessing:
+def multiprocess(func, input_args, cpus, verbose=False):
+    if cpus > 1:
         if verbose:
             print(
                 f"Running mini-batch of size {len(input_args)} with multiprocessing with "

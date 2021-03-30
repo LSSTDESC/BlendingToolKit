@@ -20,7 +20,6 @@ def test_cosmos_galaxies():
         [btk.survey.HST],
         batch_size=batch_size,
         stamp_size=stamp_size,
-        multiprocessing=False,
         cpus=1,
         add_noise=True,
         verbose=True,
