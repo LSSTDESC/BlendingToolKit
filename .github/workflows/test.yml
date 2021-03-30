@@ -31,24 +31,21 @@ jobs:
       - name: Install miniconda and environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: anaconda-client-env
-          environment-file: conda_env.yml
+          activate-environment: ""
           python-version: ${{ matrix.python-version }}
           auto-activate-base: true
 
-      - name: Activate conda environment
+      - name: Install conda dependencies
         run: |
-          conda info
-          conda env list
-          conda activate btk_py37
-
-      - name: Install Poetry
-        run: |
+          conda install fftw 
+          conda install -c conda-forge eigen
+          conda install -c conda-forge galsim
+          conda install tensorflow==1.15
           conda install -c conda-forge poetry
 
       - name: Install poetry dependencies
         run: |
-          poetry install
+          poetry install --extras "galsim-hub"
 
       - name: Run Tests
         run: |
