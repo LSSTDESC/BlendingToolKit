@@ -573,6 +573,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
         base_image = extra_data
+        base_image = galsim.Convolve(base_image, psf)
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
         base_image = base_image.withFlux(gal_flux)
         base_image = base_image.shift(entry["ra"], entry["dec"])
