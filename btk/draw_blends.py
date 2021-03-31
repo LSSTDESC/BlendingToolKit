@@ -6,6 +6,7 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
+from astropy.table import Table
 
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
@@ -291,7 +292,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -306,12 +307,20 @@ class DrawBlendsGenerator(ABC):
             psf (list) : List of Galsim objects containing the PSF
             wcs (astropy.wcs.WCS) : astropy WCS object
             survey (dict) : Dictionary containing survey information.
+            extra_data : This field can be used if some data need to be generated
+            before getting to the step where single galaxies are drawn. It should
+            have a "shape" of (batch_size,n_blend,...) where n_blend is the number
+            of objects in a blend. See GalsimHubGenerator for an example of usage.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
             list of blend catalogs.
         """
         outputs = []
+        index = 0
+
+        if extra_data is None:
+            extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
         for i, blend in enumerate(blend_list):
 
             # All bands in same survey have same pixel scale, WCS
@@ -340,7 +349,7 @@ class DrawBlendsGenerator(ABC):
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, psf[b], filt, survey)
+                single_band_output = self.render_blend(blend, psf[b], filt, survey, extra_data[i])
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
@@ -350,9 +359,10 @@ class DrawBlendsGenerator(ABC):
             iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
+            index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey):
+    def render_blend(self, blend_catalog, psf, filt, survey, extra_data):
         """Draws image of isolated galaxies along with the blend image in the
         single input band.
 
@@ -372,6 +382,9 @@ class DrawBlendsGenerator(ABC):
             psf : Galsim object containing the psf for the given filter
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
+            extra_data : Special field of shape (n_blend,?), containing
+            additionnal data for drawing the blend. See render_minibatch
+            method for more details.
 
         Returns:
             Images of blend and isolated galaxies as `numpy.ndarray`.
@@ -386,7 +399,7 @@ class DrawBlendsGenerator(ABC):
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
         for k, entry in enumerate(blend_catalog):
-            single_image = self.render_single(entry, filt, psf, survey)
+            single_image = self.render_single(entry, filt, psf, survey, extra_data[k])
             iso_image[k] = single_image.array
             _blend_image += single_image
 
@@ -402,14 +415,23 @@ class DrawBlendsGenerator(ABC):
         return blend_image, iso_image
 
     @abstractmethod
-    def render_single(self, entry, filt, psf, survey):
+    def render_single(self, entry, filt, psf, survey, extra_data):
         """Renders single galaxy in single band in the location given by its entry
         using the cutout information.
 
         The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
         This method should be implemented in subclasses.
 
-        Return:
+        Args:
+            entry (astropy.table.Table): Line from astropy describing the galaxy to draw
+            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
+                                the image is drawn `
+            psf : Galsim object containing the PSF relative to the chosen filter
+            survey (btk.survey.Survey) : BTK Survey object
+            extra_data : Special field containing extra data for drawing a single galaxy.
+            See render_minibatch method for more details.
+
+        Returns:
             galsim.Image object
         """
 
@@ -422,19 +444,8 @@ class CatsimGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CatsimCatalog",)
 
-    def render_single(self, entry, filt, psf, survey):
-        """Returns the Galsim Image of an isolated galaxy.
-
-        Args:
-            entry (astropy.table.Table): Line from astropy describing the galaxy to draw
-            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
-                                the image is drawn `
-            psf : Galsim object containing the PSF relative to the chosen filter
-            survey (btk.survey.Survey) : BTK Survey object
-
-        Returns:
-            galsim.Image object
-        """
+    def render_single(self, entry, filt, psf, survey, extra_data):
+        """Returns the Galsim Image of an isolated galaxy."""
         if self.verbose:
             print("Draw isolated object")
 
@@ -460,25 +471,15 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CosmosCatalog",)
 
-    def render_single(self, entry, filt, psf, survey):
-        """Returns the Galsim Image of an isolated galaxy.
-
-        Args:
-            entry (astropy Table): Line from astropy describing the galaxy to draw
-            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
-                                the image is drawn `
-            psf : Galsim object containing the PSF relative to the chosen filter
-            survey (btk.survey.Survey) : BTK Survey object
-
-        Returns:
-            galsim.Image object
-        """
+    def render_single(self, entry, filt, psf, survey, extra_data):
+        """Returns the Galsim Image of an isolated galaxy."""
 
         galsim_catalog = self.catalog.get_galsim_catalog()
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type="real", noise_pad_size=0
         ).withFlux(gal_flux)
+
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
         # Convolution by a small gaussian: the galsim models actually have noise in a little patch
@@ -493,3 +494,90 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
+
+
+class GalsimHubGenerator(DrawBlendsGenerator):
+    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with
+    galsim_hub (https://github.com/McWilliamsCenter/galsim_hub), a framework
+    for generating real-looking galaxies using deep learning models.
+    """
+
+    compatible_catalogs = ("CosmosCatalog",)
+
+    def __init__(
+        self,
+        catalog,
+        sampling_function,
+        surveys: list,
+        batch_size=8,
+        stamp_size=24,
+        meas_bands=("i",),
+        cpus=1,
+        verbose=False,
+        add_noise=True,
+        shifts=None,
+        indexes=None,
+        dim_order="NCHW",
+        galsim_hub_model="hub:Lanusse2020",
+        param_names=["flux_radius", "mag_auto", "zphot"],
+    ):
+        """Initializes the GalsimHubGenerator class.
+
+        Args:
+            galsim_hub_model (str) : Source of the model to use. Can be
+                    either a distant model or a local one, see the
+                    galsim_hub repo for more information.
+            param_names (list) : list of the parameters with which
+                    the generation is parametrized ; this is unique to
+                    each model.
+        """
+        super().__init__(
+            catalog,
+            sampling_function,
+            surveys,
+            batch_size=batch_size,
+            stamp_size=stamp_size,
+            meas_bands=meas_bands,
+            cpus=cpus,
+            verbose=verbose,
+            add_noise=add_noise,
+            shifts=shifts,
+            indexes=indexes,
+            dim_order=dim_order,
+        )
+        import galsim_hub
+
+        self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
+        self.param_names = param_names
+
+    def render_mini_batch(self, blend_list, psf, wcs, survey):
+        """Returns isolated and blended images for blend catalogs in blend_list.
+        Here we generate the images for all galaxies in the batch at the same
+        time as galsim_hub is optimized for batch generation."""
+        galsim_hub_params = Table()
+        for p in self.param_names:
+            column = Column(np.concatenate([blend[p] for blend in blend_list]), p)
+            galsim_hub_params.add_column(column)
+
+        base_images = self.galsim_hub_model.sample(galsim_hub_params)
+        base_images_l = []
+        index = 0
+        for blend in blend_list:
+            base_images_l.append(base_images[index : index + len(blend)])
+            index += len(blend)
+
+        return super().render_mini_batch(blend_list, psf, wcs, survey, base_images_l)
+
+    def render_single(self, entry, filt, psf, survey, extra_data):
+        """Returns the Galsim Image of an isolated galaxy."""
+        base_image = extra_data
+        base_image = galsim.Convolve(base_image, psf)
+        gal_flux = get_flux(entry["ref_mag"], filt, survey)
+        base_image = base_image.withFlux(gal_flux)
+        base_image = base_image.shift(entry["ra"], entry["dec"])
+
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        galaxy_image = base_image.drawImage(
+            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
+        )
+        return galaxy_image

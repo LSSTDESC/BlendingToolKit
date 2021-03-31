@@ -119,6 +119,67 @@ class DefaultSampling(SamplingFunction):
         return blend_table
 
 
+class DefaultSamplingGalsimHub(SamplingFunction):
+    """Default sampling function used for producing blend tables, specifically
+    for the galsim_hub galaxy generation."""
+
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
+        """
+        Args:
+            max_number (int): Defined in parent class
+            stamp_size (float): Size of the desired stamp.
+            maxshift (float): Magnitude of maximum value of shift. If None then it
+                             is set as one-tenth the stamp size. (in arcseconds)
+        """
+        super().__init__(max_number)
+        self.stamp_size = stamp_size
+        self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+
+    @property
+    def compatible_catalogs(self):
+        return "CatsimCatalog", "CosmosCatalog"
+
+    def __call__(self, table, shifts=None, indexes=None):
+        """
+        This sampling function is almost identical to the default one, except that an
+        additionnal cut on the flux radius is applied. This is done to avoid having
+        galaxies too large being selected, as generating large galaxies causes artifacts
+        in galsim_hub images.
+
+        Args:
+            table (Astropy.table): Table containing entries corresponding to galaxies
+                                   from which to sample.
+            shifts (list): Contains arbitrary shifts to be applied instead of random ones.
+                           Should of the form [dx,dy] where dx and dy are the lists
+                           containing the x and y shifts.
+            indexes (list): Contains the indexes of the galaxies to use.
+
+        Returns:
+            Astropy.table with entries corresponding to one blend.
+        """
+        number_of_objects = np.random.randint(1, self.max_number + 1)
+        (q,) = np.where((table["ref_mag"] <= 25.3) & (table["flux_radius"] <= 24.0))
+
+        if indexes is None:
+            blend_table = table[np.random.choice(q, size=number_of_objects)]
+        else:
+            blend_table = table[indexes]
+        blend_table["ra"] = 0.0
+        blend_table["dec"] = 0.0
+        if shifts is None:
+            dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+        else:
+            dx, dy = shifts
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
+
+        if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
+            blend_table["dec"] > self.stamp_size / 2.0
+        ):
+            warnings.warn("Object center lies outside the stamp")
+        return blend_table
+
+
 class BasicSamplingFunction(SamplingFunction):
     """Example of basic sampling function features : magnitude cut,
     restriction on the shape, shift randomization"""

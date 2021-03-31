@@ -1,0 +1,28 @@
+import btk.draw_blends
+import btk.survey
+
+COSMOS_CATALOG_PATHS = [
+    "data/cosmos/real_galaxy_catalog_23.5_example.fits",
+    "data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
+]
+
+
+def test_draw_galsim_hub():
+    stamp_size = 24.0
+    batch_size = 2
+    catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    sampling_function = btk.sampling_functions.DefaultSamplingGalsimHub(stamp_size=stamp_size)
+
+    draw_generator = btk.draw_blends.GalsimHubGenerator(
+        catalog,
+        sampling_function,
+        [btk.survey.HST],
+        batch_size=batch_size,
+        stamp_size=stamp_size,
+        cpus=1,
+        add_noise=True,
+        verbose=True,
+        meas_bands=["f814w"],
+    )
+
+    _ = next(draw_generator)
