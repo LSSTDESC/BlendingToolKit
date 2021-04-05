@@ -159,9 +159,7 @@ class DrawBlendsGenerator(ABC):
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
             meas_bands (tuple) : Tuple containing the bands in which the measurements are carried
-            multiprocessing (bool) : Indicates whether the mini batches should be ran in
-                                     parallel
-            cpus (int) : Number of cpus to use ; defines the number of minibatches
+            cpus (int) : Number of cpus to use; defines the number of minibatches
             verbose (bool) : Indicates whether additionnal information should be printed
             add_noise (bool) : Indicates if the blends should be generated with noise
             shifts (list): Contains arbitrary shifts to be applied instead of
@@ -296,7 +294,7 @@ class DrawBlendsGenerator(ABC):
         return output
 
     def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
-        """Returns isolated and blended images for blend catalogs in blend_list
+        """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
         band. Even though blend_list was input to the function, we return it since,
@@ -473,7 +471,6 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
-
         galsim_catalog = self.catalog.get_galsim_catalog()
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
         gal = galsim_catalog.makeGalaxy(
@@ -497,8 +494,9 @@ class CosmosGenerator(DrawBlendsGenerator):
 
 
 class GalsimHubGenerator(DrawBlendsGenerator):
-    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with
-    galsim_hub (https://github.com/McWilliamsCenter/galsim_hub), a framework
+    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with galsim_hub.
+
+    Galsim Hub (https://github.com/McWilliamsCenter/galsim_hub) is a framework
     for generating real-looking galaxies using deep learning models.
     """
 
@@ -523,7 +521,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
     ):
         """Initializes the GalsimHubGenerator class.
 
-        Args:
+        Args:  # noqa: D417
             galsim_hub_model (str) : Source of the model to use. Can be
                     either a distant model or a local one, see the
                     galsim_hub repo for more information.
@@ -552,8 +550,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
 
     def render_mini_batch(self, blend_list, psf, wcs, survey):
         """Returns isolated and blended images for blend catalogs in blend_list.
+
         Here we generate the images for all galaxies in the batch at the same
-        time as galsim_hub is optimized for batch generation."""
+        time, since galsim_hub is optimized for batch generation.
+        """
         galsim_hub_params = Table()
         for p in self.param_names:
             column = Column(np.concatenate([blend[p] for blend in blend_list]), p)
