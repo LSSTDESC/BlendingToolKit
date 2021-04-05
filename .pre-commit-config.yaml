@@ -38,6 +38,8 @@ repos:
           - --config=.pydocstyle.ini
         exclude: |
           (?x)(
-              ^btk/measure.py|
-              ^btk/metrics.py
+              ^btk/metrics.py|
+              ^docs/source/conf.py|
+              ^conftest.py|
+              ^tests/
           )
