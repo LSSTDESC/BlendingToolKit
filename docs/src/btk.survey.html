@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>btk.survey module &mdash; btk 0.1 documentation</title>
@@ -170,7 +171,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-survey-module">
+  <section id="btk-survey-module">
 <h1>btk.survey module<a class="headerlink" href="#btk-survey-module" title="Permalink to this headline">¶</a></h1>
 <p>The survey module defines the <a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code></a> class as a namedtuple, which contains the information relevant to observing conditions for a given survey. A Survey contains several instances of <a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a>, which are also namedtuples containing information specific to each filter.</p>
 <span class="target" id="module-btk.survey"></span><p>Contains information for surveys available in BTK.</p>
@@ -217,8 +218,8 @@ or as a function returning a Galsim object</p></li>
 <dl class="py function">
 <dt id="btk.survey.get_flux">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_flux</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ab_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert source magnitude to flux.
-The calculation includes the effects of atmospheric extinction.
+<dd><p>Convert source magnitude to flux.</p>
+<p>The calculation includes the effects of atmospheric extinction.
 Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,8 +238,7 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 <dl class="py function">
 <dt id="btk.survey.get_mean_sky_level">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_mean_sky_level</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_mean_sky_level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the mean sky level given to Galsim for noise generation,
-using information about the survey and filter.</p>
+<dd><p>Computes the mean sky level given to Galsim for noise generation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -255,8 +255,8 @@ using information about the survey and filter.</p>
 <dl class="py function">
 <dt id="btk.survey.get_psf">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_psf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmospheric_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Kolmogorov'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_psf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)
-Defines a synthetic galsim PSF model</p>
+<dd><p>Defines a synthetic galsim PSF model.</p>
+<p>Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -279,7 +279,7 @@ Defines a synthetic galsim PSF model</p>
 <dl class="py function">
 <dt id="btk.survey.get_psf_from_file">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_psf_from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psf_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_psf_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a custom PSF galsim model from FITS file(s)</p>
+<dd><p>Generates a custom PSF galsim model from FITS file(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -296,9 +296,9 @@ Defines a synthetic galsim PSF model</p>
 <dl class="py function">
 <dt id="btk.survey.make_wcs">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">make_wcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_pix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_sky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TAN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.make_wcs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates WCS for an image. The default (<cite>center_pix=None</cite> AND <cite>center_sky=None</cite>) is
-that the center of the image in pixels [(s + 1) / 2, (s + 1) / 2] corresponds to
-(ra, dec) = [0, 0].</p>
+<dd><p>Creates WCS for an image.</p>
+<p>The default (<cite>center_pix=None</cite> AND <cite>center_sky=None</cite>) is that the center of the image in
+pixels [(s + 1) / 2, (s + 1) / 2] corresponds to (ra, dec) = [0, 0].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -317,7 +317,7 @@ types can be found in astropy.wcs documentation</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

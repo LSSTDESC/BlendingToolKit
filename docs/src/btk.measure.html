@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>btk.measure module &mdash; btk 0.1 documentation</title>
@@ -171,11 +172,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-measure-module">
+  <section id="btk-measure-module">
 <h1>btk.measure module<a class="headerlink" href="#btk-measure-module" title="Permalink to this headline">¶</a></h1>
 <p>This module should be updated soon.
 The measure module defines the <a class="reference internal" href="#btk.measure.MeasureGenerator" title="btk.measure.MeasureGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasureGenerator</span></code></a> class, which is used for generating measurements on blends generated on the fly, using a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeasurementParams</span></code>-like object to define how the measurements are done ; users are expected to create their own class based on <code class="xref py py-class docutils literal notranslate"><span class="pre">Measurement_params</span></code> to make measurements with their own algorithms.</p>
-<span class="target" id="module-btk.measure"></span><dl class="simple">
+<span class="target" id="module-btk.measure"></span><p>File containing measurement infrastructure for the BlendingToolKit.</p>
+<dl class="simple">
 <dt>Contains examples of functions that can be used to apply a measurement algorithm to the blends</dt><dd><p>simulated by BTK. Every measurement function should take as an input a <cite>batch</cite> returned from a
 DrawBlendsGenerator object (see its <cite>__next__</cite> method) and an index corresponding to which image
 in the batch to measure.</p>
@@ -250,16 +252,16 @@ DrawBlendsGenerator and return the output of a measurement
 <dl class="py method">
 <dt id="btk.measure.MeasureGenerator.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.MeasureGenerator.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Initialize measurement generator.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>measure_function</strong> – Function or list of functions that returns a dict with
+<li><p><strong>measure_functions</strong> – Function or list of functions that returns a dict with
 measurements given output from the draw_blend_generator.</p></li>
 <li><p><strong>draw_blend_generator</strong> – Generator that outputs dict with blended images,
 isolated images, blend catalog, wcs info, and psf.</p></li>
-<li><p><strong>multiprocessing</strong> – If true performs multiprocessing of measurement.</p></li>
-<li><p><strong>cpus</strong> – If multiprocessing is True, then number of parallel processes to
-run [Default :1].</p></li>
+<li><p><strong>cpus</strong> – The number of parallel processes to run [Default: 1].</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print information about measurement.</p></li>
 </ul>
 </dd>
 </dl>
@@ -273,15 +275,15 @@ run [Default :1].</p></li>
 <dl class="py method">
 <dt id="btk.measure.MeasureGenerator.run_batch">
 <code class="sig-name descname"><span class="pre">run_batch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.MeasureGenerator.run_batch" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform measurements on a single blend.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt id="btk.measure.basic_measure">
 <code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">basic_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.basic_measure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return centers detected when object detection is performed on the
-input image with skimage.feature.peak_local_max.</p>
+<dd><p>Return centers detected with skimage.feature.peak_local_max.</p>
 <p>NOTE: This function does not support the multi-resolution feature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -300,8 +302,7 @@ measurement on.</p></li>
 <dl class="py function">
 <dt id="btk.measure.sep_measure">
 <code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">sep_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_measure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return centers detected when object detection and photometry
-is done on input image with SEP.</p>
+<dd><p>Return detection, segmentation and deblending information with SEP.</p>
 <p>NOTE: This function does not support the multi-resolution feature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -317,7 +318,7 @@ measurement on.</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

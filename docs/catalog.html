@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Input Catalog &mdash; btk 0.1 documentation</title>
@@ -89,6 +90,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Input Catalog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#catsim">CatSim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cosmos">COSMOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#galsim-hub">Galsim_Hub</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
@@ -160,20 +162,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="input-catalog">
+  <section id="input-catalog">
 <h1>Input Catalog<a class="headerlink" href="#input-catalog" title="Permalink to this headline">¶</a></h1>
 <p><em>BlendingToolKit</em> (btk) requires an input catalog that contains information required to simulate galaxies and blends. Each galaxy is parameterized as a bulge + disk  + agn with parameters following the <a class="reference external" href="https://confluence.lsstcorp.org/display/SIM/Database+Schema">LSST DM catalog schema</a></p>
-<div class="section" id="catsim">
+<section id="catsim">
 <h2>CatSim<a class="headerlink" href="#catsim" title="Permalink to this headline">¶</a></h2>
 <p>The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim <a class="reference external" href="https://www.lsst.org/scientists/simulations/catsim">page</a> for more details.
 The btk package includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from <a class="reference external" href="https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk">here</a>.</p>
-</div>
-<div class="section" id="cosmos">
+</section>
+<section id="cosmos">
 <h2>COSMOS<a class="headerlink" href="#cosmos" title="Permalink to this headline">¶</a></h2>
 <p>The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple telescopes which provides a large number of multi-wavelength galaxy images, both as real images and parametric models. Refer to the <a class="reference external" href="https://github.com/GalSim-developers/GalSim/wiki/RealGalaxy%20Data">GalSim page for COSMOS</a> for more details on how to get COSMOS data and to the <a class="reference external" href="https://cosmos.astro.caltech.edu/">official COSMOS website</a> for more information on the COSMOS catalog in general.
 BTK includes an implementation of COSMOS real galaxy rendering, providing the possibility to get more realistic blends.</p>
-</div>
-</div>
+</section>
+<section id="galsim-hub">
+<h2>Galsim_Hub<a class="headerlink" href="#galsim-hub" title="Permalink to this headline">¶</a></h2>
+<p>Galsim_Hub is a framework for deep learning image generation models, developped by François Lanusse, which is available <a class="reference external" href="https://github.com/McWilliamsCenter/galsim_hub">here</a> . BTK supports drawing galaxies generated using any galsim_hub compatible model ; the default one generates COSMOS-like galaxies and is described in <a class="reference external" href="https://arxiv.org/abs/2008.03833">this paper</a>, but the BTK implementation should be compatible with any model.</p>
+</section>
+</section>
 
 
            </div>

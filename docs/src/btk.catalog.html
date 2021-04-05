@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>btk.catalog module &mdash; btk 0.1 documentation</title>
@@ -171,15 +172,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-catalog-module">
+  <section id="btk-catalog-module">
 <h1>btk.catalog module<a class="headerlink" href="#btk-catalog-module" title="Permalink to this headline">¶</a></h1>
 <p>The catalog module defines the <a class="reference internal" href="#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a> class and its implementation for WeakLensingDeblending and COSMOS.</p>
-<span class="target" id="module-btk.catalog"></span><dl class="py class">
+<span class="target" id="module-btk.catalog"></span><p>Contains abstract base class <cite>Catalog</cite> that standarizes catalog usage across BTK.</p>
+<dl class="py class">
 <dt id="btk.catalog.Catalog">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.catalog.</span></code><code class="sig-name descname"><span class="pre">Catalog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Base class containing the catalog for BTK.
-Each different catalog should have a corresponding subclass of Catalog.</p>
+<p>Abstract base class containing the catalog for BTK.</p>
+<p>Each new catalog should be a subclass of Catalog.</p>
 <dl class="py attribute">
 <dt id="btk.catalog.Catalog.self.table">
 <code class="sig-prename descclassname"><span class="pre">self.</span></code><code class="sig-name descname"><span class="pre">table</span></code><a class="headerlink" href="#btk.catalog.Catalog.self.table" title="Permalink to this definition">¶</a></dt>
@@ -194,8 +196,8 @@ Each different catalog should have a corresponding subclass of Catalog.</p>
 <dl class="py method">
 <dt id="btk.catalog.Catalog.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates Catalog object and standarizes raw_catalog information into
-attribute self.table via _prepare_table method.</p>
+<dd><p>Creates Catalog object and standarizes raw_catalog information.</p>
+<p>The standarization is done via the attribute self.table via the _prepare_table method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -209,8 +211,7 @@ attribute self.table via _prepare_table method.</p>
 <dl class="py method">
 <dt id="btk.catalog.Catalog._prepare_table">
 <em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">_prepare_table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog._prepare_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Carries operations to generate a standardized table.
-Should be implemented in subclasses.</p>
+<dd><p>Carries operations to generate a standardized table.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -228,8 +229,8 @@ Should be implemented in subclasses.</p>
 <dl class="py method">
 <dt id="btk.catalog.Catalog.name">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#btk.catalog.Catalog.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property containing the name of the (sub)class. Is used to check whether
-the catalog is compatible with the chosen DrawBlendsGenerator</p>
+<dd><p>Property containing the name of the (sub)class.</p>
+<p>It is used to check whether the catalog is compatible with the chosen DrawBlendsGenerator.</p>
 </dd></dl>
 
 </dd></dl>
@@ -242,15 +243,22 @@ the catalog is compatible with the chosen DrawBlendsGenerator</p>
 <dl class="py method">
 <dt id="btk.catalog.CatsimCatalog._prepare_table">
 <code class="sig-name descname"><span class="pre">_prepare_table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog._prepare_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Carries operations to generate a standardized table. Uses the preexisting
-astropy table and calculates some parameters of interest.</p>
+<dd><p>Carries operations to generate a standardized table.</p>
+<p>Uses the preexisting astropy table and calculates some parameters of interest.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="btk.catalog.CatsimCatalog.from_file">
 <em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructs the catalog object from a file.
-:param catalog_file: path to a file containing a readable astropy table</p>
+<dd><p>Constructs the catalog object from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog_file</strong> – path to a file containing a readable astropy table</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print info.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -259,19 +267,11 @@ astropy table and calculates some parameters of interest.</p>
 <dt id="btk.catalog.CosmosCatalog">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.catalog.</span></code><code class="sig-name descname"><span class="pre">CosmosCatalog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.catalog.Catalog</span></code></a></p>
+<p>Class containing catalog information for drawing COSMOS galaxies from galsim.</p>
 <dl class="py method">
 <dt id="btk.catalog.CosmosCatalog.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates Catalog object and standarizes raw_catalog information into
-attribute self.table via _prepare_table method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>raw_catalog</strong> – Raw catalog containing information to create table.</p></li>
-<li><p><strong>verbose</strong> – Whether to print information related to loading catalog.</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Initializes the COSMOS Catalog class.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -286,7 +286,10 @@ attribute self.table via _prepare_table method.</p>
 <dd><p>Constructs the catalog object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>catalog_files</strong> – list containing the two paths to the COSMOS data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog_files</strong> (<em>list</em>) – list containing the two paths to the COSMOS data.</p></li>
+<li><p><strong>verbose</strong> – whether to print verbose info.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -294,11 +297,12 @@ attribute self.table via _prepare_table method.</p>
 <dl class="py method">
 <dt id="btk.catalog.CosmosCatalog.get_galsim_catalog">
 <code class="sig-name descname"><span class="pre">get_galsim_catalog</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.get_galsim_catalog" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the galsim.COSMOSCatalog object.</p>
+</dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

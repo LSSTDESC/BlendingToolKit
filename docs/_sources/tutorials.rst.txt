@@ -248,7 +248,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example : 
+Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -286,6 +286,93 @@ The results from the `next` call are stored in the dictionnary ; the keys are :
   * `wcs` for the World Coordinate System corresponding to the images (as a list of astropy.wcs.WCS objects)
 
 Please note that several surveys can be provided as a list to the generator. In that case, each of the entry will contain a dictionnary indexed by the surveys, which in turn contains the results described as above (you would access it with `batch['blend_images']['LSST']` for instance.
+
+.. jupyter-execute::
+
+  batch = next(draw_generator)
+  blend_images = batch['blend_images']
+  blend_list = batch['blend_list']
+  btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
+
+Using COSMOS galaxies
+----------------------
+
+We will now focus on generating image using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let's start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog ; feel free to fill in the correct path if you have the complete catalog on your computer.
+
+.. jupyter-execute::
+
+  COSMOS_CATALOG_PATHS = [
+      "../data/cosmos/real_galaxy_catalog_23.5_example.fits",
+      "../data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
+  ]
+  stamp_size = 24.0
+  batch_size = 8
+  catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+  sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+
+We can now create the corresponding instance of DrawBlendsGenerator. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS catalog only contains images from the f814w band ; when using other bands, the image is only rescaled to get the right flux. Moreover, at the time the flux will not be accurate as we do not have the SED for COSMOS galaxies, meaning that we cannot recover the correct magnitude in other bands than f814w ; the flux is thus computed using the magnitude in that band and the survey parameters provided. We are currently working on getting a more realistic flux.
+
+.. jupyter-execute::
+
+  draw_generator = btk.draw_blends.CosmosGenerator(
+          catalog,
+          sampling_function,
+          [btk.survey.Rubin],
+          batch_size=batch_size,
+          stamp_size=stamp_size,
+          cpus=1,
+          add_noise=True,
+          verbose=False,
+          meas_bands=["i"],
+      )
+
+.. jupyter-execute::
+
+  batch = next(draw_generator)
+  blend_images = batch['blend_images']
+  blend_list = batch['blend_list']
+  btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
+
+
+Galsim_Hub tutorial
+--------------------
+
+BTK supports galaxy image generation with galsim_hub ; please refer to :ref:`this page<Galsim_Hub>` for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. You can find a notebook version of this tutorial in the notebooks folder.
+
+First, you should use the `CosmosCatalog` catalog instead of the Catsim one. While galsim_hub only require parameters for the image generation, we have chosen to use COSMOS as the source of those parameters so as to get a realistic distribution of those parameters. We have included a small sample of the catalog in BTK, and advise you to download the full catalog (see:ref:`COSMOS`) for better results.
+
+.. jupyter-execute::
+
+  COSMOS_CATALOG_PATHS = [
+    "../data/cosmos/real_galaxy_catalog_23.5_example.fits",
+    "../data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
+  ]
+  catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+
+We then instantiate the sampling function ; you should use the one specific for galsim_hub, which includes a cut on the size of the galaxies, as artifacts tend to appear when trying to generate galaxies which are too big.
+
+.. jupyter-execute::
+
+  stamp_size = 24.0
+  sampling_function = btk.sampling_functions.DefaultSamplingGalsimHub(stamp_size=stamp_size)
+
+Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default `"hub:Lanusse2020"`).
+
+.. jupyter-execute::
+
+  draw_generator = btk.draw_blends.GalsimHubGenerator(
+      catalog,
+      sampling_function,
+      [Rubin],
+      batch_size=8,
+      stamp_size=stamp_size,
+      shifts=None,
+      indexes=None,
+      cpus=1,
+      add_noise=True,
+      galsim_hub_model="hub:Lanusse2020", #May be replaced by any model compatible with galsim_hub
+      param_names=["flux_radius", "mag_auto", "zphot"], #Name of the parameters ; they must match with the model you provide
+  )
 
 .. jupyter-execute::
 

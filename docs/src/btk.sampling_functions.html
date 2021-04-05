@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>btk.sampling_functions module &mdash; btk 0.1 documentation</title>
@@ -171,15 +172,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-sampling-functions-module">
+  <section id="btk-sampling-functions-module">
 <h1>btk.sampling_functions module<a class="headerlink" href="#btk-sampling-functions-module" title="Permalink to this headline">¶</a></h1>
 <p>The sampling_functions modules contains everything related to the <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a> class.</p>
-<span class="target" id="module-btk.sampling_functions"></span><dl class="py class">
+<span class="target" id="module-btk.sampling_functions"></span><p>Contains classes of function for extracing information from catalog in blend batches.</p>
+<dl class="py class">
 <dt id="btk.sampling_functions.BasicSamplingFunction">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">BasicSamplingFunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSamplingFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
-<p>Example of basic sampling function features : magnitude cut,
-restriction on the shape, shift randomization</p>
+<p>Example of basic sampling function features.</p>
+<p>Includes magnitude cut, restriction on the shape, shift randomization.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.BasicSamplingFunction.__call__">
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSamplingFunction.__call__" title="Permalink to this definition">¶</a></dt>
@@ -204,7 +206,8 @@ stamp size, where N is the number of objects in the blend.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.BasicSamplingFunction.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSamplingFunction.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Initializes the basic sampling function.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
@@ -219,8 +222,7 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <dl class="py method">
 <dt id="btk.sampling_functions.BasicSamplingFunction.compatible_catalogs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.BasicSamplingFunction.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.
-This method should be implemented in subclasses.</p>
+<dd><p>Tuple of compatible catalogs for this sampling function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -233,8 +235,8 @@ This method should be implemented in subclasses.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.DefaultSampling.__call__">
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies default sampling to the input CatSim-like catalog and returns an
-astropy table with entries corresponding to a blend centered close to postage
+<dd><p>Applies default sampling to the input CatSim-like catalog.</p>
+<p>Returns an astropy table with entries corresponding to a blend centered close to postage
 stamp center.</p>
 <p>Function selects entries from input table that are brighter than 25.3 mag
 in the i band. Number of objects per blend is set at a random integer
@@ -263,7 +265,8 @@ containing the x and y shifts.</p></li>
 <dl class="py method">
 <dt id="btk.sampling_functions.DefaultSampling.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Initializes default sampling function.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
@@ -278,8 +281,61 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <dl class="py method">
 <dt id="btk.sampling_functions.DefaultSampling.compatible_catalogs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.DefaultSampling.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.
-This method should be implemented in subclasses.</p>
+<dd><p>Tuple of compatible catalogs for this sampling function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="btk.sampling_functions.DefaultSamplingGalsimHub">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">DefaultSamplingGalsimHub</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
+<p>Default sampling function used for producing blend tables, esp. for galsim_hub.</p>
+<dl class="py method">
+<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a blend sample from table.</p>
+<p>This sampling function is almost identical to the default one, except that an
+additionnal cut on the flux radius is applied. This is done to avoid having
+galaxies too large being selected, as generating large galaxies causes artifacts
+in galsim_hub images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<em>Astropy.table</em>) – Table containing entries corresponding to galaxies
+from which to sample.</p></li>
+<li><p><strong>shifts</strong> (<em>list</em>) – Contains arbitrary shifts to be applied instead of random ones.
+Should of the form [dx,dy] where dx and dy are the lists
+containing the x and y shifts.</p></li>
+<li><p><strong>indexes</strong> (<em>list</em>) – Contains the indexes of the galaxies to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Astropy.table with entries corresponding to one blend.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize default sampling function for galsim_hub.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
+<li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the desired stamp.</p></li>
+<li><p><strong>maxshift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
+is set as one-tenth the stamp size. (in arcseconds)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.compatible_catalogs">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defined in parent class.</p>
 </dd></dl>
 
 </dd></dl>
@@ -288,22 +344,21 @@ This method should be implemented in subclasses.</p>
 <dt id="btk.sampling_functions.GroupSamplingFunction">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">GroupSamplingFunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
+<p>Uses a pre-analyzed WLD catalog to draw blends.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunction.__call__">
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunction.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>We use self.wld_catalog created above to sample groups, but ultimately returns
-rows from the input <cite>table</cite> (by matching the corresponding galaxy ids).</p>
-<p>The group is centered on the middle of the postage stamp. Function only draws
-galaxies that lie within the postage stamp size.</p>
+<dd><p>Retrun blend info based on self.wld_catalog.</p>
+<p>We use self.wld_catalog created above to sample groups, but ultimately returns
+rows from the input <cite>table</cite> (by matching the corresponding galaxy ids). The group is
+centered on the middle of the postage stamp. Function only draws galaxies that lie within
+the postage stamp size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunction.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunction.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Blends are defined from <em>groups</em> of galaxies from the CatSim</dt><dd><p>catalog previously analyzed with WLD.</p>
-</dd>
-</dl>
+<dd><p>Blends are defined from <em>groups</em> of galaxies from a CatSim-like catalog.</p>
 <p>Note: the pre-run WLD images are not used here. We only use the pre-run
 catalog (in i band) to identify galaxies that belong to a group.</p>
 <dl class="field-list simple">
@@ -313,6 +368,8 @@ catalog (in i band) to identify galaxies that belong to a group.</p>
 <li><p><strong>wld_catalog_name</strong> – File path to a pre-analyzed WLD Catsim catalog</p></li>
 <li><p><strong>stamp_size</strong> (<em>int</em>) – Size of the generated stamps</p></li>
 <li><p><strong>pixel_scale</strong> (<em>float</em>) – pixel scale of the survey, in arcseconds per pixel</p></li>
+<li><p><strong>shift</strong> (<em>list</em>) – List containing shifts to apply (useful to avoid randomization)</p></li>
+<li><p><strong>group_id</strong> (<em>list</em>) – List containing which group_ids to analyze (avoid randomization)</p></li>
 </ul>
 </dd>
 </dl>
@@ -321,8 +378,7 @@ catalog (in i band) to identify galaxies that belong to a group.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunction.compatible_catalogs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunction.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.
-This method should be implemented in subclasses.</p>
+<dd><p>Tuple of compatible catalogs for this sampling function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -331,20 +387,20 @@ This method should be implemented in subclasses.</p>
 <dt id="btk.sampling_functions.GroupSamplingFunctionNumbered">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">GroupSamplingFunctionNumbered</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fits'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunctionNumbered" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
+<p>Defines blends based on previously analyzed WLD catalog &amp; exits once all groups are used.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunctionNumbered.__call__">
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunctionNumbered.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>The group is centered on the middle of the postage stamp.
-This function only returns galaxies whose centers lie within 1 arcsec the
-postage stamp edge, which may cause the number of galaxies in the blend to
-be smaller than the group size.</p>
+<dd><p>Return info for one blend from a given astropy table based on groups from wld_catalog.</p>
+<p>The group is centered on the middle of the postage stamp. This function only returns
+galaxies whose centers lie within 1 arcsec the postage stamp edge, which may cause the
+number of galaxies in the blend to be smaller than the group size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunctionNumbered.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fits'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunctionNumbered.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Blends are defined from <em>groups</em> of galaxies from a CatSim-like
-catalog previously analyzed with WLD.</p>
+<dd><p>Blends defined from <em>groups</em> of galaxies from a catalog previously analyzed with WLD.</p>
 <p>This function has an extra attribute group_id_count which tracks the
 group id returned. Each time the generator is called, 1 gets added to the
 count. If the count is larger than the number of groups input,
@@ -358,6 +414,8 @@ catalog to identify galaxies that belong to a group.</p>
 <li><p><strong>wld_catalog_name</strong> – Same as GroupSamplingFunction</p></li>
 <li><p><strong>stamp_size</strong> (<em>int</em>) – Size of the generated stamps</p></li>
 <li><p><strong>pixel_scale</strong> (<em>float</em>) – pixel scale of the survey, in arcseconds per pixel</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format of input wld_catalog used to define groups.</p></li>
+<li><p><strong>shift</strong> (<em>list</em>) – List of shifts to apply (usefult to avoid randomization)</p></li>
 </ul>
 </dd>
 </dl>
@@ -366,8 +424,7 @@ catalog to identify galaxies that belong to a group.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.GroupSamplingFunctionNumbered.compatible_catalogs">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.GroupSamplingFunctionNumbered.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.
-This method should be implemented in subclasses.</p>
+<dd><p>Tuple of compatible catalogs for this sampling function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -376,15 +433,14 @@ This method should be implemented in subclasses.</p>
 <dt id="btk.sampling_functions.SamplingFunction">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">SamplingFunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Class representing sampling functions to sample input catalog
-from which to draw blends. The object can be called to
-return an astropy table with entries corresponding to the
+<p>Class representing sampling functions to sample input catalog from which to draw blends.</p>
+<p>The object can be called to return an astropy table with entries corresponding to the
 galaxies chosen for the blend.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.SamplingFunction.__call__">
 <em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a sample from the given astropy table with at most self.max_number of
-objects. This method should be implemented in subclasses.</p>
+<dd><p>Outputs a sample from the given astropy table.</p>
+<p>NOTE: The sample must contain at most self.max_number of objects.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -401,13 +457,12 @@ objects. This method should be implemented in subclasses.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.SamplingFunction.compatible_catalogs">
 <em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.SamplingFunction.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.
-This method should be implemented in subclasses.</p>
+<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>

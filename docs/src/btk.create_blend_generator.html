@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>btk.create_blend_generator module &mdash; btk 0.1 documentation</title>
@@ -171,7 +172,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-create-blend-generator-module">
+  <section id="btk-create-blend-generator-module">
 <h1>btk.create_blend_generator module<a class="headerlink" href="#btk-create-blend-generator-module" title="Permalink to this headline">¶</a></h1>
 <p>The create_blend_generator module defines the <a class="reference internal" href="#btk.create_blend_generator.BlendGenerator" title="btk.create_blend_generator.BlendGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlendGenerator</span></code></a> class, which is used for generating blend parameters. This class is only used internally, inside a <code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code>.</p>
 <span class="target" id="module-btk.create_blend_generator"></span><p>Contains class <cite>BlendGenerator</cite> to combine entries from a given catalog into blends.</p>
@@ -179,6 +180,7 @@
 <dt id="btk.create_blend_generator.BlendGenerator">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.create_blend_generator.</span></code><code class="sig-name descname"><span class="pre">BlendGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.create_blend_generator.BlendGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that uses a catalog and a sampling function to return blend information in batches.</p>
 <dl class="py method">
 <dt id="btk.create_blend_generator.BlendGenerator.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.create_blend_generator.BlendGenerator.__init__" title="Permalink to this definition">¶</a></dt>
@@ -204,7 +206,7 @@ Must be of length batch_size. Must be used with shifts.</p></li>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
