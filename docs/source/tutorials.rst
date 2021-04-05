@@ -248,7 +248,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example : 
+Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -332,7 +332,7 @@ We can now create the corresponding instance of DrawBlendsGenerator. There is an
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
-  
+
 
 Galsim_Hub tutorial
 --------------------
@@ -368,7 +368,6 @@ Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice
       stamp_size=stamp_size,
       shifts=None,
       indexes=None,
-      multiprocessing=False,
       cpus=1,
       add_noise=True,
       galsim_hub_model="hub:Lanusse2020", #May be replaced by any model compatible with galsim_hub

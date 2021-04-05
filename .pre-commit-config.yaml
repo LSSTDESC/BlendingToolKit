@@ -1,5 +1,14 @@
 ---
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^.*fits
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        exclude: ^.*fits
   - repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:
@@ -21,3 +30,16 @@ repos:
           - "--max-complexity=18"
           - "--ignore=E203, W503"
           - "--exclude=btk/__init__.py"
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.0.0 # pick a git hash / tag to point to
+    hooks:
+      - id: pydocstyle
+        args:
+          - --config=.pydocstyle.ini
+        exclude: |
+          (?x)(
+              ^btk/metrics.py|
+              ^docs/source/conf.py|
+              ^conftest.py|
+              ^tests/
+          )

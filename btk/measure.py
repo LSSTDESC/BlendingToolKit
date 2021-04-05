@@ -1,4 +1,6 @@
-"""Contains examples of functions that can be used to apply a measurement algorithm to the blends
+"""File containing measurement infrastructure for the BlendingToolKit.
+
+Contains examples of functions that can be used to apply a measurement algorithm to the blends
  simulated by BTK. Every measurement function should take as an input a `batch` returned from a
  DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
  in the batch to measure.
@@ -41,8 +43,7 @@ from btk.multiprocess import multiprocess
 
 
 def basic_measure(batch, idx):
-    """Return centers detected when object detection is performed on the
-    input image with skimage.feature.peak_local_max.
+    """Return centers detected with skimage.feature.peak_local_max.
 
     NOTE: This function does not support the multi-resolution feature.
 
@@ -71,8 +72,7 @@ def basic_measure(batch, idx):
 
 
 def sep_measure(batch, idx):
-    """Return centers detected when object detection and photometry
-    is done on input image with SEP.
+    """Return detection, segmentation and deblending information with SEP.
 
     NOTE: This function does not support the multi-resolution feature.
 
@@ -129,16 +129,15 @@ class MeasureGenerator:
         cpus=1,
         verbose=False,
     ):
-        """
+        """Initialize measurement generator.
 
         Args:
-            measure_function: Function or list of functions that returns a dict with
+            measure_functions: Function or list of functions that returns a dict with
                               measurements given output from the draw_blend_generator.
             draw_blend_generator: Generator that outputs dict with blended images,
                                   isolated images, blend catalog, wcs info, and psf.
-            multiprocessing: If true performs multiprocessing of measurement.
-            cpus: If multiprocessing is True, then number of parallel processes to
-                 run [Default :1].
+            cpus: The number of parallel processes to run [Default: 1].
+            verbose (bool): Whether to print information about measurement.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -162,9 +161,11 @@ class MeasureGenerator:
         self.verbose = verbose
 
     def __iter__(self):
+        """Return iterator which is the object itself."""
         return self
 
     def run_batch(self, batch, index):
+        """Perform measurements on a single blend."""
         output = []
         for f in self.measure_functions:
 
@@ -213,14 +214,14 @@ class MeasureGenerator:
         return output
 
     def __next__(self):
-        """
+        """Return measurement results on a single batch from the draw_blend_generator.
+
         Returns:
             draw_blend_generator output from `__next__` method.
             measurement output: List of length `batch_size`, where each element is a list of
                                 `len(measure_functions)` corresponding to the measurements made by
                                 each function on each element of the batch.
         """
-
         blend_output = next(self.draw_blend_generator)
         input_args = ((blend_output, i) for i in range(self.batch_size))
         measure_results = multiprocess(

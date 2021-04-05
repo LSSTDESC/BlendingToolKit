@@ -2,6 +2,8 @@
 
 
 class BlendGenerator:
+    """Class that uses a catalog and a sampling function to return blend information in batches."""
+
     def __init__(
         self,
         catalog,
@@ -46,15 +48,18 @@ class BlendGenerator:
         self.max_number = self.sampling_function.max_number
 
     def __iter__(self):
+        """Returns an iterable which is the object itself."""
         return self
 
     def __next__(self):
-        """Generates a list of blend tables of length batch_size. Each blend
-        table has entries numbered between 1 and max_number, corresponding
+        """Generates a list of blend tables of len batch_size.
+
+        Each blend table has entries numbered between 1 and max_number, corresponding
         to overlapping objects in the blend.
 
         Returns:
-            blend_tables (list): a list of astropy tables, each one corresponding to a blend."""
+            blend_tables (list): a list of astropy tables, each one corresponding to a blend.
+        """
         try:
             blend_tables = []
             for i in range(self.batch_size):

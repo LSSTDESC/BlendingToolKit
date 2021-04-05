@@ -1,3 +1,4 @@
+"""Contains abstract base class `Catalog` that standarizes catalog usage across BTK."""
 import os
 from abc import ABC
 from abc import abstractmethod
@@ -9,16 +10,18 @@ import numpy as np
 
 
 class Catalog(ABC):
-    """Base class containing the catalog for BTK.
-    Each different catalog should have a corresponding subclass of Catalog.
+    """Abstract base class containing the catalog for BTK.
+
+    Each new catalog should be a subclass of Catalog.
 
     Attributes:
         self.table (astropy.table) : Standardized table containing information from the catalog
     """
 
     def __init__(self, raw_catalog, verbose=False):
-        """Creates Catalog object and standarizes raw_catalog information into
-        attribute self.table via _prepare_table method.
+        """Creates Catalog object and standarizes raw_catalog information.
+
+        The standarization is done via the attribute self.table via the _prepare_table method.
 
         Args:
             raw_catalog: Raw catalog containing information to create table.
@@ -38,13 +41,14 @@ class Catalog(ABC):
 
     @abstractmethod
     def _prepare_table(self, raw_catalog):
-        """Carries operations to generate a standardized table.
-        Should be implemented in subclasses."""
+        """Carries operations to generate a standardized table."""
 
     @property
     def name(self):
-        """Property containing the name of the (sub)class. Is used to check whether
-        the catalog is compatible with the chosen DrawBlendsGenerator"""
+        """Property containing the name of the (sub)class.
+
+        It is used to check whether the catalog is compatible with the chosen DrawBlendsGenerator.
+        """
         return self.__class__.__name__
 
     def get_raw_catalog(self):
@@ -58,8 +62,10 @@ class CatsimCatalog(Catalog):
     @classmethod
     def from_file(cls, catalog_file, verbose=False):
         """Constructs the catalog object from a file.
+
         Args:
             catalog_file: path to a file containing a readable astropy table
+            verbose (bool): Whether to print info.
         """
         _, ext = os.path.splitext(catalog_file)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
@@ -67,8 +73,10 @@ class CatsimCatalog(Catalog):
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self, raw_catalog):
-        """Carries operations to generate a standardized table. Uses the preexisting
-        astropy table and calculates some parameters of interest."""
+        """Carries operations to generate a standardized table.
+
+        Uses the preexisting astropy table and calculates some parameters of interest.
+        """
         table = deepcopy(raw_catalog)
 
         # convert ra dec from degrees to arcsec in catalog.
@@ -92,17 +100,20 @@ class CatsimCatalog(Catalog):
 
 
 class CosmosCatalog(Catalog):
+    """Class containing catalog information for drawing COSMOS galaxies from galsim."""
+
     def __init__(self, raw_catalog, galsim_catalog, verbose=False):
+        """Initializes the COSMOS Catalog class."""
         super().__init__(raw_catalog, verbose=verbose)
         self.galsim_catalog = galsim_catalog
 
     @classmethod
     def from_file(cls, catalog_files, verbose=False):
-        """
-        Constructs the catalog object from a file.
+        """Constructs the catalog object from a file.
 
         Args:
-            catalog_files: list containing the two paths to the COSMOS data
+            catalog_files(list): list containing the two paths to the COSMOS data.
+            verbose: whether to print verbose info.
         """
         catalog_coord = astropy.table.Table.read(catalog_files[0])
         catalog_fit = astropy.table.Table.read(catalog_files[1])
@@ -129,4 +140,5 @@ class CosmosCatalog(Catalog):
         return table
 
     def get_galsim_catalog(self):
+        """Returns the galsim.COSMOSCatalog object."""
         return self.galsim_catalog

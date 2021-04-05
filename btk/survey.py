@@ -66,8 +66,9 @@ def get_psf(
     fwhm,
     atmospheric_model="Kolmogorov",
 ):
-    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
-    Defines a synthetic galsim PSF model
+    """Defines a synthetic galsim PSF model.
+
+    Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
     Args:
         mirror_diameter (float): in meters [m]
@@ -79,7 +80,6 @@ def get_psf(
     Returns:
         psf_model: galsim psf model
     """
-
     # define atmospheric psf
     if atmospheric_model == "Kolmogorov":
         atmospheric_psf_model = galsim.Kolmogorov(fwhm=fwhm)
@@ -122,7 +122,7 @@ def get_psf(
 
 
 def get_psf_from_file(psf_dir, survey):
-    """Generates a custom PSF galsim model from FITS file(s)
+    """Generates a custom PSF galsim model from FITS file(s).
 
     Args:
         psf_dir (string): directory where the PSF FITS files are
@@ -131,7 +131,6 @@ def get_psf_from_file(psf_dir, survey):
     Returns:
         galsim PSF model
     """
-
     psf_files = os.listdir(psf_dir)
     if len(psf_files) > 1:
         psf_file = rd.choice(psf_files)
@@ -498,6 +497,7 @@ CFHT = Survey(
 
 def get_flux(ab_magnitude, filt, survey):
     """Convert source magnitude to flux.
+
     The calculation includes the effects of atmospheric extinction.
     Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
@@ -514,22 +514,23 @@ def get_flux(ab_magnitude, filt, survey):
 
 
 def get_mean_sky_level(survey, filt):
-    """Computes the mean sky level given to Galsim for noise generation,
-    using information about the survey and filter.
+    """Computes the mean sky level given to Galsim for noise generation.
 
     Args:
         survey (btk.survey.Survey) : BTK Survey object
         filt (btk.survey.Filter) : BTK Filter object
 
     Returns:
-        Corresponding mean sky level"""
+        Corresponding mean sky level
+    """
     return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale ** 2
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
-    """Creates WCS for an image. The default (`center_pix=None` AND `center_sky=None`) is
-    that the center of the image in pixels [(s + 1) / 2, (s + 1) / 2] corresponds to
-    (ra, dec) = [0, 0].
+    """Creates WCS for an image.
+
+    The default (`center_pix=None` AND `center_sky=None`) is that the center of the image in
+    pixels [(s + 1) / 2, (s + 1) / 2] corresponds to (ra, dec) = [0, 0].
 
     Args:
         pixel_scale (float): pixel size in arcseconds

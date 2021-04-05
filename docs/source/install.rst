@@ -1,7 +1,7 @@
 Installation
 ===============
 
-*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python 3.7``. 
+*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python 3.7``.
 The required packages for ``btk`` are:
 
 * astropy
@@ -9,7 +9,7 @@ The required packages for ``btk`` are:
 * matplotlib
 * numpy
 * fitsio
-* scikit-image 
+* scikit-image
 * scipy
 * sep
 

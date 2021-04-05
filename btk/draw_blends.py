@@ -1,3 +1,4 @@
+"""Module for generating batches of drawn blended images."""
 import copy
 from abc import ABC
 from abc import abstractmethod
@@ -20,10 +21,9 @@ class SourceNotVisible(Exception):
 
 
 def get_center_in_pixels(blend_catalog, wcs):
-    """Returns center of objects in blend_catalog in pixel coordinates of
-    postage stamp.
+    """Returns center of objects in blend_catalog in pixel coordinates of postage stamp.
 
-    blend_catalog contains ra dec of object center with the postage stamp
+    `blend_catalog` contains `ra, dec` of object center with the postage stamp
     center being 0,0. The size of the postage stamp and pixel scale is used to
     compute the object centers in pixel coordinates. Coordinates are in pixels
     where bottom left corner of postage stamp is (0, 0).
@@ -56,7 +56,6 @@ def get_size(catalog, psf, pixel_scale):
     Returns:
         `astropy.table.Column`: size of the galaxy in pixels.
     """
-
     r_sec = catalog["btk_size"]
     psf_r_sec = psf.calculateMomentRadius()
     size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
@@ -64,10 +63,13 @@ def get_size(catalog, psf, pixel_scale):
 
 
 def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn=False):
-    """Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
-    Returns a composite Galsim galaxy profile with bulge, disk and AGN based on the
-    parameters in the entry, and using observing conditions defined by the survey
+    """Returns a bulge/disk/agn Galsim galaxy profile based on entry.
+
+    This function returns a composite galsim galaxy profile with bulge, disk and AGN based on the
+    parameters in entry, and using observing conditions defined by the survey
     and the filter.
+
+    Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
     Args:
         entry (astropy.table.Table) : single astropy line containing information on the galaxy
@@ -76,10 +78,9 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         no_disk (bool) : Sets the flux for the disk to zero
         no_bulge (bool) : Sets the flux for the bulge to zero
         no_agn (bool) : Sets the flux for the AGN to zero
-
     Returns:
-        Galsim galaxy profile"""
-
+        Galsim galaxy profile
+    """
     components = []
     total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
     # Calculate the flux of each component in detected electrons.
@@ -122,8 +123,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
 
 
 class DrawBlendsGenerator(ABC):
-    """Class that generates images of blended objects, individual isolated
-    objects, for each blend in the batch.
+    """Class that generates images of blends and individual isolated objects in batches.
 
     Batch is divided into mini batches of size blend_generator.batch_size//cpus and
     each mini-batch analyzed separately. The results are then combined to output a
@@ -158,8 +158,8 @@ class DrawBlendsGenerator(ABC):
             surveys (list): List of btk Survey objects defining the observing conditions
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
-            meas_bands=("i",) : Tuple containing the bands in which the measurements are carried
-            cpus (int) : Number of cpus to use ; defines the number of minibatches
+            meas_bands (tuple) : Tuple containing the bands in which the measurements are carried
+            cpus (int) : Number of cpus to use; defines the number of minibatches
             verbose (bool) : Indicates whether additionnal information should be printed
             add_noise (bool) : Indicates if the blends should be generated with noise
             shifts (list): Contains arbitrary shifts to be applied instead of
@@ -171,7 +171,6 @@ class DrawBlendsGenerator(ABC):
                                 (band) dimension before the pixel dimensions 'NCHW' (default) or
                                 after 'NHWC'.
         """
-
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
         )
@@ -198,10 +197,12 @@ class DrawBlendsGenerator(ABC):
         self.dim_order = (0, 1, 2) if dim_order == "NCHW" else (1, 2, 0)
 
     def __iter__(self):
+        """Returns iterable which is the object itself."""
         return self
 
     def __next__(self):
-        """
+        """Outputs dictionary containing blend output (images and catalogs) in batches.
+
         Returns:
             output : Dictionary with blend images, isolated object images, blend catalog,
             PSF images and WCS.
@@ -293,7 +294,7 @@ class DrawBlendsGenerator(ABC):
         return output
 
     def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
-        """Returns isolated and blended images for blend catalogs in blend_list
+        """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
         band. Even though blend_list was input to the function, we return it since,
@@ -363,8 +364,7 @@ class DrawBlendsGenerator(ABC):
         return outputs
 
     def render_blend(self, blend_catalog, psf, filt, survey, extra_data):
-        """Draws image of isolated galaxies along with the blend image in the
-        single input band.
+        """Draws image of isolated galaxies along with the blend image in the single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
         blend_catalog entries and with observing conditions determined by
@@ -416,11 +416,10 @@ class DrawBlendsGenerator(ABC):
 
     @abstractmethod
     def render_single(self, entry, filt, psf, survey, extra_data):
-        """Renders single galaxy in single band in the location given by its entry
-        using the cutout information.
+        """Renders single galaxy in single band in the location given by its entry.
 
-        The image created must be in a stamp of size stamp_size / cutout.pixel_scale.
-        This method should be implemented in subclasses.
+        The image created must be in a stamp of size stamp_size / cutout.pixel_scale. The image
+        must be drawn according to information provided by filter, psf, and survey.
 
         Args:
             entry (astropy.table.Table): Line from astropy describing the galaxy to draw
@@ -437,8 +436,9 @@ class DrawBlendsGenerator(ABC):
 
 
 class CatsimGenerator(DrawBlendsGenerator):
-    """Implementation of DrawBlendsGenerator for drawing galaxies from
-    a Catsim-like catalog. Most of the code is taken from the package
+    """Implementation of DrawBlendsGenerator for drawing galaxies from a Catsim-like catalog.
+
+    The code for drawing these galaxies and the default PSF is taken almost directly from
     WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending).
     """
 
@@ -465,15 +465,12 @@ class CatsimGenerator(DrawBlendsGenerator):
 
 
 class CosmosGenerator(DrawBlendsGenerator):
-    """Implementation of DrawBlendsGenerator for drawing real galaxies from
-    the COSMOS catalog, using the Galsim implementation.
-    """
+    """Subclass of DrawBlendsGenerator for drawing real galaxies from the COSMOS catalog."""
 
     compatible_catalogs = ("CosmosCatalog",)
 
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
-
         galsim_catalog = self.catalog.get_galsim_catalog()
         gal_flux = get_flux(entry["ref_mag"], filt, survey)
         gal = galsim_catalog.makeGalaxy(
@@ -497,8 +494,9 @@ class CosmosGenerator(DrawBlendsGenerator):
 
 
 class GalsimHubGenerator(DrawBlendsGenerator):
-    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with
-    galsim_hub (https://github.com/McWilliamsCenter/galsim_hub), a framework
+    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with galsim_hub.
+
+    Galsim Hub (https://github.com/McWilliamsCenter/galsim_hub) is a framework
     for generating real-looking galaxies using deep learning models.
     """
 
@@ -523,7 +521,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
     ):
         """Initializes the GalsimHubGenerator class.
 
-        Args:
+        Args:  # noqa: D417
             galsim_hub_model (str) : Source of the model to use. Can be
                     either a distant model or a local one, see the
                     galsim_hub repo for more information.
@@ -552,8 +550,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
 
     def render_mini_batch(self, blend_list, psf, wcs, survey):
         """Returns isolated and blended images for blend catalogs in blend_list.
+
         Here we generate the images for all galaxies in the batch at the same
-        time as galsim_hub is optimized for batch generation."""
+        time, since galsim_hub is optimized for batch generation.
+        """
         galsim_hub_params = Table()
         for p in self.param_names:
             column = Column(np.concatenate([blend[p] for blend in blend_list]), p)
