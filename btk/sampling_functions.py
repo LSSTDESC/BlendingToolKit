@@ -122,11 +122,11 @@ class DefaultSampling(SamplingFunction):
 
 
 class DefaultSamplingGalsimHub(SamplingFunction):
-    """Default sampling function used for producing blend tables, specifically
-    for the galsim_hub galaxy generation."""
+    """Default sampling function used for producing blend tables, esp. for galsim_hub."""
 
     def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
-        """
+        """Initialize default sampling function for galsim_hub.
+
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
@@ -139,10 +139,12 @@ class DefaultSamplingGalsimHub(SamplingFunction):
 
     @property
     def compatible_catalogs(self):
+        """Defined in parent class."""
         return "CatsimCatalog", "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
-        """
+        """Method returning a blend sample from table.
+
         This sampling function is almost identical to the default one, except that an
         additionnal cut on the flux radius is applied. This is done to avoid having
         galaxies too large being selected, as generating large galaxies causes artifacts

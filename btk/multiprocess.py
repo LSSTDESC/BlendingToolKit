@@ -4,6 +4,7 @@ from itertools import starmap
 
 
 def multiprocess(func, input_args, cpus, verbose=False):
+    """Sole Function that implements multiprocessing across mini-batches for BTK."""
     if cpus > 1:
         if verbose:
             print(

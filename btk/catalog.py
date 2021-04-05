@@ -19,8 +19,9 @@ class Catalog(ABC):
     """
 
     def __init__(self, raw_catalog, verbose=False):
-        """Creates Catalog object and standarizes raw_catalog information into
-        attribute self.table via _prepare_table method.
+        """Creates Catalog object and standarizes raw_catalog information.
+
+        The standarization is done via the attribute self.table via the _prepare_table method.
 
         Args:
             raw_catalog: Raw catalog containing information to create table.
@@ -40,8 +41,7 @@ class Catalog(ABC):
 
     @abstractmethod
     def _prepare_table(self, raw_catalog):
-        """Carries operations to generate a standardized table. Should be implemented
-        in subclasses."""
+        """Carries operations to generate a standardized table."""
 
     @property
     def name(self):
@@ -103,6 +103,7 @@ class CosmosCatalog(Catalog):
     """Class containing catalog information for drawing COSMOS galaxies from galsim."""
 
     def __init__(self, raw_catalog, galsim_catalog, verbose=False):
+        """Initializes the COSMOS Catalog class."""
         super().__init__(raw_catalog, verbose=verbose)
         self.galsim_catalog = galsim_catalog
 
@@ -139,4 +140,5 @@ class CosmosCatalog(Catalog):
         return table
 
     def get_galsim_catalog(self):
+        """Returns the galsim.COSMOSCatalog object."""
         return self.galsim_catalog
