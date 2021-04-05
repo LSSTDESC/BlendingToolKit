@@ -293,7 +293,6 @@ Please note that several surveys can be provided as a list to the generator. In 
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
-<<<<<<< HEAD
 
 Using COSMOS galaxies
 ----------------------
@@ -333,7 +332,7 @@ We can now create the corresponding instance of DrawBlendsGenerator. There is an
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
-  
+
 
 Galsim_Hub tutorial
 --------------------
@@ -369,7 +368,6 @@ Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice
       stamp_size=stamp_size,
       shifts=None,
       indexes=None,
-      multiprocessing=False,
       cpus=1,
       add_noise=True,
       galsim_hub_model="hub:Lanusse2020", #May be replaced by any model compatible with galsim_hub
@@ -382,5 +380,3 @@ Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
-=======
->>>>>>> precommit run

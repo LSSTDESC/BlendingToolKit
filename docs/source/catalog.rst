@@ -10,13 +10,8 @@ The catalog simulation framework (CatSim) is a database of astrophysical sources
 The btk package includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from `here <https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk>`_.
 
 COSMOS
-<<<<<<< HEAD
 -------
-The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple telescopes which provides a large number of multi-wavelength galaxy images, both as real images and parametric models. Refer to the `GalSim page for COSMOS <https://github.com/GalSim-developers/GalSim/wiki/RealGalaxy%20Data>`_ for more details on how to get COSMOS data and to the `official COSMOS website <https://cosmos.astro.caltech.edu/>`_ for more information on the COSMOS catalog in general. 
-=======
-------
 The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple telescopes which provides a large number of multi-wavelength galaxy images, both as real images and parametric models. Refer to the `GalSim page for COSMOS <https://github.com/GalSim-developers/GalSim/wiki/RealGalaxy%20Data>`_ for more details on how to get COSMOS data and to the `official COSMOS website <https://cosmos.astro.caltech.edu/>`_ for more information on the COSMOS catalog in general.
->>>>>>> precommit run
 BTK includes an implementation of COSMOS real galaxy rendering, providing the possibility to get more realistic blends.
 
 Galsim_Hub
