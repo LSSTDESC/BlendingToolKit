@@ -1,6 +1,7 @@
 ![tests](https://github.com/LSSTDESC/BlendingToolKit/workflows/tests/badge.svg)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![tests](https://github.com/LSSTDESC/BlendingToolKit/workflows/docs/badge.svg)
 [![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/main/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 
 **NOTE:** BTK is currently undergoing heavy development and rapidly changing, as such the documentation and most jupyter could be deprecated. Please feel free to contact [@ismael-mendoza](https://github.com/ismael-mendoza) if you would like to use `BTK` for a current project or contribute.
