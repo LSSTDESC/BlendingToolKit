@@ -29,13 +29,13 @@ poetry install
 pre-commit install
 ```
 
-You can skip step `2.` if you are OK using poetry. 
+You can skip step `2.` if you are OK using poetry.
 
 ## Pull Requests
 
 1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :)
 
-2. Every pull request must pass the workflows specified in `.github/workflows` before merging. 
+2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
     - The tool known as `pre-commit` will make it easy to for you to pass the linting workflow, install it in your local repository by running `pre-commit install`.
 
@@ -43,11 +43,11 @@ You can skip step `2.` if you are OK using poetry.
 
     - You can run all the tests locally by simply running `poetry run pytest` inside your local repository.
 
-3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging: 
+3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging:
 
 ```
 git rebase origin/main
-# follow the instructions and resolve conflicts... 
+# follow the instructions and resolve conflicts...
 # Feel free to ask other developers if you are not sure of the conflicts.
 git push --force
 ```
@@ -58,7 +58,7 @@ git push --force
 
 The following sections are only relevant for the maintainer of BTK (currently Ismael Mendoza).
 
-1. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`. 
+1. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`.
 
 2. It is recommended to create a `conda` virtual environment (using `python3.7`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
@@ -97,9 +97,9 @@ pre-commit install
 
 But I find the first method is more robust (works on a MAC too).
 
-3. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on. 
+3. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on.
 
-4. You might also want to update the `requirements.txt` file every now and then: 
+4. You might also want to update the `requirements.txt` file every now and then:
 
 ```
 poetry export -f requirements.txt --output requirements.txt
