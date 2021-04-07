@@ -25,7 +25,7 @@ It should return a dictionary containing a subset of the following keys/values (
                                     `(n_objects, stamp_size, stamp_size, n_bands)` depending on
                                     convention. The order of this array should correspond to the
                                     order in the returned `catalog`. Where `n_objects` is the
-                                    number of detected objects
+                                    number of detected objects by the algorithm.
     - segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
                                  The pixels set to True in the i-th channel correspond to the i-th
                                  object. The order should correspond to the order in the returned
@@ -224,7 +224,7 @@ class MeasureGenerator:
         """
         blend_output = next(self.draw_blend_generator)
         input_args = ((blend_output, i) for i in range(self.batch_size))
-        measure_results = multiprocess(
+        measure_output = multiprocess(
             self.run_batch,
             input_args,
             self.cpus,
@@ -232,4 +232,4 @@ class MeasureGenerator:
         )
         if self.verbose:
             print("Measurement performed on batch")
-        return blend_output, measure_results
+        return blend_output, measure_output
