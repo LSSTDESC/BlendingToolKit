@@ -1,94 +1,110 @@
-from abc import ABC
-from abc import abstractmethod
+import astropy.table
+import numpy as np
+import skimage.metrics
 
 
-class Metric(ABC):
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def __call__(blend_output: dict, measure_output: dict):
-        """Operates on one batch at a time using the output from the `MeasureGenerator` class."""
-
-    @abstractmethod
-    def from_fits(blend_fits: str, measure_fits: str):
-        """Pass in the path to two `.fits` files containing astropy tables of (complete, not in
-        batches) true blend information and results of measurement.
-
-        Each table should have a column `blend_id` corresponding to each postage stamp measure,
-        to identify which entries should be compared and potentially matched.
-        """
-
-
-class DetectionMetric:
-    def __init__(self):
-        pass
-
-    def __call__(blend_output, measure_output):
-        """Operates on one batch at a time."""
-        pass
-
-
-class SegmentationMetric:
-    def __init__(self):
-        pass
-
-    def __call__(blend_output: dict, measure_output: dict):
-        """Operates on one batch at a time.
-
-        The order of objects in the segmentation must be the same as the order in the `catalog`
-        value of the `measure_output` dictionary. The matching calculated using the
-        `DetectionMetric` will be used to determine which segmentations to compare.
-
-        Segmentation from `blend_output` can be calculated easily using the value of
-        `isolated_images`.
-        """
-        pass
-
-    @abstractmethod
-    def from_fits(blend_fits, measure_fits):
-        """In this case, first file contains a separate HUD with the segmentation for each blend?
-
-        Suggestions welcome of how to best structure this.
-        """
-        pass
-
-
-def get_metrics(
-    cpus=1,
-    save_results=None,
-    n_batches=None,
-    measure_generator=None,
-    blend_fits=None,
-    measure_fits=None,
-    use_metrics=("detection", "segementation"),
-):
-    """User will only ever need to interact with this function, unless they want to add a new
-    metric.
-
-    The metrics themselves are classes to indicate that they require 'heavy' changes and careful
-    development.
-
+def get_detection_match(true_table, detected_table):
+    """Match detections to true objects and update values in the input
+    blend catalog and detection catalog.
+    Function does not return anything, only the astropy tables are updated.
     Args:
-        n_batches (int): How many batches to analyze from the measure_generator?
-        measure_generator:
-        blend_fits (str): File containing results from draw_blend_generator saved into a
-                          `.fits` file.
-        measure_fits (str): Results from measurement on `blend_fits` saved into a `.fits` file.
-
-    Returns:
-        Results can be returned as an astropy table or saved into a `.fits` files.
-
+        true_table (astropy.table.Table): Table with entries corresponding to
+            the true object parameter values in one blend.
+        detected_table(astropy.table.Table): Table with entries corresponding
+            to output of measurement algorithm in one blend.
     """
+    match_table = astropy.table.Table()
+    if len(detected_table) == 0 or len(true_table) == 0:
+        # No match since either no detection or no true objects
+        return
+    t_x = true_table["x_peak"][:, np.newaxis] - detected_table["x_peak"]
+    t_y = true_table["y_peak"][:, np.newaxis] - detected_table["y_peak"]
+    dist = np.hypot(t_x, t_y)
+    detected_table["d_min"] = np.min(dist, axis=0)
+    detection_threshold = 5
+    condlist = [
+        np.min(dist, axis=0) <= detection_threshold,
+        np.min(dist, axis=0) > detection_threshold,
+    ]
+    choicelist = [np.argmin(dist, axis=0), -1]
+    match_id = np.select(condlist, choicelist)
+    match_table["match_true_id"] = match_id
+    match_table["match_galtileid"] = true_table["galtileid"][match_id]
+    return match_table
 
-    # Need to add utility functions to create `blend_fits` from DrawBlendGenerator.
 
-    assert (measure_generator is not None and n_batches is not None) or (
-        blend_fits is not None and measure_fits is not None
-    ), "At least one `measure_generator` or pair of `.fits` files is required. "
+def detection_metrics(blended_images, isolated_images, blend_list, detection_catalogs, matches):
+    return 0
 
-    # depending on `use_metrics` flag is which metrics will be attempted to be calculated.
-    # each metrics class will have an internal check to determine whether it can be calculated
-    # from the provided draw_blend_generator or fits files.
 
-    # if using fits files, need to add check that they are well constructed.
+def segmentation_metrics(
+    blended_images, isolated_images, blend_list, detection_catalogs, segmentations, matches
+):
+    return 0
+
+
+def reconstruction_metrics(
+    blended_images, isolated_images, blend_list, detection_catalogs, deblended_images, matches
+):
+    results_reconstruction = {}
+    mse_results = []
+    for i in range(len(blend_list)):
+        mse_blend_results = []
+        for j in range(len(deblended_images[i])):
+            match_true = matches[i]["match_true_id"][j]
+            mse_blend_results.append(
+                skimage.metrics.mean_squared_error(
+                    isolated_images[i][match_true], deblended_images[i][j]
+                )
+            )
+        mse_results.append(mse_blend_results)
+    results_reconstruction["mse"] = mse_results
+    return results_reconstruction
+
+
+def compute_metrics(
+    blended_images,
+    isolated_images,
+    blend_list,
+    detection_catalogs=None,
+    segmentations=None,
+    deblended_images=None,
+    use_metrics=("detection", "segmentation", "reconstruction"),
+):
+    results = {}
+    matches = [
+        get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
+    ]
+    results["matches"] = matches
+    if "detection" in use_metrics:
+        results["detection"] = detection_metrics(
+            blended_images, isolated_images, blend_list, detection_catalogs, matches
+        )
+    if "segmentation" in use_metrics:
+        results["segmentation"] = segmentation_metrics(
+            blended_images, isolated_images, blend_list, detection_catalogs, segmentations, matches
+        )
+    if "reconstruction" in use_metrics:
+        results["reconstruction"] = reconstruction_metrics(
+            blended_images,
+            isolated_images,
+            blend_list,
+            detection_catalogs,
+            deblended_images,
+            matches,
+        )
+    return results
+
+
+def compute_metrics_wrap(
+    blend_results, measure_results, use_metrics=("detection", "segmentation", "reconstruction")
+):
+    return compute_metrics(
+        blend_results["blend_images"],
+        blend_results["isolated_images"],
+        blend_results["blend_list"],
+        measure_results["catalog"],
+        measure_results["segmentation"],
+        measure_results["deblended_images"],
+        use_metrics,
+    )
