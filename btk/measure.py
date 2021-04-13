@@ -232,4 +232,13 @@ class MeasureGenerator:
         )
         if self.verbose:
             print("Measurement performed on batch")
-        return blend_output, measure_output
+        measure_results = {}
+        for i, f in enumerate(self.measure_functions):
+            measure_dic = {}
+            for key in ["catalog", "deblended_images", "segmentation"]:
+                if key in measure_output[0][i] and measure_output[0][i][key] is not None:
+                    measure_dic[key] = [
+                        measure_output[j][i][key] for j in range(len(measure_output))
+                    ]
+            measure_results[f.__name__] = measure_dic
+        return blend_output, measure_results
