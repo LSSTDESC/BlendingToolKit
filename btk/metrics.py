@@ -1,3 +1,4 @@
+"""Implements a variety of metrics for evaluation results of measurements in BTK."""
 import astropy.table
 import numpy as np
 import skimage.metrics
