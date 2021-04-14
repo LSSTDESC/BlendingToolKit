@@ -73,9 +73,31 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
 
 
 def segmentation_metrics(
-    blended_images, isolated_images, blend_list, detection_catalogs, segmentations, matches
+    blended_images,
+    isolated_images,
+    blend_list,
+    detection_catalogs,
+    segmentations,
+    matches,
+    meas_band_num,
 ):
-    return 0
+    results_segmentation = {}
+    iou_results = []
+    for i in range(len(blend_list)):
+        iou_blend_results = []
+        matches_blend = matches[i]["match_detected_id"]
+        for j, match in enumerate(matches_blend):
+            # TODO : put a correct threshold (according to noise ?)
+            threshold = 1.0
+            true_segmentation = isolated_images[i][j][meas_band_num] > threshold
+            detected_segmentation = segmentations[i][match]
+            iou_blend_results.append(
+                np.sum(np.logical_and(true_segmentation, detected_segmentation))
+                / np.sum(np.logical_or(true_segmentation, detected_segmentation))
+            )
+        iou_results.append(iou_blend_results)
+    results_segmentation["iou"] = iou_results
+    return results_segmentation
 
 
 def reconstruction_metrics(
@@ -123,10 +145,11 @@ def compute_metrics(
     blended_images,
     isolated_images,
     blend_list,
-    detection_catalogs=None,
+    detection_catalogs,
     segmentations=None,
     deblended_images=None,
     use_metrics=("detection", "segmentation", "reconstruction"),
+    meas_band_num=0,
 ):
     results = {}
     matches = [
@@ -139,7 +162,13 @@ def compute_metrics(
         )
     if "segmentation" in use_metrics:
         results["segmentation"] = segmentation_metrics(
-            blended_images, isolated_images, blend_list, detection_catalogs, segmentations, matches
+            blended_images,
+            isolated_images,
+            blend_list,
+            detection_catalogs,
+            segmentations,
+            matches,
+            meas_band_num,
         )
     if "reconstruction" in use_metrics:
         results["reconstruction"] = reconstruction_metrics(
@@ -154,7 +183,10 @@ def compute_metrics(
 
 
 def compute_metrics_wrap(
-    blend_results, measure_results, use_metrics=("detection", "segmentation", "reconstruction")
+    blend_results,
+    measure_results,
+    use_metrics=("detection", "segmentation", "reconstruction"),
+    meas_band_num=0,
 ):
     return compute_metrics(
         blend_results["blend_images"],
@@ -164,4 +196,5 @@ def compute_metrics_wrap(
         measure_results["segmentation"],
         measure_results["deblended_images"],
         use_metrics,
+        meas_band_num,
     )
