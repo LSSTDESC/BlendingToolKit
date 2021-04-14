@@ -59,7 +59,7 @@ wheel = "^0.36.2"
 
 [tool.black]
 line-length = 100
-target-version = ['py38']
+target-version = ['py37']
 
 [tool.poetry.extras]
 galsim-hub = ["galsim-hub"]

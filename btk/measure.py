@@ -218,7 +218,7 @@ class MeasureGenerator:
 
         Returns:
             draw_blend_generator output from `__next__` method.
-            measurement output: List of length `batch_size`, where each element is a list of
+            measurement_results: List of length `batch_size`, where each element is a list of
                                 `len(measure_functions)` corresponding to the measurements made by
                                 each function on each element of the batch.
         """

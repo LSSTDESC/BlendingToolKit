@@ -1,12 +1,14 @@
+"""Implements a variety of metrics for evaluation results of measurements in BTK."""
 import astropy.table
 import numpy as np
 import skimage.metrics
 
 
 def get_detection_match(true_table, detected_table):
-    """Match detections to true objects and update values in the input
-    blend catalog and detection catalog.
+    """Match detections to true objects.
+
     Function does not return anything, only the astropy tables are updated.
+
     Args:
         true_table (astropy.table.Table): Table with entries corresponding to
             the true object parameter values in one blend.
