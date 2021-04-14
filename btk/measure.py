@@ -236,7 +236,7 @@ class MeasureGenerator:
         for i, f in enumerate(self.measure_functions):
             measure_dic = {}
             for key in ["catalog", "deblended_images", "segmentation"]:
-                if key in measure_output[0][i] and measure_output[0][i][key] is not None:
+                if measure_output[0][i][key] is not None:
                     measure_dic[key] = [
                         measure_output[j][i][key] for j in range(len(measure_output))
                     ]
