@@ -32,12 +32,12 @@ def get_detection_match(true_table, detected_table):
     choicelist = [np.argmin(dist, axis=0), -1]
     match_id = np.select(condlist, choicelist)
     # Not perfect... See how to improve that
-    for m in np.unique(match_id):
+    for m in np.unique(match_id[match_id >= 0]):
         idx = np.where(match_id == m)[0]
-        best_match = match_id[idx].argmin()
-        for i in idx:
+        best_match = match_table["d_min"][idx].argmin()
+        for i in range(len(idx)):
             if i != best_match:
-                match_id[i] = -1
+                match_id[idx[i]] = -1
     match_table["match_detected_id"] = match_id
     return match_table
 
@@ -46,6 +46,7 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
     results_detection = {}
     precision = []
     recall = []
+    f1 = []
     for i in range(len(blend_list)):
         matches_blend = matches[i]["match_detected_id"]
         true_pos = 0
@@ -61,8 +62,13 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
                 false_pos += 1
         precision.append(true_pos / (true_pos + false_pos))
         recall.append(true_pos / (true_pos + false_neg))
+        if precision[-1] != 0 and recall[-1] != 0:
+            f1.append(2 / (1 / precision[-1] + 1 / recall[-1]))
+        else:
+            f1.append(0)
     results_detection["precision"] = precision
     results_detection["recall"] = recall
+    results_detection["f1"] = recall
     return results_detection
 
 
