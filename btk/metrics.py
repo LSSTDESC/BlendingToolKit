@@ -7,13 +7,14 @@ import skimage.metrics
 def get_detection_match(true_table, detected_table):
     """Match detections to true objects.
 
-    Function does not return anything, only the astropy tables are updated.
-
     Args:
         true_table (astropy.table.Table): Table with entries corresponding to
             the true object parameter values in one blend.
         detected_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
+    Returns:
+        match_table (astropy.table.Table) : Table containing the matches for the
+            true galaxies, in the same order as true_table
     """
     match_table = astropy.table.Table()
     if len(detected_table) == 0 or len(true_table) == 0:
@@ -30,6 +31,13 @@ def get_detection_match(true_table, detected_table):
     ]
     choicelist = [np.argmin(dist, axis=0), -1]
     match_id = np.select(condlist, choicelist)
+    # Not perfect... See how to improve that
+    for m in np.unique(match_id):
+        idx = np.where(match_id == m)[0]
+        best_match = match_id[idx].argmin()
+        for i in idx:
+            if i != best_match:
+                match_id[i] = -1
     match_table["match_detected_id"] = match_id
     return match_table
 
@@ -39,12 +47,18 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
     precision = []
     recall = []
     for i in range(len(blend_list)):
-        matches_blend = matches[i]
+        matches_blend = matches[i]["match_detected_id"]
         true_pos = 0
         false_pos = 0
         false_neg = 0
-        for j in matches_blend:
-            pass
+        for match in matches_blend:
+            if match == -1:
+                false_neg += 1
+            else:
+                true_pos += 1
+        for j in range(len(detection_catalogs[i])):
+            if j not in matches_blend:
+                false_pos += 1
         precision.append(true_pos / (true_pos + false_pos))
         recall.append(true_pos / (true_pos + false_neg))
     results_detection["precision"] = precision
@@ -63,8 +77,12 @@ def reconstruction_metrics(
 ):
     results_reconstruction = {}
     mse_results = []
+    psnr_results = []
+    ssim_results = []
     for i in range(len(blend_list)):
         mse_blend_results = []
+        psnr_blend_results = []
+        ssim_blend_results = []
         for j in range(len(blend_list[i])):
             match_detected = matches[i]["match_detected_id"][j]
             mse_blend_results.append(
@@ -72,8 +90,26 @@ def reconstruction_metrics(
                     isolated_images[i][j], deblended_images[i][match_detected]
                 )
             )
+            psnr_blend_results.append(
+                skimage.metrics.peak_signal_noise_ratio(
+                    isolated_images[i][j],
+                    deblended_images[i][match_detected],
+                    data_range=np.max(isolated_images[i][j]),
+                )
+            )
+            ssim_blend_results.append(
+                skimage.metrics.structural_similarity(
+                    np.moveaxis(isolated_images[i][j], 0, -1),
+                    np.moveaxis(deblended_images[i][match_detected], 0, -1),
+                    multichannel=True,
+                )
+            )
         mse_results.append(mse_blend_results)
+        psnr_results.append(psnr_blend_results)
+        ssim_results.append(ssim_blend_results)
     results_reconstruction["mse"] = mse_results
+    results_reconstruction["psnr"] = psnr_results
+    results_reconstruction["ssim"] = ssim_results
     return results_reconstruction
 
 
