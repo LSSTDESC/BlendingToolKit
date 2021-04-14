@@ -17,10 +17,10 @@ def get_detection_match(true_table, detected_table):
     if len(detected_table) == 0 or len(true_table) == 0:
         # No match since either no detection or no true objects
         return
-    t_x = true_table["x_peak"][:, np.newaxis] - detected_table["x_peak"]
-    t_y = true_table["y_peak"][:, np.newaxis] - detected_table["y_peak"]
+    t_x = true_table["x_peak"] - detected_table["x_peak"][:, np.newaxis]
+    t_y = true_table["y_peak"] - detected_table["y_peak"][:, np.newaxis]
     dist = np.hypot(t_x, t_y)
-    detected_table["d_min"] = np.min(dist, axis=0)
+    match_table["d_min"] = np.min(dist, axis=0)
     detection_threshold = 5
     condlist = [
         np.min(dist, axis=0) <= detection_threshold,
@@ -28,13 +28,26 @@ def get_detection_match(true_table, detected_table):
     ]
     choicelist = [np.argmin(dist, axis=0), -1]
     match_id = np.select(condlist, choicelist)
-    match_table["match_true_id"] = match_id
-    match_table["match_galtileid"] = true_table["galtileid"][match_id]
+    match_table["match_detected_id"] = match_id
     return match_table
 
 
 def detection_metrics(blended_images, isolated_images, blend_list, detection_catalogs, matches):
-    return 0
+    results_detection = {}
+    precision = []
+    recall = []
+    for i in range(len(blend_list)):
+        matches_blend = matches[i]
+        true_pos = 0
+        false_pos = 0
+        false_neg = 0
+        for j in matches_blend:
+            pass
+        precision.append(true_pos / (true_pos + false_pos))
+        recall.append(true_pos / (true_pos + false_neg))
+    results_detection["precision"] = precision
+    results_detection["recall"] = recall
+    return results_detection
 
 
 def segmentation_metrics(
@@ -50,11 +63,11 @@ def reconstruction_metrics(
     mse_results = []
     for i in range(len(blend_list)):
         mse_blend_results = []
-        for j in range(len(deblended_images[i])):
-            match_true = matches[i]["match_true_id"][j]
+        for j in range(len(blend_list[i])):
+            match_detected = matches[i]["match_detected_id"][j]
             mse_blend_results.append(
                 skimage.metrics.mean_squared_error(
-                    isolated_images[i][match_true], deblended_images[i][j]
+                    isolated_images[i][j], deblended_images[i][match_detected]
                 )
             )
         mse_results.append(mse_blend_results)
