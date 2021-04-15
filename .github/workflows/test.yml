@@ -29,8 +29,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install poetry
-          pip install Cython
-          pip install eigency>=1.77
 
       - name: Poetry cache
         uses: actions/cache@v2
@@ -46,6 +44,8 @@ jobs:
 
       - name: Install poetry dependencies
         run: |
+          poetry run pip install numpy Cython
+          poetry run pip install "eigency>=1.77"
           poetry install --extras "galsim-hub"
 
       - name: Run Tests
