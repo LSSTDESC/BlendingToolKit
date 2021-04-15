@@ -17,25 +17,32 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install miniconda and environment
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          miniconda-version: "latest"
-          activate-environment: btk_py37
           python-version: ${{ matrix.python-version }}
 
-      - name: Install conda dependencies
-        shell: bash -l {0} # setup and activate conda environment.
+      - name: Install Poetry
         run: |
-          conda install fftw
-          conda install -c conda-forge eigen
-          conda install -c conda-forge galsim
-          conda install tensorflow==1.15
-          conda install -c conda-forge poetry
+          pip install --upgrade pip
+          pip install poetry
+
+      - name: Poetry cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-${{ hashFiles('./poetry.lock') }}
+
+      # galsim needs this.
+      - name: Instal FFTW + Eigen
+        run: |
+          sudo apt-get install libfftw3-dev libeigen3-dev
 
       - name: Install poetry dependencies
-        shell: bash -l {0}
         run: |
+          poetry run pip install numpy Cython
+          poetry run pip install "eigency>=1.77"
           poetry install --extras "galsim-hub"
 
       - name: build docs
