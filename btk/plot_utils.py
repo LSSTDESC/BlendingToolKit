@@ -379,3 +379,21 @@ def show_scarlet_residual(blend, observation, limits=(30, 90)):
 
     except ImportError:
         print("Scarlet is needed to use this function.")
+
+
+def plot_metrics_distribution(metric_array, metric_name, bins=50):
+    """Plot an histogram of the distribution with mean and median.
+
+    Args:
+        metric_array : Contains the data
+        metric_name (str) : name of the metric
+        bins (int) : Optionnal argument for the number of bins.
+
+    """
+    plt.hist(metric_array, bins=bins, label=metric_name)
+    mean = np.mean(metric_array)
+    plt.axvline(mean, linestyle="--", label="mean", color="blue")
+    median = np.median(metric_array)
+    plt.axvline(median, linestyle="--", label="median", color="red")
+    plt.legend()
+    plt.show()
