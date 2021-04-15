@@ -381,19 +381,41 @@ def show_scarlet_residual(blend, observation, limits=(30, 90)):
         print("Scarlet is needed to use this function.")
 
 
-def plot_metrics_distribution(metric_array, metric_name, bins=50):
+def plot_metrics_distribution(metric_array, metric_name, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
     Args:
         metric_array : Contains the data
         metric_name (str) : name of the metric
-        bins (int) : Optionnal argument for the number of bins.
+        bins (int) : Optional argument for the number of bins.
+        upper_quantile (float) : Quantile from which to cut
 
     """
-    plt.hist(metric_array, bins=bins, label=metric_name)
-    mean = np.mean(metric_array)
+    quantile = np.quantile(metric_array, upper_quantile)
+    metric_array_filtered = metric_array[metric_array <= quantile]
+    plt.hist(metric_array_filtered, bins=bins, label=metric_name)
+    mean = np.mean(metric_array_filtered)
     plt.axvline(mean, linestyle="--", label="mean", color="blue")
-    median = np.median(metric_array)
+    median = np.median(metric_array_filtered)
     plt.axvline(median, linestyle="--", label="median", color="red")
+    plt.legend()
+    plt.show()
+
+
+def plot_metrics_correlation(metric_x, metric_y, metric_name, upper_quantile=1.0):
+    """Plot a scatter plot between two quantities.
+
+    Args:
+        metric_x : Contains the data for the x axis
+        metric_y : Contains the data for the y axis
+        metric_name (str) : name of the metric
+        bins (int) : Optional argument for the number of bins.
+        upper_quantile (float) : Quantile from which to cut
+
+    """
+    quantile = np.quantile(metric_y, upper_quantile)
+    metric_x = metric_x[metric_y < quantile]
+    metric_y = metric_y[metric_y < quantile]
+    plt.scatter(metric_x, metric_y, label=metric_name)
     plt.legend()
     plt.show()

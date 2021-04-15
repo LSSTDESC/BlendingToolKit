@@ -44,10 +44,13 @@ def get_detection_match(true_table, detected_table):
     # for each true galaxy i, match_indx[i] is the index of detected_table matched to that true
     # galaxy or -1 if there is no match.
     match_indx = [-1] * len(true_table)
+    dist_m = [0.0] * len(true_table)
     for i, indx in enumerate(true_indx):
         match_indx[indx] = detected_indx[i]
+        dist_m[indx] = dist[indx][detected_indx[i]]
 
     match_table["match_detected_id"] = match_indx
+    match_table["dist"] = dist_m
     return match_table
 
 
@@ -210,6 +213,7 @@ def compute_metrics(
             matches,
         )
     names = blend_list[0].colnames
+    names += ["detected", "distance_closest"]
     if "reconstruction" in use_metrics:
         names += ["mse", "psnr", "ssim"]
     if "segmentation" in use_metrics:
@@ -218,6 +222,10 @@ def compute_metrics(
     for i, blend in enumerate(blend_list):
         for j, gal in enumerate(blend):
             row = astropy.table.Table(gal)
+            row.add_column([False], name="detected")
+            row["detected"] = matches[i]["match_detected_id"][j] != -1
+            row.add_column([0.0], name="distance_closest")
+            row["distance_closest"] = matches[i]["dist"][j]
             if "reconstruction" in use_metrics:
                 row.add_columns([[0.0], [0.0], [0.0]], names=["mse", "psnr", "ssim"])
                 row["mse"] = results["reconstruction"]["mse"][i][j]
