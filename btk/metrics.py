@@ -5,7 +5,7 @@ import skimage.metrics
 from scipy.optimize import linear_sum_assignment
 
 
-def get_detection_match_new(true_table, detected_table):
+def get_detection_match(true_table, detected_table):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
     The optimal matching is computed based on the following optimization problem:
@@ -48,44 +48,6 @@ def get_detection_match_new(true_table, detected_table):
         match_indx[indx] = detected_indx[i]
 
     match_table["match_detected_id"] = match_indx
-    return match_table
-
-
-def get_detection_match(true_table, detected_table):
-    """Match detections to true objects.
-
-    Args:
-        true_table (astropy.table.Table): Table with entries corresponding to
-            the true object parameter values in one blend.
-        detected_table(astropy.table.Table): Table with entries corresponding
-            to output of measurement algorithm in one blend.
-    Returns:
-        match_table (astropy.table.Table) : Table containing the matches for the
-            true galaxies, in the same order as true_table
-    """
-    match_table = astropy.table.Table()
-    if len(detected_table) == 0 or len(true_table) == 0:
-        # No match since either no detection or no true objects
-        return None
-    t_x = true_table["x_peak"] - detected_table["x_peak"][:, np.newaxis]
-    t_y = true_table["y_peak"] - detected_table["y_peak"][:, np.newaxis]
-    dist = np.hypot(t_x, t_y)
-    match_table["d_min"] = np.min(dist, axis=0)
-    detection_threshold = 5
-    condlist = [
-        np.min(dist, axis=0) <= detection_threshold,
-        np.min(dist, axis=0) > detection_threshold,
-    ]
-    choicelist = [np.argmin(dist, axis=0), -1]
-    match_id = np.select(condlist, choicelist)
-    # Not perfect... See how to improve that
-    for m in np.unique(match_id[match_id >= 0]):
-        idx = np.where(match_id == m)[0]
-        best_match = match_table["d_min"][idx].argmin()
-        for i in range(len(idx)):
-            if i != best_match:
-                match_id[idx[i]] = -1
-    match_table["match_detected_id"] = match_id
     return match_table
 
 
