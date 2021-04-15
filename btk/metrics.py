@@ -2,6 +2,52 @@
 import astropy.table
 import numpy as np
 import skimage.metrics
+from scipy.optimize import linear_sum_assignment
+
+
+def get_detection_match_new(true_table, detected_table):
+    r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
+
+    The optimal matching is computed based on solving the optimization problem:
+    ```
+        \sum_{i} \sum_{j} C_{i,j} X_{i,j}
+    ```
+    where, in the BTK context, C_{ij}` is the cost function between matching true object `i` with
+    detected object `j` computed as the `l2`-distance between the two objects, and `X_{i,j}` is an
+    indicator function over the matches.
+
+    Based on this implementation in scipy:
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
+
+    Args:
+        true_table (astropy.table.Table): Table with entries corresponding to
+            the true object parameter values in one blend.
+        detected_table(astropy.table.Table): Table with entries corresponding
+            to output of measurement algorithm in one blend.
+    Returns:
+        match_table (astropy.table.Table) : Table containing the matches for the
+            true galaxies, in the same order as true_table
+    """
+    match_table = astropy.table.Table()
+    if len(detected_table) == 0 or len(true_table) == 0:
+        # No match since either no detection or no true objects
+        return
+    t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
+    t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
+    dist = np.hypot(t_x, t_y)  # dist_ij = distance between true object i and detected object j.
+
+    # solve optimization problem.
+    # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
+    # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
+    true_indx, detected_indx = linear_sum_assignment(dist)
+
+    # match index of each true galaxy with a detected galaxy (-1 if no match).
+    match_indx = [-1] * len(true_table)
+    for i, indx in enumerate(true_indx):
+        match_indx[indx] = detected_indx[i]
+
+    match_table["match_detected_id"] = match_indx
+    return match_table
 
 
 def get_detection_match(true_table, detected_table):
