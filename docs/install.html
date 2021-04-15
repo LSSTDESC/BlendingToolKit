@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Installation &mdash; btk 0.1 documentation</title>
@@ -161,7 +160,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="installation">
+  <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.7</span></code>.
 The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
@@ -176,7 +175,7 @@ The required packages for <code class="docutils literal notranslate"><span class
 <li><p>sep</p></li>
 </ul>
 <p>And their specific versions are listed in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> block.</p>
-<section id="install-galsim">
+<div class="section" id="install-galsim">
 <h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this headline">¶</a></h2>
 <p>GalSim is a python module that has much of its implementation in C++ for
 improved computational efficiency. It can be installed with:</p>
@@ -186,8 +185,8 @@ improved computational efficiency. It can be installed with:</p>
 <p>However, you may have to install FFTW and Eigen manually. Refer to
 <a class="reference external" href="https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md">this</a>
 for more details.</p>
-</section>
-<section id="install-btk">
+</div>
+<div class="section" id="install-btk">
 <h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this headline">¶</a></h2>
 <p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest released version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span>
@@ -198,8 +197,8 @@ for more details.</p>
 <span class="kn">import</span> <span class="nn">btk.catalog</span>
 </pre></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

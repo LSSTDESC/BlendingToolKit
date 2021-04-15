@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>User Guide &mdash; btk 0.1 documentation</title>
@@ -157,7 +156,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="user-guide">
+  <div class="section" id="user-guide">
 <h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
 <p>This document gives a detailed look into the work-flow of <em>BlendingToolKit</em> (btk). For a quick tutorial on how to run btk, see the jupyter notebook tutorials <a class="reference external" href="tutorials.html">here</a>. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm. The workflow presented here should be as general as possible ; examples for the WeakLensingDeblending case are also given.</p>
 <p>The workflow of btk is shown here:</p>
@@ -175,7 +174,7 @@
 <li><p>Compute metrics : compares the true centroids, shapes, and flux values to those predicted by the user-provided algorithm. Currently, BTK assesses only detection performance by returning the number of objects correctly detected, the number that are undetected and the number of spurious detections. This is achieved using a <code class="xref py py-class docutils literal notranslate"><span class="pre">MetricsParams</span></code> object, which takes as an argument the measure generator from step 6, and can be fed to the <code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code> function to get the desired results. Please note that this section may be reworked in the future.</p></li>
 </ol>
 <p><em>BlendingToolKit</em> can be run end-to-end using an input yaml config file, parsed by <em>btk_input.py</em>, which then runs btk with the defined parameters. However, this file is broken as of now and cannot be used yet.</p>
-</section>
+</div>
 
 
            </div>
