@@ -41,7 +41,8 @@ def get_detection_match_new(true_table, detected_table):
     # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
     true_indx, detected_indx = linear_sum_assignment(dist)
 
-    # match index of each true galaxy with a detected galaxy (-1 if no match).
+    # for each true galaxy i, match_indx[i] is the index of detected_table matched to that true
+    # galaxy or -1 if there is no match.
     match_indx = [-1] * len(true_table)
     for i, indx in enumerate(true_indx):
         match_indx[indx] = detected_indx[i]
