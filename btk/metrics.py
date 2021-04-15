@@ -8,7 +8,7 @@ from scipy.optimize import linear_sum_assignment
 def get_detection_match_new(true_table, detected_table):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
-    The optimal matching is computed based on solving the optimization problem:
+    The optimal matching is computed based on the following optimization problem:
     ```
         \sum_{i} \sum_{j} C_{i,j} X_{i,j}
     ```
