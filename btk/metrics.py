@@ -182,19 +182,27 @@ def compute_metrics(
     return results
 
 
-def compute_metrics_wrap(
-    blend_results,
-    measure_results,
-    use_metrics=("detection", "segmentation", "reconstruction"),
-    meas_band_num=0,
-):
-    return compute_metrics(
-        blend_results["blend_images"],
-        blend_results["isolated_images"],
-        blend_results["blend_list"],
-        measure_results["catalog"],
-        measure_results["segmentation"],
-        measure_results["deblended_images"],
-        use_metrics,
-        meas_band_num,
-    )
+class MetricsGenerator:
+    def __init__(self, measure_generator, use_metrics=("detection"), meas_band_num=0):
+        self.measure_generator = measure_generator
+        self.use_metrics = use_metrics
+        self.meas_band_num = meas_band_num
+
+    def __next__(self):
+        blend_results, measure_results = next(self.measure_generator)
+        meas_func = measure_results.keys()
+        metrics_results = {}
+        for f in meas_func:
+            metrics_results_f = compute_metrics(
+                blend_results["blend_images"],
+                blend_results["isolated_images"],
+                blend_results["blend_list"],
+                measure_results[f]["catalog"],
+                measure_results[f]["segmentation"],
+                measure_results[f]["deblended_images"],
+                self.use_metrics,
+                self.meas_band_num,
+            )
+            metrics_results[f] = metrics_results_f
+
+        return blend_results, measure_results, metrics_results
