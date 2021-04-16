@@ -389,7 +389,6 @@ def plot_metrics_distribution(metric_array, metric_name, bins=50, upper_quantile
         metric_name (str) : name of the metric
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
-
     """
     quantile = np.quantile(metric_array, upper_quantile)
     metric_array_filtered = metric_array[metric_array <= quantile]
