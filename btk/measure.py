@@ -241,4 +241,6 @@ class MeasureGenerator:
                         measure_output[j][i][key] for j in range(len(measure_output))
                     ]
             measure_results[f.__name__] = measure_dic
+        if len(self.measure_functions) == 1:
+            measure_results = measure_results[self.measure_functions[0].__name__]
         return blend_output, measure_results

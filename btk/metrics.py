@@ -96,24 +96,21 @@ def segmentation_metrics(
     results_segmentation = {}
     iou_results = []
     for i in range(len(blend_list)):
-        if matches[i] is not None:
-            iou_blend_results = []
-            matches_blend = matches[i]["match_detected_id"]
-            for j, match in enumerate(matches_blend):
-                # TODO : put a correct threshold (according to noise ?)
-                if match != -1:
-                    threshold = 1.0
-                    true_segmentation = isolated_images[i][j][meas_band_num] > threshold
-                    detected_segmentation = segmentations[i][match]
-                    iou_blend_results.append(
-                        np.sum(np.logical_and(true_segmentation, detected_segmentation))
-                        / np.sum(np.logical_or(true_segmentation, detected_segmentation))
-                    )
-                else:
-                    iou_blend_results.append(-1)
-            iou_results.append(iou_blend_results)
-        else:
-            iou_results.append([-1 for j in range(len(blend_list[i]))])
+        iou_blend_results = []
+        matches_blend = matches[i]["match_detected_id"]
+        for j, match in enumerate(matches_blend):
+            # TODO : put a correct threshold (according to noise ?)
+            if match != -1:
+                threshold = 1.0
+                true_segmentation = isolated_images[i][j][meas_band_num] > threshold
+                detected_segmentation = segmentations[i][match]
+                iou_blend_results.append(
+                    np.sum(np.logical_and(true_segmentation, detected_segmentation))
+                    / np.sum(np.logical_or(true_segmentation, detected_segmentation))
+                )
+            else:
+                iou_blend_results.append(-1)
+        iou_results.append(iou_blend_results)
     results_segmentation["iou"] = iou_results
     return results_segmentation
 
@@ -126,43 +123,38 @@ def reconstruction_metrics(
     psnr_results = []
     ssim_results = []
     for i in range(len(blend_list)):
-        if matches[i] is not None:
-            mse_blend_results = []
-            psnr_blend_results = []
-            ssim_blend_results = []
-            for j in range(len(blend_list[i])):
-                match_detected = matches[i]["match_detected_id"][j]
-                if match_detected != -1:
-                    mse_blend_results.append(
-                        skimage.metrics.mean_squared_error(
-                            isolated_images[i][j], deblended_images[i][match_detected]
-                        )
+        mse_blend_results = []
+        psnr_blend_results = []
+        ssim_blend_results = []
+        for j in range(len(blend_list[i])):
+            match_detected = matches[i]["match_detected_id"][j]
+            if match_detected != -1:
+                mse_blend_results.append(
+                    skimage.metrics.mean_squared_error(
+                        isolated_images[i][j], deblended_images[i][match_detected]
                     )
-                    psnr_blend_results.append(
-                        skimage.metrics.peak_signal_noise_ratio(
-                            isolated_images[i][j],
-                            deblended_images[i][match_detected],
-                            data_range=np.max(isolated_images[i][j]),
-                        )
+                )
+                psnr_blend_results.append(
+                    skimage.metrics.peak_signal_noise_ratio(
+                        isolated_images[i][j],
+                        deblended_images[i][match_detected],
+                        data_range=np.max(isolated_images[i][j]),
                     )
-                    ssim_blend_results.append(
-                        skimage.metrics.structural_similarity(
-                            np.moveaxis(isolated_images[i][j], 0, -1),
-                            np.moveaxis(deblended_images[i][match_detected], 0, -1),
-                            multichannel=True,
-                        )
+                )
+                ssim_blend_results.append(
+                    skimage.metrics.structural_similarity(
+                        np.moveaxis(isolated_images[i][j], 0, -1),
+                        np.moveaxis(deblended_images[i][match_detected], 0, -1),
+                        multichannel=True,
                     )
-                else:
-                    mse_blend_results.append(-1)
-                    psnr_blend_results.append(-1)
-                    ssim_blend_results.append(-1)
-            mse_results.append(mse_blend_results)
-            psnr_results.append(psnr_blend_results)
-            ssim_results.append(ssim_blend_results)
-        else:
-            mse_results.append([-1 for j in range(len(blend_list[i]))])
-            psnr_results.append([-1 for j in range(len(blend_list[i]))])
-            ssim_results.append([-1 for j in range(len(blend_list[i]))])
+                )
+            else:
+                mse_blend_results.append(-1)
+                psnr_blend_results.append(-1)
+                ssim_blend_results.append(-1)
+        mse_results.append(mse_blend_results)
+        psnr_results.append(psnr_blend_results)
+        ssim_results.append(ssim_blend_results)
     results_reconstruction["mse"] = mse_results
     results_reconstruction["psnr"] = psnr_results
     results_reconstruction["ssim"] = ssim_results
@@ -208,7 +200,7 @@ def compute_metrics(
             matches,
         )
     names = blend_list[0].colnames
-    names += ["detected", "distance_closest_galaxy", "distance_detection"]
+    names += ["detected", "distance_detection", "distance_closest_galaxy"]
     if "reconstruction" in use_metrics:
         names += ["mse", "psnr", "ssim"]
     if "segmentation" in use_metrics:
@@ -230,7 +222,7 @@ def compute_metrics(
                     1,
                 )[1]
             else:
-                row["distance_closest_galaxy"] = np.inf
+                row["distance_closest_galaxy"] = 32  # placeholder
             if "reconstruction" in use_metrics:
                 row["mse"] = results["reconstruction"]["mse"][i][j]
                 row["psnr"] = results["reconstruction"]["psnr"][i][j]
@@ -250,19 +242,32 @@ class MetricsGenerator:
 
     def __next__(self):
         blend_results, measure_results = next(self.measure_generator)
-        meas_func = measure_results.keys()
-        metrics_results = {}
-        for f in meas_func:
-            metrics_results_f = compute_metrics(
+        if "catalog" not in measure_results.keys():
+            meas_func = measure_results.keys()
+            metrics_results = {}
+            for f in meas_func:
+                metrics_results_f = compute_metrics(
+                    blend_results["blend_images"],
+                    blend_results["isolated_images"],
+                    blend_results["blend_list"],
+                    measure_results[f]["catalog"],
+                    measure_results[f]["segmentation"],
+                    measure_results[f]["deblended_images"],
+                    self.use_metrics,
+                    self.meas_band_num,
+                )
+                metrics_results[f] = metrics_results_f
+
+        else:
+            metrics_results = compute_metrics(
                 blend_results["blend_images"],
                 blend_results["isolated_images"],
                 blend_results["blend_list"],
-                measure_results[f]["catalog"],
-                measure_results[f]["segmentation"],
-                measure_results[f]["deblended_images"],
+                measure_results["catalog"],
+                measure_results["segmentation"],
+                measure_results["deblended_images"],
                 self.use_metrics,
                 self.meas_band_num,
             )
-            metrics_results[f] = metrics_results_f
 
         return blend_results, measure_results, metrics_results
