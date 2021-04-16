@@ -177,9 +177,9 @@ def reconstruction_metrics(
             psnr_results.append(psnr_blend_results)
             ssim_results.append(ssim_blend_results)
         else:
-            mse_results.append([-1 for j in range(len(blend_list[i]))])
-            psnr_results.append([-1 for j in range(len(blend_list[i]))])
-            ssim_results.append([-1 for j in range(len(blend_list[i]))])
+            mse_results.append([-1 for _ in range(len(blend_list[i]))])
+            psnr_results.append([-1 for _ in range(len(blend_list[i]))])
+            ssim_results.append([-1 for _ in range(len(blend_list[i]))])
     results_reconstruction["mse"] = mse_results
     results_reconstruction["psnr"] = psnr_results
     results_reconstruction["ssim"] = ssim_results
