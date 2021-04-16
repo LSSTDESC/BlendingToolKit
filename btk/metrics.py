@@ -29,9 +29,6 @@ def get_detection_match(true_table, detected_table):
             true galaxies, in the same order as true_table
     """
     match_table = astropy.table.Table()
-    if len(detected_table) == 0 or len(true_table) == 0:
-        # No match since either no detection or no true objects
-        return
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
     t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
     dist = np.hypot(t_x, t_y)  # dist_ij = distance between true object i and detected object j.
@@ -60,28 +57,26 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
     recall = []
     f1 = []
     for i in range(len(blend_list)):
-        if matches[i] is not None:
-            matches_blend = matches[i]["match_detected_id"]
-            true_pos = 0
-            false_pos = 0
-            false_neg = 0
-            for match in matches_blend:
-                if match == -1:
-                    false_neg += 1
-                else:
-                    true_pos += 1
-            for j in range(len(detection_catalogs[i])):
-                if j not in matches_blend:
-                    false_pos += 1
-            precision.append(true_pos / (true_pos + false_pos))
-            recall.append(true_pos / (true_pos + false_neg))
-            if precision[-1] != 0 and recall[-1] != 0:
-                f1.append(2 / (1 / precision[-1] + 1 / recall[-1]))
+        matches_blend = matches[i]["match_detected_id"]
+        true_pos = 0
+        false_pos = 0
+        false_neg = 0
+        for match in matches_blend:
+            if match == -1:
+                false_neg += 1
             else:
-                f1.append(0)
+                true_pos += 1
+        for j in range(len(detection_catalogs[i])):
+            if j not in matches_blend:
+                false_pos += 1
+        if true_pos + false_pos > 0:
+            precision.append(true_pos / (true_pos + false_pos))
         else:
             precision.append(0)
-            recall.append(0)
+        recall.append(true_pos / (true_pos + false_neg))
+        if precision[-1] != 0 and recall[-1] != 0:
+            f1.append(2 / (1 / precision[-1] + 1 / recall[-1]))
+        else:
             f1.append(0)
     results_detection["precision"] = precision
     results_detection["recall"] = recall
@@ -213,7 +208,7 @@ def compute_metrics(
             matches,
         )
     names = blend_list[0].colnames
-    names += ["detected", "distance_closest"]
+    names += ["detected", "distance_closest_galaxy", "distance_detection"]
     if "reconstruction" in use_metrics:
         names += ["mse", "psnr", "ssim"]
     if "segmentation" in use_metrics:
@@ -222,17 +217,25 @@ def compute_metrics(
     for i, blend in enumerate(blend_list):
         for j, gal in enumerate(blend):
             row = astropy.table.Table(gal)
-            row.add_column([False], name="detected")
             row["detected"] = matches[i]["match_detected_id"][j] != -1
-            row.add_column([0.0], name="distance_closest")
-            row["distance_closest"] = matches[i]["dist"][j]
+            row["distance_detection"] = matches[i]["dist"][j]
+            if len(blend) > 1:
+                row["distance_closest_galaxy"] = np.partition(
+                    [
+                        np.sqrt(
+                            (gal["x_peak"] - g["x_peak"]) ** 2 + (gal["y_peak"] - g["y_peak"]) ** 2
+                        )
+                        for g in blend
+                    ],
+                    1,
+                )[1]
+            else:
+                row["distance_closest_galaxy"] = np.inf
             if "reconstruction" in use_metrics:
-                row.add_columns([[0.0], [0.0], [0.0]], names=["mse", "psnr", "ssim"])
                 row["mse"] = results["reconstruction"]["mse"][i][j]
                 row["psnr"] = results["reconstruction"]["psnr"][i][j]
                 row["ssim"] = results["reconstruction"]["ssim"][i][j]
             if "segmentation" in use_metrics:
-                row.add_column([0.0], name="iou")
                 row["iou"] = results["segmentation"]["iou"][i][j]
             results["galaxy_summary"].add_row(row[0])
 

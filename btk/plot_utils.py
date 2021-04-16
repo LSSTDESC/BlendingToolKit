@@ -402,20 +402,56 @@ def plot_metrics_distribution(metric_array, metric_name, bins=50, upper_quantile
     plt.show()
 
 
-def plot_metrics_correlation(metric_x, metric_y, metric_name, upper_quantile=1.0):
+def plot_metrics_comparison(metrics, metric_names, bins=50, upper_quantile=1.0):
+    """Plot an histogram of the distribution with mean and median.
+
+    Args:
+        metrics (list) : Contains the data
+        metric_names (list) : names of the metrics
+        bins (int) : Optional argument for the number of bins.
+        upper_quantile (float) : Quantile from which to cut
+    """
+    for i, m in enumerate(metrics):
+        quantile = np.quantile(m, upper_quantile)
+        m_filtered = m[m <= quantile]
+        plt.hist(m_filtered, bins=bins, label=metric_names[i], alpha=0.6)
+        mean = np.mean(m_filtered)
+        plt.axvline(mean, linestyle="--", label="mean", color="blue")
+        median = np.median(m_filtered)
+        plt.axvline(median, linestyle="--", label="median", color="red")
+    plt.legend()
+    plt.show()
+
+
+def plot_metrics_correlation(
+    metric_x, metric_y, metric_x_name, metric_y_name, upper_quantile=1.0, style="scatter"
+):
     """Plot a scatter plot between two quantities.
 
     Args:
         metric_x : Contains the data for the x axis
         metric_y : Contains the data for the y axis
-        metric_name (str) : name of the metric
+        metric_x_name (str) : name of the x metric
+        metric_y_name (str) : name of the y metric
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
+        style (str) : Style of the plot, can be "scatter" or "heatmap"
 
     """
     quantile = np.quantile(metric_y, upper_quantile)
     metric_x = metric_x[metric_y < quantile]
     metric_y = metric_y[metric_y < quantile]
-    plt.scatter(metric_x, metric_y, label=metric_name)
-    plt.legend()
+    if style == "heatmap":
+        heatmap, xedges, yedges = np.histogram2d(metric_x, metric_y, bins=50)
+        extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+        plt.imshow(
+            heatmap.T, extent=extent, origin="lower", aspect="auto", label=metric_y_name, cmap="hot"
+        )
+    elif style == "scatter":
+        plt.scatter(metric_x, metric_y, label=metric_y_name)
+        plt.legend()
+    else:
+        raise ValueError("Invalid style")
+    plt.xlabel(metric_x_name)
+    plt.ylabel(metric_y_name)
     plt.show()
