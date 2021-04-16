@@ -5,6 +5,8 @@ repos:
     hooks:
       - id: trailing-whitespace
         exclude: ^.*fits
+        args:
+          - --markdown-linebreak-ext=md
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: end-of-file-fixer
