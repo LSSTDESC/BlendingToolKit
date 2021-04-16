@@ -1,4 +1,4 @@
-"""Implements a variety of metrics for evaluation results of measurements in BTK."""
+"""Implements a variety of metrics for evaluating measurement results in BTK."""
 import astropy.table
 import numpy as np
 import skimage.metrics
@@ -24,9 +24,13 @@ def get_detection_match(true_table, detected_table):
             the true object parameter values in one blend.
         detected_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
+
     Returns:
-        match_table (astropy.table.Table) : Table containing the matches for the
-            true galaxies, in the same order as true_table
+        match_table (astropy.table.Table): Table where each row corresponds to each true
+            galaxy in `true_table` containing two columns:
+                - "match_detected_id": Index of row in `detected_table` corresponding to
+                    matched detected object. If no match, value is -1.
+                - "dist": distance between true object and matched object or 0 if no matches.
     """
     match_table = astropy.table.Table()
     if len(detected_table) == 0 or len(true_table) == 0:
@@ -55,6 +59,14 @@ def get_detection_match(true_table, detected_table):
 
 
 def detection_metrics(blended_images, isolated_images, blend_list, detection_catalogs, matches):
+    """Calculate common detection metrics (f1-score, precision, recall) based on matches.
+
+    NOTE: This function operates directly on batches returned from MeasureGenerator.
+
+    Returns:
+        results_detection (dict): Dictionary containing keys "f1", "precision", and "recall".
+            Each value is a list where each element corresponds to each element of the batch.
+    """
     results_detection = {}
     precision = []
     recall = []
@@ -240,6 +252,8 @@ def compute_metrics(
 
 
 class MetricsGenerator:
+    """Generator that calculates metrics on batches returned by the MeasureGenerator."""
+
     def __init__(self, measure_generator, use_metrics=("detection"), meas_band_num=0):
         self.measure_generator = measure_generator
         self.use_metrics = use_metrics
