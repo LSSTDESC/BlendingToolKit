@@ -1,8 +1,20 @@
 """Implements a variety of metrics for evaluating measurement results in BTK."""
 import astropy.table
+import galsim
 import numpy as np
 import skimage.metrics
 from scipy.optimize import linear_sum_assignment
+
+
+def meas_ellipticity(image, additional_params):
+    psf_image = additional_params["psf"]
+    pixel_scale = additional_params["pixel_scale"]
+    meas_band_num = additional_params["meas_band_num"]
+    gal_image = galsim.Image(image[:, :, meas_band_num])
+    gal_image.scale = pixel_scale
+    shear_est = "KSB"
+    res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
+    return [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
 
 
 def get_detection_match(true_table, detected_table):
@@ -32,9 +44,6 @@ def get_detection_match(true_table, detected_table):
                 - "dist": distance between true object and matched object or 0 if no matches.
     """
     match_table = astropy.table.Table()
-    if len(detected_table) == 0 or len(true_table) == 0:
-        # No match since either no detection or no true objects
-        return
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
     t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
     dist = np.hypot(t_x, t_y)  # dist_ij = distance between true object i and detected object j.
@@ -130,16 +139,27 @@ def segmentation_metrics(
 
 
 def reconstruction_metrics(
-    blended_images, isolated_images, blend_list, detection_catalogs, deblended_images, matches
+    blended_images,
+    isolated_images,
+    blend_list,
+    detection_catalogs,
+    deblended_images,
+    matches,
+    target_meas={},
 ):
     results_reconstruction = {}
     mse_results = []
     psnr_results = []
     ssim_results = []
+    target_meas_keys = target_meas.keys()
+    target_meas_results = []
     for i in range(len(blend_list)):
         mse_blend_results = []
         psnr_blend_results = []
         ssim_blend_results = []
+        target_meas_blend_results = {}
+        for k in target_meas_keys:
+            target_meas_results[k] = []
         for j in range(len(blend_list[i])):
             match_detected = matches[i]["match_detected_id"][j]
             if match_detected != -1:
@@ -162,16 +182,28 @@ def reconstruction_metrics(
                         multichannel=True,
                     )
                 )
+                for k in target_meas_keys:
+                    target_meas_blend_results[k].append(
+                        np.abs(
+                            target_meas[k](blended_images[i][j])
+                            - target_meas[k](deblended_images[i][match_detected])
+                        )
+                    )
             else:
                 mse_blend_results.append(-1)
                 psnr_blend_results.append(-1)
                 ssim_blend_results.append(-1)
+                for k in target_meas_keys:
+                    target_meas_blend_results[k].append(-1)
         mse_results.append(mse_blend_results)
         psnr_results.append(psnr_blend_results)
         ssim_results.append(ssim_blend_results)
+        target_meas_results.append(target_meas_blend_results)
     results_reconstruction["mse"] = mse_results
     results_reconstruction["psnr"] = psnr_results
     results_reconstruction["ssim"] = ssim_results
+    for k in target_meas_keys:
+        results_reconstruction[k] = [target_meas_results[i][k] for i in range(len(blend_list))]
     return results_reconstruction
 
 
@@ -184,6 +216,7 @@ def compute_metrics(
     deblended_images=None,
     use_metrics=("detection", "segmentation", "reconstruction"),
     meas_band_num=0,
+    target_meas={},
 ):
     results = {}
     matches = [
@@ -212,9 +245,10 @@ def compute_metrics(
             detection_catalogs,
             deblended_images,
             matches,
+            target_meas,
         )
     names = blend_list[0].colnames
-    names += ["detected", "distance_detection", "distance_closest_galaxy"]
+    names += ["detected", "distance_detection", "distance_closest_galaxy", "blend_id"]
     if "reconstruction" in use_metrics:
         names += ["mse", "psnr", "ssim"]
     if "segmentation" in use_metrics:
@@ -237,6 +271,7 @@ def compute_metrics(
                 )[1]
             else:
                 row["distance_closest_galaxy"] = 32  # placeholder
+            row["blend_id"] = i
             if "reconstruction" in use_metrics:
                 row["mse"] = results["reconstruction"]["mse"][i][j]
                 row["psnr"] = results["reconstruction"]["psnr"][i][j]
@@ -251,10 +286,13 @@ def compute_metrics(
 class MetricsGenerator:
     """Generator that calculates metrics on batches returned by the MeasureGenerator."""
 
-    def __init__(self, measure_generator, use_metrics=("detection"), meas_band_num=0):
+    def __init__(
+        self, measure_generator, use_metrics=("detection"), meas_band_num=0, target_meas={}
+    ):
         self.measure_generator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
+        self.target_meas = target_meas
 
     def __next__(self):
         blend_results, measure_results = next(self.measure_generator)
@@ -271,6 +309,7 @@ class MetricsGenerator:
                     measure_results[f]["deblended_images"],
                     self.use_metrics,
                     self.meas_band_num,
+                    self.target_meas,
                 )
                 metrics_results[f] = metrics_results_f
 
@@ -284,6 +323,7 @@ class MetricsGenerator:
                 measure_results["deblended_images"],
                 self.use_metrics,
                 self.meas_band_num,
+                self.target_meas,
             )
 
         return blend_results, measure_results, metrics_results
