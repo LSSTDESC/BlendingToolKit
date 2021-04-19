@@ -248,7 +248,13 @@ def compute_metrics(
             target_meas,
         )
     names = blend_list[0].colnames
-    names += ["detected", "distance_detection", "distance_closest_galaxy", "blend_id"]
+    names += [
+        "detected",
+        "distance_detection",
+        "distance_closest_galaxy",
+        "blend_id",
+        "blendedness",
+    ]
     if "reconstruction" in use_metrics:
         names += ["mse", "psnr", "ssim"]
     if "segmentation" in use_metrics:
@@ -272,6 +278,9 @@ def compute_metrics(
             else:
                 row["distance_closest_galaxy"] = 32  # placeholder
             row["blend_id"] = i
+            row["blendedness"] = 1 - np.sum(isolated_images[i][j] * isolated_images[i][j]) / np.sum(
+                np.sum(isolated_images[i], axis=0) * isolated_images[i][j]
+            )
             if "reconstruction" in use_metrics:
                 row["mse"] = results["reconstruction"]["mse"][i][j]
                 row["psnr"] = results["reconstruction"]["psnr"][i][j]
