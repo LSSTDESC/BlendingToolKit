@@ -90,13 +90,19 @@ def get_detection_match(true_table, detected_table):
 
 
 def detection_metrics(blend_list, detection_catalogs, matches):
-    """Calculate common detection metrics (f1-score, precision, recall) based on matches.
+    """Calculate detection metrics based on matches from `get_detection_match` function.
+
+    Currently implemente detection metrics include:
+        - recall
+        - precision
+        - f1
 
     NOTE: This function operates directly on batches returned from MeasureGenerator.
 
     Returns:
-        results_detection (dict): Dictionary containing keys "f1", "precision", and "recall".
-            Each value is a list where each element corresponds to each element of the batch.
+        results_detection (dict): Dictionary containing keys corresponding to each implemented
+            metric. Each value is a list where each element corresponds to each element of
+            the batch (a single blend).
     """
     results_detection = {}
     precision = []
@@ -137,6 +143,11 @@ def segmentation_metrics(
     matches,
     meas_band_num,
 ):
+    """Calculate segmentation metrics given information from a single batch.
+
+    Currently implemented segmentation metrics include:
+        - Intersection-over-Union (IOU)
+    """
     results_segmentation = {}
     iou_results = []
     for i in range(len(blend_list)):
@@ -167,6 +178,13 @@ def reconstruction_metrics(
     matches,
     target_meas={},
 ):
+    """Calculate reconstruction metrics given information from a single batch.
+
+    Currently implemented reconstruction metrics include:
+        - Mean Squared Error (MSE)
+        - Peak Signal-to-Noise Ratio (PSNR)
+        - Structural Similarity (SSIM)
+    """
     results_reconstruction = {}
     mse_results = []
     psnr_results = []
@@ -363,3 +381,8 @@ class MetricsGenerator:
             )
 
         return blend_results, measure_results, metrics_results
+
+
+def run_metrics(metrics_generator, n_batches=100):
+    """Uses a `metrics_generator` objec to summarize metrics results for `n_batches` batches."""
+    pass
