@@ -217,10 +217,11 @@ class MeasureGenerator:
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
-            draw_blend_generator output from `__next__` method.
-            measurement_results: List of length `batch_size`, where each element is a list of
-                                `len(measure_functions)` corresponding to the measurements made by
-                                each function on each element of the batch.
+            draw_blend_generator output from its `__next__` method.
+            measurement_results (dict): Dictionary with keys being the name of each
+                `measure_function` passed in. Each value is a dictionary containing keys
+                `catalog`, `deblended_images`, and `segmentation` storing the values returned by
+                the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
         input_args = ((blend_output, i) for i in range(self.batch_size))

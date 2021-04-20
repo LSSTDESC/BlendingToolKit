@@ -5,28 +5,52 @@ import numpy as np
 import skimage.metrics
 from scipy.optimize import linear_sum_assignment
 
+from btk.measure import MeasureGenerator
 from btk.survey import get_mean_sky_level
 
 
-def meas_ellipticity(image, additional_params):
+def get_blendedness(iso_image, blend_iso_images):
+    """Calculate blendedness.
+
+    Args:
+        iso_image (np.array): Array of shape = (H,W) corresponding to image of the isolated
+            galaxy you are calculating blendedness for.
+        blend_iso_images (np.array): Array of shape = (N, H, W) where N is the number of galaxies
+            in the blend and each image of this array corresponds to an isolated galaxy that is
+            part of the blend (includes `iso_image`).
+    """
+    num = 1 - np.sum(iso_image * iso_image)
+    denom = np.sum(np.sum(blend_iso_images, axis=0) * iso_image)
+    return num / denom
+
+
+def meas_ellipticity(image, additional_params, shear_est="KSB"):
+    """Utility function to measure ellipticity using the `galsim.hsm` package.
+
+    Args:
+        image (np.array): Image of a single, isolated galaxy with shape (H, W).
+        additional_params (dict): Containing keys 'psf', 'pixel_scale' and 'meas_band_num'.
+        shear_est (str): Which shear estimator to use in `galsim.hsm.EstimateShear` function.
+
+    """
     psf_image = galsim.Image(image.shape[1], image.shape[2])
     psf_image = additional_params["psf"].drawImage(psf_image)
     pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
-    shear_est = "KSB"
     try:
         res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
-        result = [res.corrected_g1, res.corrected_g2]
+        result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
     except RuntimeError as e:
         print(e)
-        result = [10.0, 10.0]
+        result = [10.0, 10.0, 10.0]
     return result
 
 
 def get_detection_match(true_table, detected_table):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
+
     The optimal matching is computed based on the following optimization problem:
     ```
         \sum_{i} \sum_{j} C_{i,j} X_{i,j}
@@ -46,7 +70,7 @@ def get_detection_match(true_table, detected_table):
 
     Returns:
         match_table (astropy.table.Table): Table where each row corresponds to each true
-            galaxy in `true_table` containing two columns:
+            galaxy in `true_table` and contains two columns:
                 - "match_detected_id": Index of row in `detected_table` corresponding to
                     matched detected object. If no match, value is -1.
                 - "dist": distance between true object and matched object or 0 if no matches.
@@ -54,7 +78,7 @@ def get_detection_match(true_table, detected_table):
     match_table = astropy.table.Table()
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
     t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
-    dist = np.hypot(t_x, t_y)  # dist_ij = distance between true object i and detected object j.
+    dist = np.hypot(t_x, t_y)  # dist[i][j] = distance between true object i and detected object j.
 
     # solve optimization problem.
     # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
@@ -74,14 +98,20 @@ def get_detection_match(true_table, detected_table):
     return match_table
 
 
-def detection_metrics(blended_images, isolated_images, blend_list, detection_catalogs, matches):
-    """Calculate common detection metrics (f1-score, precision, recall) based on matches.
+def detection_metrics(blend_list, detection_catalogs, matches):
+    """Calculate detection metrics based on matches from `get_detection_match` function.
+
+    Currently implemente detection metrics include:
+        - recall
+        - precision
+        - f1
 
     NOTE: This function operates directly on batches returned from MeasureGenerator.
 
     Returns:
-        results_detection (dict): Dictionary containing keys "f1", "precision", and "recall".
-            Each value is a list where each element corresponds to each element of the batch.
+        results_detection (dict): Dictionary containing keys corresponding to each implemented
+            metric. Each value is a list where each element corresponds to each element of
+            the batch (a single blend).
     """
     results_detection = {}
     precision = []
@@ -116,15 +146,18 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
 
 
 def segmentation_metrics(
-    blended_images,
     isolated_images,
     blend_list,
-    detection_catalogs,
     segmentations,
     matches,
     noise_threshold,
     meas_band_num,
 ):
+    """Calculate segmentation metrics given information from a single batch.
+
+    Currently implemented segmentation metrics include:
+        - Intersection-over-Union (IOU)
+    """
     results_segmentation = {}
     iou_results = []
     for i in range(len(blend_list)):
@@ -149,7 +182,6 @@ def reconstruction_metrics(
     blended_images,
     isolated_images,
     blend_list,
-    detection_catalogs,
     deblended_images,
     matches,
     meas_band_num=0,
@@ -157,6 +189,13 @@ def reconstruction_metrics(
     psf_images=None,
     pixel_scale=None,
 ):
+    """Calculate reconstruction metrics given information from a single batch.
+
+    Currently implemented reconstruction metrics include:
+        - Mean Squared Error (MSE)
+        - Peak Signal-to-Noise Ratio (PSNR)
+        - Structural Similarity (SSIM)
+    """
     results_reconstruction = {}
     mse_results = []
     psnr_results = []
@@ -254,24 +293,22 @@ def compute_metrics(
     target_meas={},
     psf_images=None,
     pixel_scale=None,
+    blend_id_start=0,
 ):
+    """Computes all requested metrics given information in a single batch from measure_generator."""
     results = {}
     matches = [
         get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
     ]
     results["matches"] = matches
     if "detection" in use_metrics:
-        results["detection"] = detection_metrics(
-            blended_images, isolated_images, blend_list, detection_catalogs, matches
-        )
+        results["detection"] = detection_metrics(blend_list, detection_catalogs, matches)
     if "segmentation" in use_metrics:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
         results["segmentation"] = segmentation_metrics(
-            blended_images,
             isolated_images,
             blend_list,
-            detection_catalogs,
             segmentations,
             matches,
             noise_threshold,
@@ -282,7 +319,6 @@ def compute_metrics(
             blended_images,
             isolated_images,
             blend_list,
-            detection_catalogs,
             deblended_images,
             matches,
             meas_band_num,
@@ -309,22 +345,20 @@ def compute_metrics(
             row = astropy.table.Table(gal)
             row["detected"] = matches[i]["match_detected_id"][j] != -1
             row["distance_detection"] = matches[i]["dist"][j]
+
+            # obtain distance to closest galaxy in the blend
             if len(blend) > 1:
-                row["distance_closest_galaxy"] = np.partition(
-                    [
-                        np.sqrt(
-                            (gal["x_peak"] - g["x_peak"]) ** 2 + (gal["y_peak"] - g["y_peak"]) ** 2
-                        )
-                        for g in blend
-                    ],
-                    1,
-                )[1]
+                dists = []
+                for g in blend:
+                    dx = gal["x_peak"] - g["x_peak"]
+                    dy = gal["y_peak"] - g["y_peak"]
+                    dists.append(np.hypot(dx, dy))
+                row["distance_closest_galaxy"] = np.partition(dists, 1)[1]
             else:
-                row["distance_closest_galaxy"] = 32  # placeholder
-            row["blend_id"] = i
-            row["blendedness"] = 1 - np.sum(isolated_images[i][j] * isolated_images[i][j]) / np.sum(
-                np.sum(isolated_images[i], axis=0) * isolated_images[i][j]
-            )
+                row["distance_closest_galaxy"] = -1  # placeholder
+
+            row["blend_id"] = i + blend_id_start
+            row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
             if "reconstruction" in use_metrics:
                 for k in reconstruction_keys:
                     print(results["reconstruction"][k][i])
@@ -340,14 +374,32 @@ class MetricsGenerator:
     """Generator that calculates metrics on batches returned by the MeasureGenerator."""
 
     def __init__(
-        self, measure_generator, use_metrics=("detection"), meas_band_num=0, target_meas={}
+        self,
+        measure_generator,
+        use_metrics=("detection"),
+        meas_band_num=0,
+        target_meas={},
     ):
-        self.measure_generator = measure_generator
+        """Initialize metrics generator.
+
+        Args:
+            measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
+            use_metrics (tuple): Which metrics do you want to use? Options:
+                - "detection"
+                - "segmentation"
+                - "reconstruction"
+            meas_band_num (int): If using multiple bands for each blend,
+                which band index do you want to use for measurement?
+            target_meas (dict): [FILL OUT]
+        """
+        self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
+        self.blend_counter = 0
 
     def __next__(self):
+        """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         survey = self.measure_generator.draw_blend_generator.surveys[0]
         noise_threshold = get_mean_sky_level(survey, survey.filters[self.meas_band_num])
@@ -368,6 +420,7 @@ class MetricsGenerator:
                     self.target_meas,
                     blend_results["psf"],
                     survey.pixel_scale,
+                    blend_id_start=self.blend_counter,
                 )
                 metrics_results[f] = metrics_results_f
 
@@ -385,6 +438,21 @@ class MetricsGenerator:
                 self.target_meas,
                 blend_results["psf"],
                 survey.pixel_scale,
+                blend_id_start=self.blend_counter,
             )
 
+        self.blend_counter += len(blend_results["blend_list"])
         return blend_results, measure_results, metrics_results
+
+
+def run_metrics(metrics_generator: MetricsGenerator, n_batches=100):
+    """Uses a `metrics_generator` objec to summarize metrics results for `n_batches` batches."""
+    measure_funcs = metrics_generator.measure_generator.measure_functions
+    summary_tables = {f: astropy.table.Table() for f in measure_funcs}
+    for i in range(n_batches):
+        blend_results, measure_results, metrics_results = next(metrics_generator)
+        for f in measure_funcs:
+            summary_tables[f] = astropy.table.vstack(
+                summary_tables[f], metrics_results["galaxy_summary"]
+            )
+    return summary_tables
