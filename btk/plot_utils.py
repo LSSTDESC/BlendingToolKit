@@ -446,6 +446,12 @@ def plot_metrics_correlation(
         plt.imshow(
             heatmap.T, extent=extent, origin="lower", aspect="auto", label=metric_y_name, cmap="hot"
         )
+    elif style == "truth":
+        heatmap, xedges, yedges = np.histogram2d(metric_x, metric_y, bins=50)
+        extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+        plt.imshow(heatmap.T, extent=extent, origin="lower", label=metric_y_name, cmap="Greens")
+        x = np.linspace(np.min(metric_x), np.max(metric_x), 10)
+        plt.plot(x, x, linestyle="--", color="black")
     elif style == "scatter":
         plt.scatter(metric_x, metric_y, label=metric_y_name)
         plt.legend()
