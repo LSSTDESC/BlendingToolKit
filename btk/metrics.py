@@ -6,6 +6,21 @@ import skimage.metrics
 from scipy.optimize import linear_sum_assignment
 
 
+def get_blendedness(iso_image, blend_iso_images):
+    """Calculate blendedness.
+
+    Args:
+        iso_image (np.array): Array of shape = (H,W) corresponding to image of the isolated
+            galaxy you are calculating blendedness for.
+        blend_iso_images (np.array): Array of shape = (N, H, W) where N is the number of galaxies
+            in the blend and each image of this array corresponds to an isolated galaxy that is
+            part of the blend (includes `iso_image`).
+    """
+    num = 1 - np.sum(iso_image * iso_image)
+    denom = np.sum(np.sum(blend_iso_images, axis=0) * iso_image)
+    return num / denom
+
+
 def meas_ellipticity(image, additional_params):
     psf_image = additional_params["psf"]
     pixel_scale = additional_params["pixel_scale"]
@@ -38,7 +53,7 @@ def get_detection_match(true_table, detected_table):
 
     Returns:
         match_table (astropy.table.Table): Table where each row corresponds to each true
-            galaxy in `true_table` containing two columns:
+            galaxy in `true_table` and contains two columns:
                 - "match_detected_id": Index of row in `detected_table` corresponding to
                     matched detected object. If no match, value is -1.
                 - "dist": distance between true object and matched object or 0 if no matches.
@@ -265,22 +280,20 @@ def compute_metrics(
             row = astropy.table.Table(gal)
             row["detected"] = matches[i]["match_detected_id"][j] != -1
             row["distance_detection"] = matches[i]["dist"][j]
+
+            # obtain distance to closest galaxy in the blend
             if len(blend) > 1:
-                row["distance_closest_galaxy"] = np.partition(
-                    [
-                        np.sqrt(
-                            (gal["x_peak"] - g["x_peak"]) ** 2 + (gal["y_peak"] - g["y_peak"]) ** 2
-                        )
-                        for g in blend
-                    ],
-                    1,
-                )[1]
+                dists = []
+                for g in blend:
+                    dx = gal["x_peak"] - g["x_peak"]
+                    dy = gal["y_Peak"] - g["y_peak"]
+                    dists.append(np.hypot(dx, dy))
+                row["distance_closest_galaxy"] = np.partition(dists, 1)[1]
             else:
-                row["distance_closest_galaxy"] = 32  # placeholder
+                row["distance_closest_galaxy"] = -1  # placeholder
+
             row["blend_id"] = i
-            row["blendedness"] = 1 - np.sum(isolated_images[i][j] * isolated_images[i][j]) / np.sum(
-                np.sum(isolated_images[i], axis=0) * isolated_images[i][j]
-            )
+            row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
             if "reconstruction" in use_metrics:
                 row["mse"] = results["reconstruction"]["mse"][i][j]
                 row["psnr"] = results["reconstruction"]["psnr"][i][j]
