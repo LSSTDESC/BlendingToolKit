@@ -21,19 +21,27 @@ def get_blendedness(iso_image, blend_iso_images):
     return num / denom
 
 
-def meas_ellipticity(image, additional_params):
+def meas_ellipticity(image, additional_params, shear_est="KSB"):
+    """Utility function to measure ellipticity using the `galsim.hsm` package.
+
+    Args:
+        image (np.array): Image of a single, isolated galaxy with shape (H, W).
+        additional_params (dict): Containing keys 'psf', 'pixel_scale' and 'meas_band_num'.
+        shear_est (str): Which shear estimator to use in `galsim.hsm.EstimateShear` function.
+
+    """
     psf_image = additional_params["psf"]
     pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
     gal_image = galsim.Image(image[:, :, meas_band_num])
     gal_image.scale = pixel_scale
-    shear_est = "KSB"
     res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
     return [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
 
 
 def get_detection_match(true_table, detected_table):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
+
     The optimal matching is computed based on the following optimization problem:
     ```
         \sum_{i} \sum_{j} C_{i,j} X_{i,j}
@@ -61,7 +69,7 @@ def get_detection_match(true_table, detected_table):
     match_table = astropy.table.Table()
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
     t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
-    dist = np.hypot(t_x, t_y)  # dist_ij = distance between true object i and detected object j.
+    dist = np.hypot(t_x, t_y)  # dist[i][j] = distance between true object i and detected object j.
 
     # solve optimization problem.
     # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
@@ -81,7 +89,7 @@ def get_detection_match(true_table, detected_table):
     return match_table
 
 
-def detection_metrics(blended_images, isolated_images, blend_list, detection_catalogs, matches):
+def detection_metrics(blend_list, detection_catalogs, matches):
     """Calculate common detection metrics (f1-score, precision, recall) based on matches.
 
     NOTE: This function operates directly on batches returned from MeasureGenerator.
@@ -123,10 +131,8 @@ def detection_metrics(blended_images, isolated_images, blend_list, detection_cat
 
 
 def segmentation_metrics(
-    blended_images,
     isolated_images,
     blend_list,
-    detection_catalogs,
     segmentations,
     matches,
     meas_band_num,
@@ -157,7 +163,6 @@ def reconstruction_metrics(
     blended_images,
     isolated_images,
     blend_list,
-    detection_catalogs,
     deblended_images,
     matches,
     target_meas={},
@@ -233,21 +238,18 @@ def compute_metrics(
     meas_band_num=0,
     target_meas={},
 ):
+    """Computes all requested metrics given information in a single batch from measure_generator."""
     results = {}
     matches = [
         get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
     ]
     results["matches"] = matches
     if "detection" in use_metrics:
-        results["detection"] = detection_metrics(
-            blended_images, isolated_images, blend_list, detection_catalogs, matches
-        )
+        results["detection"] = detection_metrics(blend_list, detection_catalogs, matches)
     if "segmentation" in use_metrics:
         results["segmentation"] = segmentation_metrics(
-            blended_images,
             isolated_images,
             blend_list,
-            detection_catalogs,
             segmentations,
             matches,
             meas_band_num,
@@ -257,7 +259,6 @@ def compute_metrics(
             blended_images,
             isolated_images,
             blend_list,
-            detection_catalogs,
             deblended_images,
             matches,
             target_meas,
@@ -311,12 +312,25 @@ class MetricsGenerator:
     def __init__(
         self, measure_generator, use_metrics=("detection"), meas_band_num=0, target_meas={}
     ):
+        """Initialize metrics generator.
+
+        Args:
+            measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
+            use_metrics (tuple): Which metrics do you want to use? Options:
+                - "detection"
+                - "segmentation"
+                - "reconstruction"
+            meas_band_num (int): If using multiple bands for each blend,
+                which band index do you want to use for measurement?
+            target_meas (dict): FILL OUT
+        """
         self.measure_generator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
 
     def __next__(self):
+        """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         if "catalog" not in measure_results.keys():
             meas_func = measure_results.keys()
