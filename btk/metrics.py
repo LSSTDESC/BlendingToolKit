@@ -5,6 +5,8 @@ import numpy as np
 import skimage.metrics
 from scipy.optimize import linear_sum_assignment
 
+from btk.measure import MeasureGenerator
+
 
 def get_blendedness(iso_image, blend_iso_images):
     """Calculate blendedness.
@@ -255,6 +257,7 @@ def compute_metrics(
     use_metrics=("detection", "segmentation", "reconstruction"),
     meas_band_num=0,
     target_meas={},
+    blend_id_start=0,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator."""
     results = {}
@@ -311,7 +314,7 @@ def compute_metrics(
             else:
                 row["distance_closest_galaxy"] = -1  # placeholder
 
-            row["blend_id"] = i
+            row["blend_id"] = i + blend_id_start
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
             if "reconstruction" in use_metrics:
                 row["mse"] = results["reconstruction"]["mse"][i][j]
@@ -328,7 +331,11 @@ class MetricsGenerator:
     """Generator that calculates metrics on batches returned by the MeasureGenerator."""
 
     def __init__(
-        self, measure_generator, use_metrics=("detection"), meas_band_num=0, target_meas={}
+        self,
+        measure_generator,
+        use_metrics=("detection"),
+        meas_band_num=0,
+        target_meas={},
     ):
         """Initialize metrics generator.
 
@@ -340,12 +347,13 @@ class MetricsGenerator:
                 - "reconstruction"
             meas_band_num (int): If using multiple bands for each blend,
                 which band index do you want to use for measurement?
-            target_meas (dict): FILL OUT
+            target_meas (dict): [FILL OUT]
         """
-        self.measure_generator = measure_generator
+        self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
+        self.blend_counter = 0
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -364,6 +372,7 @@ class MetricsGenerator:
                     self.use_metrics,
                     self.meas_band_num,
                     self.target_meas,
+                    blend_id_start=self.blend_counter,
                 )
                 metrics_results[f] = metrics_results_f
 
@@ -378,11 +387,21 @@ class MetricsGenerator:
                 self.use_metrics,
                 self.meas_band_num,
                 self.target_meas,
+                blend_id_start=self.blend_counter,
             )
 
+        self.blend_counter += len(blend_results["blend_list"])
         return blend_results, measure_results, metrics_results
 
 
-def run_metrics(metrics_generator, n_batches=100):
+def run_metrics(metrics_generator: MetricsGenerator, n_batches=100):
     """Uses a `metrics_generator` objec to summarize metrics results for `n_batches` batches."""
-    pass
+    measure_funcs = metrics_generator.measure_generator.measure_functions
+    summary_tables = {f: astropy.table.Table() for f in measure_funcs}
+    for i in range(n_batches):
+        blend_results, measure_results, metrics_results = next(metrics_generator)
+        for f in measure_funcs:
+            summary_tables[f] = astropy.table.vstack(
+                summary_tables[f], metrics_results["galaxy_summary"]
+            )
+    return summary_tables
