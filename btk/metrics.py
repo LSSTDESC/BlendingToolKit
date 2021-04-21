@@ -282,31 +282,31 @@ def compute_metrics(  # noqa: C901
                                  by dim_order.
         isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
                                   depending on dim_order, with M the maximum number of galaxies
-                                  in a blend
+                                  in a blend.
         blend_list (list) : Contains the information related to all blends, as a list of astropy
                             Tables (one for each blend). Those tables should at least
                             contain columns indicating the position in pixels of each galaxy,
-                            named "x_peak" and "y_peak"
+                            named "x_peak" and "y_peak".
         detection_catalogs (list) : Contains the information on the detections for all blends, as a
                                     list of astropy Tables (one for each blend). Those tables
                                     should at least contain columns indicating the position
-                                    in pixels of each detected galaxy, named "x_peak" and "y_peak"
+                                    in pixels of each detected galaxy, named "x_peak" and "y_peak".
         segmentations (list) : Contains the measured segmentations, as a list of boolean arrays of
                                shape MHW where M is the number of detected objects (must be
-                               consistent with corresponding detection catalog)
+                               consistent with corresponding detection catalog).
         deblended_images (list) : Contains the deblended images, as a list of arrays of shape NCHW
                                 or NHWC depending on dim_order, where N is the number of detected
                                 objects (must be consistent with corresponding detection catalogs
         use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
-                              "segmentation" and "reconstruction"
+                              "segmentation" and "reconstruction".
         noise_threshold (float) : Threshold to use when computing the true segmentations from
-                                  isolated images
-        meas_band_num (int) : Indicates in which band some of the measurements should be carried
+                                  isolated images.
+        meas_band_num (int) : Indicates in which band some of the measurements should be done.
         target_meas (dict) : Contains functions measuring target parameters on images, which will
                              be returned for both isolated and deblended images to compare.
         blend_id_start (int): At what index to start counting each blend.
         dim_order (str) : Indicates whether the images should be channels first (NCHW)
-                          or channels last (NHWC)
+                          or channels last (NHWC).
 
     Returns;
         results (dict) : Contains all the computed metrics. Entries are :
