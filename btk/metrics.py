@@ -19,9 +19,9 @@ def get_blendedness(iso_image, blend_iso_images):
             in the blend and each image of this array corresponds to an isolated galaxy that is
             part of the blend (includes `iso_image`).
     """
-    num = 1 - np.sum(iso_image * iso_image)
+    num = np.sum(iso_image * iso_image)
     denom = np.sum(np.sum(blend_iso_images, axis=0) * iso_image)
-    return num / denom
+    return 1 - num / denom
 
 
 def meas_ellipticity(image, additional_params, shear_est="KSB"):
@@ -189,6 +189,13 @@ def reconstruction_metrics(
     psnr_results = []
     ssim_results = []
     target_meas_keys = list(target_meas.keys())
+    for k in target_meas.keys():
+        res_0 = target_meas[k](isolated_images[0][0])
+        if isinstance(res_0, list):
+            target_meas_keys.remove(k)
+            for j in range(len(res_0)):
+                target_meas_keys.append(k + str(j))
+
     target_meas_results = []
 
     for i in range(len(blend_list)):
@@ -222,25 +229,17 @@ def reconstruction_metrics(
                     )
                 )
                 for k in target_meas.keys():
-                    res_isolated = target_meas[k](isolated_images[i][j])
                     res_deblended = target_meas[k](deblended_images[i][match_detected])
+                    res_isolated = target_meas[k](isolated_images[i][j])
                     if isinstance(res_isolated, list):
-                        if k in target_meas_keys:
-                            target_meas_keys.remove(k)
-                            target_meas_blend_results.pop(k, None)
-                            target_meas_blend_results.pop(k + "_true", None)
                         for res in range(len(res_isolated)):
-                            if k + str(res) not in target_meas_keys:
-                                target_meas_blend_results[k + str(res)] = []
-                                target_meas_blend_results[k + str(res) + "_true"] = []
-                                target_meas_keys.append(k + str(res))
+                            target_meas_blend_results[k + str(res)].append(res_deblended[res])
                             target_meas_blend_results[k + str(res) + "_true"].append(
                                 res_isolated[res]
                             )
-                            target_meas_blend_results[k + str(res)].append(res_deblended[res])
                     else:
-                        target_meas_blend_results[k + "_true"].append(res_isolated)
                         target_meas_blend_results[k].append(res_deblended)
+                        target_meas_blend_results[k + "_true"].append(res_isolated)
             else:
                 mse_blend_results.append(-1)
                 psnr_blend_results.append(-1)
