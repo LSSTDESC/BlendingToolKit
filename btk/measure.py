@@ -89,7 +89,7 @@ def sep_measure(batch, idx):
 
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-    coadd = np.mean(image, axis=0)
+    coadd = np.mean(image, axis=np.argmin(image.shape))  # Smallest dimension is the channels
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
@@ -99,7 +99,11 @@ def sep_measure(batch, idx):
     for i in range(n_objects):
         seg_i = segmentation == i + 1
         segmentation_exp[i] = seg_i
-        deblended_images[i] = image * seg_i[np.newaxis, ...]
+        seg_i_reshaped = np.zeros((np.min(image.shape), stamp_size, stamp_size))
+        for j in range(np.min(image.shape)):
+            seg_i_reshaped[j] = seg_i
+        seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
+        deblended_images[i] = image * seg_i_reshaped
 
     t = astropy.table.Table()
     t["x_peak"] = catalog["x"]
@@ -203,11 +207,13 @@ class MeasureGenerator:
                             f"The output '{key}' of at least one of your measurement"
                             f"functions is not a numpy array."
                         )
-                    if not out[key].shape[-2:] == batch["blend_images"].shape[-2:]:
-                        raise ValueError(
-                            f"The shapes of the blended images in your {key} don't"
-                            f"match for at least one your measurement functions."
-                        )
+                    if key == "deblended_images":
+                        if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
+                            raise ValueError(
+                                f"The shapes of the blended images in your {key} don't "
+                                f"match for at least one your measurement functions."
+                                f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
+                            )
 
             out = {k: out.get(k, None) for k in self.measure_params}
             output.append(out)

@@ -274,8 +274,19 @@ def compute_metrics(
     meas_band_num=0,
     target_meas={},
     blend_id_start=0,
+    dim_order="NCHW",
 ):
-    """Computes all requested metrics given information in a single batch from measure_generator."""
+    """Computes all requested metrics given information in a single batch from measure_generator.
+
+    Args:
+        blended_images (array) : Contains all the blend images, with shape NCHW"""
+    if dim_order == "NHWC":
+        blended_images = np.moveaxis(blended_images, -1, 1)
+        isolated_images = np.moveaxis(isolated_images, -1, 2)
+        if deblended_images is not None:
+            deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
+    elif dim_order != "NCHW":
+        raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
     results = {}
     matches = [
         get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
@@ -405,6 +416,7 @@ class MetricsGenerator:
                     self.meas_band_num,
                     target_meas,
                     blend_id_start=self.blend_counter,
+                    dim_order=self.measure_generator.dim_order,
                 )
                 metrics_results[f] = metrics_results_f
 
@@ -421,6 +433,7 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 blend_id_start=self.blend_counter,
+                dim_order=self.measure_generator.dim_order,
             )
 
         self.blend_counter += len(blend_results["blend_list"])

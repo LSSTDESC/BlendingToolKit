@@ -194,7 +194,7 @@ class DrawBlendsGenerator(ABC):
 
         if dim_order not in ("NCHW", "NHWC"):
             raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
-        self.dim_order = (0, 1, 2) if dim_order == "NCHW" else (1, 2, 0)
+        self.dim_order = dim_order
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -245,9 +245,17 @@ class DrawBlendsGenerator(ABC):
             batch_blend_cat[s.name] = []
             batch_obs_cond[s.name] = []
             image_shape = (
-                len(s.filters),
-                pix_stamp_size,
-                pix_stamp_size,
+                (
+                    len(s.filters),
+                    pix_stamp_size,
+                    pix_stamp_size,
+                )
+                if self.dim_order == "NCHW"
+                else (
+                    pix_stamp_size,
+                    pix_stamp_size,
+                    len(s.filters),
+                )
             )
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
@@ -355,7 +363,7 @@ class DrawBlendsGenerator(ABC):
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
             # transpose if requested.
-            dim_order = np.array(self.dim_order)
+            dim_order = np.array((0, 1, 2) if self.dim_order == "NCHW" else (1, 2, 0))
             blend_image_multi = blend_image_multi.transpose(dim_order)
             iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
