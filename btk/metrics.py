@@ -114,14 +114,11 @@ def detection_metrics(blend_list, detection_catalogs, matches):
             the batch (a single blend).
     """
     results_detection = {}
-    precision = []
-    recall = []
-    f1 = []
+    true_pos = 0
+    false_pos = 0
+    false_neg = 0
     for i in range(len(blend_list)):
         matches_blend = matches[i]["match_detected_id"]
-        true_pos = 0
-        false_pos = 0
-        false_neg = 0
         for match in matches_blend:
             if match == -1:
                 false_neg += 1
@@ -130,18 +127,11 @@ def detection_metrics(blend_list, detection_catalogs, matches):
         for j in range(len(detection_catalogs[i])):
             if j not in matches_blend:
                 false_pos += 1
-        if true_pos + false_pos > 0:
-            precision.append(true_pos / (true_pos + false_pos))
-        else:
-            precision.append(0)
-        recall.append(true_pos / (true_pos + false_neg))
-        if precision[-1] != 0 and recall[-1] != 0:
-            f1.append(2 / (1 / precision[-1] + 1 / recall[-1]))
-        else:
-            f1.append(0)
-    results_detection["precision"] = precision
-    results_detection["recall"] = recall
-    results_detection["f1"] = recall
+    results_detection["precision"] = true_pos / (true_pos + false_pos)
+    results_detection["recall"] = true_pos / (true_pos + false_neg)
+    results_detection["f1"] = 2 / (
+        1 / results_detection["precision"] + 1 / results_detection["recall"]
+    )
     return results_detection
 
 
@@ -361,7 +351,6 @@ def compute_metrics(
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
             if "reconstruction" in use_metrics:
                 for k in reconstruction_keys:
-                    print(results["reconstruction"][k][i])
                     row[k] = results["reconstruction"][k][i][j]
             if "segmentation" in use_metrics:
                 row["iou"] = results["segmentation"]["iou"][i][j]
