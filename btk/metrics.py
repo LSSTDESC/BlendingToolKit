@@ -10,7 +10,7 @@ from btk.survey import get_mean_sky_level
 
 
 def get_blendedness(iso_image, blend_iso_images):
-    """Calculate blendedness.
+    """Calculate blendedness given isolated images of each galaxy in a blend.
 
     Args:
         iso_image (np.array): Array of shape = (H,W) corresponding to image of the isolated
@@ -278,7 +278,8 @@ def compute_metrics(  # noqa: C901
     """Computes all requested metrics given information in a single batch from measure_generator.
 
     Args:
-        blended_images (array) : Contains all the blend images, with shape as specified by dim_order
+        blended_images (array) : Contains all the blend images, with shape as specified
+                                 by dim_order.
         isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
                                   depending on dim_order, with M the maximum number of galaxies
                                   in a blend
@@ -293,8 +294,8 @@ def compute_metrics(  # noqa: C901
         segmentations (list) : Contains the measured segmentations, as a list of boolean arrays of
                                shape MHW where M is the number of detected objects (must be
                                consistent with corresponding detection catalog)
-        deblended_images (list) : Contains the deblended images, as a list of arrays of shape MCHW
-                                or MHWC depending on dim_order, where M is the number of detected
+        deblended_images (list) : Contains the deblended images, as a list of arrays of shape NCHW
+                                or NHWC depending on dim_order, where N is the number of detected
                                 objects (must be consistent with corresponding detection catalogs
         use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
                               "segmentation" and "reconstruction"
@@ -303,7 +304,7 @@ def compute_metrics(  # noqa: C901
         meas_band_num (int) : Indicates in which band some of the measurements should be carried
         target_meas (dict) : Contains functions measuring target parameters on images, which will
                              be returned for both isolated and deblended images to compare.
-        blend_id_start (int):
+        blend_id_start (int): At what index to start counting each blend.
         dim_order (str) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC)
 
@@ -317,7 +318,6 @@ def compute_metrics(  # noqa: C901
                         - galaxy_summary : astropy Table containing all the galaxies from all
                                            blends and related metrics
     """
-
     if dim_order == "NHWC":
         blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
@@ -420,7 +420,9 @@ class MetricsGenerator:
                 - "reconstruction"
             meas_band_num (int): If using multiple bands for each blend,
                 which band index do you want to use for measurement?
-            target_meas (dict): [FILL OUT]
+            target_meas (dict): Dictionary containing functions that can measure a physical
+                parameter on isolated galaxy images. Each key is the name of the estimator and
+                value the function performing the estimation (e.g. `meas_ellipticity` above).
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
