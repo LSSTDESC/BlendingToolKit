@@ -176,8 +176,6 @@ def reconstruction_metrics(
     matches,
     meas_band_num=0,
     target_meas={},
-    psf_images=None,
-    pixel_scale=None,
 ):
     """Calculate reconstruction metrics given information from a single batch.
 
@@ -192,11 +190,7 @@ def reconstruction_metrics(
     ssim_results = []
     target_meas_keys = list(target_meas.keys())
     target_meas_results = []
-    additional_params = {
-        "psf": psf_images[meas_band_num],
-        "pixel_scale": pixel_scale,
-        "meas_band_num": meas_band_num,
-    }
+
     for i in range(len(blend_list)):
         mse_blend_results = []
         psnr_blend_results = []
@@ -228,10 +222,8 @@ def reconstruction_metrics(
                     )
                 )
                 for k in target_meas.keys():
-                    res_isolated = target_meas[k](isolated_images[i][j], additional_params)
-                    res_deblended = target_meas[k](
-                        deblended_images[i][match_detected], additional_params
-                    )
+                    res_isolated = target_meas[k](isolated_images[i][j])
+                    res_deblended = target_meas[k](deblended_images[i][match_detected])
                     if isinstance(res_isolated, list):
                         if k in target_meas_keys:
                             target_meas_keys.remove(k)
@@ -281,8 +273,6 @@ def compute_metrics(
     noise_threshold=None,
     meas_band_num=0,
     target_meas={},
-    psf_images=None,
-    pixel_scale=None,
     blend_id_start=0,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator."""
@@ -313,8 +303,6 @@ def compute_metrics(
             matches,
             meas_band_num,
             target_meas,
-            psf_images,
-            pixel_scale,
         )
     names = blend_list[0].colnames
     names += [
@@ -391,6 +379,15 @@ class MetricsGenerator:
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         survey = self.measure_generator.draw_blend_generator.surveys[0]
+        additional_params = {
+            "psf": blend_results["psf"][self.meas_band_num],
+            "pixel_scale": survey.pixel_scale,
+            "meas_band_num": self.meas_band_num,
+        }
+        target_meas = {}
+        for k in self.target_meas.keys():
+            target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+
         noise_threshold = get_mean_sky_level(survey, survey.filters[self.meas_band_num])
         if "catalog" not in measure_results.keys():
             meas_func = measure_results.keys()
@@ -406,9 +403,7 @@ class MetricsGenerator:
                     self.use_metrics,
                     noise_threshold,
                     self.meas_band_num,
-                    self.target_meas,
-                    blend_results["psf"],
-                    survey.pixel_scale,
+                    target_meas,
                     blend_id_start=self.blend_counter,
                 )
                 metrics_results[f] = metrics_results_f
@@ -424,9 +419,7 @@ class MetricsGenerator:
                 self.use_metrics,
                 noise_threshold,
                 self.meas_band_num,
-                self.target_meas,
-                blend_results["psf"],
-                survey.pixel_scale,
+                target_meas,
                 blend_id_start=self.blend_counter,
             )
 
