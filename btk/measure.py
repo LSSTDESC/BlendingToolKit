@@ -88,7 +88,7 @@ def sep_measure(batch, idx):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
     image = batch["blend_images"][idx]
-    stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
+    stamp_size = image.shape[-2]  # true for channels last or channels first.
     coadd = np.mean(image, axis=0)
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
