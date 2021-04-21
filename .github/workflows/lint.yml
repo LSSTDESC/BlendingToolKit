@@ -31,6 +31,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install poetry
+          pip install poetry-dynamic-versioning
 
       - name: Poetry cache
         uses: actions/cache@v2
