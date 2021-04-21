@@ -58,6 +58,11 @@ wheel = "^0.36.2"
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+
 [tool.black]
 line-length = 100
 target-version = ['py37']
@@ -67,4 +72,4 @@ galsim-hub = ["galsim-hub", "tensorflow"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
