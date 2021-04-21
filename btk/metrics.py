@@ -261,7 +261,7 @@ def reconstruction_metrics(
     return results_reconstruction
 
 
-def compute_metrics(
+def compute_metrics(  # noqa: C901
     blended_images,
     isolated_images,
     blend_list,
@@ -278,7 +278,46 @@ def compute_metrics(
     """Computes all requested metrics given information in a single batch from measure_generator.
 
     Args:
-        blended_images (array) : Contains all the blend images, with shape NCHW"""
+        blended_images (array) : Contains all the blend images, with shape as specified by dim_order
+        isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
+                                  depending on dim_order, with M the maximum number of galaxies
+                                  in a blend
+        blend_list (list) : Contains the information related to all blends, as a list of astropy
+                            Tables (one for each blend). Those tables should at least
+                            contain columns indicating the position in pixels of each galaxy,
+                            named "x_peak" and "y_peak"
+        detection_catalogs (list) : Contains the information on the detections for all blends, as a
+                                    list of astropy Tables (one for each blend). Those tables
+                                    should at least contain columns indicating the position
+                                    in pixels of each detected galaxy, named "x_peak" and "y_peak"
+        segmentations (list) : Contains the measured segmentations, as a list of boolean arrays of
+                               shape MHW where M is the number of detected objects (must be
+                               consistent with corresponding detection catalog)
+        deblended_images (list) : Contains the deblended images, as a list of arrays of shape MCHW
+                                or MHWC depending on dim_order, where M is the number of detected
+                                objects (must be consistent with corresponding detection catalogs
+        use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
+                              "segmentation" and "reconstruction"
+        noise_threshold (float) : Threshold to use when computing the true segmentations from
+                                  isolated images
+        meas_band_num (int) : Indicates in which band some of the measurements should be carried
+        target_meas (dict) : Contains functions measuring target parameters on images, which will
+                             be returned for both isolated and deblended images to compare.
+        blend_id_start (int):
+        dim_order (str) : Indicates whether the images should be channels first (NCHW)
+                          or channels last (NHWC)
+
+    Returns;
+        results (dict) : Contains all the computed metrics. Entries are :
+                        - matches : list of astropy Tables containing the matched detected galaxy
+                                    for each true galaxy
+                        - detection : dict containing the raw results for detection
+                        - segmentation : dict containing the raw results for segmentation
+                        - reconstruction : dict containing the raw results for reconstruction
+                        - galaxy_summary : astropy Table containing all the galaxies from all
+                                           blends and related metrics
+    """
+
     if dim_order == "NHWC":
         blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
@@ -296,6 +335,8 @@ def compute_metrics(
     if "segmentation" in use_metrics:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
+        if segmentations is None:
+            raise ValueError("You should provide segmentations to get segmentation metrics")
         results["segmentation"] = segmentation_metrics(
             isolated_images,
             blend_list,
@@ -305,6 +346,8 @@ def compute_metrics(
             meas_band_num,
         )
     if "reconstruction" in use_metrics:
+        if deblended_images is None:
+            raise ValueError("You should provide deblended images to get reconstruction metrics")
         results["reconstruction"] = reconstruction_metrics(
             blended_images,
             isolated_images,
