@@ -432,7 +432,6 @@ def plot_metrics_correlation(
         metric_y : Contains the data for the y axis
         metric_x_name (str) : name of the x metric
         metric_y_name (str) : name of the y metric
-        bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
         style (str) : Style of the plot, can be "scatter" or "heatmap"
 
