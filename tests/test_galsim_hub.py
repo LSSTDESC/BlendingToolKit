@@ -7,7 +7,7 @@ COSMOS_CATALOG_PATHS = [
 ]
 
 
-def test_draw_galsim_hub():
+def draw_galsim_hub():
     stamp_size = 24.0
     batch_size = 2
     catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
