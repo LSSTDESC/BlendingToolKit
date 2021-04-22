@@ -1,10 +1,12 @@
+from conftest import data_dir
+
 from btk.catalog import CatsimCatalog
 from btk.catalog import CosmosCatalog
 
-CATALOG_PATH = "data/sample_input_catalog.fits"
+CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 COSMOS_CATALOG_PATHS = [
-    "data/cosmos/real_galaxy_catalog_23.5_example.fits",
-    "data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
+    data_dir / "cosmos/real_galaxy_catalog_23.5_example.fits",
+    data_dir / "cosmos/real_galaxy_catalog_23.5_example_fits.fits",
 ]
 
 

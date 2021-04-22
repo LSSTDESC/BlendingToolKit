@@ -1,9 +1,11 @@
+from conftest import data_dir
+
 import btk.draw_blends
 import btk.survey
 
 COSMOS_CATALOG_PATHS = [
-    "data/cosmos/real_galaxy_catalog_23.5_example.fits",
-    "data/cosmos/real_galaxy_catalog_23.5_example_fits.fits",
+    data_dir / "cosmos/real_galaxy_catalog_23.5_example.fits",
+    data_dir / "cosmos/real_galaxy_catalog_23.5_example_fits.fits",
 ]
 
 

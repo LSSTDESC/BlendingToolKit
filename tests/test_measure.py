@@ -1,4 +1,5 @@
 import numpy as np
+from conftest import data_dir
 
 import btk.catalog
 import btk.measure
@@ -10,7 +11,7 @@ def get_meas_generator(meas_function, cpus=1):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
-    catalog_name = "data/sample_input_catalog.fits"
+    catalog_name = data_dir / "sample_input_catalog.fits"
     stamp_size = 24
     survey = btk.survey.Rubin
     shifts = [
