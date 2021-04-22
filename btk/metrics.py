@@ -296,7 +296,7 @@ def compute_metrics(  # noqa: C901
                                consistent with corresponding detection catalog).
         deblended_images (list) : Contains the deblended images, as a list of arrays of shape NCHW
                                 or NHWC depending on dim_order, where N is the number of detected
-                                objects (must be consistent with corresponding detection catalogs
+                                objects (must be consistent with corresponding detection catalogs).
         use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
                               "segmentation" and "reconstruction".
         noise_threshold (float) : Threshold to use when computing the true segmentations from
