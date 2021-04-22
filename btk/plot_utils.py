@@ -381,49 +381,49 @@ def show_scarlet_residual(blend, observation, limits=(30, 90)):
         print("Scarlet is needed to use this function.")
 
 
-def plot_metrics_distribution(metric_array, metric_name, bins=50, upper_quantile=1.0):
+def plot_metrics_distribution(metric_array, metric_name, ax=None, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
     Args:
         metric_array : Contains the data
         metric_name (str) : name of the metric
+        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
     """
+    ax = plt.gca() if ax is None else ax
     quantile = np.quantile(metric_array, upper_quantile)
     metric_array_filtered = metric_array[metric_array <= quantile]
-    plt.hist(metric_array_filtered, bins=bins, label=metric_name)
+    ax.hist(metric_array_filtered, bins=bins, label=metric_name)
     mean = np.mean(metric_array_filtered)
-    plt.axvline(mean, linestyle="--", label="mean", color="blue")
+    ax.axvline(mean, linestyle="--", label="mean", color="blue")
     median = np.median(metric_array_filtered)
-    plt.axvline(median, linestyle="--", label="median", color="red")
-    plt.legend()
-    plt.show()
+    ax.axvline(median, linestyle="--", label="median", color="red")
 
 
-def plot_metrics_comparison(metrics, metric_names, bins=50, upper_quantile=1.0):
+def plot_metrics_comparison(metrics, metric_names, ax=None, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
     Args:
         metrics (list) : Contains the data
         metric_names (list) : names of the metrics
+        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
     """
+    ax = plt.gca() if ax is None else ax
     for i, m in enumerate(metrics):
         quantile = np.quantile(m, upper_quantile)
         m_filtered = m[m <= quantile]
-        plt.hist(m_filtered, bins=bins, label=metric_names[i], alpha=0.6)
+        ax.hist(m_filtered, bins=bins, label=metric_names[i], alpha=0.6)
         mean = np.mean(m_filtered)
-        plt.axvline(mean, linestyle="--", label="mean", color="blue")
+        ax.axvline(mean, linestyle="--", label="mean", color="blue")
         median = np.median(m_filtered)
-        plt.axvline(median, linestyle="--", label="median", color="red")
-    plt.legend()
-    plt.show()
+        ax.axvline(median, linestyle="--", label="median", color="red")
 
 
 def plot_metrics_correlation(
-    metric_x, metric_y, metric_x_name, metric_y_name, upper_quantile=1.0, style="scatter"
+    metric_x, metric_y, metric_x_name, metric_y_name, ax=None, upper_quantile=1.0, style="scatter"
 ):
     """Plot a scatter plot between two quantities.
 
@@ -432,30 +432,30 @@ def plot_metrics_correlation(
         metric_y : Contains the data for the y axis
         metric_x_name (str) : name of the x metric
         metric_y_name (str) : name of the y metric
+        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
         upper_quantile (float) : Quantile from which to cut
         style (str) : Style of the plot, can be "scatter" or "heatmap"
 
     """
+    ax = plt.gca() if ax is None else ax
     quantile = np.quantile(metric_y, upper_quantile)
     metric_x = metric_x[metric_y < quantile]
     metric_y = metric_y[metric_y < quantile]
     if style == "heatmap":
         heatmap, xedges, yedges = np.histogram2d(metric_x, metric_y, bins=50)
         extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-        plt.imshow(
+        ax.imshow(
             heatmap.T, extent=extent, origin="lower", aspect="auto", label=metric_y_name, cmap="hot"
         )
     elif style == "truth":
         heatmap, xedges, yedges = np.histogram2d(metric_x, metric_y, bins=50)
         extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-        plt.imshow(heatmap.T, extent=extent, origin="lower", label=metric_y_name, cmap="Greens")
+        ax.imshow(heatmap.T, extent=extent, origin="lower", label=metric_y_name, cmap="Greens")
         x = np.linspace(np.min(metric_x), np.max(metric_x), 10)
-        plt.plot(x, x, linestyle="--", color="black")
+        ax.plot(x, x, linestyle="--", color="black")
     elif style == "scatter":
-        plt.scatter(metric_x, metric_y, label=metric_y_name)
-        plt.legend()
+        ax.scatter(metric_x, metric_y, label=metric_y_name)
     else:
         raise ValueError("Invalid style")
-    plt.xlabel(metric_x_name)
-    plt.ylabel(metric_y_name)
-    plt.show()
+    ax.set_xlabel(metric_x_name)
+    ax.set_ylabel(metric_y_name)
