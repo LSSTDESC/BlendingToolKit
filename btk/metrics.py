@@ -24,14 +24,16 @@ def get_blendedness(iso_image, blend_iso_images):
     return 1 - num / denom
 
 
-def meas_ellipticity(image, additional_params, shear_est="KSB"):
-    """Utility function to measure ellipticity using the `galsim.hsm` package.
+def meas_ksb_ellipticity(image, additional_params):
+    """Utility function to measure ellipticity using the `galsim.hsm` package, with
+    the KSB method.
 
     Args:
         image (np.array): Image of a single, isolated galaxy with shape (H, W).
         additional_params (dict): Containing keys 'psf', 'pixel_scale' and 'meas_band_num'.
-        shear_est (str): Which shear estimator to use in `galsim.hsm.EstimateShear` function.
-
+                                  The psf should be a Galsim PSF model, and meas_band_num
+                                  an integer indicating the band in which the measurement
+                                  is done.
     """
     psf_image = galsim.Image(image.shape[1], image.shape[2])
     psf_image = additional_params["psf"].drawImage(psf_image)
@@ -39,6 +41,7 @@ def meas_ellipticity(image, additional_params, shear_est="KSB"):
     meas_band_num = additional_params["meas_band_num"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
+    shear_est = "KSB"
     try:
         res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
         result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
@@ -180,12 +183,12 @@ def reconstruction_metrics(
     """Calculate reconstruction metrics given information from a single batch.
 
     Currently implemented reconstruction metrics include:
-        - Mean Squared Error (MSE)
+        - Mean Squared Residual (MSR)
         - Peak Signal-to-Noise Ratio (PSNR)
         - Structural Similarity (SSIM)
     """
     results_reconstruction = {}
-    mse_results = []
+    msr_results = []
     psnr_results = []
     ssim_results = []
     target_meas_keys = list(target_meas.keys())
@@ -199,7 +202,7 @@ def reconstruction_metrics(
     target_meas_results = []
 
     for i in range(len(blend_list)):
-        mse_blend_results = []
+        msr_blend_results = []
         psnr_blend_results = []
         ssim_blend_results = []
         target_meas_blend_results = {}
@@ -209,7 +212,7 @@ def reconstruction_metrics(
         for j in range(len(blend_list[i])):
             match_detected = matches[i]["match_detected_id"][j]
             if match_detected != -1:
-                mse_blend_results.append(
+                msr_blend_results.append(
                     skimage.metrics.mean_squared_error(
                         isolated_images[i][j], deblended_images[i][match_detected]
                     )
@@ -241,16 +244,16 @@ def reconstruction_metrics(
                         target_meas_blend_results[k].append(res_deblended)
                         target_meas_blend_results[k + "_true"].append(res_isolated)
             else:
-                mse_blend_results.append(-1)
+                msr_blend_results.append(-1)
                 psnr_blend_results.append(-1)
                 ssim_blend_results.append(-1)
                 for k in target_meas_blend_results.keys():
                     target_meas_blend_results[k].append(-1)
-        mse_results.append(mse_blend_results)
+        msr_results.append(msr_blend_results)
         psnr_results.append(psnr_blend_results)
         ssim_results.append(ssim_blend_results)
         target_meas_results.append(target_meas_blend_results)
-    results_reconstruction["mse"] = mse_results
+    results_reconstruction["msr"] = msr_results
     results_reconstruction["psnr"] = psnr_results
     results_reconstruction["ssim"] = ssim_results
     for k in target_meas_keys:
@@ -330,6 +333,16 @@ def compute_metrics(  # noqa: C901
         get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
     ]
     results["matches"] = matches
+
+    names = blend_list[0].colnames
+    names += [
+        "detected",
+        "distance_detection",
+        "distance_closest_galaxy",
+        "blend_id",
+        "blendedness",
+    ]
+
     if "detection" in use_metrics:
         results["detection"] = detection_metrics(blend_list, detection_catalogs, matches)
     if "segmentation" in use_metrics:
@@ -345,6 +358,7 @@ def compute_metrics(  # noqa: C901
             noise_threshold,
             meas_band_num,
         )
+        names += ["iou"]
     if "reconstruction" in use_metrics:
         if deblended_images is None:
             raise ValueError("You should provide deblended images to get reconstruction metrics")
@@ -357,19 +371,9 @@ def compute_metrics(  # noqa: C901
             meas_band_num,
             target_meas,
         )
-    names = blend_list[0].colnames
-    names += [
-        "detected",
-        "distance_detection",
-        "distance_closest_galaxy",
-        "blend_id",
-        "blendedness",
-    ]
-    if "reconstruction" in use_metrics:
         reconstruction_keys = results["reconstruction"].keys()
         names += reconstruction_keys
-    if "segmentation" in use_metrics:
-        names += ["iou"]
+
     results["galaxy_summary"] = astropy.table.Table(names=names)
     for i, blend in enumerate(blend_list):
         for j, gal in enumerate(blend):
@@ -390,11 +394,11 @@ def compute_metrics(  # noqa: C901
 
             row["blend_id"] = i + blend_id_start
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
+            if "segmentation" in use_metrics:
+                row["iou"] = results["segmentation"]["iou"][i][j]
             if "reconstruction" in use_metrics:
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
-            if "segmentation" in use_metrics:
-                row["iou"] = results["segmentation"]["iou"][i][j]
             results["galaxy_summary"].add_row(row[0])
 
     return results
