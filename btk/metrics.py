@@ -101,7 +101,7 @@ def get_detection_match(true_table, detected_table):
     return match_table
 
 
-def detection_metrics(blend_list, detection_catalogs, matches):
+def detection_metrics(detection_catalogs, matches):
     """Calculate detection metrics based on matches from `get_detection_match` function.
 
     Currently implemente detection metrics include:
@@ -109,8 +109,12 @@ def detection_metrics(blend_list, detection_catalogs, matches):
         - precision
         - f1
 
-    NOTE: This function operates directly on batches returned from MeasureGenerator.
-
+    Args:
+        detection_catalogs (list) : Contains one astropy Table for each blend,
+                                    corresponding to the detected galaxies.
+        matches (list) : Contains one astropy Table for each blend, with a
+                         column `match_detected_id` containing the index of the
+                         matched detected galaxy for each true galaxy.
     Returns:
         results_detection (dict): Dictionary containing keys corresponding to each implemented
             metric. Each value is a list where each element corresponds to each element of
@@ -120,7 +124,7 @@ def detection_metrics(blend_list, detection_catalogs, matches):
     true_pos = 0
     false_pos = 0
     false_neg = 0
-    for i in range(len(blend_list)):
+    for i in range(len(matches)):
         matches_blend = matches[i]["match_detected_id"]
         for match in matches_blend:
             if match == -1:
@@ -141,6 +145,26 @@ def detection_metrics(blend_list, detection_catalogs, matches):
 def segmentation_metrics_blend(
     isolated_images, detected_segmentations, matches, noise_threshold, meas_band_num
 ):
+    """Calculates segmentation metrics given information from a single blend.
+    The true segmentation is obtained from the isolated images by setting to True
+    the pixels above the noise_threshold in the band meas_band_num.
+
+    Args:
+        isolated_images (array) : Contains the isolated true galaxy images,
+                                  with shape MCHW where M is the number of
+                                  galaxies in the blend.
+        detected_segmentations (array) : Contains the detected segmentations,
+                                         as a boolean array with shape LCHW, where
+                                         L is the number of detected galaxies.
+        matches (astropy.table.Table) : Contains the index of the matching detected
+                                        galaxy for each true galaxy, under the column
+                                        `match_detected_id`.
+        noise_threshold (float) : Threshold for a pixel to be considered belonging to
+                                  an object in the segmentation. Should be based on the
+                                  expected noise level in the full image.
+        meas_band_num  (int) : Index of the band in which the true segmentation is computed.
+
+    """
     iou_blend_results = []
     matches_blend = matches["match_detected_id"]
     for j, match in enumerate(matches_blend):
