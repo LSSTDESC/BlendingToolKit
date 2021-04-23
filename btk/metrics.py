@@ -154,7 +154,7 @@ def segmentation_metrics_blend(
                                   with shape MCHW where M is the number of
                                   galaxies in the blend.
         detected_segmentations (array) : Contains the detected segmentations,
-                                         as a boolean array with shape LCHW, where
+                                         as a boolean array with shape LHW, where
                                          L is the number of detected galaxies.
         matches (astropy.table.Table) : Contains the index of the matching detected
                                         galaxy for each true galaxy, under the column
@@ -162,7 +162,11 @@ def segmentation_metrics_blend(
         noise_threshold (float) : Threshold for a pixel to be considered belonging to
                                   an object in the segmentation. Should be based on the
                                   expected noise level in the full image.
-        meas_band_num  (int) : Index of the band in which the true segmentation is computed.
+        meas_band_num (int) : Index of the band in which the true segmentation is computed.
+
+    Returns:
+        iou_blend_result (list) : Contains the results for the IoU metric for each
+                                  galaxy.
 
     """
     iou_blend_results = []
@@ -182,20 +186,41 @@ def segmentation_metrics_blend(
 
 def segmentation_metrics(
     isolated_images,
-    blend_list,
     segmentations,
     matches,
     noise_threshold,
     meas_band_num,
 ):
-    """Calculate segmentation metrics given information from a single batch.
+    """Calculates segmentation metrics given information from a single batch.
 
     Currently implemented segmentation metrics include:
         - Intersection-over-Union (IOU)
+
+    Args:
+        isolated_images (array) : Contains the isolated true galaxy images,
+                                  with shape NMCHW where M is the maximum number
+                                  of galaxies in the blend and N the number of
+                                  blends in a batch.
+        segmentations (array) : Contains the detected segmentations,
+                                as a boolean array with shape NLHW, where
+                                L is the number of detected galaxies and N
+                                the number of blends in a batch.
+        matches (list) : Contains one astropy Table for each blend, with a
+                         column `match_detected_id` containing the index of the
+                         matched detected galaxy for each true galaxy.
+        noise_threshold (float) : Threshold for a pixel to be considered belonging to
+                                  an object in the segmentation. Should be based on the
+                                  expected noise level in the full image.
+        meas_band_num (int) : Index of the band in which the true segmentation is computed.
+
+    Returns:
+        results_segmentation (astropy.table.Table) : Contains the results for the batch
+                                                     with one column for each metric
+                                                     (currently : "iou" for IoU).
     """
     results_segmentation = {}
     iou_results = []
-    for i in range(len(blend_list)):
+    for i in range(len(isolated_images)):
         iou_blend_results = segmentation_metrics_blend(
             isolated_images[i], segmentations[i], matches[i], noise_threshold, meas_band_num
         )
@@ -207,6 +232,35 @@ def segmentation_metrics(
 def reconstruction_metrics_blend(
     isolated_images, deblended_images, matches, target_meas, target_meas_keys
 ):
+    """Calculates reconstruction metrics given information from a single blend.
+
+    Args:
+        isolated_images (array) : Contains the isolated true galaxy images,
+                                  with shape MCHW where M is the number of
+                                  galaxies in the blend.
+        deblended_images (array) : Contains the deblended images,
+                                   as a boolean array with shape LCHW, where
+                                   L is the number of detected galaxies.
+        matches (astropy.table.Table) : Contains the index of the matching detected
+                                        galaxy for each true galaxy, under the column
+                                        `match_detected_id`.
+        target_meas (dict) : Contains the target measurement functions provided
+                             by the user.
+        target_meas_key (list) : Contains the relevant keys, to manage the case
+                                 where one of the target measurement functions
+                                 has multiple outputs.
+    Returns:
+        msr_blend_result (list) : Contains the results for the Mean Square Residual
+                                  metric for each galaxy.
+        psnr_blend_result (list) : Contains the results for the Peak Signal to Noise
+                                   Ratio metric for each galaxy.
+        ssim_blend_result (list) : Contains the results for the Structure Similarity
+                                   Index metric for each galaxy.
+        target_meas_blend_result (dict) : Contains the results for the target
+                                          measurement function for each galaxy (both
+                                          true and deblended images).
+    """
+
     msr_blend_results = []
     psnr_blend_results = []
     ssim_blend_results = []
@@ -257,9 +311,7 @@ def reconstruction_metrics_blend(
 
 
 def reconstruction_metrics(
-    blended_images,
     isolated_images,
-    blend_list,
     deblended_images,
     matches,
     target_meas={},
@@ -270,6 +322,30 @@ def reconstruction_metrics(
         - Mean Squared Residual (MSR)
         - Peak Signal-to-Noise Ratio (PSNR)
         - Structural Similarity (SSIM)
+
+    Args:
+        isolated_images (array) : Contains the isolated true galaxy images,
+                                  with shape NMCHW where M is the maximum number
+                                  of galaxies in the blend and N the number of
+                                  blends in a batch.
+        deblended_images (array) : Contains the deblended images,
+                                   as an array with shape NLCHW, where
+                                   L is the number of detected galaxies and N
+                                   the number of blends in a batch.
+        matches (list) : Contains one astropy Table for each blend, with a
+                         column `match_detected_id` containing the index of the
+                         matched detected galaxy for each true galaxy.
+        target_meas (dict) : Contains the target measurement functions provided
+                             by the user.
+
+    Returns:
+        results_reconstruction (astropy.table.Table) : Contains the results for the batch
+                                       with one column for each metric (currently : "msr"
+                                       for MSR, "psnr" for PSNR, "ssim" for SSIM, and
+                                       "target_name" and "target_name_true" for each
+                                       function target_name in target_meas (if the
+                                       function has several outputs, a number is added
+                                       after target_name for each output)).
     """
     results_reconstruction = {}
     msr_results = []
@@ -285,7 +361,7 @@ def reconstruction_metrics(
 
     target_meas_results = []
 
-    for i in range(len(blend_list)):
+    for i in range(len(isolated_images)):
         (
             msr_blend_results,
             psnr_blend_results,
@@ -302,9 +378,9 @@ def reconstruction_metrics(
     results_reconstruction["psnr"] = psnr_results
     results_reconstruction["ssim"] = ssim_results
     for k in target_meas_keys:
-        results_reconstruction[k] = [target_meas_results[i][k] for i in range(len(blend_list))]
+        results_reconstruction[k] = [target_meas_results[i][k] for i in range(len(isolated_images))]
         results_reconstruction[k + "_true"] = [
-            target_meas_results[i][k + "_true"] for i in range(len(blend_list))
+            target_meas_results[i][k + "_true"] for i in range(len(isolated_images))
         ]
     return results_reconstruction
 
@@ -389,7 +465,7 @@ def compute_metrics(  # noqa: C901
     ]
 
     if "detection" in use_metrics:
-        results["detection"] = detection_metrics(blend_list, detection_catalogs, matches)
+        results["detection"] = detection_metrics(detection_catalogs, matches)
     if "segmentation" in use_metrics:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
@@ -397,7 +473,6 @@ def compute_metrics(  # noqa: C901
             raise ValueError("You should provide segmentations to get segmentation metrics")
         results["segmentation"] = segmentation_metrics(
             isolated_images,
-            blend_list,
             segmentations,
             matches,
             noise_threshold,
@@ -408,9 +483,7 @@ def compute_metrics(  # noqa: C901
         if deblended_images is None:
             raise ValueError("You should provide deblended images to get reconstruction metrics")
         results["reconstruction"] = reconstruction_metrics(
-            blended_images,
             isolated_images,
-            blend_list,
             deblended_images,
             matches,
             target_meas,
