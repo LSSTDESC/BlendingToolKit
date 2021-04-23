@@ -138,6 +138,24 @@ def detection_metrics(blend_list, detection_catalogs, matches):
     return results_detection
 
 
+def segmentation_metrics_blend(
+    isolated_images, detected_segmentations, matches, noise_threshold, meas_band_num
+):
+    iou_blend_results = []
+    matches_blend = matches["match_detected_id"]
+    for j, match in enumerate(matches_blend):
+        if match != -1:
+            true_segmentation = isolated_images[j][meas_band_num] > noise_threshold
+            detected_segmentation = detected_segmentations[match]
+            iou_blend_results.append(
+                np.sum(np.logical_and(true_segmentation, detected_segmentation))
+                / np.sum(np.logical_or(true_segmentation, detected_segmentation))
+            )
+        else:
+            iou_blend_results.append(-1)
+    return iou_blend_results
+
+
 def segmentation_metrics(
     isolated_images,
     blend_list,
@@ -154,21 +172,64 @@ def segmentation_metrics(
     results_segmentation = {}
     iou_results = []
     for i in range(len(blend_list)):
-        iou_blend_results = []
-        matches_blend = matches[i]["match_detected_id"]
-        for j, match in enumerate(matches_blend):
-            if match != -1:
-                true_segmentation = isolated_images[i][j][meas_band_num] > noise_threshold
-                detected_segmentation = segmentations[i][match]
-                iou_blend_results.append(
-                    np.sum(np.logical_and(true_segmentation, detected_segmentation))
-                    / np.sum(np.logical_or(true_segmentation, detected_segmentation))
-                )
-            else:
-                iou_blend_results.append(-1)
+        iou_blend_results = segmentation_metrics_blend(
+            isolated_images[i], segmentations[i], matches[i], noise_threshold, meas_band_num
+        )
         iou_results.append(iou_blend_results)
     results_segmentation["iou"] = iou_results
     return results_segmentation
+
+
+def reconstruction_metrics_blend(
+    isolated_images, deblended_images, matches, target_meas, target_meas_keys
+):
+    msr_blend_results = []
+    psnr_blend_results = []
+    ssim_blend_results = []
+    target_meas_blend_results = {}
+    for k in target_meas_keys:
+        target_meas_blend_results[k] = []
+        target_meas_blend_results[k + "_true"] = []
+    for j in range(len(matches["match_detected_id"])):
+        match_detected = matches["match_detected_id"][j]
+        if match_detected != -1:
+            msr_blend_results.append(
+                skimage.metrics.mean_squared_error(
+                    isolated_images[j], deblended_images[match_detected]
+                )
+            )
+            psnr_blend_results.append(
+                skimage.metrics.peak_signal_noise_ratio(
+                    isolated_images[j],
+                    deblended_images[match_detected],
+                    data_range=np.max(isolated_images[j]),
+                )
+            )
+            ssim_blend_results.append(
+                skimage.metrics.structural_similarity(
+                    np.moveaxis(isolated_images[j], 0, -1),
+                    np.moveaxis(deblended_images[match_detected], 0, -1),
+                    multichannel=True,
+                )
+            )
+            for k in target_meas.keys():
+                res_deblended = target_meas[k](deblended_images[match_detected])
+                res_isolated = target_meas[k](isolated_images[j])
+                if isinstance(res_isolated, list):
+                    for res in range(len(res_isolated)):
+                        target_meas_blend_results[k + str(res)].append(res_deblended[res])
+                        target_meas_blend_results[k + str(res) + "_true"].append(res_isolated[res])
+                else:
+                    target_meas_blend_results[k].append(res_deblended)
+                    target_meas_blend_results[k + "_true"].append(res_isolated)
+        else:
+            msr_blend_results.append(-1)
+            psnr_blend_results.append(-1)
+            ssim_blend_results.append(-1)
+            for k in target_meas_blend_results.keys():
+                target_meas_blend_results[k].append(-1)
+
+    return msr_blend_results, psnr_blend_results, ssim_blend_results, target_meas_blend_results
 
 
 def reconstruction_metrics(
@@ -177,7 +238,6 @@ def reconstruction_metrics(
     blend_list,
     deblended_images,
     matches,
-    meas_band_num=0,
     target_meas={},
 ):
     """Calculate reconstruction metrics given information from a single batch.
@@ -202,53 +262,14 @@ def reconstruction_metrics(
     target_meas_results = []
 
     for i in range(len(blend_list)):
-        msr_blend_results = []
-        psnr_blend_results = []
-        ssim_blend_results = []
-        target_meas_blend_results = {}
-        for k in target_meas_keys:
-            target_meas_blend_results[k] = []
-            target_meas_blend_results[k + "_true"] = []
-        for j in range(len(blend_list[i])):
-            match_detected = matches[i]["match_detected_id"][j]
-            if match_detected != -1:
-                msr_blend_results.append(
-                    skimage.metrics.mean_squared_error(
-                        isolated_images[i][j], deblended_images[i][match_detected]
-                    )
-                )
-                psnr_blend_results.append(
-                    skimage.metrics.peak_signal_noise_ratio(
-                        isolated_images[i][j],
-                        deblended_images[i][match_detected],
-                        data_range=np.max(isolated_images[i][j]),
-                    )
-                )
-                ssim_blend_results.append(
-                    skimage.metrics.structural_similarity(
-                        np.moveaxis(isolated_images[i][j], 0, -1),
-                        np.moveaxis(deblended_images[i][match_detected], 0, -1),
-                        multichannel=True,
-                    )
-                )
-                for k in target_meas.keys():
-                    res_deblended = target_meas[k](deblended_images[i][match_detected])
-                    res_isolated = target_meas[k](isolated_images[i][j])
-                    if isinstance(res_isolated, list):
-                        for res in range(len(res_isolated)):
-                            target_meas_blend_results[k + str(res)].append(res_deblended[res])
-                            target_meas_blend_results[k + str(res) + "_true"].append(
-                                res_isolated[res]
-                            )
-                    else:
-                        target_meas_blend_results[k].append(res_deblended)
-                        target_meas_blend_results[k + "_true"].append(res_isolated)
-            else:
-                msr_blend_results.append(-1)
-                psnr_blend_results.append(-1)
-                ssim_blend_results.append(-1)
-                for k in target_meas_blend_results.keys():
-                    target_meas_blend_results[k].append(-1)
+        (
+            msr_blend_results,
+            psnr_blend_results,
+            ssim_blend_results,
+            target_meas_blend_results,
+        ) = reconstruction_metrics_blend(
+            isolated_images[i], deblended_images[i], matches[i], target_meas, target_meas_keys
+        )
         msr_results.append(msr_blend_results)
         psnr_results.append(psnr_blend_results)
         ssim_results.append(ssim_blend_results)
@@ -368,7 +389,6 @@ def compute_metrics(  # noqa: C901
             blend_list,
             deblended_images,
             matches,
-            meas_band_num,
             target_meas,
         )
         reconstruction_keys = results["reconstruction"].keys()
