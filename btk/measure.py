@@ -69,7 +69,8 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
     if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
-    coadd = np.mean(batch["blend_images"][idx], axis=0)
+    channel_dim = 0 if not channels_last else -1
+    coadd = np.mean(batch["blend_images"][idx], axis=channel_dim)
 
     # set detection threshold to 5 times std of image
     threshold = 5 * np.std(coadd)
@@ -98,9 +99,10 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
+    channel_dim = 0 if not channels_last else -1
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for channels last or channels first.
-    coadd = np.mean(image, axis=0)
+    coadd = np.mean(image, axis=channel_dim)
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
