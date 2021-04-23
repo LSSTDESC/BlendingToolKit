@@ -6,7 +6,7 @@ algorithms.
 """
 __author__ = "btk developers"
 __email__ = "imendoza@umich.edu"
-__version__ = "0.0.1-alpha.5"
+__version__ = "0.0.0"
 
 from . import catalog
 from . import create_blend_generator
