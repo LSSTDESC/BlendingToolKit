@@ -1,9 +1,18 @@
 """File containing measurement infrastructure for the BlendingToolKit.
 
 Contains examples of functions that can be used to apply a measurement algorithm to the blends
- simulated by BTK. Every measurement function should take as an input a `batch` returned from a
- DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
- in the batch to measure.
+ simulated by BTK. Every measurement function should have the following skeleton:
+
+ ```
+def measure_function(batch, idx, **kwargs):
+    # do some measurements on the images contained in batch.
+    return output
+ ```
+
+where `batch` is the output from the `DrawBlendsGenerator` object (see its `__next__` method) and
+`idx` is the index corresponding to which image in the batch to measure. The additional keyword
+arguments `**kwargs` can be passed via the `measure_kwargs` dictionary argument in the
+`MeasureGerator` initializer.
 
 It should return a dictionary containing a subset of the following keys/values (note the key
 `catalog` is mandatory):
@@ -34,6 +43,8 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
+from itertools import repeat
+
 import astropy.table
 import numpy as np
 import sep
@@ -42,7 +53,7 @@ from skimage.feature import peak_local_max
 from btk.multiprocess import multiprocess
 
 
-def basic_measure(batch, idx):
+def basic_measure(batch, idx, channels_last=False, **kwargs):
     """Return centers detected with skimage.feature.peak_local_max.
 
     NOTE: This function does not support the multi-resolution feature.
@@ -71,7 +82,7 @@ def basic_measure(batch, idx):
     return {"catalog": catalog}
 
 
-def sep_measure(batch, idx):
+def sep_measure(batch, idx, channels_last=False, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
     NOTE: This function does not support the multi-resolution feature.
@@ -128,6 +139,7 @@ class MeasureGenerator:
         draw_blend_generator,
         cpus=1,
         verbose=False,
+        measure_kwargs: dict = None,
     ):
         """Initialize measurement generator.
 
@@ -136,8 +148,10 @@ class MeasureGenerator:
                               measurements given output from the draw_blend_generator.
             draw_blend_generator: Generator that outputs dict with blended images,
                                   isolated images, blend catalog, wcs info, and psf.
-            cpus: The number of parallel processes to run [Default: 1].
+            cpus (int): The number of parallel processes to run [Default: 1].
             verbose (bool): Whether to print information about measurement.
+            measure_kwargs (dict): Dictionary containing optional keyword arguments to be passed
+                in to each of the `measure_functions`.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -156,15 +170,18 @@ class MeasureGenerator:
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
-        self.dim_order = self.draw_blend_generator.dim_order
 
         self.verbose = verbose
+
+        # initialize measure_kwargs dictionary.
+        self.measure_kwargs = {} if measure_kwargs is None else measure_kwargs
+        self.measure_kwargs["dim_order"] = self.draw_blend_generator.dim_order
 
     def __iter__(self):
         """Return iterator which is the object itself."""
         return self
 
-    def run_batch(self, batch, index):
+    def _run_batch(self, batch, index):
         """Perform measurements on a single blend."""
         output = []
         for f in self.measure_functions:
@@ -223,12 +240,14 @@ class MeasureGenerator:
                                 each function on each element of the batch.
         """
         blend_output = next(self.draw_blend_generator)
-        input_args = ((blend_output, i) for i in range(self.batch_size))
+        args_iter = ((blend_output, i) for i in range(self.batch_size))
+        kwargs_iter = repeat(self.measure_kwargs)
         measure_results = multiprocess(
             self.run_batch,
-            input_args,
-            self.cpus,
-            self.verbose,
+            args_iter,
+            kwargs_iter=kwargs_iter,
+            cpus=self.cpus,
+            verbose=self.verbose,
         )
         if self.verbose:
             print("Measurement performed on batch")
