@@ -36,14 +36,12 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('./poetry.lock') }}
 
       # galsim needs this.
-      - name: Instal FFTW + Eigen
+      - name: Instal FFTW
         run: |
-          sudo apt-get install libfftw3-dev libeigen3-dev
+          sudo apt-get install libfftw3-dev
 
       - name: Install poetry dependencies
         run: |
-          poetry run pip install numpy Cython
-          poetry run pip install "eigency>=1.77"
           poetry install --extras "galsim-hub"
 
       - name: build docs
