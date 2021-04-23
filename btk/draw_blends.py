@@ -260,8 +260,8 @@ class DrawBlendsGenerator(ABC):
             mini_batch_results = multiprocess(
                 self.render_mini_batch,
                 input_args,
-                self.cpus,
-                self.verbose,
+                cpus=self.cpus,
+                verbose=self.verbose,
             )
 
             # join results across mini-batches.
