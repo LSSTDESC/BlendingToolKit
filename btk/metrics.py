@@ -101,10 +101,46 @@ def get_detection_match(true_table, detected_table):
     return match_table
 
 
+def get_detection_eff_matrix(summary_table, num):
+    """Computes the detection efficiency matrix for the input detection summary
+    table.
+    Input argument num sets the maximum number of true objects per blend in the
+    test set for which the
+    detection efficiency matrix is to be created for. Detection efficiency is
+    computed for a number of true objects in the range (0-num) as columns and
+    the detection percentage as rows. The percentage values in a column sum to
+    100.
+    The input summary table must be a numpy array of shape [N, 5], where N is
+    the test set size. The 5 columns in the summary_table are number of true
+    objects, detected sources, undetected objects, spurious detections and
+    shredded objects for each of the N blend scenes in the test set.
+    Args:
+        summary_table (`numpy.array`): Detection summary as a table [N, 5].
+        num (int): Maximum number of true objects to create matrix for. Number
+            of columns in efficiency matrix will be num+1. The first column
+            will correspond to no true objects.
+    Returns:
+        numpy.ndarray of size[num+2, num+1] that shows detection efficiency.
+    """
+    eff_matrix = np.zeros((num + 2, num + 1))
+    for i in range(0, num + 1):
+        (q_true,) = np.where(summary_table[:, 0] == i)
+        for j in range(0, num + 2):
+            if len(q_true) > 0:
+                (q_det,) = np.where(summary_table[q_true, 1] == j)
+                eff_matrix[j, i] = len(q_det)
+    norm = np.sum(eff_matrix, axis=0)
+    # If no detections along a column, set sum to 1 to avoid dividing by zero.
+    norm[norm == 0.0] = 1
+    # normalize over columns.
+    eff_matrix = eff_matrix / norm[np.newaxis, :] * 100.0
+    return eff_matrix
+
+
 def detection_metrics(detection_catalogs, matches):
     """Calculate detection metrics based on matches from `get_detection_match` function.
 
-    Currently implemente detection metrics include:
+    Currently implemented detection metrics include:
         - recall
         - precision
         - f1
@@ -124,6 +160,7 @@ def detection_metrics(detection_catalogs, matches):
     true_pos = 0
     false_pos = 0
     false_neg = 0
+    efficiency_input_table = []
     for i in range(len(matches)):
         matches_blend = matches[i]["match_detected_id"]
         for match in matches_blend:
@@ -134,10 +171,14 @@ def detection_metrics(detection_catalogs, matches):
         for j in range(len(detection_catalogs[i])):
             if j not in matches_blend:
                 false_pos += 1
+        efficiency_input_table.append([len(matches[i]), len(detection_catalogs[i])])
     results_detection["precision"] = true_pos / (true_pos + false_pos)
     results_detection["recall"] = true_pos / (true_pos + false_neg)
     results_detection["f1"] = 2 / (
         1 / results_detection["precision"] + 1 / results_detection["recall"]
+    )
+    results_detection["eff_matrix"] = get_detection_eff_matrix(
+        np.array(efficiency_input_table), np.max([len(match) for match in matches])
     )
     return results_detection
 
@@ -432,9 +473,9 @@ def compute_metrics(  # noqa: C901
         dim_order (str) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
 
-    Returns;
+    Returns:
         results (dict) : Contains all the computed metrics. Entries are :
-                        - matches : list of astropy Tables containing the matched detected galaxy
+                       y - matches : list of astropy Tables containing the matched detected galaxy
                                     for each true galaxy
                         - detection : dict containing the raw results for detection
                         - segmentation : dict containing the raw results for segmentation

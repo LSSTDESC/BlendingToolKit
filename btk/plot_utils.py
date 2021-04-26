@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-import btk
-
 
 def get_rgb(image, min_val=None, max_val=None):
     """Function to normalize 3 band input image to RGB 0-255 image.
@@ -263,19 +261,11 @@ def plot_cumulative(table, column_name, ax=None, bins=40, color="red", label=Non
     ax.set_ylabel("Cumulative counts")
 
 
-def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
+def plot_efficiency_matrix(eff_matrix, ax=None, wspace=0.2, skip_zero=True):
     """Plot detection summary as a matrix of detection efficiency.
 
-    Input argument num defines the maximum number of true objects per blend in
-    the defined test set for which the detection efficiency matrix is to be
-    computed. Detection efficiency matrix is plotted for columns 1 - num true
-    objects per blend, unless skip_zero is set to False, in which case column
-    for 0 true objects is also displayed.
-
     Args:
-        summary (`numpy.array`): Detection summary as a table [N, 5].
-        num (int): Maximum number of true objects to plot matrix for. Number
-            of columns in matrix will be num-1 if skip_zero is True.
+        eff_matrix (`numpy.array`): Efficiency matrix
         ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
             the plot. If not provided, one is created inside.
         wspace (float): Amount of width reserved for space between subplots,
@@ -286,8 +276,9 @@ def plot_metrics_summary(summary, num, ax=None, wspace=0.2, skip_zero=True):
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=(5, 5))
     plt.subplots_adjust(wspace=wspace)
-    results_table = btk.utils.get_detection_eff_matrix(summary, num)
-    ax.imshow(results_table, origin="left", cmap=plt.cm.Blues)
+    results_table = eff_matrix
+    num = eff_matrix.shape[0] - 2
+    ax.imshow(results_table, origin="lower", cmap=plt.cm.Blues)
     ax.set_xlabel("# true objects")
     if skip_zero:
         # Don't print zero'th column
