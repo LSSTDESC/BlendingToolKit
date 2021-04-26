@@ -22,13 +22,14 @@ def multiprocess(fn, args_iter, kwargs_iter=None, cpus=1, verbose=False):
     """Sole function that implements multiprocessing across mini-batches/batches for BTK.
 
     Args:
-        fn (function): Function to run in parallel on each of the `input_args`.
-        args_iter (iter): Iterator returning arguments to be passed in to function for
+        fn (function): Function to run in parallel on each positional arguments returned by
+            `args_iter` and each keyword arguments returned by `kwargs_iter`.
+        args_iter (iter): Iterator returning positional arguments to be passed in to function for
             multiprocessing. This iterator must have a `__len__` method implemented. Each
-            argument returned by the iterator must be unpackable like `*args`.
+            argument returned by the iterator must be unpackable like: `*args`.
         kwargs_iter (iter): Iterator returning keyword arguments to be passed in to
-            function for multiprocessing. Default is that no keyword arguments are passed in.
-            Each element returned by the iterator must be a `dict`.
+            function for multiprocessing. Default value `None` means that no keyword arguments
+            are passed in. Each element returned by the iterator must be a `dict`.
         cpus (int): # of cpus to use for multiprocessing.
         verbose (bool): Whether to print information related to multiprocessing
     """
