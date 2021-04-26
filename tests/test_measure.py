@@ -45,7 +45,6 @@ def compare_sep():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure)
     _, results = next(meas_generator)
-    print(results)
     x_peak, y_peak = (
         results["catalog"][0]["x_peak"].item(),
         results["catalog"][0]["y_peak"].item(),

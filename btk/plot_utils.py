@@ -392,27 +392,6 @@ def plot_metrics_distribution(metric_array, metric_name, ax=None, bins=50, upper
     ax.axvline(median, linestyle="--", label="median", color="red")
 
 
-def plot_metrics_comparison(metrics, metric_names, ax=None, bins=50, upper_quantile=1.0):
-    """Plot an histogram of the distribution with mean and median.
-
-    Args:
-        metrics (list) : Contains the data
-        metric_names (list) : names of the metrics
-        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
-        bins (int) : Optional argument for the number of bins.
-        upper_quantile (float) : Quantile from which to cut
-    """
-    ax = plt.gca() if ax is None else ax
-    for i, m in enumerate(metrics):
-        quantile = np.quantile(m, upper_quantile)
-        m_filtered = m[m <= quantile]
-        ax.hist(m_filtered, bins=bins, label=metric_names[i], alpha=0.6)
-        mean = np.mean(m_filtered)
-        ax.axvline(mean, linestyle="--", label="mean", color="blue")
-        median = np.median(m_filtered)
-        ax.axvline(median, linestyle="--", label="median", color="red")
-
-
 def plot_metrics_correlation(
     metric_x, metric_y, metric_x_name, metric_y_name, ax=None, upper_quantile=1.0, style="scatter"
 ):

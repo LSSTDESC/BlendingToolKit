@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.metrics
@@ -43,9 +46,22 @@ def get_metrics_generator(meas_function, cpus=1):
     return metrics_generator
 
 
-def test_sep_metrics():
+@patch("btk.plot_utils.plt.show")
+def test_sep_metrics(mock_show):
     meas_generator = get_metrics_generator(btk.measure.sep_measure)
     _, _, results = next(meas_generator)
+    gal_summary = results["galaxy_summary"][
+        results["galaxy_summary"]["detected"] == True  # noqa: E712
+    ]
+    msr = gal_summary["msr"]
+    dist = gal_summary["distance_closest_galaxy"]
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    btk.plot_utils.plot_metrics_distribution(msr, "msr", ax1, upper_quantile=0.9)
+    btk.plot_utils.plot_metrics_correlation(
+        dist, msr, "Distance to the closest galaxy", "msr", ax2, upper_quantile=0.9, style="heatmap"
+    )
+    btk.plot_utils.plot_efficiency_matrix(results["detection"]["eff_matrix"])
+    plt.close("all")
 
 
 def test_detection_eff_matrix():
