@@ -181,12 +181,12 @@ class MeasureGenerator:
         """Return iterator which is the object itself."""
         return self
 
-    def _run_batch(self, batch, index, **kwargs):
+    def _run_batch(self, batch, index):
         """Perform measurements on a single blend."""
         output = []
         for f in self.measure_functions:
 
-            out = f(batch, index, **kwargs)
+            out = f(batch, index)
 
             # make sure output is in the correct format.
             if not isinstance(out["catalog"], astropy.table.Table):
@@ -243,7 +243,7 @@ class MeasureGenerator:
         args_iter = ((blend_output, i) for i in range(self.batch_size))
         kwargs_iter = repeat(self.measure_kwargs)
         measure_results = multiprocess(
-            self._run_batch,
+            self.run_batch,
             args_iter,
             kwargs_iter=kwargs_iter,
             cpus=self.cpus,
