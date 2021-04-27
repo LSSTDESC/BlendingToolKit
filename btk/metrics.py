@@ -438,15 +438,15 @@ def compute_metrics(  # noqa: C901
     meas_band_num=0,
     target_meas={},
     blend_id_start=0,
-    dim_order="NCHW",
+    channels_last=False,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
     Args:
         blended_images (array) : Contains all the blend images, with shape as specified
-                                 by dim_order.
+                                 by channels_last.
         isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
-                                  depending on dim_order, with M the maximum number of galaxies
+                                  depending on channels_last, with M the maximum number of galaxies
                                   in a blend.
         blend_list (list) : Contains the information related to all blends, as a list of astropy
                             Tables (one for each blend). Those tables should at least
@@ -460,8 +460,9 @@ def compute_metrics(  # noqa: C901
                                shape MHW where M is the number of detected objects (must be
                                consistent with corresponding detection catalog).
         deblended_images (list) : Contains the deblended images, as a list of arrays of shape NCHW
-                                or NHWC depending on dim_order, where N is the number of detected
-                                objects (must be consistent with corresponding detection catalogs).
+                                or NHWC depending on channels_last, where N is the number of
+                                detected objects (must be consistent with corresponding
+                                detection catalogs).
         use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
                               "segmentation" and "reconstruction".
         noise_threshold (float) : Threshold to use when computing the true segmentations from
@@ -470,12 +471,12 @@ def compute_metrics(  # noqa: C901
         target_meas (dict) : Contains functions measuring target parameters on images, which will
                              be returned for both isolated and deblended images to compare.
         blend_id_start (int): At what index to start counting each blend.
-        dim_order (str) : Indicates whether the images should be channels first (NCHW)
+        channels_last (bool) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
-                       y - matches : list of astropy Tables containing the matched detected galaxy
+                        - matches : list of astropy Tables containing the matched detected galaxy
                                     for each true galaxy
                         - detection : dict containing the raw results for detection
                         - segmentation : dict containing the raw results for segmentation
@@ -483,13 +484,11 @@ def compute_metrics(  # noqa: C901
                         - galaxy_summary : astropy Table containing all the galaxies from all
                                            blends and related metrics
     """
-    if dim_order == "NHWC":
+    if channels_last:
         blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
         if deblended_images is not None:
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
-    elif dim_order != "NCHW":
-        raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
     results = {}
     matches = [
         get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
@@ -622,7 +621,7 @@ class MetricsGenerator:
                     self.meas_band_num,
                     target_meas,
                     blend_id_start=self.blend_counter,
-                    dim_order=self.measure_generator.dim_order,
+                    channels_last=self.measure_generator.channels_last,
                 )
                 metrics_results[f] = metrics_results_f
 
@@ -639,7 +638,7 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 blend_id_start=self.blend_counter,
-                dim_order=self.measure_generator.dim_order,
+                channels_last=self.measure_generator.channels_last,
             )
 
         self.blend_counter += len(blend_results["blend_list"])

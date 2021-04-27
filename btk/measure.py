@@ -160,7 +160,7 @@ class MeasureGenerator:
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
-        self.dim_order = self.draw_blend_generator.dim_order
+        self.channels_last = self.draw_blend_generator.channels_last
 
         self.verbose = verbose
 

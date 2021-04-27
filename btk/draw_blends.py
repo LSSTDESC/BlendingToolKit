@@ -192,7 +192,7 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-        self.dim_order = (1, 2, 0) if channels_last else (0, 1, 2)
+        self.channels_last = channels_last
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -248,7 +248,7 @@ class DrawBlendsGenerator(ABC):
                     pix_stamp_size,
                     pix_stamp_size,
                 )
-                if self.dim_order == "NCHW"
+                if not self.channels_last
                 else (
                     pix_stamp_size,
                     pix_stamp_size,
@@ -361,7 +361,7 @@ class DrawBlendsGenerator(ABC):
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
             # transpose if requested.
-            dim_order = np.array((0, 1, 2) if self.dim_order == "NCHW" else (1, 2, 0))
+            dim_order = np.array((0, 1, 2) if not self.channels_last else (1, 2, 0))
             blend_image_multi = blend_image_multi.transpose(dim_order)
             iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
