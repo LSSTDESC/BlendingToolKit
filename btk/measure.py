@@ -1,35 +1,40 @@
 """File containing measurement infrastructure for the BlendingToolKit.
 
 Contains examples of functions that can be used to apply a measurement algorithm to the blends
- simulated by BTK. Every measurement function should take as an input a `batch` returned from a
- DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
- in the batch to measure.
+simulated by BTK. Every measurement function should take as an input a `batch` returned from a
+DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
+in the batch to measure.
 
 It should return a dictionary containing a subset of the following keys/values (note the key
 `catalog` is mandatory):
-    - catalog (astropy.table.Table): An astropy table containing measurement information. The
-                                     `len` of the table should be `n_objects`. If your
-                                     DrawBlendsGenerator uses a single survey, the following
-                                     column names are required:
-                                        - x_peak: horizontal centroid position in pixels.
-                                        - y_peak: vertical centroid position in pixels.
-                                     For multiple surveys (multi-resolution), we instead require:
-                                        - ra: object centroid right ascension in arcseconds,
-                                        following the convention from the `wcs` object included in
-                                        the input batch.
-                                        - dec: vertical centroid position in arcseconds,
-                                        following the convention from the `wcs` object included in
-                                        the input batch.
-    - deblended_image (np.ndarray): Array of deblended isolated images with shape:
-                                    `(n_objects, n_bands, stamp_size, stamp_size)` or
-                                    `(n_objects, stamp_size, stamp_size, n_bands)` depending on
-                                    convention. The order of this array should correspond to the
-                                    order in the returned `catalog`. Where `n_objects` is the
-                                    number of detected objects by the algorithm.
-    - segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
-                                 The pixels set to True in the i-th channel correspond to the i-th
-                                 object. The order should correspond to the order in the returned
-                                 `catalog`.
+
+* catalog (astropy.table.Table): An astropy table containing measurement information. The
+  `len` of the table should be `n_objects`. If your
+  DrawBlendsGenerator uses a single survey, the following
+  column names are required:
+
+  * x_peak: horizontal centroid position in pixels.
+  * y_peak: vertical centroid position in pixels.
+
+  For multiple surveys (multi-resolution), we instead require:
+
+  * ra: object centroid right ascension in arcseconds,
+    following the convention from the `wcs` object included in
+    the input batch.
+  * dec: vertical centroid position in arcseconds,
+    following the convention from the `wcs` object included in
+    the input batch.
+
+* deblended_image (np.ndarray): Array of deblended isolated images with shape:
+  `(n_objects, n_bands, stamp_size, stamp_size)` or
+  `(n_objects, stamp_size, stamp_size, n_bands)` depending on
+  convention. The order of this array should correspond to the
+  order in the returned `catalog`. Where `n_objects` is the
+  number of detected objects by the algorithm.
+* segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
+  The pixels set to True in the i-th channel correspond to the i-th
+  object. The order should correspond to the order in the returned
+  `catalog`.
 
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).

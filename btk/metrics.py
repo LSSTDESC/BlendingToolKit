@@ -55,12 +55,14 @@ def get_detection_match(true_table, detected_table):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
     The optimal matching is computed based on the following optimization problem:
-    ```
+
+    .. math::
+
         \sum_{i} \sum_{j} C_{i,j} X_{i,j}
-    ```
-    where, in the BTK context, C_{ij}` is the cost function between matching true object `i` with
-    detected object `j` computed as the `l2`-distance between the two objects, and `X_{i,j}` is an
-    indicator function over the matches.
+
+    where, in the BTK context, :math:`C_{ij}` is the cost function between matching true object
+    :math:`i` with detected object :math:`j` computed as the L2 distance between the two objects,
+    and :math:`X_{i,j}` is an indicator function over the matches.
 
     Based on this implementation in scipy:
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
@@ -73,10 +75,12 @@ def get_detection_match(true_table, detected_table):
 
     Returns:
         match_table (astropy.table.Table): Table where each row corresponds to each true
-            galaxy in `true_table` and contains two columns:
-                - "match_detected_id": Index of row in `detected_table` corresponding to
-                    matched detected object. If no match, value is -1.
-                - "dist": distance between true object and matched object or 0 if no matches.
+        galaxy in `true_table` and contains two columns:
+
+        - "match_detected_id": Index of row in `detected_table` corresponding to
+          matched detected object. If no match, value is -1.
+        - "dist": distance between true object and matched object or 0 if no matches.
+
     """
     match_table = astropy.table.Table()
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
@@ -114,11 +118,12 @@ def get_detection_eff_matrix(summary_table, num):
     the test set size. The 5 columns in the summary_table are number of true
     objects, detected sources, undetected objects, spurious detections and
     shredded objects for each of the N blend scenes in the test set.
+
     Args:
         summary_table (`numpy.array`): Detection summary as a table [N, 5].
         num (int): Maximum number of true objects to create matrix for. Number
-            of columns in efficiency matrix will be num+1. The first column
-            will correspond to no true objects.
+                   of columns in efficiency matrix will be num+1. The first column
+                   will correspond to no true objects.
     Returns:
         numpy.ndarray of size[num+2, num+1] that shows detection efficiency.
     """
@@ -141,9 +146,9 @@ def detection_metrics(detection_catalogs, matches):
     """Calculate detection metrics based on matches from `get_detection_match` function.
 
     Currently implemented detection metrics include:
-        - recall
-        - precision
-        - f1
+    - recall
+    - precision
+    - f1
 
     Args:
         detection_catalogs (list) : Contains one astropy Table for each blend,
@@ -153,8 +158,8 @@ def detection_metrics(detection_catalogs, matches):
                          matched detected galaxy for each true galaxy.
     Returns:
         results_detection (dict): Dictionary containing keys corresponding to each implemented
-            metric. Each value is a list where each element corresponds to each element of
-            the batch (a single blend).
+        metric. Each value is a list where each element corresponds to each element of
+        the batch (a single blend).
     """
     results_detection = {}
     true_pos = 0
@@ -207,7 +212,7 @@ def segmentation_metrics_blend(
 
     Returns:
         iou_blend_result (list) : Contains the results for the IoU metric for each
-                                  galaxy.
+        galaxy.
 
     """
     iou_blend_results = []
@@ -235,7 +240,7 @@ def segmentation_metrics(
     """Calculates segmentation metrics given information from a single batch.
 
     Currently implemented segmentation metrics include:
-        - Intersection-over-Union (IOU)
+    - Intersection-over-Union (IOU)
 
     Args:
         isolated_images (array) : Contains the isolated true galaxy images,
@@ -256,8 +261,7 @@ def segmentation_metrics(
 
     Returns:
         results_segmentation (astropy.table.Table) : Contains the results for the batch
-                                                     with one column for each metric
-                                                     (currently : "iou" for IoU).
+        with one column for each metric (currently : "iou" for IoU).
     """
     results_segmentation = {}
     iou_results = []
@@ -360,9 +364,9 @@ def reconstruction_metrics(
     """Calculate reconstruction metrics given information from a single batch.
 
     Currently implemented reconstruction metrics include:
-        - Mean Squared Residual (MSR)
-        - Peak Signal-to-Noise Ratio (PSNR)
-        - Structural Similarity (SSIM)
+    - Mean Squared Residual (MSR)
+    - Peak Signal-to-Noise Ratio (PSNR)
+    - Structural Similarity (SSIM)
 
     Args:
         isolated_images (array) : Contains the isolated true galaxy images,
@@ -381,12 +385,12 @@ def reconstruction_metrics(
 
     Returns:
         results_reconstruction (astropy.table.Table) : Contains the results for the batch
-                                       with one column for each metric (currently : "msr"
-                                       for MSR, "psnr" for PSNR, "ssim" for SSIM, and
-                                       "target_name" and "target_name_true" for each
-                                       function target_name in target_meas (if the
-                                       function has several outputs, a number is added
-                                       after target_name for each output)).
+       with one column for each metric (currently : "msr"
+       for MSR, "psnr" for PSNR, "ssim" for SSIM, and
+       "target_name" and "target_name_true" for each
+       function target_name in target_meas (if the
+       function has several outputs, a number is added
+       after target_name for each output)).
     """
     results_reconstruction = {}
     msr_results = []
@@ -476,13 +480,13 @@ def compute_metrics(  # noqa: C901
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
-                        - matches : list of astropy Tables containing the matched detected galaxy
-                                    for each true galaxy
-                        - detection : dict containing the raw results for detection
-                        - segmentation : dict containing the raw results for segmentation
-                        - reconstruction : dict containing the raw results for reconstruction
-                        - galaxy_summary : astropy Table containing all the galaxies from all
-                                           blends and related metrics
+                         - matches : list of astropy Tables containing the matched detected galaxy
+                           for each true galaxy
+                         - detection : dict containing the raw results for detection
+                         - segmentation : dict containing the raw results for segmentation
+                         - reconstruction : dict containing the raw results for reconstruction
+                         - galaxy_summary : astropy Table containing all the galaxies from all
+                           blends and related metrics
     """
     if channels_last:
         blended_images = np.moveaxis(blended_images, -1, 1)
