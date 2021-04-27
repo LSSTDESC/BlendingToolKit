@@ -637,9 +637,9 @@ class MetricsGenerator:
         Args:
             measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
             use_metrics (tuple): Which metrics do you want to use? Options:
-                - "detection"
-                - "segmentation"
-                - "reconstruction"
+                                - "detection"
+                                - "segmentation"
+                                - "reconstruction"
             meas_band_num (int): If using multiple bands for each blend,
                 which band index do you want to use for measurement?
             target_meas (dict): Dictionary containing functions that can measure a physical
