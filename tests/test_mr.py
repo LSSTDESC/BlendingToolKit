@@ -1,10 +1,12 @@
+from conftest import data_dir
+
 import btk
 from btk.survey import HSC
 from btk.survey import Rubin
 
 
 def test_multiresolution():
-    catalog_name = "data/sample_input_catalog.fits"
+    catalog_name = data_dir / "sample_input_catalog.fits"
 
     stamp_size = 24.0
     batch_size = 8

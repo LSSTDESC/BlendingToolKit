@@ -147,7 +147,7 @@ class DrawBlendsGenerator(ABC):
         add_noise=True,
         shifts=None,
         indexes=None,
-        dim_order="NCHW",
+        channels_last=False,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -167,9 +167,9 @@ class DrawBlendsGenerator(ABC):
                            with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
-            dim_order (str): Whether to return images as numpy arrays with the channel
-                                (band) dimension before the pixel dimensions 'NCHW' (default) or
-                                after 'NHWC'.
+            channels_last (bool): Whether to return images as numpy arrays with the channel
+                                (band) dimension as the last dimension or before the pixels
+                                dimensions (default).
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -192,9 +192,7 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-        if dim_order not in ("NCHW", "NHWC"):
-            raise ValueError("dim_order must be either 'NCHW' or 'NHWC'.")
-        self.dim_order = dim_order
+        self.dim_order = (1, 2, 0) if channels_last else (0, 1, 2)
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -270,8 +268,8 @@ class DrawBlendsGenerator(ABC):
             mini_batch_results = multiprocess(
                 self.render_mini_batch,
                 input_args,
-                self.cpus,
-                self.verbose,
+                cpus=self.cpus,
+                verbose=self.verbose,
             )
 
             # join results across mini-batches.
@@ -523,7 +521,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         add_noise=True,
         shifts=None,
         indexes=None,
-        dim_order="NCHW",
+        channels_last=False,
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
     ):
@@ -549,7 +547,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             add_noise=add_noise,
             shifts=shifts,
             indexes=indexes,
-            dim_order=dim_order,
+            channels_last=channels_last,
         )
         import galsim_hub
 

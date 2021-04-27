@@ -1,12 +1,14 @@
 import pytest
+from conftest import data_dir
 
 import btk
 from btk.survey import Rubin
 
 
-def test_sampling_no_max_number():
-    catalog_name = "data/sample_input_catalog.fits"
+CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 
+
+def test_sampling_no_max_number():
     class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
         def __init__(self):
             pass
@@ -19,14 +21,12 @@ def test_sampling_no_max_number():
             return "CatsimCatalog", "CosmosCatalog"
 
     with pytest.raises(AttributeError) as excinfo:
-        catalog_name = "data/sample_input_catalog.fits"
-
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction()
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
@@ -44,9 +44,6 @@ def test_sampling_no_max_number():
 
 
 def test_sampling_incompatible_catalog():
-    # FAILING
-    catalog_name = "data/sample_input_catalog.fits"
-
     class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
         def __call__(self, table, **kwargs):
             pass
@@ -56,14 +53,12 @@ def test_sampling_incompatible_catalog():
             return "CosmosCatalog"
 
     with pytest.raises(AttributeError) as excinfo:
-        catalog_name = "data/sample_input_catalog.fits"
-
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
@@ -84,7 +79,7 @@ def test_sampling_incompatible_catalog():
 
 def test_sampling_too_much_objects():
     # FAILING
-    catalog_name = "data/sample_input_catalog.fits"
+    CATALOG_PATH = "data/sample_input_catalog.fits"
 
     class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
         def __call__(self, table, **kwargs):
@@ -95,14 +90,12 @@ def test_sampling_too_much_objects():
             return "CatsimCatalog", "CosmosCatalog"
 
     with pytest.raises(ValueError) as excinfo:
-        catalog_name = "data/sample_input_catalog.fits"
-
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
@@ -133,8 +126,7 @@ def test_source_not_visible():
         zeropoint=9.16,
         extinction=0.451,
     )
-    catalog_name = "data/sample_input_catalog.fits"
-    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(btk.draw_blends.SourceNotVisible):
         gal = btk.draw_blends.get_catsim_galaxy(  # noqa: F841
             catalog.table[0], filt, Rubin, True, True, True
@@ -142,14 +134,12 @@ def test_source_not_visible():
 
 
 def test_survey_not_list():
-    catalog_name = "data/sample_input_catalog.fits"
-
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
     add_noise = True
 
-    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
     with pytest.raises(TypeError):
         draw_generator = btk.draw_blends.CatsimGenerator(

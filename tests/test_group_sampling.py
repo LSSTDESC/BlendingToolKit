@@ -1,4 +1,5 @@
 import numpy as np
+from conftest import data_dir
 
 import btk.catalog
 import btk.draw_blends
@@ -8,8 +9,8 @@ import btk.survey
 
 def get_group_sampling_draw_generator(batch_size=3):
     """Returns draw generator with group sampling function"""
-    wld_catalog_name = "data/sample_group_catalog.fits"
-    catalog_name = "data/sample_group_input_catalog.fits"
+    wld_catalog_name = data_dir / "sample_group_catalog.fits"
+    catalog_name = data_dir / "sample_group_input_catalog.fits"
 
     max_number = 10
     stamp_size = 24

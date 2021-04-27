@@ -234,8 +234,8 @@ class MeasureGenerator:
         measure_output = multiprocess(
             self.run_batch,
             input_args,
-            self.cpus,
-            self.verbose,
+            cpus=self.cpus,
+            verbose=self.verbose,
         )
         if self.verbose:
             print("Measurement performed on batch")
