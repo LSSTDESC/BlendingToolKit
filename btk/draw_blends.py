@@ -242,19 +242,13 @@ class DrawBlendsGenerator(ABC):
             # allocate memory for output catalogues and images.
             batch_blend_cat[s.name] = []
             batch_obs_cond[s.name] = []
-            image_shape = (
-                (
-                    len(s.filters),
-                    pix_stamp_size,
-                    pix_stamp_size,
-                )
-                if not self.channels_last
-                else (
-                    pix_stamp_size,
-                    pix_stamp_size,
-                    len(s.filters),
-                )
-            )
+
+            # decide image_shape based on channels_last bool.
+            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
+            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
+            image_shape = option1 if not self.channels_last else option2
+
+            # create emtpy arrays with image_shape.
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
 
