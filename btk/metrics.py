@@ -681,38 +681,21 @@ class MetricsGenerator:
         noise_threshold = self.noise_threshold_factor * np.sqrt(
             get_mean_sky_level(survey, survey.filters[self.meas_band_num])
         )
-        if "catalog" not in measure_results.keys():
-            meas_func = measure_results.keys()
-            metrics_results = {}
-            for f in meas_func:
-                metrics_results_f = compute_metrics(
-                    blend_results["blend_images"],
-                    blend_results["isolated_images"],
-                    blend_results["blend_list"],
-                    measure_results[f]["catalog"],
-                    measure_results[f]["segmentation"],
-                    measure_results[f]["deblended_images"],
-                    self.use_metrics,
-                    noise_threshold,
-                    self.meas_band_num,
-                    target_meas,
-                    channels_last=self.measure_generator.channels_last,
-                )
-                metrics_results[f] = metrics_results_f
-
-        else:
-            metrics_results = compute_metrics(
+        metrics_results = {}
+        for meas_func in measure_results:
+            metrics_results_f = compute_metrics(
                 blend_results["blend_images"],
                 blend_results["isolated_images"],
                 blend_results["blend_list"],
-                measure_results["catalog"],
-                measure_results["segmentation"],
-                measure_results["deblended_images"],
+                measure_results[meas_func]["catalog"],
+                measure_results[meas_func]["segmentation"],
+                measure_results[meas_func]["deblended_images"],
                 self.use_metrics,
                 noise_threshold,
                 self.meas_band_num,
                 target_meas,
                 channels_last=self.measure_generator.channels_last,
             )
+            metrics_results[meas_func] = metrics_results_f
 
         return blend_results, measure_results, metrics_results

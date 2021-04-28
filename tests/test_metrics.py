@@ -48,8 +48,9 @@ def get_metrics_generator(meas_function, cpus=1):
 
 @patch("btk.plot_utils.plt.show")
 def test_sep_metrics(mock_show):
-    meas_generator = get_metrics_generator(btk.measure.sep_measure)
-    _, _, results = next(meas_generator)
+    metrics_generator = get_metrics_generator(btk.measure.sep_measure)
+    _, _, results = next(metrics_generator)
+    results = list(results.values())[0]
     gal_summary = results["galaxy_summary"][
         results["galaxy_summary"]["detected"] == True  # noqa: E712
     ]

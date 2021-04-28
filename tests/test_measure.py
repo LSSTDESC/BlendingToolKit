@@ -46,6 +46,7 @@ def compare_sep():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure)
     _, results = next(meas_generator)
+    results = list(results.values())[0]  # extract single element from dict.
     x_peak, y_peak = (
         results["catalog"][0]["x_peak"].item(),
         results["catalog"][0]["y_peak"].item(),
@@ -64,6 +65,7 @@ def compare_sep_multiprocessing():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure, cpus=4)
     _, results = next(meas_generator)
+    results = list(results.values())[0]  # extract single element from dict.
     x_peak, y_peak = (
         results["catalog"][0]["x_peak"].item(),
         results["catalog"][0]["y_peak"].item(),
