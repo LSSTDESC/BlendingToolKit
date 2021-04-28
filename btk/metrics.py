@@ -506,7 +506,6 @@ def compute_metrics(  # noqa: C901
     noise_threshold=None,
     meas_band_num=0,
     target_meas={},
-    blend_id_start=0,
     channels_last=False,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
@@ -539,7 +538,6 @@ def compute_metrics(  # noqa: C901
         meas_band_num (int) : Indicates in which band some of the measurements should be done.
         target_meas (dict) : Contains functions measuring target parameters on images, which will
                              be returned for both isolated and deblended images to compare.
-        blend_id_start (int): At what index to start counting each blend.
         channels_last (bool) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
 
@@ -618,7 +616,7 @@ def compute_metrics(  # noqa: C901
             else:
                 row["distance_closest_galaxy"] = -1  # placeholder
 
-            row["blend_id"] = i + blend_id_start
+            row["blend_id"] = i
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
             if "segmentation" in use_metrics:
                 row["iou"] = results["segmentation"]["iou"][i][j]
@@ -639,6 +637,7 @@ class MetricsGenerator:
         use_metrics=("detection"),
         meas_band_num=0,
         target_meas={},
+        noise_threshold_factor=3,
     ):
         """Initialize metrics generator.
 
@@ -653,12 +652,16 @@ class MetricsGenerator:
             target_meas (dict): Dictionary containing functions that can measure a physical
                 parameter on isolated galaxy images. Each key is the name of the estimator and
                 value the function performing the estimation (e.g. `meas_ellipticity` above).
+            noise_threshold_factor (float): Factor for determining the threshold which is
+                applied when getting segmentations from true images. A value of 3 would
+                correspond to a threshold of 3 sigmas (with sigma the standard deviation of
+                the noise)
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
-        self.blend_counter = 0
+        self.noise_threshold_factor = noise_threshold_factor
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -673,7 +676,9 @@ class MetricsGenerator:
         for k in self.target_meas.keys():
             target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-        noise_threshold = get_mean_sky_level(survey, survey.filters[self.meas_band_num])
+        noise_threshold = self.noise_threshold_factor * np.sqrt(
+            get_mean_sky_level(survey, survey.filters[self.meas_band_num])
+        )
         if "catalog" not in measure_results.keys():
             meas_func = measure_results.keys()
             metrics_results = {}
@@ -689,7 +694,6 @@ class MetricsGenerator:
                     noise_threshold,
                     self.meas_band_num,
                     target_meas,
-                    blend_id_start=self.blend_counter,
                     channels_last=self.measure_generator.channels_last,
                 )
                 metrics_results[f] = metrics_results_f
@@ -706,9 +710,7 @@ class MetricsGenerator:
                 noise_threshold,
                 self.meas_band_num,
                 target_meas,
-                blend_id_start=self.blend_counter,
                 channels_last=self.measure_generator.channels_last,
             )
 
-        self.blend_counter += len(blend_results["blend_list"])
         return blend_results, measure_results, metrics_results
