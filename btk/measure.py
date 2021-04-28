@@ -204,7 +204,7 @@ class MeasureGenerator:
 
         # initialize measure_kwargs dictionary.
         self.measure_kwargs = {} if measure_kwargs is None else measure_kwargs
-        self.measure_kwargs["channels_last"] = self.draw_blend_generator.channels_last
+        self.measure_kwargs["channels_last"] = self.channels_last
 
     def __iter__(self):
         """Return iterator which is the object itself."""
