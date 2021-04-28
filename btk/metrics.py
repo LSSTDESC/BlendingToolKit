@@ -1,4 +1,4 @@
-"""Implements a variety of metrics for evaluating measurement results in BTK.
+r"""Implements a variety of metrics for evaluating measurement results in BTK.
 
 BTK users are expected to use the MetricsGenerator class, which is initialized by providing
 a MeasureGenerator as well as some parameters. Users which do not want to use the full BTK
@@ -79,8 +79,7 @@ def get_blendedness(iso_image, blend_iso_images):
 
 
 def meas_ksb_ellipticity(image, additional_params):
-    """Utility function to measure ellipticity using the `galsim.hsm` package, with
-    the KSB method.
+    """Utility function to measure ellipticity using the `galsim.hsm` package, with the KSB method.
 
     Args:
         image (np.array): Image of a single, isolated galaxy with shape (H, W).
@@ -101,7 +100,7 @@ def meas_ksb_ellipticity(image, additional_params):
         result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
     except RuntimeError as e:
         print(e)
-        result = [10.0, 10.0, 10.0]
+        result = [-10.0, -10.0, -10.0]
     return result
 
 
@@ -168,8 +167,8 @@ def get_detection_match(true_table, detected_table):
 
 
 def get_detection_eff_matrix(summary_table, num):
-    """Computes the detection efficiency matrix for the input detection summary
-    table.
+    """Computes the detection efficiency matrix for the input detection summary table.
+
     Input argument num sets the maximum number of true objects per blend in the
     test set for which the
     detection efficiency matrix is to be created for. Detection efficiency is
@@ -186,6 +185,7 @@ def get_detection_eff_matrix(summary_table, num):
         num (int): Maximum number of true objects to create matrix for. Number
                    of columns in efficiency matrix will be num+1. The first column
                    will correspond to no true objects.
+
     Returns:
         numpy.ndarray of size[num+2, num+1] that shows detection efficiency.
     """
@@ -218,6 +218,7 @@ def detection_metrics(detection_catalogs, matches):
         matches (list) : Contains one astropy Table for each blend, with a
                          column `match_detected_id` containing the index of the
                          matched detected galaxy for each true galaxy.
+
     Returns:
         results_detection (dict): Dictionary containing keys corresponding to each implemented
         metric. Each value is a list where each element corresponds to each element of
@@ -257,6 +258,7 @@ def segmentation_metrics_blend(
     isolated_images, detected_segmentations, matches, noise_threshold, meas_band_num
 ):
     """Calculates segmentation metrics given information from a single blend.
+
     The true segmentation is obtained from the isolated images by setting to True
     the pixels above the noise_threshold in the band meas_band_num.
 
@@ -359,6 +361,7 @@ def reconstruction_metrics_blend(
         target_meas_key (list) : Contains the relevant keys, to manage the case
                                  where one of the target measurement functions
                                  has multiple outputs.
+
     Returns:
         msr_blend_result (list) : Contains the results for the Mean Square Residual
                                   metric for each galaxy.
@@ -370,7 +373,6 @@ def reconstruction_metrics_blend(
                                           measurement function for each galaxy (both
                                           true and deblended images).
     """
-
     msr_blend_results = []
     psnr_blend_results = []
     ssim_blend_results = []
