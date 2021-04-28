@@ -320,7 +320,8 @@ The measure function is a regular function with two positional arguments : `batc
 
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-    coadd = np.mean(image, axis=np.argmin(image.shape))  # Smallest dimension is the channels
+    channel_indx = 0 if not channels_last else -1
+    coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
