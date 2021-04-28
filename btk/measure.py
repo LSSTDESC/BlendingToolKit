@@ -191,12 +191,12 @@ class MeasureGenerator:
         """Return iterator which is the object itself."""
         return self
 
-    def run_batch(self, batch, index):
+    def run_batch(self, batch, index, **kwargs):
         """Perform measurements on a single blend."""
         output = []
         for f in self.measure_functions:
 
-            out = f(batch, index)
+            out = f(batch, index, **kwargs)
 
             # make sure output is in the correct format.
             if not isinstance(out["catalog"], astropy.table.Table):
