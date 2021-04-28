@@ -370,12 +370,12 @@ Finally, now that we have the measurements, we can compute metrics to evaluate t
   metrics_generator = btk.metrics.MetricsGenerator(meas_generator,use_metrics=("detection","segmentation","reconstruction"),
                                                    target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity})
   blend_results,meas_results,results = next(metrics_generator)
-  results = results
 
 Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys "detection", "segmentation" and "reconstruction", you can directly access all the segmentation and reconstruction metrics with the "galaxy_summary" key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
 
 .. jupyter-execute::
 
+  results = list(results.values())[0]
   gal_summary = results["galaxy_summary"][results["galaxy_summary"]["detected"]==True]
   msr = gal_summary["msr"]
   dist = gal_summary["distance_closest_galaxy"]
