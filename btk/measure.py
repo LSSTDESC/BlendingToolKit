@@ -1,9 +1,18 @@
 """File containing measurement infrastructure for the BlendingToolKit.
 
 Contains examples of functions that can be used to apply a measurement algorithm to the blends
-simulated by BTK. Every measurement function should take as an input a `batch` returned from a
-DrawBlendsGenerator object (see its `__next__` method) and an index corresponding to which image
-in the batch to measure.
+ simulated by BTK. Every measurement function should have the following skeleton:
+
+ ```
+def measure_function(batch, idx, **kwargs):
+    # do some measurements on the images contained in batch.
+    return output
+ ```
+
+where `batch` is the output from the `DrawBlendsGenerator` object (see its `__next__` method) and
+`idx` is the index corresponding to which image in the batch to measure. The additional keyword
+arguments `**kwargs` can be passed via the `measure_kwargs` dictionary argument in the
+`MeasureGerator` initialize which are shared among all the measurement functions.
 
 It should return a dictionary containing a subset of the following keys/values (note the key
 `catalog` is mandatory):
