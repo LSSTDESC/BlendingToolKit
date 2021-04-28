@@ -294,6 +294,112 @@ Please note that several surveys can be provided as a list to the generator. In 
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
 
+Measurement
+............
+
+Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending : detections, segmentations and deblended images. You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function.
+The measure function is a regular function with two arguments : `batch` and `idx`. Batch is the direct output of a `DrawBlendsGenerator`, and `idx` is the index of the blend on which the measurements should be done. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
+
+.. jupyter-execute::
+
+  def sep_measure(batch, idx):
+    """Return detection, segmentation and deblending information with SEP.
+
+    NOTE: This function does not support the multi-resolution feature.
+
+    Args:
+        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
+        idx (int): Index number of blend scene in the batch to preform
+            measurement on.
+
+    Returns:
+        dict with the centers of sources detected by SEP detection algorithm.
+    """
+    if isinstance(batch["blend_images"], dict):
+        raise NotImplementedError("This function does not support the multi-resolution feature.")
+
+    image = batch["blend_images"][idx]
+    stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
+    coadd = np.mean(image, axis=np.argmin(image.shape))  # Smallest dimension is the channels
+    bkg = sep.Background(coadd)
+    # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
+    catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
+    n_objects = len(catalog)
+    segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
+    deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
+    for i in range(n_objects):
+        seg_i = segmentation == i + 1
+        segmentation_exp[i] = seg_i
+        seg_i_reshaped = np.zeros((np.min(image.shape), stamp_size, stamp_size))
+        for j in range(np.min(image.shape)):
+            seg_i_reshaped[j] = seg_i
+        seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
+        deblended_images[i] = image * seg_i_reshaped
+
+    t = astropy.table.Table()
+    t["x_peak"] = catalog["x"]
+    t["y_peak"] = catalog["y"]
+    return {
+        "catalog": t,
+        "segmentation": segmentation_exp,
+        "deblended_images": deblended_images,
+    }
+
+The function is not required to output all three measurements, only the catalog containing the detections is mandatory. Once the measure function is defined, it can be given to a `MeasureGenerator` together with the `DrawBlendsGenerator` from the previous step.
+
+.. jupyter-execute::
+
+  meas_generator = btk.measure.MeasureGenerator(btk.measure.sep_measure,draw_generator)
+
+The results returned by the `MeasureGenerator`are both the results from the `DrawBlendsGenerator` and the measures, as a dictionnary with the same keys as the measure function output but containing a list with the results from all the blends.
+
+.. jupyter-execute::
+
+  blend_results,meas_results = next(meas_generator)
+
+Metrics
+........
+
+Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a `MetricsGenerator`, which takes a `MeasureGenerator` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the page of the metrics module in the documentation.
+
+.. jupyter-execute::
+
+  import btk.metrics
+  import btk.plot_utils
+
+  metrics_generator = btk.metrics.MetricsGenerator(meas_generator,use_metrics=("detection","segmentation","reconstruction"),
+                                                   target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity})
+  blend_results,meas_results,results = next(metrics_generator)
+  results = results
+
+Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys "detection", "segmentation" and "reconstruction", you can directly access all the segmentation and reconstruction metrics with the "galaxy_summary" key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
+
+.. jupyter-execute::
+
+  gal_summary = results["galaxy_summary"][results["galaxy_summary"]["detected"]==True]
+  msr = gal_summary["msr"]
+  dist = gal_summary["distance_closest_galaxy"]
+  dist_detect = gal_summary["distance_detection"]
+
+  fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2)
+  btk.plot_utils.plot_metrics_distribution(msr,"msr",ax1,upper_quantile=0.9)
+  btk.plot_utils.plot_metrics_distribution(dist,"Distance to the closest galaxy",ax2)
+  btk.plot_utils.plot_metrics_correlation(dist,msr,"Distance to the closest galaxy","msr",ax3,upper_quantile=0.9,style='heatmap')
+  btk.plot_utils.plot_metrics_correlation(dist,dist_detect,"Distance to the closest galaxy","Distance detection",ax4,upper_quantile=0.9,style='scatter')
+  plt.show()
+
+  btk.plot_utils.plot_efficiency_matrix(results["detection"]["eff_matrix"])
+
+.. jupyter-execute::
+
+  gal_summary_filtered = gal_summary[gal_summary["ellipticity0_true"]<1.0]
+  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0_true"]>-1.0]
+  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0"]<1.0]
+  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0"]>-1.0]
+  e1 = gal_summary_filtered["ellipticity0"]
+  e1_true = gal_summary_filtered["ellipticity0_true"]
+  btk.plot_utils.plot_metrics_correlation(e1,e1_true,"e1","e1_true",upper_quantile=0.9,style='truth')
+
 Using COSMOS galaxies
 ----------------------
 
@@ -358,21 +464,21 @@ We then instantiate the sampling function ; you should use the one specific for 
 
 Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default `"hub:Lanusse2020"`).
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-  draw_generator = btk.draw_blends.GalsimHubGenerator(
-      catalog,
-      sampling_function,
-      [Rubin],
-      batch_size=8,
-      stamp_size=stamp_size,
-      shifts=None,
-      indexes=None,
-      cpus=1,
-      add_noise=True,
-      galsim_hub_model="hub:Lanusse2020", #May be replaced by any model compatible with galsim_hub
-      param_names=["flux_radius", "mag_auto", "zphot"], #Name of the parameters ; they must match with the model you provide
-  )
+..   draw_generator = btk.draw_blends.GalsimHubGenerator(
+..       catalog,
+..       sampling_function,
+..       [Rubin],
+..       batch_size=8,
+..       stamp_size=stamp_size,
+..       shifts=None,
+..       indexes=None,
+..       cpus=1,
+..       add_noise=True,
+..       galsim_hub_model="hub:Lanusse2020", #May be replaced by any model compatible with galsim_hub
+..       param_names=["flux_radius", "mag_auto", "zphot"], #Name of the parameters ; they must match with the model you provide
+..   )
 
 .. jupyter-execute::
 

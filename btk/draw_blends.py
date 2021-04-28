@@ -192,7 +192,7 @@ class DrawBlendsGenerator(ABC):
         self.add_noise = add_noise
         self.verbose = verbose
 
-        self.dim_order = (1, 2, 0) if channels_last else (0, 1, 2)
+        self.channels_last = channels_last
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -242,11 +242,13 @@ class DrawBlendsGenerator(ABC):
             # allocate memory for output catalogues and images.
             batch_blend_cat[s.name] = []
             batch_obs_cond[s.name] = []
-            image_shape = (
-                len(s.filters),
-                pix_stamp_size,
-                pix_stamp_size,
-            )
+
+            # decide image_shape based on channels_last bool.
+            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
+            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
+            image_shape = option1 if not self.channels_last else option2
+
+            # create emtpy arrays with image_shape.
             blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
             isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
 
@@ -353,7 +355,7 @@ class DrawBlendsGenerator(ABC):
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
             # transpose if requested.
-            dim_order = np.array(self.dim_order)
+            dim_order = np.array((0, 1, 2) if not self.channels_last else (1, 2, 0))
             blend_image_multi = blend_image_multi.transpose(dim_order)
             iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
