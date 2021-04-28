@@ -97,6 +97,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#sampling-function">Sampling Function</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#survey">Survey</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#drawing-the-blends">Drawing the blends</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metrics">Metrics</a></li>
 </ul>
 </li>
 </ul>
@@ -501,6 +503,156 @@ Finally, you can use the default function <cite>get_psf</cite> as demonstrated i
 </div>
 </div>
 </div>
+<div class="section" id="measurement">
+<h4>Measurement<a class="headerlink" href="#measurement" title="Permalink to this headline">¶</a></h4>
+<p>Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending : detections, segmentations and deblended images. You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function.
+The measure function is a regular function with two arguments : <cite>batch</cite> and <cite>idx</cite>. Batch is the direct output of a <cite>DrawBlendsGenerator</cite>, and <cite>idx</cite> is the index of the blend on which the measurements should be done. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sep_measure</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Return detection, segmentation and deblending information with SEP.</span>
+
+<span class="sd">  NOTE: This function does not support the multi-resolution feature.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">      batch (dict): Output of DrawBlendsGenerator object&#39;s `__next__` method.</span>
+<span class="sd">      idx (int): Index number of blend scene in the batch to preform</span>
+<span class="sd">          measurement on.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">      dict with the centers of sources detected by SEP detection algorithm.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This function does not support the multi-resolution feature.&quot;</span><span class="p">)</span>
+
+  <span class="n">image</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+  <span class="n">stamp_size</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># true for both &#39;NCHW&#39; or &#39;NHWC&#39; formats.</span>
+  <span class="n">coadd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>  <span class="c1"># Smallest dimension is the channels</span>
+  <span class="n">bkg</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">Background</span><span class="p">(</span><span class="n">coadd</span><span class="p">)</span>
+  <span class="c1"># Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.</span>
+  <span class="n">catalog</span><span class="p">,</span> <span class="n">segmentation</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">coadd</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">bkg</span><span class="o">.</span><span class="n">globalrms</span><span class="p">,</span> <span class="n">segmentation_map</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  <span class="n">n_objects</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+  <span class="n">segmentation_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_objects</span><span class="p">,</span> <span class="n">stamp_size</span><span class="p">,</span> <span class="n">stamp_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="n">deblended_images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_objects</span><span class="p">,</span> <span class="o">*</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_objects</span><span class="p">):</span>
+      <span class="n">seg_i</span> <span class="o">=</span> <span class="n">segmentation</span> <span class="o">==</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="n">segmentation_exp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_i</span>
+      <span class="n">seg_i_reshaped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">stamp_size</span><span class="p">,</span> <span class="n">stamp_size</span><span class="p">))</span>
+      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)):</span>
+          <span class="n">seg_i_reshaped</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_i</span>
+      <span class="n">seg_i_reshaped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">seg_i_reshaped</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+      <span class="n">deblended_images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="n">seg_i_reshaped</span>
+
+  <span class="n">t</span> <span class="o">=</span> <span class="n">astropy</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="p">()</span>
+  <span class="n">t</span><span class="p">[</span><span class="s2">&quot;x_peak&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+  <span class="n">t</span><span class="p">[</span><span class="s2">&quot;y_peak&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+  <span class="k">return</span> <span class="p">{</span>
+      <span class="s2">&quot;catalog&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span>
+      <span class="s2">&quot;segmentation&quot;</span><span class="p">:</span> <span class="n">segmentation_exp</span><span class="p">,</span>
+      <span class="s2">&quot;deblended_images&quot;</span><span class="p">:</span> <span class="n">deblended_images</span><span class="p">,</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The function is not required to output all three measurements, only the catalog containing the detections is mandatory. Once the measure function is defined, it can be given to a <cite>MeasureGenerator</cite> together with the <cite>DrawBlendsGenerator</cite> from the previous step.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">meas_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">MeasureGenerator</span><span class="p">(</span><span class="n">btk</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">sep_measure</span><span class="p">,</span><span class="n">draw_generator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The results returned by the <cite>MeasureGenerator`are both the results from the `DrawBlendsGenerator</cite> and the measures, as a dictionnary with the same keys as the measure function output but containing a list with the results from all the blends.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">blend_results</span><span class="p">,</span><span class="n">meas_results</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">meas_generator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</div>
+<div class="section" id="metrics">
+<h4>Metrics<a class="headerlink" href="#metrics" title="Permalink to this headline">¶</a></h4>
+<p>Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a <cite>MetricsGenerator</cite>, which takes a <cite>MeasureGenerator</cite> as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the page of the metrics module in the documentation.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk.metrics</span>
+<span class="kn">import</span> <span class="nn">btk.plot_utils</span>
+
+<span class="n">metrics_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">MetricsGenerator</span><span class="p">(</span><span class="n">meas_generator</span><span class="p">,</span><span class="n">use_metrics</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;detection&quot;</span><span class="p">,</span><span class="s2">&quot;segmentation&quot;</span><span class="p">,</span><span class="s2">&quot;reconstruction&quot;</span><span class="p">),</span>
+                                                 <span class="n">target_meas</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ellipticity&quot;</span><span class="p">:</span><span class="n">btk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">meas_ksb_ellipticity</span><span class="p">})</span>
+<span class="n">blend_results</span><span class="p">,</span><span class="n">meas_results</span><span class="p">,</span><span class="n">results</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">metrics_generator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Error: non positive-definite weight in find_ellipmom_2.
+
+Unphysical situation: galaxy convolved with PSF is smaller than PSF!
+
+Error: adaptive moment failed
+
+Unphysical situation: galaxy convolved with PSF is smaller than PSF!
+
+Error: NaN in calculation of adaptive moments
+
+Error: too many iterations in adaptive moments
+
+Unphysical situation: galaxy convolved with PSF is smaller than PSF!
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys “detection”, “segmentation” and “reconstruction”, you can directly access all the segmentation and reconstruction metrics with the “galaxy_summary” key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">gal_summary</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;galaxy_summary&quot;</span><span class="p">][</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;galaxy_summary&quot;</span><span class="p">][</span><span class="s2">&quot;detected&quot;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">]</span>
+<span class="n">msr</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;msr&quot;</span><span class="p">]</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;distance_closest_galaxy&quot;</span><span class="p">]</span>
+<span class="n">dist_detect</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;distance_detection&quot;</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">((</span><span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">),(</span><span class="n">ax3</span><span class="p">,</span><span class="n">ax4</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_distribution</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span><span class="s2">&quot;msr&quot;</span><span class="p">,</span><span class="n">ax1</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_distribution</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="n">msr</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="s2">&quot;msr&quot;</span><span class="p">,</span><span class="n">ax3</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;heatmap&#39;</span><span class="p">)</span>
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="n">dist_detect</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="s2">&quot;Distance detection&quot;</span><span class="p">,</span><span class="n">ax4</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;scatter&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_efficiency_matrix</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;detection&quot;</span><span class="p">][</span><span class="s2">&quot;eff_matrix&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/tutorials_12_0.png" src="_images/tutorials_12_0.png" />
+<img alt="_images/tutorials_12_1.png" src="_images/tutorials_12_1.png" />
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="p">]</span>
+<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span><span class="o">&gt;-</span><span class="mf">1.0</span><span class="p">]</span>
+<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="p">]</span>
+<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span><span class="o">&gt;-</span><span class="mf">1.0</span><span class="p">]</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span>
+<span class="n">e1_true</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span>
+<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="n">e1_true</span><span class="p">,</span><span class="s2">&quot;e1&quot;</span><span class="p">,</span><span class="s2">&quot;e1_true&quot;</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;truth&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/tutorials_13_0.png" src="_images/tutorials_13_0.png" />
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="using-cosmos-galaxies">
@@ -552,14 +704,14 @@ Finally, you can use the default function <cite>get_psf</cite> as demonstrated i
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/tutorials_10_0.png" src="_images/tutorials_10_0.png" />
-<img alt="_images/tutorials_10_1.png" src="_images/tutorials_10_1.png" />
-<img alt="_images/tutorials_10_2.png" src="_images/tutorials_10_2.png" />
-<img alt="_images/tutorials_10_3.png" src="_images/tutorials_10_3.png" />
-<img alt="_images/tutorials_10_4.png" src="_images/tutorials_10_4.png" />
-<img alt="_images/tutorials_10_5.png" src="_images/tutorials_10_5.png" />
-<img alt="_images/tutorials_10_6.png" src="_images/tutorials_10_6.png" />
-<img alt="_images/tutorials_10_7.png" src="_images/tutorials_10_7.png" />
+<img alt="_images/tutorials_16_0.png" src="_images/tutorials_16_0.png" />
+<img alt="_images/tutorials_16_1.png" src="_images/tutorials_16_1.png" />
+<img alt="_images/tutorials_16_2.png" src="_images/tutorials_16_2.png" />
+<img alt="_images/tutorials_16_3.png" src="_images/tutorials_16_3.png" />
+<img alt="_images/tutorials_16_4.png" src="_images/tutorials_16_4.png" />
+<img alt="_images/tutorials_16_5.png" src="_images/tutorials_16_5.png" />
+<img alt="_images/tutorials_16_6.png" src="_images/tutorials_16_6.png" />
+<img alt="_images/tutorials_16_7.png" src="_images/tutorials_16_7.png" />
 </div>
 </div>
 </div>
@@ -594,27 +746,6 @@ Finally, you can use the default function <cite>get_psf</cite> as demonstrated i
 <p>Then we can instantiate the <cite>DrawBlendsGenerator</cite> with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default <cite>“hub:Lanusse2020”</cite>).</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">draw_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">draw_blends</span><span class="o">.</span><span class="n">GalsimHubGenerator</span><span class="p">(</span>
-    <span class="n">catalog</span><span class="p">,</span>
-    <span class="n">sampling_function</span><span class="p">,</span>
-    <span class="p">[</span><span class="n">Rubin</span><span class="p">],</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-    <span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">,</span>
-    <span class="n">shifts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">indexes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">add_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">galsim_hub_model</span><span class="o">=</span><span class="s2">&quot;hub:Lanusse2020&quot;</span><span class="p">,</span> <span class="c1">#May be replaced by any model compatible with galsim_hub</span>
-    <span class="n">param_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;flux_radius&quot;</span><span class="p">,</span> <span class="s2">&quot;mag_auto&quot;</span><span class="p">,</span> <span class="s2">&quot;zphot&quot;</span><span class="p">],</span> <span class="c1">#Name of the parameters ; they must match with the model you provide</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-</div>
-</div>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">draw_generator</span><span class="p">)</span>
 <span class="n">blend_images</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;blend_images&#39;</span><span class="p">]</span>
 <span class="n">blend_list</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;blend_list&#39;</span><span class="p">]</span>
@@ -623,29 +754,14 @@ Finally, you can use the default function <cite>get_psf</cite> as demonstrated i
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>WARNING:tensorflow:From /home/runner/.cache/pypoetry/virtualenvs/blending-toolkit-abnhA8Qe-py3.7/lib/python3.7/site-packages/galsim_hub/generative_model.py:80: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
-
-</pre></div>
-</div>
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>WARNING:tensorflow:From /home/runner/.cache/pypoetry/virtualenvs/blending-toolkit-abnhA8Qe-py3.7/lib/python3.7/site-packages/galsim_hub/generative_model.py:81: The name tf.global_variables_initializer is deprecated. Please use tf.compat.v1.global_variables_initializer instead.
-
-</pre></div>
-</div>
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>WARNING:tensorflow:From /home/runner/.cache/pypoetry/virtualenvs/blending-toolkit-abnhA8Qe-py3.7/lib/python3.7/site-packages/galsim_hub/generative_model.py:86: The name tf.placeholder is deprecated. Please use tf.compat.v1.placeholder instead.
-
-</pre></div>
-</div>
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>INFO:tensorflow:Saver not created because there are no variables in the graph to restore
-</pre></div>
-</div>
-<img alt="_images/tutorials_14_8.png" src="_images/tutorials_14_8.png" />
-<img alt="_images/tutorials_14_9.png" src="_images/tutorials_14_9.png" />
-<img alt="_images/tutorials_14_10.png" src="_images/tutorials_14_10.png" />
-<img alt="_images/tutorials_14_11.png" src="_images/tutorials_14_11.png" />
-<img alt="_images/tutorials_14_12.png" src="_images/tutorials_14_12.png" />
-<img alt="_images/tutorials_14_13.png" src="_images/tutorials_14_13.png" />
-<img alt="_images/tutorials_14_14.png" src="_images/tutorials_14_14.png" />
-<img alt="_images/tutorials_14_15.png" src="_images/tutorials_14_15.png" />
+<img alt="_images/tutorials_19_0.png" src="_images/tutorials_19_0.png" />
+<img alt="_images/tutorials_19_1.png" src="_images/tutorials_19_1.png" />
+<img alt="_images/tutorials_19_2.png" src="_images/tutorials_19_2.png" />
+<img alt="_images/tutorials_19_3.png" src="_images/tutorials_19_3.png" />
+<img alt="_images/tutorials_19_4.png" src="_images/tutorials_19_4.png" />
+<img alt="_images/tutorials_19_5.png" src="_images/tutorials_19_5.png" />
+<img alt="_images/tutorials_19_6.png" src="_images/tutorials_19_6.png" />
+<img alt="_images/tutorials_19_7.png" src="_images/tutorials_19_7.png" />
 </div>
 </div>
 </div>

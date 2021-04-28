@@ -27,6 +27,7 @@
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -39,7 +40,7 @@
   <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="btk.sampling_functions module" href="btk.sampling_functions.html" />
+    <link rel="next" title="btk.plot_utils module" href="btk.plot_utils.html" />
     <link rel="prev" title="btk.measure module" href="btk.measure.html" /> 
 </head>
 
@@ -99,6 +100,7 @@
 <li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html">btk.draw_blends module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.measure.html">btk.measure module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">btk.metrics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.plot_utils.html">btk.plot_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html">btk.sampling_functions module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.survey.html">btk.survey module</a></li>
 </ul>
@@ -171,202 +173,197 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="btk-metrics-module">
-<h1>btk.metrics module<a class="headerlink" href="#btk-metrics-module" title="Permalink to this headline">¶</a></h1>
-<p>This module should be updated in a near future.
-The metrics module contains everything related to getting metrics for evaluating detection/deblending algorithms. Particular points of interest are the <a class="reference internal" href="#btk.metrics.MetricsParams" title="btk.metrics.MetricsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricsParams</span></code></a> class and the <code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code> function.</p>
-<span class="target" id="module-btk.metrics"></span><dl class="py class">
-<dt id="btk.metrics.BasicMetricsParams">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">BasicMetricsParams</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.BasicMetricsParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.metrics.MetricsParams" title="btk.metrics.MetricsParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.metrics.MetricsParams</span></code></a></p>
-<p>Class describing functions to return results of
-detection/deblending/measurement algorithm in meas_generator. Each
-time the algorithm is called, it is run on a batch of blends yielded
-by the meas_generator.</p>
-<dl class="py method">
-<dt id="btk.metrics.BasicMetricsParams.get_detections">
-<code class="sig-name descname"><span class="pre">get_detections</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.BasicMetricsParams.get_detections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns input blend catalog and detection catalog for
-the detection performed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>true_tables: List of astropy Table of the blend catalogs of the</dt><dd><p>batch. Length of tables must be the batch size. x and y
-coordinate values must be under columns named ‘x_peak’ and ‘y_peak’
-respectively, in pixels from bottom left corner as (0, 0).</p>
-</dd>
-<dt>detected_tables: List of astropy Table of output from detection</dt><dd><p>algorithm. Length of tables must be the batch size. x and y
-coordinate values must be under columns named ‘x_peak’ and ‘y_peak’
-respectively, in pixels from bottom left corner as (0, 0).</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Results of the detection algorithm are returned as</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="module-btk.metrics">
+<span id="btk-metrics-module"></span><h1>btk.metrics module<a class="headerlink" href="#module-btk.metrics" title="Permalink to this headline">¶</a></h1>
+<p>Implements a variety of metrics for evaluating measurement results in BTK.</p>
+<p>BTK users are expected to use the MetricsGenerator class, which is initialized by providing
+a MeasureGenerator as well as some parameters. Users which do not want to use the full BTK
+pipeline may use the compute_metrics function which takes the raw data as an input.</p>
+<p>Currently, we support the following metrics :</p>
+<ul>
+<li><p>For detection, all metrics are per batch :</p>
+<ul class="simple">
+<li><p>Number of true positives, ie number of true galaxies which have been correctly detected</p></li>
+<li><p>Number of false positives, ie number of detected galaxies which do not correspond
+to a true galaxy</p></li>
+<li><p>Number of false negatives, ie number of true galaxies which have not been detected</p></li>
+<li><p>Precision, the ratio of true positives against the total number of positives ; describes
+how much the algorithm is susceptible to make false detections (closer to 1 is better)</p></li>
+<li><p>Recall, the ratio of true positives against the number of true galaxies (which is equal
+to true positives + false negatives) ; indicates the capacity of the algorithm for
+detecting all the galaxies (closer to 1 is better)</p></li>
+<li><p>F1 score, the harmonic mean of precision and recall ; gives an overall assessment of the
+detection (closer to 1 is better)</p></li>
+<li><p>Efficiency matrix, contains for each possible number of true galaxies in a blend the
+distribution of the number of detected galaxies in blends containing this number of true
+galaxies.</p></li>
+</ul>
+</li>
+<li><p>For segmentation, all metrics are per galaxy :</p>
+<ul class="simple">
+<li><p>Intersection-over-Union (IoU), the ratio between the intersection of the true and
+detected segmentations (true segmentation is computed by applying a threshold on
+the true image) and the union of the two. Closer to 1 is better.</p></li>
+</ul>
+</li>
+<li><p>For reconstruction, all metrics are per galaxy :</p>
+<ul class="simple">
+<li><p>Mean Square Residual (MSR), the mean square error between the true image and the
+deblended image. Lower is better.</p></li>
+<li><p>Peak Signal to Noise Ratio (PSNR), the log of the maximum value in the image divided
+by the MSR squared (result is in dB). Higher is better.</p></li>
+<li><p>Structure Similarity Index (SSIM), a more advanced metric based on perceptual
+considerations, divided in luminance, contrast and structure. Closer to 1 is better.</p></li>
+</ul>
+</li>
+<li><p>Additionnal information provided :</p>
+<ul>
+<li><p>Distance between the detection and the true galaxy</p></li>
+<li><p>Distance to the closest true galaxy</p></li>
+<li><p>Blendedness, defined as :</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}1 - \\frac{S_k \\cdot S_k}{S_{all} \\cdot S_k}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(S_k\)</span> is the flux of the k-th galaxy for each pixel (as a vector),
+<span class="math notranslate nohighlight">\(S_{all}\)</span> is the flux of all the galaxies for each pixel, and <span class="math notranslate nohighlight">\(\\cdot\)</span>
+is the standard scalar product on vectors.</p>
+</li>
+</ul>
+</li>
+</ul>
 <dl class="py class">
-<dt id="btk.metrics.MetricsParams">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsParams</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dt id="btk.metrics.MetricsGenerator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detection'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generator that calculates metrics on batches returned by the MeasureGenerator.</p>
 <dl class="py method">
-<dt id="btk.metrics.MetricsParams.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class describing functions to return results of
-detection/deblending/measurement algorithm in meas_generator. Each
-blend results yielded by the meas_generator for a batch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.metrics.MetricsParams.get_detections">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">get_detections</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_detections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns detection results as two catalogs one with entries of true
-objects in blend and the other with the detection.</p>
-<p>Overwrite this function to return results from the detection algorithm.</p>
+<dt id="btk.metrics.MetricsGenerator.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detection'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize metrics generator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>List of astropy tables with the blend catalogs used to draw</dt><dd><p>the blend scene in the batch. Length of tables must be equal to
-the batch size. x and y coordinate values must be under columns
-named ‘x_peak’ and ‘y_peak’ respectively, in pixels from bottom left
-corner as (0, 0).</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measure_generator</strong> (<a class="reference internal" href="btk.measure.html#btk.measure.MeasureGenerator" title="btk.measure.MeasureGenerator"><em>btk.measure.MeasureGenerator</em></a>) – Measurement generator object.</p></li>
+<li><p><strong>use_metrics</strong> (<em>tuple</em>) – Which metrics do you want to use? Options:
+- “detection”
+- “segmentation”
+- “reconstruction”</p></li>
+<li><p><strong>meas_band_num</strong> (<em>int</em>) – If using multiple bands for each blend,
+which band index do you want to use for measurement?</p></li>
+<li><p><strong>target_meas</strong> (<em>dict</em>) – Dictionary containing functions that can measure a physical
+parameter on isolated galaxy images. Each key is the name of the estimator and
+value the function performing the estimation (e.g. <cite>meas_ellipticity</cite> above).</p></li>
+<li><p><strong>noise_threshold_factor</strong> (<em>float</em>) – Factor for determining the threshold which is
+applied when getting segmentations from true images. A value of 3 would
+correspond to a threshold of 3 sigmas (with sigma the standard deviation of
+the noise)</p></li>
+</ul>
 </dd>
 </dl>
-<p>list: List of astropy Tables of output with the outputs of the
-detection algorithm. Length of tables must be equal to the batch
-size. x and y coordinate values must be under columns named ‘x_peak’
-and ‘y_peak’ respectively, in pixels from bottom left corner as (0, 0).</p>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.metrics.MetricsParams.get_flux">
-<code class="sig-name descname"><span class="pre">get_flux</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define function here to return results from the flux measurement
-algorithm.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.metrics.MetricsParams.get_segmentation">
-<code class="sig-name descname"><span class="pre">get_segmentation</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_segmentation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define function here to return results from the segmentation
-algorithm.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.metrics.MetricsParams.get_shapes">
-<code class="sig-name descname"><span class="pre">get_shapes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsParams.get_shapes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define function here to return results from the shape measurement
-algorithm.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.evaluate_detection">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_detection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_detection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares the true centers and detected centers to identify the
-number of true detections, number of sources that were undetected
-and number of spurious detections.
-:param true_tables: List of astropy Tables of the blend catalogs of the</p>
-<blockquote>
-<div><p>batch. Length of tables must be the batch size. x and y coordinate
-values must be under columns named ‘x_peak’ and ‘y_peak’ respectively, in
-pixels from bottom left corner as (0, 0).</p>
-</div></blockquote>
+<dt id="btk.metrics.compute_metrics">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('detection',</span> <span class="pre">'segmentation',</span> <span class="pre">'reconstruction')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>detected_tables</strong> – List of astropy Tables of output from detection
-algorithm. Length of tables must be the batch size. x and y
-coordinate values must be under columns named ‘x_peak’ and ‘y_peak’
-respectively, in pixels from bottom left corner as (0, 0).</p></li>
-<li><p><strong>batch_index</strong> (<em>int</em>) – Index number of the batch.</p></li>
+<li><p><strong>blended_images</strong> (<em>array</em>) – Contains all the blend images, with shape as specified
+by channels_last.</p></li>
+<li><p><strong>isolated_images</strong> (<em>array</em>) – Contains all the isolated images, with shape NMCHW OR NMHWC
+depending on channels_last, with M the maximum number of galaxies
+in a blend.</p></li>
+<li><p><strong>blend_list</strong> (<em>list</em>) – Contains the information related to all blends, as a list of astropy
+Tables (one for each blend). Those tables should at least
+contain columns indicating the position in pixels of each galaxy,
+named “x_peak” and “y_peak”.</p></li>
+<li><p><strong>detection_catalogs</strong> (<em>list</em>) – Contains the information on the detections for all blends, as a
+list of astropy Tables (one for each blend). Those tables
+should at least contain columns indicating the position
+in pixels of each detected galaxy, named “x_peak” and “y_peak”.</p></li>
+<li><p><strong>segmentations</strong> (<em>list</em>) – Contains the measured segmentations, as a list of boolean arrays of
+shape MHW where M is the number of detected objects (must be
+consistent with corresponding detection catalog).</p></li>
+<li><p><strong>deblended_images</strong> (<em>list</em>) – Contains the deblended images, as a list of arrays of shape NCHW
+or NHWC depending on channels_last, where N is the number of
+detected objects (must be consistent with corresponding
+detection catalogs).</p></li>
+<li><p><strong>use_metrics</strong> (<em>tuple</em>) – Specifies which metrics are to be computed ; can contain “detection”,
+“segmentation” and “reconstruction”.</p></li>
+<li><p><strong>noise_threshold</strong> (<em>float</em>) – Threshold to use when computing the true segmentations from
+isolated images.</p></li>
+<li><p><strong>meas_band_num</strong> (<em>int</em>) – Indicates in which band some of the measurements should be done.</p></li>
+<li><p><strong>target_meas</strong> (<em>dict</em>) – Contains functions measuring target parameters on images, which will
+be returned for both isolated and deblended images to compare.</p></li>
+<li><p><strong>channels_last</strong> (<em>bool</em>) – Indicates whether the images should be channels first (NCHW)
+or channels last (NHWC).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>astropy.table.Table with parameters of true galaxy in</dt><dd><p>the batch.</p>
-</dd>
-<dt>batch_detected_table: astropy.table.Table with parameters of detected</dt><dd><p>objects in the batch.</p>
+<dt>Contains all the computed metrics. Entries are :</dt><dd><ul class="simple">
+<li><p>matches : list of astropy Tables containing the matched detected galaxy
+for each true galaxy</p></li>
+<li><p>detection : dict containing the raw results for detection</p></li>
+<li><p>segmentation : dict containing the raw results for segmentation</p></li>
+<li><p>reconstruction : dict containing the raw results for reconstruction</p></li>
+<li><p>galaxy_summary : astropy Table containing all the galaxies from all
+blends and related metrics</p></li>
+</ul>
 </dd>
 </dl>
-<p>batch_blend_list: List summarizing detection match results.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>batch_true_table</p>
+<dd class="field-odd"><p>results (dict)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.evaluate_flux">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_flux</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_flux" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="btk.metrics.evaluate_segmentation">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_segmentation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segmentation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_segmentation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="btk.metrics.evaluate_shapes">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">evaluate_shapes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.evaluate_shapes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="btk.metrics.get_blend_detection_summary">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_blend_detection_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blend_detection_summary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns list summarizing results of detection metric computation</p>
+<dt id="btk.metrics.detection_metrics">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">detection_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.detection_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate detection metrics based on matches from <cite>get_detection_match</cite> function.</p>
+<p>Currently implemented detection metrics include:
+- recall
+- precision
+- f1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>true_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding to
-the true object parameter values in one blend.</p></li>
-<li><p><strong>det_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding
-to output of measurement algorithm in one blend.</p></li>
+<li><p><strong>detection_catalogs</strong> (<em>list</em>) – Contains one astropy Table for each blend,
+corresponding to the detected galaxies.</p></li>
+<li><p><strong>matches</strong> (<em>list</em>) – Contains one astropy Table for each blend, with a
+column <cite>match_detected_id</cite> containing the index of the
+matched detected galaxy for each true galaxy.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>num_true: number of true objects.
-num_detected: Number of correct detections by algorithm.
-num_undetected: Number of true objects not detected by algorithm.
-num_spurious: Number of spurious detections.
-num_shred: Number of true objects shredded by algorithm.</p>
+<dd class="field-even"><p>Dictionary containing keys corresponding to each implemented
+metric. Each value is a list where each element corresponds to each element of
+the batch (a single blend).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List of detection metrics summary</p>
+<dd class="field-odd"><p>results_detection (dict)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.get_closest_neighbor_distance">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_closest_neighbor_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_closest_neighbor_distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a astropy.table.column with the distance to the closest object.</p>
-<p>Function uses scipy.spatial to compute distance between the object centers.
-If object is the only one in the blend then the <cite>min_dist</cite> value is set to
-np.inf.</p>
+<dt id="btk.metrics.get_blendedness">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_blendedness</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_iso_images</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blendedness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate blendedness given isolated images of each galaxy in a blend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>true_table</strong> – Catalog with entries corresponding to one blend.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>size of the galaxy.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a href="#id1"><span class="problematic" id="id2">`</span></a>astropy.table.Column`s</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iso_image</strong> (<em>np.array</em>) – Array of shape = (H,W) corresponding to image of the isolated
+galaxy you are calculating blendedness for.</p></li>
+<li><p><strong>blend_iso_images</strong> (<em>np.array</em>) – Array of shape = (N, H, W) where N is the number of galaxies
+in the blend and each image of this array corresponds to an isolated galaxy that is
+part of the blend (includes <cite>iso_image</cite>).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -374,15 +371,14 @@ np.inf.</p>
 <dl class="py function">
 <dt id="btk.metrics.get_detection_eff_matrix">
 <code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_eff_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_eff_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the detection efficiency matrix for the input detection summary
-table.</p>
+<dd><p>Computes the detection efficiency matrix for the input detection summary table.</p>
 <p>Input argument num sets the maximum number of true objects per blend in the
 test set for which the
 detection efficiency matrix is to be created for. Detection efficiency is
 computed for a number of true objects in the range (0-num) as columns and
 the detection percentage as rows. The percentage values in a column sum to
-100.</p>
-<p>The input summary table must be a numpy array of shape [N, 5], where N is
+100.
+The input summary table must be a numpy array of shape [N, 5], where N is
 the test set size. The 5 columns in the summary_table are number of true
 objects, detected sources, undetected objects, spurious detections and
 shredded objects for each of the N blend scenes in the test set.</p>
@@ -404,9 +400,15 @@ will correspond to no true objects.</p></li>
 <dl class="py function">
 <dt id="btk.metrics.get_detection_match">
 <code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition">¶</a></dt>
-<dd><p>Match detections to true objects and update values in the input
-blend catalog and detection catalog.</p>
-<p>Function does not return anything, only the astropy tables are updated.</p>
+<dd><p>Uses the Hungarian algorithm to find optimal matching between detections and true objects.</p>
+<p>The optimal matching is computed based on the following optimization problem:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i} \sum_{j} C_{i,j} X_{i,j}\]</div>
+<p>where, in the BTK context, <span class="math notranslate nohighlight">\(C_{ij}\)</span> is the cost function between matching true object
+<span class="math notranslate nohighlight">\(i\)</span> with detected object <span class="math notranslate nohighlight">\(j\)</span> computed as the L2 distance between the two objects,
+and <span class="math notranslate nohighlight">\(X_{i,j}\)</span> is an indicator function over the matches.</p>
+<p>Based on this implementation in scipy:
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -416,70 +418,190 @@ the true object parameter values in one blend.</p></li>
 to output of measurement algorithm in one blend.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Table where each row corresponds to each true
+galaxy in <cite>true_table</cite> and contains two columns:</p>
+<ul class="simple">
+<li><p>”match_detected_id”: Index of row in <cite>detected_table</cite> corresponding to
+matched detected object. If no match, value is -1.</p></li>
+<li><p>”dist”: distance between true object and matched object or 0 if no matches.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>match_table (astropy.table.Table)</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.get_m_z_diff">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_m_z_diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_m_z_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the input astropy.table.column with the difference in magnitude,
-and redshift between an object and it’s algorithm matches. It also computes
-the true distance between an object and its closest detection.</p>
+<dt id="btk.metrics.meas_ksb_ellipticity">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">meas_ksb_ellipticity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.meas_ksb_ellipticity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to measure ellipticity using the <cite>galsim.hsm</cite> package, with the KSB method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>detected_true</strong> – </p></li>
-<li><p><strong>true_table</strong> – Catalog with entries corresponding to one blend.</p></li>
+<li><p><strong>image</strong> (<em>np.array</em>) – Image of a single, isolated galaxy with shape (H, W).</p></li>
+<li><p><strong>additional_params</strong> (<em>dict</em>) – Containing keys ‘psf’, ‘pixel_scale’ and ‘meas_band_num’.
+The psf should be a Galsim PSF model, and meas_band_num
+an integer indicating the band in which the measurement
+is done.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.initialize_detection_tables">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">initialize_detection_tables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.initialize_detection_tables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize column entries of true objects and detection catalog to their
-default values.</p>
-<p>This is necessary since, if either true objects or detection table is
-empty, then there is no match in get_detection_match and those column
-entries would not otherwise be present in the tables.</p>
-<p>Function does not return anything, only the astropy tables are updates.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="btk.metrics.make_true_seg_map">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">make_true_seg_map</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.make_true_seg_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean segmentation map corresponding to pixels in
-image above a certain threshold value.
-:param image: Image to estimate segmentation map of
-:param threshold: Pixels above this threshold are marked as belonging to</p>
-<blockquote>
-<div><p>segmentation map</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Boolean segmentation map of the image</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="btk.metrics.run">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs detection/segmentation/flux/shape measurement algorithm defined in
-the input metrics params for input test_size number of btk runs.</p>
+<dt id="btk.metrics.reconstruction_metrics">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">reconstruction_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate reconstruction metrics given information from a single batch.</p>
+<p>Currently implemented reconstruction metrics include:
+- Mean Squared Residual (MSR)
+- Peak Signal-to-Noise Ratio (PSNR)
+- Structural Similarity (SSIM)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metrics_params</strong> – Instance from class</p></li>
-<li><p><strong>describing functions to return</strong> (<em>btk.metrics.Metrics_params</em>) – </p></li>
-<li><p><strong>of detection/deblending/measurement algorithm.</strong> (<em>results</em>) – </p></li>
-<li><p><strong>test_size</strong> (<em>int</em>) – Number of times Metrics_params is run and results
-summarized.</p></li>
+<li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
+with shape NMCHW where M is the maximum number
+of galaxies in the blend and N the number of
+blends in a batch.</p></li>
+<li><p><strong>deblended_images</strong> (<em>array</em>) – Contains the deblended images,
+as an array with shape NLCHW, where
+L is the number of detected galaxies and N
+the number of blends in a batch.</p></li>
+<li><p><strong>matches</strong> (<em>list</em>) – Contains one astropy Table for each blend, with a
+column <cite>match_detected_id</cite> containing the index of the
+matched detected galaxy for each true galaxy.</p></li>
+<li><p><strong>target_meas</strong> (<em>dict</em>) – Contains the target measurement functions provided
+by the user.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>dict summarizing detection/deblending/measurement results.</p>
+<dd class="field-even"><p>Contains the results for the batch</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>results_reconstruction (astropy.table.Table)</p>
+<p>with one column for each metric (currently : “msr”
+for MSR, “psnr” for PSNR, “ssim” for SSIM, and
+“target_name” and “target_name_true” for each
+function target_name in target_meas (if the
+function has several outputs, a number is added
+after target_name for each output)).</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.reconstruction_metrics_blend">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">reconstruction_metrics_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics_blend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates reconstruction metrics given information from a single blend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
+with shape MCHW where M is the number of
+galaxies in the blend.</p></li>
+<li><p><strong>deblended_images</strong> (<em>array</em>) – Contains the deblended images,
+as a boolean array with shape LCHW, where
+L is the number of detected galaxies.</p></li>
+<li><p><strong>matches</strong> (<em>astropy.table.Table</em>) – Contains the index of the matching detected
+galaxy for each true galaxy, under the column
+<cite>match_detected_id</cite>.</p></li>
+<li><p><strong>target_meas</strong> (<em>dict</em>) – Contains the target measurement functions provided
+by the user.</p></li>
+<li><p><strong>target_meas_key</strong> (<em>list</em>) – Contains the relevant keys, to manage the case
+where one of the target measurement functions
+has multiple outputs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Contains the results for the Mean Square Residual</dt><dd><p>metric for each galaxy.</p>
+</dd>
+<dt>psnr_blend_result (list)<span class="classifier">Contains the results for the Peak Signal to Noise</span></dt><dd><p>Ratio metric for each galaxy.</p>
+</dd>
+<dt>ssim_blend_result (list)<span class="classifier">Contains the results for the Structure Similarity</span></dt><dd><p>Index metric for each galaxy.</p>
+</dd>
+<dt>target_meas_blend_result (dict)<span class="classifier">Contains the results for the target</span></dt><dd><p>measurement function for each galaxy (both
+true and deblended images).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>msr_blend_result (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.segmentation_metrics">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">segmentation_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates segmentation metrics given information from a single batch.</p>
+<p>Currently implemented segmentation metrics include:
+- Intersection-over-Union (IOU)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
+with shape NMCHW where M is the maximum number
+of galaxies in the blend and N the number of
+blends in a batch.</p></li>
+<li><p><strong>segmentations</strong> (<em>array</em>) – Contains the detected segmentations,
+as a boolean array with shape NLHW, where
+L is the number of detected galaxies and N
+the number of blends in a batch.</p></li>
+<li><p><strong>matches</strong> (<em>list</em>) – Contains one astropy Table for each blend, with a
+column <cite>match_detected_id</cite> containing the index of the
+matched detected galaxy for each true galaxy.</p></li>
+<li><p><strong>noise_threshold</strong> (<em>float</em>) – Threshold for a pixel to be considered belonging to
+an object in the segmentation. Should be based on the
+expected noise level in the full image.</p></li>
+<li><p><strong>meas_band_num</strong> (<em>int</em>) – Index of the band in which the true segmentation is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Contains the results for the batch
+with one column for each metric (currently : “iou” for IoU).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>results_segmentation (astropy.table.Table)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.metrics.segmentation_metrics_blend">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">segmentation_metrics_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics_blend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates segmentation metrics given information from a single blend.</p>
+<p>The true segmentation is obtained from the isolated images by setting to True
+the pixels above the noise_threshold in the band meas_band_num.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
+with shape MCHW where M is the number of
+galaxies in the blend.</p></li>
+<li><p><strong>detected_segmentations</strong> (<em>array</em>) – Contains the detected segmentations,
+as a boolean array with shape LHW, where
+L is the number of detected galaxies.</p></li>
+<li><p><strong>matches</strong> (<em>astropy.table.Table</em>) – Contains the index of the matching detected
+galaxy for each true galaxy, under the column
+<cite>match_detected_id</cite>.</p></li>
+<li><p><strong>noise_threshold</strong> (<em>float</em>) – Threshold for a pixel to be considered belonging to
+an object in the segmentation. Should be based on the
+expected noise level in the full image.</p></li>
+<li><p><strong>meas_band_num</strong> (<em>int</em>) – Index of the band in which the true segmentation is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Contains the results for the IoU metric for each
+galaxy.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>iou_blend_result (list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -494,7 +616,7 @@ summarized.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="btk.sampling_functions.html" class="btn btn-neutral float-right" title="btk.sampling_functions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="btk.plot_utils.html" class="btn btn-neutral float-right" title="btk.plot_utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="btk.measure.html" class="btn btn-neutral float-left" title="btk.measure module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
