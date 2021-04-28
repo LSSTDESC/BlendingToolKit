@@ -136,6 +136,14 @@ def get_detection_match(true_table, detected_table):
         - "dist": distance between true object and matched object or 0 if no matches.
 
     """
+    if "x_peak" not in true_table.colnames:
+        raise KeyError("True table has no column x_peak")
+    if "y_peak" not in true_table.colnames:
+        raise KeyError("True table has no column y_peak")
+    if "x_peak" not in true_table.colnames:
+        raise KeyError("Detection table has no column x_peak")
+    if "y_peak" not in true_table.colnames:
+        raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
     t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
     t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
@@ -704,16 +712,3 @@ class MetricsGenerator:
 
         self.blend_counter += len(blend_results["blend_list"])
         return blend_results, measure_results, metrics_results
-
-
-def run_metrics(metrics_generator: MetricsGenerator, n_batches=100):
-    """Uses a `metrics_generator` objec to summarize metrics results for `n_batches` batches."""
-    measure_funcs = metrics_generator.measure_generator.measure_functions
-    summary_tables = {f: astropy.table.Table() for f in measure_funcs}
-    for i in range(n_batches):
-        blend_results, measure_results, metrics_results = next(metrics_generator)
-        for f in measure_funcs:
-            summary_tables[f] = astropy.table.vstack(
-                summary_tables[f], metrics_results["galaxy_summary"]
-            )
-    return summary_tables
