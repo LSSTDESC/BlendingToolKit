@@ -39,6 +39,8 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
+from itertools import repeat
+
 import astropy.table
 import numpy as np
 import sep
@@ -47,7 +49,7 @@ from skimage.feature import peak_local_max
 from btk.multiprocess import multiprocess
 
 
-def basic_measure(batch, idx):
+def basic_measure(batch, idx, channels_last=False, **kwargs):
     """Return centers detected with skimage.feature.peak_local_max.
 
     NOTE: This function does not support the multi-resolution feature.
@@ -63,7 +65,8 @@ def basic_measure(batch, idx):
     if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
-    coadd = np.mean(batch["blend_images"][idx], axis=0)
+    channel_indx = 0 if not channels_last else -1
+    coadd = np.mean(batch["blend_images"][idx], axis=channel_indx)
 
     # set detection threshold to 5 times std of image
     threshold = 5 * np.std(coadd)
@@ -76,7 +79,7 @@ def basic_measure(batch, idx):
     return {"catalog": catalog}
 
 
-def sep_measure(batch, idx):
+def sep_measure(batch, idx, channels_last=False, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
     NOTE: This function does not support the multi-resolution feature.
@@ -94,7 +97,8 @@ def sep_measure(batch, idx):
 
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-    coadd = np.mean(image, axis=np.argmin(image.shape))  # Smallest dimension is the channels
+    channel_indx = 0 if not channels_last else -1
+    coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
@@ -137,6 +141,7 @@ class MeasureGenerator:
         draw_blend_generator,
         cpus=1,
         verbose=False,
+        measure_kwargs: dict = None,
     ):
         """Initialize measurement generator.
 
@@ -147,6 +152,8 @@ class MeasureGenerator:
                                   isolated images, blend catalog, wcs info, and psf.
             cpus: The number of parallel processes to run [Default: 1].
             verbose (bool): Whether to print information about measurement.
+            measure_kwargs (dict): Dictionary containing keyword arguments to be passed
+                in to each of the `measure_functions`.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -165,9 +172,11 @@ class MeasureGenerator:
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
-        self.channels_last = self.draw_blend_generator.channels_last
-
         self.verbose = verbose
+
+        # initialize measure_kwargs dictionary.
+        self.measure_kwargs = {} if measure_kwargs is None else measure_kwargs
+        self.measure_kwargs["channels_last"] = self.draw_blend_generator.channels_last
 
     def __iter__(self):
         """Return iterator which is the object itself."""
@@ -235,10 +244,12 @@ class MeasureGenerator:
                 the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
-        input_args = ((blend_output, i) for i in range(self.batch_size))
+        args_iter = ((blend_output, i) for i in range(self.batch_size))
+        kwargs_iter = repeat(self.measure_kwargs)
         measure_output = multiprocess(
             self.run_batch,
-            input_args,
+            args_iter,
+            kwargs_iter=kwargs_iter,
             cpus=self.cpus,
             verbose=self.verbose,
         )
