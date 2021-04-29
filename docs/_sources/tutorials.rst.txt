@@ -298,11 +298,11 @@ Measurement
 ............
 
 Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending : detections, segmentations and deblended images. You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function.
-The measure function is a regular function with two arguments : `batch` and `idx`. Batch is the direct output of a `DrawBlendsGenerator`, and `idx` is the index of the blend on which the measurements should be done. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
+The measure function is a regular function with two positional arguments : `batch` and `idx`. Batch is the direct output of a `DrawBlendsGenerator`, and `idx` is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via `**kwargs`. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
 
 .. jupyter-execute::
 
-  def sep_measure(batch, idx):
+  def sep_measure(batch, idx, channels_last=False, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
     NOTE: This function does not support the multi-resolution feature.
@@ -320,7 +320,8 @@ The measure function is a regular function with two arguments : `batch` and `idx
 
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-    coadd = np.mean(image, axis=np.argmin(image.shape))  # Smallest dimension is the channels
+    channel_indx = 0 if not channels_last else -1
+    coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
     catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)

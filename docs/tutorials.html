@@ -506,10 +506,10 @@ Finally, you can use the default function <cite>get_psf</cite> as demonstrated i
 <div class="section" id="measurement">
 <h4>Measurement<a class="headerlink" href="#measurement" title="Permalink to this headline">¶</a></h4>
 <p>Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending : detections, segmentations and deblended images. You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function.
-The measure function is a regular function with two arguments : <cite>batch</cite> and <cite>idx</cite>. Batch is the direct output of a <cite>DrawBlendsGenerator</cite>, and <cite>idx</cite> is the index of the blend on which the measurements should be done. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).</p>
+The measure function is a regular function with two positional arguments : <cite>batch</cite> and <cite>idx</cite>. Batch is the direct output of a <cite>DrawBlendsGenerator</cite>, and <cite>idx</cite> is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via <cite>**kwargs</cite>. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sep_measure</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sep_measure</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">channels_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Return detection, segmentation and deblending information with SEP.</span>
 
 <span class="sd">  NOTE: This function does not support the multi-resolution feature.</span>
@@ -527,7 +527,8 @@ The measure function is a regular function with two arguments : <cite>batch</cit
 
   <span class="n">image</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
   <span class="n">stamp_size</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># true for both &#39;NCHW&#39; or &#39;NHWC&#39; formats.</span>
-  <span class="n">coadd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>  <span class="c1"># Smallest dimension is the channels</span>
+  <span class="n">channel_indx</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">channels_last</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+  <span class="n">coadd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">channel_indx</span><span class="p">)</span>  <span class="c1"># Smallest dimension is the channels</span>
   <span class="n">bkg</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">Background</span><span class="p">(</span><span class="n">coadd</span><span class="p">)</span>
   <span class="c1"># Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.</span>
   <span class="n">catalog</span><span class="p">,</span> <span class="n">segmentation</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">coadd</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">bkg</span><span class="o">.</span><span class="n">globalrms</span><span class="p">,</span> <span class="n">segmentation_map</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -593,13 +594,9 @@ The measure function is a regular function with two arguments : <cite>batch</cit
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Unphysical situation: galaxy convolved with PSF is smaller than PSF!
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Error: NaN in calculation of adaptive moments
 
-Error: NaN in calculation of adaptive moments
-
-Error: NaN in calculation of adaptive moments
-
-Unphysical situation: galaxy convolved with PSF is smaller than PSF!
+Error: adaptive moment failed
 
 </pre></div>
 </div>
