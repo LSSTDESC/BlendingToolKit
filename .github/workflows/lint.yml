@@ -37,7 +37,7 @@ jobs:
         with:
           path: |
             ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ hashFiles('./poetry.lock') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('./poetry.lock') }}
 
       # galsim needs this.
       - name: Instal FFTW + Eigen
