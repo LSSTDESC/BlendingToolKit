@@ -292,17 +292,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
-name = "eigency"
-version = "1.77"
-description = "Cython interface between the numpy arrays and the Matrix/Array classes of the Eigen C++ library"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-numpy = "*"
-
-[[package]]
 name = "entrypoints"
 version = "0.3"
 description = "Discover and load entry points from installed packages."
@@ -1786,7 +1775,7 @@ galsim-hub = ["galsim-hub", "tensorflow"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.7"
-content-hash = "1037a509d32b84c21d2f1ad95598519930118b757f7b5eaf384a891f164c87f7"
+content-hash = "d692fac2292be9dbd85f8612046966760c5b89615340ff6d5c9fdcf3cbb05bee"
 
 [metadata.files]
 absl-py = [
@@ -2051,9 +2040,6 @@ distlib = [
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
     {file = "docutils-0.16.tar.gz", hash = "sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"},
-]
-eigency = [
-    {file = "eigency-1.77.tar.gz", hash = "sha256:13cf96e00020fd900aa5f8905036488afd27c89212bfc07b60ac5412073ea7d7"},
 ]
 entrypoints = [
     {file = "entrypoints-0.3-py2.py3-none-any.whl", hash = "sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19"},
