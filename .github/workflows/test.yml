@@ -43,6 +43,7 @@ jobs:
 
       - name: Install poetry dependencies
         run: |
+          poetry run pip install Cython
           poetry install --extras "galsim-hub"
 
       - name: Run Tests
