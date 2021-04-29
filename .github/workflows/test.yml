@@ -27,7 +27,8 @@ jobs:
       - name: Install Poetry
         run: |
           pip install --upgrade pip
-          pip install poetry
+          pip install "poetry-core==1.0.0"
+          pip install "poetry==1.1.4"
 
       - name: Poetry cache
         uses: actions/cache@v2
@@ -37,7 +38,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('./poetry.lock') }}
 
       # galsim needs this.
-      - name: Instal FFTW + Eigen
+      - name: Instal FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
