@@ -6,7 +6,7 @@ import numpy as np
 import btk.metrics
 
 
-def get_metrics_generator(meas_function, cpus=1):
+def get_metrics_generator(meas_function, cpus=1, f_distance=None):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -42,6 +42,7 @@ def get_metrics_generator(meas_function, cpus=1):
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
+        f_distance=f_distance,
     )
     return metrics_generator
 
@@ -63,6 +64,13 @@ def test_sep_metrics(mock_show):
     )
     btk.plot_utils.plot_efficiency_matrix(results["detection"]["eff_matrix"])
     plt.close("all")
+
+
+def test_metrics_custom_distance():
+    metrics_generator = get_metrics_generator(
+        btk.measure.sep_measure, f_distance=btk.metrics.distance_center
+    )
+    _, _, results = next(metrics_generator)
 
 
 def test_detection_eff_matrix():
