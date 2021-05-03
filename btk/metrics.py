@@ -509,6 +509,7 @@ def compute_metrics(  # noqa: C901
     meas_band_num=0,
     target_meas={},
     channels_last=False,
+    save_path=None,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
@@ -542,6 +543,8 @@ def compute_metrics(  # noqa: C901
                              be returned for both isolated and deblended images to compare.
         channels_last (bool) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
+        save_path (str): Path to save the results, ending by the file name root. If left
+                            ton None, results will not be saved.
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
@@ -626,6 +629,10 @@ def compute_metrics(  # noqa: C901
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
+    if save_path is not None:
+        for key in use_metrics:
+            np.save(f"{save_path}_{key}", results[key])
+        results["galaxy_summary"].write(f"{save_path}_galaxy_summary", format="ascii")
 
     return results
 
@@ -640,6 +647,7 @@ class MetricsGenerator:
         meas_band_num=0,
         target_meas={},
         noise_threshold_factor=3,
+        save_path=None,
     ):
         """Initialize metrics generator.
 
@@ -658,12 +666,15 @@ class MetricsGenerator:
                 applied when getting segmentations from true images. A value of 3 would
                 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
                 the noise)
+            save_path (str): Path to save the results, ending by the file name root. If left
+                            ton None, results will not be saved.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
         self.noise_threshold_factor = noise_threshold_factor
+        self.save_path = save_path
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -695,6 +706,7 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 channels_last=self.measure_generator.channels_last,
+                save_path=self.save_path,
             )
             metrics_results[meas_func] = metrics_results_f
 

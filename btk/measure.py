@@ -151,6 +151,7 @@ class MeasureGenerator:
         cpus=1,
         verbose=False,
         measure_kwargs: dict = None,
+        save_path=None,
     ):
         """Initialize measurement generator.
 
@@ -163,6 +164,8 @@ class MeasureGenerator:
             verbose (bool): Whether to print information about measurement.
             measure_kwargs (dict): Dictionary containing keyword arguments to be passed
                 in to each of the `measure_functions`.
+            save_path (str): Path to save the results, ending by the file name root. If left
+                            ton None, results will not be saved.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -183,6 +186,7 @@ class MeasureGenerator:
         self.batch_size = self.draw_blend_generator.batch_size
         self.channels_last = self.draw_blend_generator.channels_last
         self.verbose = verbose
+        self.save_path = save_path
 
         # initialize measure_kwargs dictionary.
         self.measure_kwargs = {} if measure_kwargs is None else measure_kwargs
@@ -268,11 +272,21 @@ class MeasureGenerator:
         measure_results = {}
         for i, f in enumerate(self.measure_functions):
             measure_dic = {}
-            for key in ["catalog", "deblended_images", "segmentation"]:
+            for key in self.measure_params:
                 if measure_output[0][i][key] is not None:
                     measure_dic[key] = [
                         measure_output[j][i][key] for j in range(len(measure_output))
                     ]
             measure_results[f.__name__] = measure_dic
+            if self.save_path is not None:
+                for key in ["segmentation", "deblended_images"]:
+                    if key in measure_dic.keys():
+                        np.save(f"{self.save_path}_{f.__name__}_{key}", measure_dic[key])
+                for j, cat in enumerate(measure_dic["catalog"]):
+                    cat.write(
+                        f"{self.save_path}_{f.__name__}_detection_catalog_{j}",
+                        format="ascii",
+                        overwrite=True,
+                    )
 
         return blend_output, measure_results
