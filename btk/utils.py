@@ -45,7 +45,10 @@ def load_measure_results(path, measure_name, n_batch):
     """
     measure_results = {}
     for key in ["segmentation", "deblended_images"]:
-        measure_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+        try:
+            measure_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+        except FileNotFoundError:
+            print(f"No {key} found.")
     catalog = []
     for j in range(n_batch):
         catalog.append(
@@ -74,7 +77,10 @@ def load_metrics_results(path, measure_name):
     """
     metrics_results = {}
     for key in ["detection", "segmentation", "reconstruction"]:
-        metrics_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+        try:
+            metrics_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+        except FileNotFoundError:
+            print(f"No {key} metrics found.")
 
     metrics_results["galaxy_summary"] = Table.read(
         f"{path}_{measure_name}_galaxy_summary",

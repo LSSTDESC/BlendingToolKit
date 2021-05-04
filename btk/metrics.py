@@ -706,7 +706,7 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 channels_last=self.measure_generator.channels_last,
-                save_path=self.save_path + "_" + meas_func,
+                save_path=self.save_path + "_" + meas_func if self.save_path is not None else None,
             )
             metrics_results[meas_func] = metrics_results_f
 
