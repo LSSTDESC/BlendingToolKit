@@ -78,7 +78,9 @@ def load_metrics_results(path, measure_name):
     metrics_results = {}
     for key in ["detection", "segmentation", "reconstruction"]:
         try:
-            metrics_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+            metrics_results[key] = np.load(
+                f"{path}_{measure_name}_{key}_metric.npy", allow_pickle=True
+            )
         except FileNotFoundError:
             print(f"No {key} metrics found.")
 

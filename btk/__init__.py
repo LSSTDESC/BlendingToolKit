@@ -17,3 +17,4 @@ from . import multiprocess
 from . import plot_utils
 from . import sampling_functions
 from . import survey
+from . import utils

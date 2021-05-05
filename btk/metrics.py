@@ -631,7 +631,7 @@ def compute_metrics(  # noqa: C901
             results["galaxy_summary"].add_row(row[0])
     if save_path is not None:
         for key in use_metrics:
-            np.save(f"{save_path}_{key}", results[key])
+            np.save(f"{save_path}_{key}_metric", results[key])
         results["galaxy_summary"].write(f"{save_path}_galaxy_summary", format="ascii")
 
     return results
