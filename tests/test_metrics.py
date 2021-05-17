@@ -78,11 +78,12 @@ def test_detection_eff_matrix():
     )
 
 
-def test_measure_kwargs():
+@patch("btk.plot_utils.plt.show")
+def test_measure_kwargs(mock_show):
     """Test detection with sep"""
     meas_generator = get_metrics_generator(
         btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, _, results = next(meas_generator)
-    average_precision = btk.metrics.auc(results, "sep_measure", 2)
+    average_precision = btk.metrics.auc(results, "sep_measure", 2, plot=True)
     assert average_precision == 0.4375
