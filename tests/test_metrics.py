@@ -6,7 +6,7 @@ import numpy as np
 import btk.metrics
 
 
-def get_metrics_generator(meas_function, cpus=1):
+def get_metrics_generator(meas_function, cpus=1, measure_kwargs=None):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -34,9 +34,7 @@ def get_metrics_generator(meas_function, cpus=1):
         stamp_size=stamp_size,
     )
     meas_generator = btk.measure.MeasureGenerator(
-        meas_function,
-        draw_blend_generator,
-        cpus=cpus,
+        meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
     )
     metrics_generator = btk.metrics.MetricsGenerator(
         meas_generator,
@@ -78,3 +76,13 @@ def test_detection_eff_matrix():
     np.testing.assert_array_equal(
         eff_matrix, test_eff_matrix, err_msg="Incorrect efficiency matrix"
     )
+
+
+def test_measure_kwargs():
+    """Test detection with sep"""
+    meas_generator = get_metrics_generator(
+        btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+    )
+    _, _, results = next(meas_generator)
+    average_precision = btk.metrics.auc(results, "sep_measure", 2)
+    assert average_precision == 0.4375

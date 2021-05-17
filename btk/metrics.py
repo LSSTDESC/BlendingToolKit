@@ -738,6 +738,12 @@ def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
     recalls = np.array(recalls)[order]
     precisions = np.array(precisions)[order]
 
+    # The integral is from zero to one
+    recalls = np.insert(recalls, 0, 0)
+    precisions = np.insert(precisions, 0, precisions[0])
+    recalls = np.insert(recalls, -1, 1)
+    precisions = np.insert(precisions, -1, precisions[-1])
+
     for i in range(1, n_meas):
         average_precision += precisions[i] * (recalls[i] - recalls[i - 1])
 
