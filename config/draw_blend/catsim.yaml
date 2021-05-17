@@ -1,0 +1,15 @@
+# @package _group_
+name: "CatsimGenerator"
+catalog: ${catalog}
+sampling_function: Null
+surveys: Null
+batch_size: 8
+stamp_size: 24
+meas_bands:
+  - i
+cpus: ${cpus}
+verbose: ${verbose}
+add_noise: True
+shifts: Null
+indexes: Null
+channels_last: False

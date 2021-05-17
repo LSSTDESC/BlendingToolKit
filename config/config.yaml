@@ -1,0 +1,30 @@
+defaults:
+  - sampling: default
+  - draw_blend: catsim
+
+catalog: ../data/sample_input_catalog.fits
+
+cpus: 1
+
+verbose: False
+
+survey:
+  name: Rubin
+  filters:
+    - i
+
+measure:
+  measure_functions: "path/to/measure/function/file.pickle"
+  verbose: ${verbose}
+  cpus: ${cpus}
+  measure_kwargs: Null
+  target_meas: Null
+
+metrics:
+  use_metrics:
+    - detection
+  meas_band_num: 0
+  noise_threshold_factor: 3
+
+paths:
+  data: ../data

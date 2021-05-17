@@ -1,0 +1,5 @@
+# @package _group_
+name: "DefaultSampling"
+max_number: 2
+stamp_size: 24.0
+maxshift: Null
