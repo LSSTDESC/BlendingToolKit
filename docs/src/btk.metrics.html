@@ -264,6 +264,36 @@ the noise)</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.metrics.auc">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">auc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.auc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the average precision metric and plot the Precision-Recall curve.</p>
+<p>The average precision is defined as the area under the precision-recall curve.
+The precision-recall curve is obtained by running the same algorithm with
+different thresholds, and plotting the curve with recall as the x axis
+and precision as the y axis (see detection metrics for a definition of
+precision and recall).
+This should be used by providing a list of different kwargs to a measure
+generator, proceed as usual, and give the results of the metrics generator
+to this function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics_results</strong> (<em>dict</em>) – Output of a btk.metrics.MetricsGenerator.</p></li>
+<li><p><strong>measure_name</strong> (<em>str</em>) – Base name of the measure function which will be
+evaluated.</p></li>
+<li><p><strong>n_meas</strong> (<em>int</em>) – Number of different kwargs which were given.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – Set to True to plot the precision-recall curve.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – If plot is True, the results will be</p></li>
+<li><p><strong>on this ax.</strong> (<em>drawn</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An int corresponding to the average precision.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.metrics.compute_metrics">
 <code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('detection',</span> <span class="pre">'segmentation',</span> <span class="pre">'reconstruction')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
