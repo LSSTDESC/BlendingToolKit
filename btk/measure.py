@@ -165,8 +165,8 @@ class MeasureGenerator:
             verbose (bool): Whether to print information about measurement.
             measure_kwargs (dict): Dictionary containing keyword arguments to be passed
                 in to each of the `measure_functions`.
-            save_path (str): Path to save the results, ending by the file name root. If left
-                            ton None, results will not be saved.
+            save_path (str): Path to a directory where results will be saved. If left 
+                              as None, results will not be saved.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
