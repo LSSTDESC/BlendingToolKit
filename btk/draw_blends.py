@@ -1,5 +1,6 @@
 """Module for generating batches of drawn blended images."""
 import copy
+import os
 from abc import ABC
 from abc import abstractmethod
 from itertools import chain
@@ -279,11 +280,16 @@ class DrawBlendsGenerator(ABC):
                 batch_blend_cat[s.name].append(batch_results[i][2])
 
             if self.save_path is not None:
-                np.save(f"{self.save_path}_{s.name}_blended", blend_images[s.name])
-                np.save(f"{self.save_path}_{s.name}_isolated", isolated_images[s.name])
+                if not os.path.exists(os.path.join(self.save_path, s.name)):
+                    os.mkdir(os.path.join(self.save_path, s.name))
+
+                np.save(os.path.join(self.save_path, s.name, "blended"), blend_images[s.name])
+                np.save(os.path.join(self.save_path, s.name, "isolated"), isolated_images[s.name])
                 for i in range(len(batch_results)):
                     batch_blend_cat[s.name][i].write(
-                        f"{self.save_path}_{s.name}_blend_info_{i}", format="ascii", overwrite=True
+                        os.path.join(self.save_path, s.name, f"blend_info_{i}"),
+                        format="ascii",
+                        overwrite=True,
                     )
 
         if len(self.surveys) > 1:

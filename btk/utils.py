@@ -1,4 +1,6 @@
 """Contains utility functions, including functions for loading saved results."""
+import os
+
 import numpy as np
 from astropy.table import Table
 
@@ -16,11 +18,11 @@ def load_blend_results(path, survey):
         Dictionnary containing the blend images, the isolated images and the
         informations about the blends.
     """
-    blend_images = np.load(f"{path}_{survey}_blended.npy", allow_pickle=True)
-    isolated_images = np.load(f"{path}_{survey}_isolated.npy", allow_pickle=True)
+    blend_images = np.load(os.path.join(path, survey, "blended.npy"), allow_pickle=True)
+    isolated_images = np.load(os.path.join(path, survey, "isolated.npy"), allow_pickle=True)
     blend_list = []
     for i in range(blend_images.shape[0]):
-        blend_list.append(Table.read(f"{path}_{survey}_blend_info_{i}", format="ascii"))
+        blend_list.append(Table.read(os.path.join(path, survey, f"blend_info_{i}"), format="ascii"))
     return {
         "blend_images": blend_images,
         "isolated_images": isolated_images,
@@ -46,14 +48,16 @@ def load_measure_results(path, measure_name, n_batch):
     measure_results = {}
     for key in ["segmentation", "deblended_images"]:
         try:
-            measure_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
+            measure_results[key] = np.load(
+                os.path.join(path, measure_name, f"{key}.npy"), allow_pickle=True
+            )
         except FileNotFoundError:
             print(f"No {key} found.")
     catalog = []
     for j in range(n_batch):
         catalog.append(
             Table.read(
-                f"{path}_{measure_name}_detection_catalog_{j}",
+                os.path.join(path, measure_name, f"detection_catalog_{j}"),
                 format="ascii",
             )
         )
@@ -79,13 +83,13 @@ def load_metrics_results(path, measure_name):
     for key in ["detection", "segmentation", "reconstruction"]:
         try:
             metrics_results[key] = np.load(
-                f"{path}_{measure_name}_{key}_metric.npy", allow_pickle=True
+                os.path.join(path, measure_name, f"{key}_metric.npy"), allow_pickle=True
             )
         except FileNotFoundError:
             print(f"No {key} metrics found.")
 
     metrics_results["galaxy_summary"] = Table.read(
-        f"{path}_{measure_name}_galaxy_summary",
+        os.path.join(path, measure_name, "galaxy_summary"),
         format="ascii",
     )
     return metrics_results

@@ -53,6 +53,8 @@ Currently, we support the following metrics :
     is the standard scalar product on vectors.
 
 """
+import os
+
 import astropy.table
 import galsim
 import numpy as np
@@ -630,9 +632,12 @@ def compute_metrics(  # noqa: C901
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
     if save_path is not None:
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
+
         for key in use_metrics:
-            np.save(f"{save_path}_{key}_metric", results[key])
-        results["galaxy_summary"].write(f"{save_path}_galaxy_summary", format="ascii")
+            np.save(os.path.join(save_path, f"{key}_metric"), results[key])
+        results["galaxy_summary"].write(os.path.join(save_path, "galaxy_summary"), format="ascii")
 
     return results
 
@@ -706,7 +711,9 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 channels_last=self.measure_generator.channels_last,
-                save_path=self.save_path + "_" + meas_func if self.save_path is not None else None,
+                save_path=os.path.join(self.save_path, meas_func)
+                if self.save_path is not None
+                else None,
             )
             metrics_results[meas_func] = metrics_results_f
 

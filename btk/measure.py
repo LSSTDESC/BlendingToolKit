@@ -48,6 +48,7 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
+import os
 from itertools import repeat
 
 import astropy.table
@@ -279,12 +280,15 @@ class MeasureGenerator:
                     ]
             measure_results[f.__name__] = measure_dic
             if self.save_path is not None:
+                if not os.path.exists(os.path.join(self.save_path, f.__name__)):
+                    os.mkdir(os.path.join(self.save_path, f.__name__))
+
                 for key in ["segmentation", "deblended_images"]:
                     if key in measure_dic.keys():
-                        np.save(f"{self.save_path}_{f.__name__}_{key}", measure_dic[key])
+                        np.save(os.path.join(self.save_path, f.__name__, key), measure_dic[key])
                 for j, cat in enumerate(measure_dic["catalog"]):
                     cat.write(
-                        f"{self.save_path}_{f.__name__}_detection_catalog_{j}",
+                        os.path.join(self.save_path, f.__name__, f"detection_catalog_{j}"),
                         format="ascii",
                         overwrite=True,
                     )
