@@ -173,7 +173,7 @@ class DrawBlendsGenerator(ABC):
                                 (band) dimension as the last dimension or before the pixels
                                 dimensions (default).
             save_path (str): Path to save the results, ending by the file name root. If left
-                            ton None, results will not be saved.
+                            as None, results will not be saved.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose

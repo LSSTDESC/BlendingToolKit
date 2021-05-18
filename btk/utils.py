@@ -20,9 +20,11 @@ def load_blend_results(path, survey):
     """
     blend_images = np.load(os.path.join(path, survey, "blended.npy"), allow_pickle=True)
     isolated_images = np.load(os.path.join(path, survey, "isolated.npy"), allow_pickle=True)
-    blend_list = []
-    for i in range(blend_images.shape[0]):
-        blend_list.append(Table.read(os.path.join(path, survey, f"blend_info_{i}"), format="ascii"))
+    blend_list = [
+        Table.read(os.path.join(path, survey, f"blend_info_{i}"), format="ascii")
+        for i in range(blend_images.shape[0])
+    ]
+
     return {
         "blend_images": blend_images,
         "isolated_images": isolated_images,
@@ -53,14 +55,14 @@ def load_measure_results(path, measure_name, n_batch):
             )
         except FileNotFoundError:
             print(f"No {key} found.")
-    catalog = []
-    for j in range(n_batch):
-        catalog.append(
-            Table.read(
-                os.path.join(path, measure_name, f"detection_catalog_{j}"),
-                format="ascii",
-            )
+
+    catalog = [
+        Table.read(
+            os.path.join(path, measure_name, f"detection_catalog_{j}"),
+            format="ascii",
         )
+        for j in range(n_batch)
+    ]
     measure_results["catalog"] = catalog
     return measure_results
 
