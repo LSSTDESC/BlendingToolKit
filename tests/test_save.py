@@ -1,5 +1,4 @@
-import os
-import shutil
+import tempfile
 
 import numpy as np
 
@@ -8,11 +7,7 @@ from btk.survey import Rubin
 
 
 def test_save():
-    try:
-        shutil.rmtree("./output_test")
-    except Exception:
-        pass
-    os.mkdir("./output_test")
+    output_dir = tempfile.mkdtemp()
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24.0
     batch_size = 8
@@ -24,20 +19,20 @@ def test_save():
         [Rubin],
         batch_size=batch_size,
         stamp_size=stamp_size,
-        save_path="./output_test",
+        save_path=output_dir,
     )
     meas_generator = btk.measure.MeasureGenerator(
-        btk.measure.sep_measure, draw_blend_generator, save_path="./output_test"
+        btk.measure.sep_measure, draw_blend_generator, save_path=output_dir
     )
     metrics_generator = btk.metrics.MetricsGenerator(
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
-        save_path="./output_test",
+        save_path=output_dir,
     )
     blend_results, measure_results, metrics_results = next(metrics_generator)
     blend_results2, measure_results2, metrics_results2 = btk.utils.load_all_results(
-        "./output_test", ["LSST"], ["sep_measure"], batch_size
+        output_dir, ["LSST"], ["sep_measure"], batch_size
     )
     np.testing.assert_array_equal(
         blend_results["blend_images"], blend_results2["blend_images"]["LSST"]
@@ -54,4 +49,3 @@ def test_save():
         metrics_results["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
         metrics_results2["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
     )
-    # shutil.rmtree("./output_test")
