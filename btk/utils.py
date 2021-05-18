@@ -18,9 +18,8 @@ def load_blend_results(path, survey):
     """
     blend_images = np.load(f"{path}_{survey}_blended.npy", allow_pickle=True)
     isolated_images = np.load(f"{path}_{survey}_isolated.npy", allow_pickle=True)
-    blend_list = []
-    for i in range(blend_images.shape[0]):
-        blend_list.append(Table.read(f"{path}_{survey}_blend_info_{i}", format="ascii"))
+    blend_list = [Table.read(f"{path}_{survey}_blend_info_{i}", format="ascii")
+                          for i in range(blend_images.shape[0]]
     return {
         "blend_images": blend_images,
         "isolated_images": isolated_images,
