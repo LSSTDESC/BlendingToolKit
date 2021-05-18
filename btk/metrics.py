@@ -545,8 +545,8 @@ def compute_metrics(  # noqa: C901
                              be returned for both isolated and deblended images to compare.
         channels_last (bool) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
-        save_path (str): Path to save the results, ending by the file name root. If left
-                            ton None, results will not be saved.
+        save_path (str): Path to directory where results will be saved. If left
+                      as None, results will not be saved.
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
