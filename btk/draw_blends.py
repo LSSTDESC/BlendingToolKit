@@ -172,7 +172,7 @@ class DrawBlendsGenerator(ABC):
             channels_last (bool): Whether to return images as numpy arrays with the channel
                                 (band) dimension as the last dimension or before the pixels
                                 dimensions (default).
-            save_path (str): Path to save the results, ending by the file name root. If left
+            save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
         """
         self.blend_generator = BlendGenerator(
