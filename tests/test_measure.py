@@ -7,7 +7,7 @@ import btk.sampling_functions
 import btk.survey
 
 
-def get_meas_generator(meas_function, cpus=1):
+def get_meas_generator(meas_function, cpus=1, measure_kwargs=None):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -35,9 +35,7 @@ def get_meas_generator(meas_function, cpus=1):
         stamp_size=stamp_size,
     )
     meas_generator = btk.measure.MeasureGenerator(
-        meas_function,
-        draw_blend_generator,
-        cpus=cpus,
+        meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=None
     )
     return meas_generator
 
@@ -84,3 +82,24 @@ def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     compare_sep()
     compare_sep_multiprocessing()
+
+
+def test_measure_kwargs():
+    """Test detection with sep"""
+    meas_generator = get_meas_generator(
+        btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+    )
+    _, results = next(meas_generator)
+    results = results["sep_measure0"]  # extract single element from dict.
+    x_peak, y_peak = (
+        results["catalog"][0]["x_peak"].item(),
+        results["catalog"][0]["y_peak"].item(),
+    )
+    detected_centers = np.array([[x_peak, y_peak]])
+    target_detection = np.array([[65.495, 51.012]])
+    np.testing.assert_array_almost_equal(
+        detected_centers,
+        target_detection,
+        decimal=3,
+        err_msg="Did not get desired detections",
+    )

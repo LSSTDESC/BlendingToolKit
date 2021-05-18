@@ -55,6 +55,7 @@ Currently, we support the following metrics :
 """
 import astropy.table
 import galsim
+import matplotlib.pyplot as plt
 import numpy as np
 import skimage.metrics
 from scipy.optimize import linear_sum_assignment
@@ -699,3 +700,57 @@ class MetricsGenerator:
             metrics_results[meas_func] = metrics_results_f
 
         return blend_results, measure_results, metrics_results
+
+
+def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
+    """Computes the average precision metric and plot the Precision-Recall curve.
+
+    The average precision is defined as the area under the precision-recall curve.
+    The precision-recall curve is obtained by running the same algorithm with
+    different thresholds, and plotting the curve with recall as the x axis
+    and precision as the y axis (see detection metrics for a definition of
+    precision and recall).
+    This should be used by providing a list of different kwargs to a measure
+    generator, proceed as usual, and give the results of the metrics generator
+    to this function.
+
+    Args:
+        metrics_results (dict): Output of a btk.metrics.MetricsGenerator.
+        measure_name (str): Base name of the measure function which will be
+                            evaluated.
+        n_meas (int): Number of different kwargs which were given.
+        plot (bool): Set to True to plot the precision-recall curve.
+        ax (matplotlib.axes.Axes): If plot is True, the results will be
+        drawn on this ax.
+
+    Returns:
+        An int corresponding to the average precision.
+
+    """
+    precisions = []
+    recalls = []
+    average_precision = 0
+    for i in range(n_meas):
+        metrics_results_temp = metrics_results[measure_name + str(i)]
+        precisions.append(metrics_results_temp["detection"]["precision"])
+        recalls.append(metrics_results_temp["detection"]["recall"])
+    order = np.argsort(recalls)
+    recalls = np.array(recalls)[order]
+    precisions = np.array(precisions)[order]
+
+    # The integral is from zero to one
+    recalls = np.insert(recalls, 0, 0)
+    precisions = np.insert(precisions, 0, precisions[0])
+    recalls = np.insert(recalls, -1, 1)
+    precisions = np.insert(precisions, -1, precisions[-1])
+
+    for i in range(1, n_meas):
+        average_precision += precisions[i] * (recalls[i] - recalls[i - 1])
+
+    if plot:
+        ax = plt.gca() if ax is None else ax
+        ax.scatter(recalls, precisions, label=measure_name)
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+
+    return average_precision

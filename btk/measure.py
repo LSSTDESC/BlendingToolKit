@@ -103,6 +103,7 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     """
     if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
+    sigma_noise = kwargs.get("sigma_noise", 1.5)
 
     image = batch["blend_images"][idx]
     stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
@@ -110,7 +111,9 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
     bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
-    catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
+    catalog, segmentation = sep.extract(
+        coadd, sigma_noise, err=bkg.globalrms, segmentation_map=True
+    )
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
@@ -150,7 +153,7 @@ class MeasureGenerator:
         draw_blend_generator,
         cpus=1,
         verbose=False,
-        measure_kwargs: dict = None,
+        measure_kwargs: list = None,
     ):
         """Initialize measurement generator.
 
@@ -161,8 +164,10 @@ class MeasureGenerator:
                                   isolated images, blend catalog, wcs info, and psf.
             cpus: The number of parallel processes to run [Default: 1].
             verbose (bool): Whether to print information about measurement.
-            measure_kwargs (dict): Dictionary containing keyword arguments to be passed
-                in to each of the `measure_functions`.
+            measure_kwargs (list): list of dictionaries containing keyword arguments
+            to be passed in to each of the `measure_functions`. Each dictionnary is
+            passed one time to each function, meaning that each function which be
+            ran as many times as there are different dictionnaries.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -185,8 +190,9 @@ class MeasureGenerator:
         self.verbose = verbose
 
         # initialize measure_kwargs dictionary.
-        self.measure_kwargs = {} if measure_kwargs is None else measure_kwargs
-        self.measure_kwargs["channels_last"] = self.channels_last
+        self.measure_kwargs = [{}] if measure_kwargs is None else measure_kwargs
+        for m in self.measure_kwargs:
+            m["channels_last"] = self.channels_last
 
     def __iter__(self):
         """Return iterator which is the object itself."""
@@ -254,25 +260,26 @@ class MeasureGenerator:
                 the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
-        args_iter = ((blend_output, i) for i in range(self.batch_size))
-        kwargs_iter = repeat(self.measure_kwargs)
-        measure_output = multiprocess(
-            self.run_batch,
-            args_iter,
-            kwargs_iter=kwargs_iter,
-            cpus=self.cpus,
-            verbose=self.verbose,
-        )
-        if self.verbose:
-            print("Measurement performed on batch")
         measure_results = {}
-        for i, f in enumerate(self.measure_functions):
-            measure_dic = {}
-            for key in ["catalog", "deblended_images", "segmentation"]:
-                if measure_output[0][i][key] is not None:
-                    measure_dic[key] = [
-                        measure_output[j][i][key] for j in range(len(measure_output))
-                    ]
-            measure_results[f.__name__] = measure_dic
+        for m, measure_kwargs in enumerate(self.measure_kwargs):
+            args_iter = ((blend_output, i) for i in range(self.batch_size))
+            kwargs_iter = repeat(measure_kwargs)
+            measure_output = multiprocess(
+                self.run_batch,
+                args_iter,
+                kwargs_iter=kwargs_iter,
+                cpus=self.cpus,
+                verbose=self.verbose,
+            )
+            if self.verbose:
+                print(f"Measurement {m} performed on batch")
+            for i, f in enumerate(self.measure_functions):
+                measure_dict = {}
+                for key in ["catalog", "deblended_images", "segmentation"]:
+                    if measure_output[0][i][key] is not None:
+                        measure_dict[key] = [
+                            measure_output[j][i][key] for j in range(len(measure_output))
+                        ]
+                measure_results[f.__name__ + str(m)] = measure_dict
 
         return blend_output, measure_results
