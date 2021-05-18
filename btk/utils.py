@@ -4,6 +4,8 @@ import os
 import numpy as np
 from astropy.table import Table
 
+BLEND_RESULT_KEYS = ("blend_images", "isolated_images", "blend_list")
+
 
 def load_blend_results(path, survey):
     """Load results exported from a DrawBlendsGenerator.
@@ -114,13 +116,13 @@ def load_all_results(path, surveys, measure_names, n_batch):
         The three dictionnaries corresponding to the results.
     """
     blend_results = {}
-    for key in ["blend_images", "isolated_images", "blend_list"]:
+    for key in BLEND_RESULT_KEYS:
         blend_results[key] = {}
     measure_results = {}
     metrics_results = {}
     for s in surveys:
         blend_results_temp = load_blend_results(path, s)
-        for key in ["blend_images", "isolated_images", "blend_list"]:
+        for key in BLEND_RESULT_KEYS:
             blend_results[key][s] = blend_results_temp[key]
 
     for meas in measure_names:
