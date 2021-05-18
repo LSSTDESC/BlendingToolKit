@@ -671,8 +671,8 @@ class MetricsGenerator:
                 applied when getting segmentations from true images. A value of 3 would
                 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
                 the noise)
-            save_path (str): Path to save the results, ending by the file name root. If left
-                            ton None, results will not be saved.
+            save_path (str): Path to directory where results will be saved. If left 
+                    as None, results will not be saved.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
