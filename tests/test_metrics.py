@@ -6,7 +6,9 @@ import numpy as np
 import btk.metrics
 
 
-def get_metrics_generator(meas_function, cpus=1, measure_kwargs=None):
+def get_metrics_generator(
+    meas_function, cpus=1, f_distance=btk.metrics.distance_center, measure_kwargs=None
+):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -40,6 +42,7 @@ def get_metrics_generator(meas_function, cpus=1, measure_kwargs=None):
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
+        f_distance=f_distance,
     )
     return metrics_generator
 
