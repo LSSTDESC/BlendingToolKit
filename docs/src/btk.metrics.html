@@ -232,12 +232,12 @@ is the standard scalar product on vectors.</p>
 </ul>
 <dl class="py class">
 <dt id="btk.metrics.MetricsGenerator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detection'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generator that calculates metrics on batches returned by the MeasureGenerator.</p>
 <dl class="py method">
 <dt id="btk.metrics.MetricsGenerator.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detection'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize metrics generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -256,6 +256,9 @@ value the function performing the estimation (e.g. <cite>meas_ellipticity</cite>
 applied when getting segmentations from true images. A value of 3 would
 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
 the noise)</p></li>
+<li><p><strong>f_distance</strong> (<em>func</em>) – Function used to compute the distance between true and detected
+galaxies. Takes as arguments the entries corresponding to the two galaxies.
+By default the distance is the euclidean distance from center to center.</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,7 +298,7 @@ evaluated.</p></li>
 
 <dl class="py function">
 <dt id="btk.metrics.compute_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('detection',</span> <span class="pre">'segmentation',</span> <span class="pre">'reconstruction')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">blended_images</span></em>, <em class="sig-param"><span class="pre">isolated_images</span></em>, <em class="sig-param"><span class="pre">blend_list</span></em>, <em class="sig-param"><span class="pre">detection_catalogs</span></em>, <em class="sig-param"><span class="pre">segmentations=None</span></em>, <em class="sig-param"><span class="pre">deblended_images=None</span></em>, <em class="sig-param"><span class="pre">use_metrics=('detection'</span></em>, <em class="sig-param"><span class="pre">'segmentation'</span></em>, <em class="sig-param"><span class="pre">'reconstruction')</span></em>, <em class="sig-param"><span class="pre">noise_threshold=None</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">channels_last=False</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,6 +332,9 @@ isolated images.</p></li>
 be returned for both isolated and deblended images to compare.</p></li>
 <li><p><strong>channels_last</strong> (<em>bool</em>) – Indicates whether the images should be channels first (NCHW)
 or channels last (NHWC).</p></li>
+<li><p><strong>f_distance</strong> (<em>func</em>) – Function used to compute the distance between true and detected
+galaxies. Takes as arguments the entries corresponding to the two galaxies.
+By default the distance is the euclidean distance from center to center.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -382,6 +388,23 @@ the batch (a single blend).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.metrics.distance_center">
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">distance_center</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_gal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_gal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.distance_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes distance between the two galaxies given as arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>true_gal</strong> (<em>astropy.table.Table</em>) – Contains information related to the true galaxy.</p></li>
+<li><p><strong>detected_gal</strong> (<em>astropy.table.Table</em>) – Contains information related to the detected galaxy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance between the two galaxies</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.metrics.get_blendedness">
 <code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_blendedness</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_iso_images</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blendedness" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate blendedness given isolated images of each galaxy in a blend.</p>
@@ -429,7 +452,7 @@ will correspond to no true objects.</p></li>
 
 <dl class="py function">
 <dt id="btk.metrics.get_detection_match">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">true_table</span></em>, <em class="sig-param"><span class="pre">detected_table</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses the Hungarian algorithm to find optimal matching between detections and true objects.</p>
 <p>The optimal matching is computed based on the following optimization problem:</p>
 <div class="math notranslate nohighlight">
@@ -446,6 +469,9 @@ and <span class="math notranslate nohighlight">\(X_{i,j}\)</span> is an indicato
 the true object parameter values in one blend.</p></li>
 <li><p><strong>detected_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding
 to output of measurement algorithm in one blend.</p></li>
+<li><p><strong>f_distance</strong> (<em>func</em>) – Function used to compute the distance between true and detected
+galaxies. Takes as arguments the entries corresponding to the two galaxies.
+By default the distance is the euclidean distance from center to center.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
