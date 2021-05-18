@@ -48,14 +48,8 @@ def load_measure_results(path, measure_name, n_batch):
             measure_results[key] = np.load(f"{path}_{measure_name}_{key}.npy", allow_pickle=True)
         except FileNotFoundError:
             print(f"No {key} found.")
-    catalog = []
-    for j in range(n_batch):
-        catalog.append(
-            Table.read(
-                f"{path}_{measure_name}_detection_catalog_{j}",
-                format="ascii",
-            )
-        )
+    catalog = [Table.read(f"{path}_{measure_name}_detection_catalog_{j}", format="ascii")
+                       for j in range(n_batch)]
     measure_results["catalog"] = catalog
     return measure_results
 
