@@ -119,7 +119,7 @@ def distance_center(true_gal, detected_gal):
     )
 
 
-def get_detection_match(true_table, detected_table, f_distance=None):
+def get_detection_match(true_table, detected_table, f_distance=distance_center):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
     The optimal matching is computed based on the following optimization problem:
@@ -163,16 +163,12 @@ def get_detection_match(true_table, detected_table, f_distance=None):
         raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
 
-    if f_distance is None:
-        t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
-        t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
-        dist = np.hypot(t_x, t_y)
-    else:
-        dist = np.zeros((len(true_table), len(detected_table)))
-        for i, true_gal in enumerate(true_table):
-            for j, detected_gal in enumerate(detected_table):
-                dist[i][j] = f_distance(true_gal, detected_gal)
+    print(f_distance)
     # dist[i][j] = distance between true object i and detected object j.
+    dist = np.zeros((len(true_table), len(detected_table)))
+    for i, true_gal in enumerate(true_table):
+        for j, detected_gal in enumerate(detected_table):
+            dist[i][j] = f_distance(true_gal, detected_gal)
 
     # solve optimization problem.
     # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
@@ -535,7 +531,7 @@ def compute_metrics(  # noqa: C901
     meas_band_num=0,
     target_meas={},
     channels_last=False,
-    f_distance=None,
+    f_distance=distance_center,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
@@ -583,6 +579,7 @@ def compute_metrics(  # noqa: C901
                          - galaxy_summary : astropy Table containing all the galaxies from all
                            blends and related metrics
     """
+    print(f_distance)
     if channels_last:
         blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
@@ -631,9 +628,6 @@ def compute_metrics(  # noqa: C901
         reconstruction_keys = results["reconstruction"].keys()
         names += reconstruction_keys
 
-    if f_distance is None:
-        f_distance = distance_center
-
     results["galaxy_summary"] = astropy.table.Table(names=names)
     for i, blend in enumerate(blend_list):
         for j, gal in enumerate(blend):
@@ -672,7 +666,7 @@ class MetricsGenerator:
         meas_band_num=0,
         target_meas={},
         noise_threshold_factor=3,
-        f_distance=None,
+        f_distance=distance_center,
     ):
         """Initialize metrics generator.
 
