@@ -274,12 +274,12 @@ class MeasureGenerator:
             if self.verbose:
                 print(f"Measurement {m} performed on batch")
             for i, f in enumerate(self.measure_functions):
-                measure_dic = {}
+                measure_dict = {}
                 for key in ["catalog", "deblended_images", "segmentation"]:
                     if measure_output[0][i][key] is not None:
-                        measure_dic[key] = [
+                        measure_dict[key] = [
                             measure_output[j][i][key] for j in range(len(measure_output))
                         ]
-                measure_results[f.__name__ + str(m)] = measure_dic
+                measure_results[f.__name__ + str(m)] = measure_dict
 
         return blend_output, measure_results
