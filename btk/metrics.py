@@ -579,7 +579,6 @@ def compute_metrics(  # noqa: C901
                          - galaxy_summary : astropy Table containing all the galaxies from all
                            blends and related metrics
     """
-    print(f_distance)
     if channels_last:
         blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
