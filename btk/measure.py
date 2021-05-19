@@ -48,6 +48,7 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
+import os
 from itertools import repeat
 
 import astropy.table
@@ -154,6 +155,7 @@ class MeasureGenerator:
         cpus=1,
         verbose=False,
         measure_kwargs: list = None,
+        save_path=None,
     ):
         """Initialize measurement generator.
 
@@ -168,6 +170,8 @@ class MeasureGenerator:
             to be passed in to each of the `measure_functions`. Each dictionnary is
             passed one time to each function, meaning that each function which be
             ran as many times as there are different dictionnaries.
+            save_path (str): Path to a directory where results will be saved. If left
+                              as None, results will not be saved.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -188,6 +192,7 @@ class MeasureGenerator:
         self.batch_size = self.draw_blend_generator.batch_size
         self.channels_last = self.draw_blend_generator.channels_last
         self.verbose = verbose
+        self.save_path = save_path
 
         # initialize measure_kwargs dictionary.
         self.measure_kwargs = [{}] if measure_kwargs is None else measure_kwargs
@@ -281,5 +286,19 @@ class MeasureGenerator:
                             measure_output[j][i][key] for j in range(len(measure_output))
                         ]
                 measure_results[f.__name__ + str(m)] = measure_dict
+                if self.save_path is not None:
+                    dir_name = f.__name__ + str(m)
+                    if not os.path.exists(os.path.join(self.save_path, dir_name)):
+                        os.mkdir(os.path.join(self.save_path, dir_name))
+
+                    for key in ["segmentation", "deblended_images"]:
+                        if key in measure_dict.keys():
+                            np.save(os.path.join(self.save_path, dir_name, key), measure_dict[key])
+                    for j, cat in enumerate(measure_dict["catalog"]):
+                        cat.write(
+                            os.path.join(self.save_path, dir_name, f"detection_catalog_{j}"),
+                            format="ascii",
+                            overwrite=True,
+                        )
 
         return blend_output, measure_results

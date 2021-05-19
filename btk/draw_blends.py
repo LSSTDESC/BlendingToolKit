@@ -1,5 +1,6 @@
 """Module for generating batches of drawn blended images."""
 import copy
+import os
 from abc import ABC
 from abc import abstractmethod
 from itertools import chain
@@ -148,6 +149,7 @@ class DrawBlendsGenerator(ABC):
         shifts=None,
         indexes=None,
         channels_last=False,
+        save_path=None,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -170,6 +172,8 @@ class DrawBlendsGenerator(ABC):
             channels_last (bool): Whether to return images as numpy arrays with the channel
                                 (band) dimension as the last dimension or before the pixels
                                 dimensions (default).
+            save_path (str): Path to a directory where results will be saved. If left
+                            as None, results will not be saved.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -191,8 +195,8 @@ class DrawBlendsGenerator(ABC):
 
         self.add_noise = add_noise
         self.verbose = verbose
-
         self.channels_last = channels_last
+        self.save_path = save_path
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -274,6 +278,20 @@ class DrawBlendsGenerator(ABC):
                 blend_images[s.name][i] = batch_results[i][0]
                 isolated_images[s.name][i] = batch_results[i][1]
                 batch_blend_cat[s.name].append(batch_results[i][2])
+
+            if self.save_path is not None:
+                if not os.path.exists(os.path.join(self.save_path, s.name)):
+                    os.mkdir(os.path.join(self.save_path, s.name))
+
+                np.save(os.path.join(self.save_path, s.name, "blended"), blend_images[s.name])
+                np.save(os.path.join(self.save_path, s.name, "isolated"), isolated_images[s.name])
+                for i in range(len(batch_results)):
+                    batch_blend_cat[s.name][i].write(
+                        os.path.join(self.save_path, s.name, f"blend_info_{i}"),
+                        format="ascii",
+                        overwrite=True,
+                    )
+
         if len(self.surveys) > 1:
             output = {
                 "blend_images": blend_images,
@@ -291,6 +309,7 @@ class DrawBlendsGenerator(ABC):
                 "psf": psfs[survey_name],
                 "wcs": wcss[survey_name],
             }
+
         return output
 
     def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
