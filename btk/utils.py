@@ -99,7 +99,7 @@ def load_metrics_results(path, measure_name):
     return metrics_results
 
 
-def load_all_results(path, surveys, measure_names, n_batch):
+def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
     """Load results exported from a MetricsGenerator.
 
     Args:
@@ -126,7 +126,8 @@ def load_all_results(path, surveys, measure_names, n_batch):
             blend_results[key][s] = blend_results_temp[key]
 
     for meas in measure_names:
-        measure_results[meas] = load_measure_results(path, meas, n_batch)
-        metrics_results[meas] = load_metrics_results(path, meas)
+        for n in range(n_meas_kwargs):
+            measure_results[meas + str(n)] = load_measure_results(path, meas + str(n), n_batch)
+            metrics_results[meas + str(n)] = load_metrics_results(path, meas + str(n))
 
     return blend_results, measure_results, metrics_results

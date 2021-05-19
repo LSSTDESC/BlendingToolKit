@@ -38,14 +38,14 @@ def test_save():
         blend_results["blend_images"], blend_results2["blend_images"]["LSST"]
     )
     np.testing.assert_array_equal(
-        measure_results["sep_measure"]["segmentation"][0],
-        measure_results2["sep_measure"]["segmentation"][0],
+        measure_results["sep_measure0"]["segmentation"][0],
+        measure_results2["sep_measure0"]["segmentation"][0],
     )
     np.testing.assert_array_equal(
-        measure_results["sep_measure"]["deblended_images"][0],
-        measure_results2["sep_measure"]["deblended_images"][0],
+        measure_results["sep_measure0"]["deblended_images"][0],
+        measure_results2["sep_measure0"]["deblended_images"][0],
     )
     np.testing.assert_array_equal(
-        metrics_results["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
-        metrics_results2["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
+        metrics_results["sep_measure0"]["galaxy_summary"]["distance_closest_galaxy"],
+        metrics_results2["sep_measure0"]["galaxy_summary"]["distance_closest_galaxy"],
     )

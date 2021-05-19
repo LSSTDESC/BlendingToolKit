@@ -170,7 +170,7 @@ class MeasureGenerator:
             to be passed in to each of the `measure_functions`. Each dictionnary is
             passed one time to each function, meaning that each function which be
             ran as many times as there are different dictionnaries.
-            save_path (str): Path to a directory where results will be saved. If left 
+            save_path (str): Path to a directory where results will be saved. If left
                               as None, results will not be saved.
         """
         # setup and verify measure_functions.
@@ -292,13 +292,13 @@ class MeasureGenerator:
                         os.mkdir(os.path.join(self.save_path, dir_name))
 
                     for key in ["segmentation", "deblended_images"]:
-                        if key in measure_dic.keys():
-                            np.save(os.path.join(self.save_path, dir_name, key), measure_dic[key])
-                    for j, cat in enumerate(measure_dic["catalog"]):
+                        if key in measure_dict.keys():
+                            np.save(os.path.join(self.save_path, dir_name, key), measure_dict[key])
+                    for j, cat in enumerate(measure_dict["catalog"]):
                         cat.write(
                             os.path.join(self.save_path, dir_name, f"detection_catalog_{j}"),
                             format="ascii",
                             overwrite=True,
                         )
-                        
+
         return blend_output, measure_results
