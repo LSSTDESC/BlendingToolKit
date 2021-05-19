@@ -57,6 +57,7 @@ import os
 
 import astropy.table
 import galsim
+import matplotlib.pyplot as plt
 import numpy as np
 import skimage.metrics
 from scipy.optimize import linear_sum_assignment
@@ -106,7 +107,21 @@ def meas_ksb_ellipticity(image, additional_params):
     return result
 
 
-def get_detection_match(true_table, detected_table):
+def distance_center(true_gal, detected_gal):
+    """Computes distance between the two galaxies given as arguments.
+
+    Args:
+        true_gal (astropy.table.Table): Contains information related to the true galaxy.
+        detected_gal (astropy.table.Table): Contains information related to the detected galaxy
+    Returns:
+        Distance between the two galaxies
+    """
+    return np.hypot(
+        true_gal["x_peak"] - detected_gal["x_peak"], true_gal["y_peak"] - detected_gal["y_peak"]
+    )
+
+
+def get_detection_match(true_table, detected_table, f_distance=distance_center):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
     The optimal matching is computed based on the following optimization problem:
@@ -127,6 +142,9 @@ def get_detection_match(true_table, detected_table):
             the true object parameter values in one blend.
         detected_table(astropy.table.Table): Table with entries corresponding
             to output of measurement algorithm in one blend.
+        f_distance (func): Function used to compute the distance between true and detected
+            galaxies. Takes as arguments the entries corresponding to the two galaxies.
+            By default the distance is the euclidean distance from center to center.
 
     Returns:
         match_table (astropy.table.Table): Table where each row corresponds to each true
@@ -146,9 +164,13 @@ def get_detection_match(true_table, detected_table):
     if "y_peak" not in true_table.colnames:
         raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
-    t_x = true_table["x_peak"].reshape(-1, 1) - detected_table["x_peak"].reshape(1, -1)
-    t_y = true_table["y_peak"].reshape(-1, 1) - detected_table["y_peak"].reshape(1, -1)
-    dist = np.hypot(t_x, t_y)  # dist[i][j] = distance between true object i and detected object j.
+
+    print(f_distance)
+    # dist[i][j] = distance between true object i and detected object j.
+    dist = np.zeros((len(true_table), len(detected_table)))
+    for i, true_gal in enumerate(true_table):
+        for j, detected_gal in enumerate(detected_table):
+            dist[i][j] = f_distance(true_gal, detected_gal)
 
     # solve optimization problem.
     # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
@@ -512,6 +534,7 @@ def compute_metrics(  # noqa: C901
     target_meas={},
     channels_last=False,
     save_path=None,
+    f_distance=distance_center,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
@@ -547,6 +570,9 @@ def compute_metrics(  # noqa: C901
                           or channels last (NHWC).
         save_path (str): Path to directory where results will be saved. If left
                       as None, results will not be saved.
+        f_distance (func): Function used to compute the distance between true and detected
+            galaxies. Takes as arguments the entries corresponding to the two galaxies.
+            By default the distance is the euclidean distance from center to center.
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
@@ -565,7 +591,8 @@ def compute_metrics(  # noqa: C901
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
     results = {}
     matches = [
-        get_detection_match(blend_list[i], detection_catalogs[i]) for i in range(len(blend_list))
+        get_detection_match(blend_list[i], detection_catalogs[i], f_distance)
+        for i in range(len(blend_list))
     ]
     results["matches"] = matches
 
@@ -616,9 +643,7 @@ def compute_metrics(  # noqa: C901
             if len(blend) > 1:
                 dists = []
                 for g in blend:
-                    dx = gal["x_peak"] - g["x_peak"]
-                    dy = gal["y_peak"] - g["y_peak"]
-                    dists.append(np.hypot(dx, dy))
+                    dists.append(f_distance(gal, g))
                 row["distance_closest_galaxy"] = np.partition(dists, 1)[1]
             else:
                 row["distance_closest_galaxy"] = -1  # placeholder
@@ -653,6 +678,7 @@ class MetricsGenerator:
         target_meas={},
         noise_threshold_factor=3,
         save_path=None,
+        f_distance=distance_center,
     ):
         """Initialize metrics generator.
 
@@ -673,6 +699,9 @@ class MetricsGenerator:
                 the noise)
             save_path (str): Path to directory where results will be saved. If left 
                     as None, results will not be saved.
+            f_distance (func): Function used to compute the distance between true and detected
+                galaxies. Takes as arguments the entries corresponding to the two galaxies.
+                By default the distance is the euclidean distance from center to center.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
@@ -680,6 +709,7 @@ class MetricsGenerator:
         self.target_meas = target_meas
         self.noise_threshold_factor = noise_threshold_factor
         self.save_path = save_path
+        self.f_distance = f_distance
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -714,7 +744,62 @@ class MetricsGenerator:
                 save_path=os.path.join(self.save_path, meas_func)
                 if self.save_path is not None
                 else None,
+                f_distance=self.f_distance,
             )
             metrics_results[meas_func] = metrics_results_f
 
         return blend_results, measure_results, metrics_results
+
+
+def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
+    """Computes the average precision metric and plot the Precision-Recall curve.
+
+    The average precision is defined as the area under the precision-recall curve.
+    The precision-recall curve is obtained by running the same algorithm with
+    different thresholds, and plotting the curve with recall as the x axis
+    and precision as the y axis (see detection metrics for a definition of
+    precision and recall).
+    This should be used by providing a list of different kwargs to a measure
+    generator, proceed as usual, and give the results of the metrics generator
+    to this function.
+
+    Args:
+        metrics_results (dict): Output of a btk.metrics.MetricsGenerator.
+        measure_name (str): Base name of the measure function which will be
+                            evaluated.
+        n_meas (int): Number of different kwargs which were given.
+        plot (bool): Set to True to plot the precision-recall curve.
+        ax (matplotlib.axes.Axes): If plot is True, the results will be
+        drawn on this ax.
+
+    Returns:
+        An int corresponding to the average precision.
+
+    """
+    precisions = []
+    recalls = []
+    average_precision = 0
+    for i in range(n_meas):
+        metrics_results_temp = metrics_results[measure_name + str(i)]
+        precisions.append(metrics_results_temp["detection"]["precision"])
+        recalls.append(metrics_results_temp["detection"]["recall"])
+    order = np.argsort(recalls)
+    recalls = np.array(recalls)[order]
+    precisions = np.array(precisions)[order]
+
+    # The integral is from zero to one
+    recalls = np.insert(recalls, 0, 0)
+    precisions = np.insert(precisions, 0, precisions[0])
+    recalls = np.insert(recalls, -1, 1)
+    precisions = np.insert(precisions, -1, precisions[-1])
+
+    for i in range(1, n_meas):
+        average_precision += precisions[i] * (recalls[i] - recalls[i - 1])
+
+    if plot:
+        ax = plt.gca() if ax is None else ax
+        ax.scatter(recalls, precisions, label=measure_name)
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+
+    return average_precision
