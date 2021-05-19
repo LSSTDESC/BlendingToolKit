@@ -6,7 +6,7 @@ catalog:
   name: CatsimCatalog
   catalog_files: ${paths.data}/sample_input_catalog.fit
 
-save_path: ${paths.root}/temp
+save_path: Null
 
 cpus: 1
 
