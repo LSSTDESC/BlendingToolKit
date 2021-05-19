@@ -36,5 +36,5 @@ metrics:
     save_path: ${save_path}
 
 paths:
-  root: ${env:BLISS_HOME}
+  root: ${env:BTK_HOME}
   data: ${paths.root}/data
