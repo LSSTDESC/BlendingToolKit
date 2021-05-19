@@ -232,12 +232,12 @@ is the standard scalar product on vectors.</p>
 </ul>
 <dl class="py class">
 <dt id="btk.metrics.MetricsGenerator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generator that calculates metrics on batches returned by the MeasureGenerator.</p>
 <dl class="py method">
 <dt id="btk.metrics.MetricsGenerator.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">use_metrics='detection'</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize metrics generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -256,6 +256,8 @@ value the function performing the estimation (e.g. <cite>meas_ellipticity</cite>
 applied when getting segmentations from true images. A value of 3 would
 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
 the noise)</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Path to directory where results will be saved. If left
+as None, results will not be saved.</p></li>
 <li><p><strong>f_distance</strong> (<em>func</em>) – Function used to compute the distance between true and detected
 galaxies. Takes as arguments the entries corresponding to the two galaxies.
 By default the distance is the euclidean distance from center to center.</p></li>
@@ -298,7 +300,7 @@ evaluated.</p></li>
 
 <dl class="py function">
 <dt id="btk.metrics.compute_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">blended_images</span></em>, <em class="sig-param"><span class="pre">isolated_images</span></em>, <em class="sig-param"><span class="pre">blend_list</span></em>, <em class="sig-param"><span class="pre">detection_catalogs</span></em>, <em class="sig-param"><span class="pre">segmentations=None</span></em>, <em class="sig-param"><span class="pre">deblended_images=None</span></em>, <em class="sig-param"><span class="pre">use_metrics=('detection'</span></em>, <em class="sig-param"><span class="pre">'segmentation'</span></em>, <em class="sig-param"><span class="pre">'reconstruction')</span></em>, <em class="sig-param"><span class="pre">noise_threshold=None</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">channels_last=False</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">blended_images</span></em>, <em class="sig-param"><span class="pre">isolated_images</span></em>, <em class="sig-param"><span class="pre">blend_list</span></em>, <em class="sig-param"><span class="pre">detection_catalogs</span></em>, <em class="sig-param"><span class="pre">segmentations=None</span></em>, <em class="sig-param"><span class="pre">deblended_images=None</span></em>, <em class="sig-param"><span class="pre">use_metrics=('detection'</span></em>, <em class="sig-param"><span class="pre">'segmentation'</span></em>, <em class="sig-param"><span class="pre">'reconstruction')</span></em>, <em class="sig-param"><span class="pre">noise_threshold=None</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">channels_last=False</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -332,6 +334,8 @@ isolated images.</p></li>
 be returned for both isolated and deblended images to compare.</p></li>
 <li><p><strong>channels_last</strong> (<em>bool</em>) – Indicates whether the images should be channels first (NCHW)
 or channels last (NHWC).</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Path to directory where results will be saved. If left
+as None, results will not be saved.</p></li>
 <li><p><strong>f_distance</strong> (<em>func</em>) – Function used to compute the distance between true and detected
 galaxies. Takes as arguments the entries corresponding to the two galaxies.
 By default the distance is the euclidean distance from center to center.</p></li>
