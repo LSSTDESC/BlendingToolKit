@@ -501,6 +501,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         channels_last=False,
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
+        save_path=None,
     ):
         """Initializes the GalsimHubGenerator class.
 
@@ -524,6 +525,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             shifts=shifts,
             indexes=indexes,
             channels_last=channels_last,
+            save_path=save_path,
         )
         import galsim_hub
 
@@ -563,3 +565,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
         )
         return galaxy_image
+
+
+available_draw_blends = {
+    "CatsimGenerator": CatsimGenerator,
+    "CosmosGenerator": CosmosGenerator,
+    "GalsimHubGenerator": GalsimHubGenerator,
+}
