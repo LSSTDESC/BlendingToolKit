@@ -2,29 +2,39 @@ defaults:
   - sampling: default
   - draw_blend: catsim
 
-catalog: ../data/sample_input_catalog.fits
+catalog:
+  name: CatsimCatalog
+  catalog_files: ${paths.data}/sample_input_catalog.fit
+
+save_path: ${paths.root}/temp
 
 cpus: 1
 
 verbose: False
 
-survey:
-  name: Rubin
-  filters:
-    - i
+surveys:
+  - name: Rubin
+    filters:
+      - i
 
 measure:
-  measure_functions: "path/to/measure/function/file.pickle"
-  verbose: ${verbose}
-  cpus: ${cpus}
-  measure_kwargs: Null
-  target_meas: Null
+  measure_functions:
+    - basic
+  kwargs:
+    verbose: ${verbose}
+    cpus: ${cpus}
+    measure_kwargs: Null
+    save_path: ${save_path}
 
 metrics:
-  use_metrics:
-    - detection
-  meas_band_num: 0
-  noise_threshold_factor: 3
+  kwargs:
+    use_metrics:
+      - detection
+    meas_band_num: 0
+    noise_threshold_factor: 3
+    target_meas: Null
+    save_path: ${save_path}
 
 paths:
-  data: ../data
+  root: ${env:BLISS_HOME}
+  data: ${paths.root}/data
