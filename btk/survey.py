@@ -555,3 +555,13 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
     w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
+
+
+available_surveys = {
+    "Rubin": Rubin,
+    "CFHT": CFHT,
+    "HST": HST,
+    "HSC": HSC,
+    "DES": DES,
+    "Euclid": Euclid,
+}
