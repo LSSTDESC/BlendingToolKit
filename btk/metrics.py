@@ -165,7 +165,6 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
         raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
 
-    print(f_distance)
     # dist[i][j] = distance between true object i and detected object j.
     dist = np.zeros((len(true_table), len(detected_table)))
     for i, true_gal in enumerate(true_table):
@@ -697,7 +696,7 @@ class MetricsGenerator:
                 applied when getting segmentations from true images. A value of 3 would
                 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
                 the noise)
-            save_path (str): Path to directory where results will be saved. If left 
+            save_path (str): Path to directory where results will be saved. If left
                     as None, results will not be saved.
             f_distance (func): Function used to compute the distance between true and detected
                 galaxies. Takes as arguments the entries corresponding to the two galaxies.
