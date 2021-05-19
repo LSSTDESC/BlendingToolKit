@@ -327,3 +327,6 @@ class MeasureGenerator:
             "deblended_images": deblended_images,
         }
         return blend_output, measure_results
+
+
+available_measure_functions = {"basic": basic_measure, "sep": sep_measure}
