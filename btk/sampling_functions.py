@@ -423,7 +423,7 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
         return no_boundary
 
 
-all_sampling_functions = {
+available_sampling_functions = {
     "DefaultSampling": DefaultSampling,
     "DefaultSamplingGalsimHub": DefaultSamplingGalsimHub,
     "GroupSamplingFunction": GroupSamplingFunction,
