@@ -1,7 +1,8 @@
 # @package _group_
 name: "GroupSamplingFunction"
-max_number: 2
-stamp_size: 24.0
-maxshift: Null
-wld_catalog_name: ${paths.data}/sample_group_catalog.fits
-shift: Null
+kwargs:
+  max_number: 2
+  stamp_size: 24.0
+  maxshift: Null
+  wld_catalog_name: ${paths.data}/sample_group_catalog.fits
+  shift: Null
