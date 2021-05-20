@@ -1,6 +1,6 @@
 defaults:
   - sampling: default
-  - draw_blend: catsim
+  - draw_blends: catsim
 
 catalog:
   name: CatsimCatalog
@@ -13,9 +13,7 @@ cpus: 1
 verbose: False
 
 surveys:
-  - name: Rubin
-    filters:
-      - i
+  - Rubin
 
 measure:
   measure_functions:
