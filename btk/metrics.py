@@ -664,6 +664,8 @@ def compute_metrics(  # noqa: C901
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
+
+    # save results if requested.
     if save_path is not None:
         if not os.path.exists(save_path):
             os.mkdir(save_path)

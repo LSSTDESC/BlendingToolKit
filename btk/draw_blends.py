@@ -254,6 +254,7 @@ class DrawBlendsGenerator(ABC):
                 isolated_images[s.name][i] = batch_results[i][1]
                 blend_list[s.name].append(batch_results[i][2])
 
+            # save results if requested.
             if self.save_path is not None:
                 if not os.path.exists(os.path.join(self.save_path, s.name)):
                     os.mkdir(os.path.join(self.save_path, s.name))
