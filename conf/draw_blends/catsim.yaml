@@ -1,14 +1,13 @@
 # @package _group_
 name: "CatsimGenerator"
 kwargs:
-  batch_size: 8
-  stamp_size: 24
-  meas_bands:
-    - i
+  batch_size: ${batch_size}
+  stamp_size: ${stamp_size}
+  meas_bands: ${meas_bands}
   cpus: ${cpus}
   verbose: ${verbose}
-  add_noise: True
+  add_noise: ${add_noise}
   shifts: Null
   indexes: Null
-  channels_last: False
+  channels_last: ${channels_last}
   save_path: ${save_path}

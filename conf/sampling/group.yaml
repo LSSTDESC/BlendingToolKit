@@ -1,8 +1,8 @@
 # @package _group_
 name: "GroupSamplingFunction"
 kwargs:
-  max_number: 2
-  stamp_size: 24.0
-  maxshift: Null
+  max_number: ${max_number}
+  stamp_size: ${stamp_size}
+  maxshift: ${max_shift}
   wld_catalog_name: ${paths.data}/sample_group_catalog.fits
   shift: Null

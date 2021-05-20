@@ -6,31 +6,59 @@ catalog:
   name: CatsimCatalog
   catalog_files: ${paths.data}/sample_input_catalog.fits
 
-save_path: Null
-
-cpus: 1
-
-verbose: False
-
 surveys:
   - Rubin
 
+### all arguments ###
+
+# system
+save_path: Null
+cpus: 1
+verbose: False
+
+# blends
+batch_size: 24
+max_number: 2
+stamp_size: 24.0
+max_shift: Null
+add_noise: True
+channels_last: False
+meas_bands:
+  - i
+galsim_hub:
+  model: "hub:Lanusse2020"
+  param_names:
+    - "flux_radius"
+    - "mag_auto"
+    - "zphot"
+
+# measure
+measure_kwargs: Null
+measure_functions:
+  - basic
+
+# metrics
+use_metrics:
+  - detection
+meas_band_num: 0
+noise_threshold_factor: 3
+target_meas: Null
+
+### organize arguments ###
 measure:
-  measure_functions:
-    - basic
+  measure_functions: ${measure_functions}
   kwargs:
     verbose: ${verbose}
     cpus: ${cpus}
-    measure_kwargs: Null
+    measure_kwargs: ${measure_kwargs}
     save_path: ${save_path}
 
 metrics:
   kwargs:
-    use_metrics:
-      - detection
-    meas_band_num: 0
-    noise_threshold_factor: 3
-    target_meas: Null
+    use_metrics: ${use_metrics}
+    meas_band_num: ${meas_band_num}
+    noise_threshold_factor: ${noise_threshold_factor}
+    target_meas: ${target_meas}
     save_path: ${save_path}
 
 paths:

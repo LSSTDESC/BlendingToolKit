@@ -3,19 +3,15 @@ name: "GalsimHubGenerator"
 kwargs:
   catalog: ${catalog}
   surveys: Null
-  batch_size: 8
-  stamp_size: 24
-  meas_bands:
-    - i
+  batch_size: ${batch_size}
+  stamp_size: ${stamp_size}
+  meas_bands: ${meas_bands}
   cpus: ${cpus}
   verbose: ${verbose}
-  add_noise: True
+  add_noise: ${add_noise}
   shifts: Null
   indexes: Null
-  channels_last: False
-  galsim_hub_model: "hub:Lanusse2020"
-  param_names:
-    - "flux_radius"
-    - "mag_auto"
-    - "zphot"
+  channels_last: ${channels_last}
+  galsim_hub_model: ${galsim_hub_model}
+  param_names: ${param_names}
   save_path: ${save_path}
