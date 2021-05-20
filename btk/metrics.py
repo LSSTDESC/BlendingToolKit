@@ -700,8 +700,8 @@ class MetricsGenerator:
                                 - "detection"
                                 - "segmentation"
                                 - "reconstruction"
-            meas_band_num (int): If using multiple bands for each blend,
-                which band index do you want to use for measurement?
+            meas_band_num (int): If using multiple bands for each blend, which band index
+                do you want to use for measurement?
             target_meas (dict): Dictionary containing functions that can measure a physical
                 parameter on isolated galaxy images. Each key is the name of the estimator and
                 value the function performing the estimation (e.g. `meas_ellipticity` above).
