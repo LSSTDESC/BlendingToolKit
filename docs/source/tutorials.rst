@@ -296,10 +296,10 @@ Please note that several surveys can be provided as a list to the generator. In 
 Measurement
 ............
 
-Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending: 
-  * detections 
+Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:
+  * detections
   * segmentations
-  * deblended images. 
+  * deblended images.
 
 You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function. The measure function is a regular function with two positional arguments: ``batch`` and ``idx``. Batch is the direct output of a ``DrawBlendsGenerator``, and ``idx`` is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via ``**kwargs``. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
 
@@ -449,7 +449,7 @@ Galsim_Hub tutorial
 
 BTK supports galaxy image generation with galsim_hub ; please refer to :ref:`this page<Galsim_Hub>` for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. NOTE: galsim_hub only works with python 3.7
 
-You can find a notebook version of this tutorial in the notebooks folder. 
+You can find a notebook version of this tutorial in the notebooks folder.
 
 First, you should use the ``CosmosCatalog`` catalog instead of the Catsim one. While galsim_hub only require parameters for the image generation, we have chosen to use COSMOS as the source of those parameters so as to get a realistic distribution of those parameters. We have included a small sample of the catalog in BTK, and advise you to download the full catalog (see:ref:`COSMOS`) for better results.
 
