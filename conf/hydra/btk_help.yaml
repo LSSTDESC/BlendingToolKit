@@ -1,0 +1,45 @@
+# @package _group_
+
+# App name, override to match the name your app is known by
+app_name: BTK
+
+# Help header, customize to describe your app to your users
+header: == ${hydra.help.app_name} CLI ==
+
+footer: |-
+  Powered by Hydra (https://hydra.cc)
+  Use --hydra-help to view Hydra specific help
+# Basic Hydra flags:
+#   $FLAGS_HELP
+#
+# Config groups, choose one of:
+#   $APP_CONFIG_GROUPS: All config groups that does not start with hydra/.
+#   $HYDRA_CONFIG_GROUPS: All the Hydra config groups (starts with hydra/)
+#
+# Configuration generated with overrides:
+#   $CONFIG : Generated config
+#
+template: |-
+  ${hydra.help.header}
+  Welcome to the Command-Line Interface (CLI) for ${hydra.help.app_name}!
+  The CLI is designed to run BTK from start to end, starting by creating a 
+  DrawBlendGenerator, followed by a MeasureGenerator, and finally calculating
+  and saving the corresponding metrics.
+
+  Assuming that BTK has been pip installed, you can run btk from the command line like: 
+
+  btk sampling=default draw_blends=catsim max_number=3 save_path=/path/to/save/results cpus=1
+    verbose=False 
+
+  You can choose a db driver by appending
+  == Configuration groups ==
+  Compose your configuration from those groups (db=mysql)
+  $APP_CONFIG_GROUPS
+  == Config ==
+  This is the config generated for this run.
+  You can override everything, for example:
+  python my_app.py db.user=foo db.pass=bar
+  -------
+  $CONFIG
+  -------
+  ${hydra.help.footer}
