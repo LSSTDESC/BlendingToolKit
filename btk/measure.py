@@ -299,6 +299,7 @@ class MeasureGenerator:
                         measure_output[j][i].get("deblended_images", None)
                     )
 
+                # save results if requested.
                 if self.save_path is not None:
 
                     if not os.path.exists(os.path.join(self.save_path, key_name)):
