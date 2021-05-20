@@ -683,8 +683,8 @@ class MetricsGenerator:
         measure_generator,
         use_metrics=("detection"),
         meas_band_num=0,
-        target_meas={},
         noise_threshold_factor=3,
+        target_meas=None,
         save_path=None,
         f_distance=distance_center,
         distance_threshold_match=5.0,
@@ -719,7 +719,7 @@ class MetricsGenerator:
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
-        self.target_meas = target_meas
+        self.target_meas = target_meas if target_meas is not None else {}
         self.noise_threshold_factor = noise_threshold_factor
         self.save_path = save_path
         self.f_distance = f_distance
