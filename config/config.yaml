@@ -4,7 +4,7 @@ defaults:
 
 catalog:
   name: CatsimCatalog
-  catalog_files: ${paths.data}/sample_input_catalog.fit
+  catalog_files: ${paths.data}/sample_input_catalog.fits
 
 save_path: Null
 
