@@ -132,15 +132,15 @@ class DrawBlendsGenerator(ABC):
         """Initializes the DrawBlendsGenerator class.
 
         Args:
-            catalog (btk.catalog.Catalog) : BTK catalog object from which galaxies are taken
-            sampling_function (btk.sampling_function.SamplingFunction) : BTK sampling function
-                                                                         to use
+            catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
+            sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
+                function to use.
             surveys (list): List of btk Survey objects defining the observing conditions
-            batch_size (int) : Number of blends generated per batch
-            stamp_size (float) : Size of the stamps, in arcseconds
-            cpus (int) : Number of cpus to use; defines the number of minibatches
-            verbose (bool) : Indicates whether additionnal information should be printed
-            add_noise (bool) : Indicates if the blends should be generated with noise
+            batch_size (int): Number of blends generated per batch
+            stamp_size (float): Size of the stamps, in arcseconds
+            cpus (int): Number of cpus to use; defines the number of minibatches
+            verbose (bool): Indicates whether additionnal information should be printed
+            add_noise (bool): Indicates if the blends should be generated with noise
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
                            with indexes.
@@ -172,7 +172,6 @@ class DrawBlendsGenerator(ABC):
             raise TypeError("surveys must be a Survey object or a list of Survey objects.")
 
         self.stamp_size = stamp_size
-
         self.add_noise = add_noise
         self.verbose = verbose
         self.channels_last = channels_last
