@@ -22,40 +22,36 @@ def main(cfg: OmegaConf):
     # get sampling function
     if cfg.sampling.name not in available_sampling_functions:
         raise ValueError(f"Sampling function '{cfg.sampling.name}' is not implemented in BTK.")
-    sampling_function = available_measure_functions[cfg.sampling.name]
+    sampling_function = available_sampling_functions[cfg.sampling.name](**cfg.sampling.kwargs)
 
     # get survey(s) to be used.
     if not isinstance(cfg.surveys, Iterable):
         cfg.surveys = [cfg.surveys]
 
     surveys = []
-    for survey in cfg.surveys:
-        if survey.name not in available_surveys:
-            raise ValueError(f"Survey '{survey.name}' is not implemented in BTK.")
-        s = available_surveys[survey.name]
-
-        # only use the filters specified.
-        s.filters = [filt for filt in s.filters if filt.name in survey.filters]
-
-        # TODO: Possibility to customize PSF inside each filter.
-
-        surveys.append(s)
+    for survey_name in cfg.surveys:
+        if survey_name not in available_surveys:
+            raise ValueError(f"Survey '{survey_name}' is not implemented in BTK.")
+        survey = available_surveys[survey_name]
+        surveys.append(survey)
+        # TODO: Possibility to customize PSF inside each filter, etc.
 
     # get draw blends generator.
-    if cfg.draw_blend.name not in available_draw_blends:
+    if cfg.draw_blends.name not in available_draw_blends:
         raise ValueError("DrawBlendGenerator specified is not implemented in BTK.")
-    draw_blend_generator = available_draw_blends[cfg.draw_blend.name](
+    draw_blend_generator = available_draw_blends[cfg.draw_blends.name](
         catalog, sampling_function, surveys, **cfg.draw_blends.kwargs
     )
 
     # get measure_functions.
-    measure_functions = cfg.measure.measure_functions
-    if not isinstance(measure_functions, Iterable):
-        measure_functions = [cfg.measure.measure_functions]
-    for i, f in enumerate(measure_functions):
-        if f not in available_measure_functions:
+    measure_functions = []
+    f_names = cfg.measure.measure_functions
+    if not isinstance(f_names, Iterable):
+        f_names = [f_names]
+    for f_name in f_names:
+        if f_name not in available_measure_functions:
             raise ValueError("Measure functions specified are not implemented in BTK.")
-        measure_functions[i] = available_measure_functions[f]
+        measure_functions.append(available_measure_functions[f_name])
 
     # get measure generator.
     measure_generator = MeasureGenerator(
