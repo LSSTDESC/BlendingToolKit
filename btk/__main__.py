@@ -12,7 +12,7 @@ from btk.measure import available_measure_functions, MeasureGenerator
 from btk.metrics import MetricsGenerator
 
 
-@hydra.main(config_path="../config", config_name="config")
+@hydra.main(config_path="../conf", config_name="config")
 def main(cfg: OmegaConf):
     # get catalog
     if cfg.catalog.name not in available_catalogs:
