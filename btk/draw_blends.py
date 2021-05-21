@@ -41,28 +41,6 @@ def get_center_in_pixels(blend_catalog, wcs):
     return dx_col, dy_col
 
 
-def get_size(catalog, psf, pixel_scale):
-    """Returns a astropy.table.column with the size of the galaxy in pixels.
-
-    Galaxy size is estimated as second moments size (r_sec) computed as
-    described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
-    is computed by galsim from the PSF model in obs_conds in the i band.
-    The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
-
-    Args:
-        catalog: Catalog with entries corresponding to one blend.
-        psf: Galsim object corresponding to a PSF.
-        pixel_scale: arcseconds per pixel
-
-    Returns:
-        `astropy.table.Column`: size of the galaxy in pixels.
-    """
-    r_sec = catalog["btk_size"]
-    psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
-    return Column(size, name="size")
-
-
 def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn=False):
     """Returns a bulge/disk/agn Galsim galaxy profile based on entry.
 
@@ -142,7 +120,6 @@ class DrawBlendsGenerator(ABC):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        meas_bands=("i",),
         cpus=1,
         verbose=False,
         add_noise=True,
@@ -160,7 +137,6 @@ class DrawBlendsGenerator(ABC):
             surveys (list): List of btk Survey objects defining the observing conditions
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
-            meas_bands (tuple) : Tuple containing the bands in which the measurements are carried
             cpus (int) : Number of cpus to use; defines the number of minibatches
             verbose (bool) : Indicates whether additionnal information should be printed
             add_noise (bool) : Indicates if the blends should be generated with noise
@@ -188,10 +164,6 @@ class DrawBlendsGenerator(ABC):
             raise TypeError("surveys must be a list of Survey objects.")
         self.surveys = surveys
         self.stamp_size = stamp_size
-
-        self.meas_bands = {}
-        for i, s in enumerate(self.surveys):
-            self.meas_bands[s.name] = meas_bands[i]
 
         self.add_noise = add_noise
         self.verbose = verbose
@@ -333,17 +305,9 @@ class DrawBlendsGenerator(ABC):
             pixel_scale = survey.pixel_scale
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
-            # Band to do measurements of size for given survey.
-            meas_band = self.meas_bands[survey.name]
-            indx_meas_band = [filt.name for filt in survey.filters].index(meas_band)
-
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
             blend.add_column(x_peak)
             blend.add_column(y_peak)
-            # TODO: How to get size for COSMOS?
-            if "CatsimCatalog" in self.compatible_catalogs:
-                size = get_size(blend, psf[indx_meas_band], pixel_scale)
-                blend_list[i].add_column(size)
 
             iso_image_multi = np.zeros(
                 (
@@ -514,7 +478,6 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        meas_bands=("i",),
         cpus=1,
         verbose=False,
         add_noise=True,
@@ -540,7 +503,6 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             surveys,
             batch_size=batch_size,
             stamp_size=stamp_size,
-            meas_bands=meas_bands,
             cpus=cpus,
             verbose=verbose,
             add_noise=add_noise,
