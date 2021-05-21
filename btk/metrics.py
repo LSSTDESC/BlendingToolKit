@@ -98,12 +98,11 @@ def meas_ksb_ellipticity(image, additional_params):
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
     shear_est = "KSB"
-    try:
-        res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
-        result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
-    except RuntimeError as e:
-        print(e)
-        result = [-10.0, -10.0, -10.0]
+
+    res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=False)
+    result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
+    if res.error_message != "":
+        print(res.error_message)
     return result
 
 
@@ -181,8 +180,9 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
     match_indx = [-1] * len(true_table)
     dist_m = [0.0] * len(true_table)
     for i, indx in enumerate(true_indx):
-        match_indx[indx] = detected_indx[i]
-        dist_m[indx] = dist[indx][detected_indx[i]]
+        if dist[indx][detected_indx[i]] <= 5:
+            match_indx[indx] = detected_indx[i]
+            dist_m[indx] = dist[indx][detected_indx[i]]
 
     match_table["match_detected_id"] = match_indx
     match_table["dist"] = dist_m
