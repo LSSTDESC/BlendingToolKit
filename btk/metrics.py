@@ -528,7 +528,6 @@ def reconstruction_metrics(
 
 
 def compute_metrics(  # noqa: C901
-    blended_images,
     isolated_images,
     blend_list,
     detection_catalogs,
@@ -546,8 +545,6 @@ def compute_metrics(  # noqa: C901
     """Computes all requested metrics given information in a single batch from measure_generator.
 
     Args:
-        blended_images (array) : Contains all the blend images, with shape as specified
-                                 by channels_last.
         isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
                                   depending on channels_last, with M the maximum number of galaxies
                                   in a blend.
@@ -594,7 +591,6 @@ def compute_metrics(  # noqa: C901
                            blends and related metrics
     """
     if channels_last:
-        blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
         if deblended_images is not None:
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
@@ -745,7 +741,6 @@ class MetricsGenerator:
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
             metrics_results_f = compute_metrics(
-                blend_results["blend_images"],
                 blend_results["isolated_images"],
                 blend_results["blend_list"],
                 measure_results["catalog"][meas_func],
