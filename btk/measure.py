@@ -39,7 +39,9 @@ It should return a dictionary containing a subset of the following keys/values (
   `(n_objects, stamp_size, stamp_size, n_bands)` depending on
   convention. The order of this array should correspond to the
   order in the returned `catalog`. Where `n_objects` is the
-  number of detected objects by the algorithm.
+  number of detected objects by the algorithm. If you are using the multiresolution feature,
+  you should instead return a dictionary with a key for each survey containing the
+  aforementioned array.
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
   The pixels set to True in the i-th channel correspond to the i-th
   object. The order should correspond to the order in the returned
@@ -265,7 +267,15 @@ class MeasureGenerator:
                 the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
-        measure_results = {}
+        catalog = {}
+        segmentation = {}
+        deblended_images = {}
+        for f in self.measure_functions:
+            for m in range(len(self.measure_kwargs)):
+                key_name = f.__name__ + str(m) if len(self.measure_kwargs) > 1 else f.__name__
+                catalog[key_name] = []
+                segmentation[key_name] = []
+                deblended_images[key_name] = []
         for m, measure_kwargs in enumerate(self.measure_kwargs):
             args_iter = ((blend_output, i) for i in range(self.batch_size))
             kwargs_iter = repeat(measure_kwargs)
@@ -276,34 +286,43 @@ class MeasureGenerator:
                 cpus=self.cpus,
                 verbose=self.verbose,
             )
+
             if self.verbose:
                 print(f"Measurement {m} performed on batch")
             for i, f in enumerate(self.measure_functions):
-                measure_dict = {}
-                for key in ["catalog", "deblended_images", "segmentation"]:
-                    if measure_output[0][i][key] is not None:
-                        measure_dict[key] = [
-                            measure_output[j][i][key] for j in range(len(measure_output))
-                        ]
-                measure_results[f.__name__ + str(m)] = measure_dict
+                key_name = f.__name__ + str(m) if len(self.measure_kwargs) > 1 else f.__name__
+                for j in range(len(measure_output)):
+                    catalog[key_name].append(measure_output[j][i].get("catalog", None))
+                    segmentation[key_name].append(measure_output[j][i].get("segmentation", None))
+                    deblended_images[key_name].append(
+                        measure_output[j][i].get("deblended_images", None)
+                    )
 
                 if self.save_path is not None:
-                    dir_name = f.__name__ + str(m)
-                    if not os.path.exists(os.path.join(self.save_path, dir_name)):
-                        os.mkdir(os.path.join(self.save_path, dir_name))
 
-                    for key in ["segmentation", "deblended_images"]:
-                        if key in measure_dict.keys():
-                            np.save(os.path.join(self.save_path, dir_name, key), measure_dict[key])
-                    for j, cat in enumerate(measure_dict["catalog"]):
+                    if not os.path.exists(os.path.join(self.save_path, key_name)):
+                        os.mkdir(os.path.join(self.save_path, key_name))
+
+                    if segmentation[key_name] is not None:
+                        np.save(
+                            os.path.join(self.save_path, key_name, "segmentation"),
+                            segmentation[key_name],
+                        )
+                    if deblended_images[key_name] is not None:
+                        np.save(
+                            os.path.join(self.save_path, key_name, "deblended_images"),
+                            deblended_images[key_name],
+                        )
+                    for j, cat in enumerate(catalog[key_name]):
                         cat.write(
-                            os.path.join(self.save_path, dir_name, f"detection_catalog_{j}"),
+                            os.path.join(self.save_path, key_name, f"detection_catalog_{j}"),
                             format="ascii",
                             overwrite=True,
                         )
 
-        if len(measure_kwargs) <= 1:
-            for f in self.measure_functions:
-                measure_results[f.__name__] = measure_results.pop(f.__name__ + "0", None)
-
+        measure_results = {
+            "catalog": catalog,
+            "segmentation": segmentation,
+            "deblended_images": deblended_images,
+        }
         return blend_output, measure_results

@@ -125,9 +125,13 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
         for key in BLEND_RESULT_KEYS:
             blend_results[key][s] = blend_results_temp[key]
 
+    measure_results = {"catalog": {}, "segmentation": {}, "deblended_images": {}}
     for meas in measure_names:
         for n in range(n_meas_kwargs):
-            measure_results[meas + str(n)] = load_measure_results(path, meas + str(n), n_batch)
-            metrics_results[meas + str(n)] = load_metrics_results(path, meas + str(n))
+            dir_name = meas + str(n) if n_meas_kwargs > 1 else meas
+            meas_results = load_measure_results(path, dir_name, n_batch)
+            for k in meas_results.keys():
+                measure_results[k][dir_name] = meas_results[k]
+            metrics_results[dir_name] = load_metrics_results(path, dir_name)
 
     return blend_results, measure_results, metrics_results

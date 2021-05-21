@@ -743,14 +743,14 @@ class MetricsGenerator:
             get_mean_sky_level(survey, survey.filters[self.meas_band_num])
         )
         metrics_results = {}
-        for meas_func in measure_results:
+        for meas_func in measure_results["catalog"].keys():
             metrics_results_f = compute_metrics(
                 blend_results["blend_images"],
                 blend_results["isolated_images"],
                 blend_results["blend_list"],
-                measure_results[meas_func]["catalog"],
-                measure_results[meas_func]["segmentation"],
-                measure_results[meas_func]["deblended_images"],
+                measure_results["catalog"][meas_func],
+                measure_results["segmentation"][meas_func],
+                measure_results["deblended_images"][meas_func],
                 self.use_metrics,
                 noise_threshold,
                 self.meas_band_num,

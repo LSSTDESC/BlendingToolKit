@@ -19,13 +19,12 @@ def test_cosmos_galaxies():
     draw_generator = btk.draw_blends.CosmosGenerator(
         catalog,
         sampling_function,
-        [btk.survey.HST],
+        btk.survey.HST,
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,
         add_noise=True,
         verbose=True,
-        meas_bands=["f814w"],
     )
 
     _ = next(draw_generator)

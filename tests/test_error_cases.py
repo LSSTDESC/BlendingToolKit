@@ -36,7 +36,6 @@ def test_sampling_no_max_number():
             batch_size=batch_size,
             cpus=cpus,
             add_noise=add_noise,
-            meas_bands=("i"),
         )
         draw_output = next(draw_generator)  # noqa: F841
 
@@ -68,7 +67,6 @@ def test_sampling_incompatible_catalog():
             batch_size=batch_size,
             cpus=cpus,
             add_noise=add_noise,
-            meas_bands=("i"),
         )
         draw_output = next(draw_generator)  # noqa: F841
 
@@ -105,7 +103,6 @@ def test_sampling_too_much_objects():
             batch_size=batch_size,
             cpus=cpus,
             add_noise=add_noise,
-            meas_bands=("i"),
         )
         draw_output = next(draw_generator)  # noqa: F841
 
@@ -150,7 +147,6 @@ def test_survey_not_list():
             batch_size=batch_size,
             cpus=cpus,
             add_noise=add_noise,
-            meas_bands=("i"),
         )
         draw_output = next(draw_generator)  # noqa: F841
 

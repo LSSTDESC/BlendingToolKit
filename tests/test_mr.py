@@ -23,7 +23,6 @@ def test_multiresolution():
         batch_size=batch_size,
         cpus=cpus,
         add_noise=add_noise,
-        meas_bands=("i", "i"),
     )
     draw_output = next(draw_generator)
 
