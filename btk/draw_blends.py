@@ -15,6 +15,7 @@ from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
+from btk.survey import Survey
 
 
 class SourceNotVisible(Exception):
@@ -160,9 +161,19 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        if not isinstance(surveys, list):
-            raise TypeError("surveys must be a list of Survey objects.")
-        self.surveys = surveys
+        if isinstance(surveys, Survey):
+            self.surveys = [surveys]
+        elif isinstance(surveys, list):
+            for s in surveys:
+                if not isinstance(s, Survey):
+                    raise TypeError(
+                        "surveys must be a Survey object \
+                        or a list of Survey objects."
+                    )
+            self.surveys = surveys
+        else:
+            raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+
         self.stamp_size = stamp_size
 
         self.add_noise = add_noise
