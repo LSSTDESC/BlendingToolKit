@@ -209,14 +209,9 @@ class DrawBlendsGenerator(ABC):
             output : Dictionary with blend images, isolated object images, blend catalog,
             PSF images and WCS.
         """
-        batch_blend_cat, batch_obs_cond = {}, {}
-        blend_images = {}
-        isolated_images = {}
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        psfs = {}
-        wcss = {}
-
+        output_dict = {}
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s.pixel_scale)
 
@@ -240,12 +235,6 @@ class DrawBlendsGenerator(ABC):
                         f"function nor a galsim object"
                     )
             wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
-            psfs[s.name] = psf
-            wcss[s.name] = wcs
-
-            # allocate memory for output catalogues and images.
-            batch_blend_cat[s.name] = []
-            batch_obs_cond[s.name] = []
 
             # decide image_shape based on channels_last bool.
             option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
@@ -253,8 +242,6 @@ class DrawBlendsGenerator(ABC):
             image_shape = option1 if not self.channels_last else option2
 
             # create emtpy arrays with image_shape.
-            blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
-            isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
 
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
@@ -274,41 +261,40 @@ class DrawBlendsGenerator(ABC):
             batch_results = list(chain(*mini_batch_results))
 
             # organize results.
+            batch_dict = {}
+            batch_dict["blend_images"] = np.zeros((self.batch_size, *image_shape))
+            batch_dict["isolated_images"] = np.zeros(
+                (self.batch_size, self.max_number, *image_shape)
+            )
+            batch_dict["blend_list"] = []
             for i in range(self.batch_size):
-                blend_images[s.name][i] = batch_results[i][0]
-                isolated_images[s.name][i] = batch_results[i][1]
-                batch_blend_cat[s.name].append(batch_results[i][2])
+                batch_dict["blend_images"][i] = batch_results[i][0]
+                batch_dict["isolated_images"][i] = batch_results[i][1]
+                batch_dict["blend_list"].append(batch_results[i][2])
+            batch_dict["psf"] = psf
+            batch_dict["wcs"] = wcs
+
+            output_dict[s.name] = batch_dict
 
             if self.save_path is not None:
                 if not os.path.exists(os.path.join(self.save_path, s.name)):
                     os.mkdir(os.path.join(self.save_path, s.name))
 
-                np.save(os.path.join(self.save_path, s.name, "blended"), blend_images[s.name])
-                np.save(os.path.join(self.save_path, s.name, "isolated"), isolated_images[s.name])
+                np.save(os.path.join(self.save_path, s.name, "blended"), batch_dict["blend_images"])
+                np.save(
+                    os.path.join(self.save_path, s.name, "isolated"), batch_dict["isolated_images"]
+                )
                 for i in range(len(batch_results)):
-                    batch_blend_cat[s.name][i].write(
+                    batch_dict["blend_list"][i].write(
                         os.path.join(self.save_path, s.name, f"blend_info_{i}"),
                         format="ascii",
                         overwrite=True,
                     )
 
         if len(self.surveys) > 1:
-            output = {
-                "blend_images": blend_images,
-                "isolated_images": isolated_images,
-                "blend_list": batch_blend_cat,
-                "psf": psfs,
-                "wcs": wcss,
-            }
+            output = output_dict
         else:
-            survey_name = self.surveys[0].name
-            output = {
-                "blend_images": blend_images[survey_name],
-                "isolated_images": isolated_images[survey_name],
-                "blend_list": batch_blend_cat[survey_name],
-                "psf": psfs[survey_name],
-                "wcs": wcss[survey_name],
-            }
+            output = output_dict[self.surveys[0].name]
 
         return output
 
