@@ -2,6 +2,8 @@
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
@@ -372,24 +374,32 @@ def show_scarlet_residual(blend, observation, limits=(30, 90)):
         print("Scarlet is needed to use this function.")
 
 
-def plot_metrics_distribution(metric_array, metric_name, ax=None, bins=50, upper_quantile=1.0):
+def plot_metrics_distribution(metric_arrays, metric_names, ax=None, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
     Args:
-        metric_array : Contains the data
-        metric_name (str) : name of the metric
+        metric_arrays : Contains the data
+        metric_names (str) : name(s) of the metric(s)
         ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
     """
     ax = plt.gca() if ax is None else ax
-    quantile = np.quantile(metric_array, upper_quantile)
-    metric_array_filtered = metric_array[metric_array <= quantile]
-    ax.hist(metric_array_filtered, bins=bins, label=metric_name)
-    mean = np.mean(metric_array_filtered)
-    ax.axvline(mean, linestyle="--", label="mean", color="blue")
-    median = np.median(metric_array_filtered)
-    ax.axvline(median, linestyle="--", label="median", color="red")
+    df = pd.DataFrame()
+    if not isinstance(metric_arrays, list):
+        metric_arrays = [metric_arrays]
+        metric_names = [metric_names]
+    for i, m in enumerate(metric_arrays):
+        quantile = np.quantile(m, upper_quantile)
+        m_filtered = m[m <= quantile]
+        df[metric_names[i]] = pd.Series(m_filtered)
+
+    sns.histplot(data=df, ax=ax)
+    if not isinstance(metric_arrays, list):
+        mean = np.mean(m_filtered)
+        ax.axvline(mean, linestyle="--", label="mean", color="blue")
+        median = np.median(m_filtered)
+        ax.axvline(median, linestyle="--", label="median", color="red")
 
 
 def plot_metrics_correlation(
@@ -429,3 +439,32 @@ def plot_metrics_correlation(
         raise ValueError("Invalid style")
     ax.set_xlabel(metric_x_name)
     ax.set_ylabel(metric_y_name)
+
+
+def plot_metrics_summary(metrics_results):
+    """Plot metrics directly from the MetricsGenerator output.
+
+    Args:
+        metrics_results (dict) : Output of a MetricsGenerator.
+    """
+    dataframes = []
+    keys = list(metrics_results.keys())
+    for k in keys:
+        dataframes.append(metrics_results[k]["galaxy_summary"].to_pandas())
+
+    concatenated = pd.concat(
+        [dataframes[i].assign(measure_function=keys[i]) for i in range(len(keys))]
+    )
+    fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+    sns.histplot(
+        concatenated,
+        x="msr",
+        hue="measure_function",
+        binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
+        ax=ax[0][0],
+    )
+    sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[0][1])
+    sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[0][2])
+    sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax[1][0])
+
+    plt.show()
