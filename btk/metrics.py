@@ -103,9 +103,8 @@ def meas_ksb_ellipticity(image, additional_params):
     result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
     if res.error_message != "":
         print(
-            "Shear measurement error : '",
-            res.error_message,
-            "' This error may happen for faint galaxies or inaccurate detections.",
+            f"Shear measurement error : '{res.error_message }'. \
+            This error may happen for faint galaxies or inaccurate detections."
         )
     return result
 
@@ -761,7 +760,7 @@ class MetricsGenerator:
                 if self.save_path is not None
                 else None,
                 f_distance=self.f_distance,
-                distance_threshold=self.distance_threshold_match,
+                distance_threshold_match=self.distance_threshold_match,
             )
             metrics_results[meas_func] = metrics_results_f
 
