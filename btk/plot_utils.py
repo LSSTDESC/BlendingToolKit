@@ -455,7 +455,8 @@ def plot_metrics_summary(metrics_results):
     concatenated = pd.concat(
         [dataframes[i].assign(measure_function=keys[i]) for i in range(len(keys))]
     )
-    fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+    fig, ax = plt.subplots(2, 2, figsize=(20, 10))
+    fig.suptitle("Distribution of reconstruction and segmentation metrics", fontsize=16)
     sns.histplot(
         concatenated,
         x="msr",
@@ -463,8 +464,15 @@ def plot_metrics_summary(metrics_results):
         binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
         ax=ax[0][0],
     )
+    ax[0][0].set_xlabel("Mean square residual")
     sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[0][1])
-    sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[0][2])
-    sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax[1][0])
-
+    ax[0][1].set_xlabel("Peak Signal-to-Noise Ratio")
+    sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[1][0])
+    ax[1][0].set_xlabel("Structure Similarity Index")
+    sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax[1][1])
+    ax[1][1].set_xlabel("Intersection-over-Union")
+    plt.show()
+    g = sns.JointGrid(data=concatenated, x="distance_detection", y="msr", hue="measure_function")
+    g.plot(sns.scatterplot, sns.histplot)
+    g.set_axis_labels("Distance between detection and true galaxy", "Mean Square Residual")
     plt.show()

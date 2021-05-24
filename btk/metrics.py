@@ -181,8 +181,9 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
     match_indx = [-1] * len(true_table)
     dist_m = [0.0] * len(true_table)
     for i, indx in enumerate(true_indx):
-        match_indx[indx] = detected_indx[i]
-        dist_m[indx] = dist[indx][detected_indx[i]]
+        if dist[indx][detected_indx[i]] <= 5:
+            match_indx[indx] = detected_indx[i]
+            dist_m[indx] = dist[indx][detected_indx[i]]
 
     match_table["match_detected_id"] = match_indx
     match_table["dist"] = dist_m
