@@ -1,4 +1,6 @@
 """Utility functions for plotting and displaying images in BTK."""
+import os
+
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -441,12 +443,18 @@ def plot_metrics_correlation(
     ax.set_ylabel(metric_y_name)
 
 
-def plot_metrics_summary(metrics_results):
+def plot_metrics_summary(metrics_results, target_meas_keys=[], save_path=None, context="notebook"):
     """Plot metrics directly from the MetricsGenerator output.
 
     Args:
         metrics_results (dict) : Output of a MetricsGenerator.
+        target_meas_keys (list) : List of the keys for the target measures.
+        save_path (str) : Path to the folder where the figures should be saved.
+        context (str) : Context for seaborn ; see seaborn documentation for details.
+                        Can be one of "paper", "notebook", "talk", and "poster".
+
     """
+    sns.set_context(context)
     dataframes = []
     keys = list(metrics_results.keys())
     for k in keys:
@@ -455,24 +463,68 @@ def plot_metrics_summary(metrics_results):
     concatenated = pd.concat(
         [dataframes[i].assign(measure_function=keys[i]) for i in range(len(keys))]
     )
-    fig, ax = plt.subplots(2, 2, figsize=(20, 10))
-    fig.suptitle("Distribution of reconstruction and segmentation metrics", fontsize=16)
-    sns.histplot(
-        concatenated,
-        x="msr",
-        hue="measure_function",
-        binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
-        ax=ax[0][0],
-    )
-    ax[0][0].set_xlabel("Mean square residual")
-    sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[0][1])
-    ax[0][1].set_xlabel("Peak Signal-to-Noise Ratio")
-    sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[1][0])
-    ax[1][0].set_xlabel("Structure Similarity Index")
-    sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax[1][1])
-    ax[1][1].set_xlabel("Intersection-over-Union")
+    if "msr" in concatenated:
+        fig, ax = plt.subplots(3, 1, figsize=(20, 30))
+        fig.suptitle("Distribution of reconstruction and segmentation metrics", fontsize=48)
+        sns.histplot(
+            concatenated,
+            x="msr",
+            hue="measure_function",
+            binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
+            ax=ax[0],
+        )
+        ax[0].set_xlabel("Mean square residual")
+        sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[1])
+        ax[1].set_xlabel("Peak Signal-to-Noise Ratio")
+        sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[2])
+        ax[2].set_xlabel("Structure Similarity Index")
+        if save_path is not None:
+            plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
+        plt.show()
+
+    if "iou" in concatenated:
+        g = sns.histplot(concatenated, x="iou", hue="measure_function")
+        g.set_axis_labels("Intersection-over-Union")
+        plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
+        plt.show()
+
+    if target_meas_keys != []:
+        fig, ax = plt.subplots(len(target_meas_keys), 1, figsize=(10 * len(target_meas_keys), 10))
+        if len(target_meas_keys) == 1:
+            ax = [ax]
+        for i, k in enumerate(target_meas_keys):
+            sns.scatterplot(
+                data=concatenated,
+                x=k,
+                y=k + "_true",
+                hue="measure_function",
+                ax=ax[i],
+                marker="o",
+                alpha=0.7,
+            )
+            ax[i].set(
+                xlabel="Measured ellipticity", ylabel="True ellipticity", xlim=[-1, 1], ylim=[-1, 1]
+            )
+            x = np.linspace(-1, 1, 10)
+            ax[i].plot(x, x, linestyle="--", color="black", zorder=-10)
+        if save_path is not None:
+            plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
+        plt.show()
+
+    g = sns.JointGrid(data=concatenated, x="blendedness", y="msr", hue="measure_function")
+    g.plot(sns.scatterplot, sns.histplot, alpha=0.7)
+    g.ax_joint.set_yscale("log")
+    g.set_axis_labels("blendedness", "Mean Square Residual")
+    if save_path is not None:
+        g.savefig(os.path.join(save_path, "jointdistancemsr.png"))
     plt.show()
-    g = sns.JointGrid(data=concatenated, x="distance_detection", y="msr", hue="measure_function")
-    g.plot(sns.scatterplot, sns.histplot)
-    g.set_axis_labels("Distance between detection and true galaxy", "Mean Square Residual")
+
+    fig, ax = plt.subplots(1, len(keys), figsize=(10, 10 * len(keys)))
+    if len(keys) == 1:
+        ax = [ax]
+    for i, k in enumerate(keys):
+        plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
+        ax[i].set_title(k)
+    if save_path is not None:
+        plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
     plt.show()

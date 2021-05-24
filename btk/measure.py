@@ -281,10 +281,9 @@ class MeasureGenerator:
             for i, f in enumerate(self.measure_functions):
                 measure_dict = {}
                 for key in ["catalog", "deblended_images", "segmentation"]:
-                    if measure_output[0][i][key] is not None:
-                        measure_dict[key] = [
-                            measure_output[j][i][key] for j in range(len(measure_output))
-                        ]
+                    measure_dict[key] = [
+                        measure_output[j][i][key] for j in range(len(measure_output))
+                    ]
                 measure_results[f.__name__ + str(m)] = measure_dict
                 if self.save_path is not None:
                     dir_name = f.__name__ + str(m)

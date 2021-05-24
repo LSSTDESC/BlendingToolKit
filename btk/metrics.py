@@ -729,6 +729,8 @@ class MetricsGenerator:
         )
         metrics_results = {}
         for meas_func in measure_results:
+            print(meas_func)
+            print(measure_results[meas_func].keys())
             metrics_results_f = compute_metrics(
                 blend_results["blend_images"],
                 blend_results["isolated_images"],
