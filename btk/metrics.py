@@ -53,6 +53,8 @@ Currently, we support the following metrics :
     is the standard scalar product on vectors.
 
 """
+import os
+
 import astropy.table
 import galsim
 import matplotlib.pyplot as plt
@@ -163,7 +165,6 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
         raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
 
-    print(f_distance)
     # dist[i][j] = distance between true object i and detected object j.
     dist = np.zeros((len(true_table), len(detected_table)))
     for i, true_gal in enumerate(true_table):
@@ -531,6 +532,7 @@ def compute_metrics(  # noqa: C901
     meas_band_num=0,
     target_meas={},
     channels_last=False,
+    save_path=None,
     f_distance=distance_center,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
@@ -565,6 +567,8 @@ def compute_metrics(  # noqa: C901
                              be returned for both isolated and deblended images to compare.
         channels_last (bool) : Indicates whether the images should be channels first (NCHW)
                           or channels last (NHWC).
+        save_path (str): Path to directory where results will be saved. If left
+                      as None, results will not be saved.
         f_distance (func): Function used to compute the distance between true and detected
             galaxies. Takes as arguments the entries corresponding to the two galaxies.
             By default the distance is the euclidean distance from center to center.
@@ -651,6 +655,13 @@ def compute_metrics(  # noqa: C901
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
+    if save_path is not None:
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
+
+        for key in use_metrics:
+            np.save(os.path.join(save_path, f"{key}_metric"), results[key])
+        results["galaxy_summary"].write(os.path.join(save_path, "galaxy_summary"), format="ascii")
 
     return results
 
@@ -665,6 +676,7 @@ class MetricsGenerator:
         meas_band_num=0,
         target_meas={},
         noise_threshold_factor=3,
+        save_path=None,
         f_distance=distance_center,
     ):
         """Initialize metrics generator.
@@ -684,6 +696,8 @@ class MetricsGenerator:
                 applied when getting segmentations from true images. A value of 3 would
                 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
                 the noise)
+            save_path (str): Path to directory where results will be saved. If left
+                    as None, results will not be saved.
             f_distance (func): Function used to compute the distance between true and detected
                 galaxies. Takes as arguments the entries corresponding to the two galaxies.
                 By default the distance is the euclidean distance from center to center.
@@ -693,6 +707,7 @@ class MetricsGenerator:
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas
         self.noise_threshold_factor = noise_threshold_factor
+        self.save_path = save_path
         self.f_distance = f_distance
 
     def __next__(self):
@@ -725,6 +740,9 @@ class MetricsGenerator:
                 self.meas_band_num,
                 target_meas,
                 channels_last=self.measure_generator.channels_last,
+                save_path=os.path.join(self.save_path, meas_func)
+                if self.save_path is not None
+                else None,
                 f_distance=self.f_distance,
             )
             metrics_results[meas_func] = metrics_results_f
