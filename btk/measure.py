@@ -74,7 +74,7 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
     Returns:
             dict containing catalog with entries corresponding to measured peaks.
     """
-    if "blend_images" not in batch.keys():
+    if if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
     channel_indx = 0 if not channels_last else -1
@@ -104,7 +104,7 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     Returns:
         dict with the centers of sources detected by SEP detection algorithm.
     """
-    if "blend_images" not in batch.keys():
+    if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
     sigma_noise = kwargs.get("sigma_noise", 1.5)
 
