@@ -124,7 +124,7 @@ def distance_center(true_gal, detected_gal):
 
 
 def get_detection_match(
-    true_table, detected_table, f_distance=distance_center, distance_threshold_match=5.
+    true_table, detected_table, f_distance=distance_center, distance_threshold_match=5.0
 ):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
@@ -541,7 +541,7 @@ def compute_metrics(  # noqa: C901
     channels_last=False,
     save_path=None,
     f_distance=distance_center,
-    distance_threshold_match=5.,
+    distance_threshold_match=5.0,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
@@ -580,7 +580,7 @@ def compute_metrics(  # noqa: C901
         f_distance (func): Function used to compute the distance between true and detected
             galaxies. Takes as arguments the entries corresponding to the two galaxies.
             By default the distance is the euclidean distance from center to center.
-        distance_threshold_match (float): Maximum distance for matching a detected and a 
+        distance_threshold_match (float): Maximum distance for matching a detected and a
                 true galaxy in pixels.
 
     Returns:
@@ -690,7 +690,7 @@ class MetricsGenerator:
         noise_threshold_factor=3,
         save_path=None,
         f_distance=distance_center,
-        distance_threshold_match=5.,
+        distance_threshold_match=5.0,
     ):
         """Initialize metrics generator.
 
