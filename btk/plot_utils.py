@@ -443,12 +443,15 @@ def plot_metrics_correlation(
     ax.set_ylabel(metric_y_name)
 
 
-def plot_metrics_summary(metrics_results, target_meas_keys=[], save_path=None, context="notebook"):
+def plot_metrics_summary(
+    metrics_results, target_meas_keys=[], n_bins_target=30, save_path=None, context="notebook"
+):
     """Plot metrics directly from the MetricsGenerator output.
 
     Args:
         metrics_results (dict) : Output of a MetricsGenerator.
         target_meas_keys (list) : List of the keys for the target measures.
+        n_bins_target (int) : Number of bins for the target measure plots
         save_path (str) : Path to the folder where the figures should be saved.
         context (str) : Context for seaborn ; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
@@ -463,6 +466,9 @@ def plot_metrics_summary(metrics_results, target_meas_keys=[], save_path=None, c
     concatenated = pd.concat(
         [dataframes[i].assign(measure_function=keys[i]) for i in range(len(keys))]
     )
+    for k in target_meas_keys:
+        concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
+
     if "msr" in concatenated:
         fig, ax = plt.subplots(3, 1, figsize=(20, 30))
         fig.suptitle("Distribution of reconstruction and segmentation metrics", fontsize=48)
@@ -489,24 +495,63 @@ def plot_metrics_summary(metrics_results, target_meas_keys=[], save_path=None, c
         plt.show()
 
     if target_meas_keys != []:
-        fig, ax = plt.subplots(len(target_meas_keys), 1, figsize=(10 * len(target_meas_keys), 10))
-        if len(target_meas_keys) == 1:
-            ax = [ax]
+        height_ratios = list(np.concatenate([[3, 1] for i in range(len(target_meas_keys))]))
+        fig, ax = plt.subplots(
+            2 * len(target_meas_keys),
+            1,
+            figsize=(10, 13.33 * len(target_meas_keys)),
+            gridspec_kw={"height_ratios": height_ratios},
+        )
+        # if len(target_meas_keys) == 1:
+        #     ax = [ax]
         for i, k in enumerate(target_meas_keys):
             sns.scatterplot(
                 data=concatenated,
                 x=k,
                 y=k + "_true",
                 hue="measure_function",
-                ax=ax[i],
+                ax=ax[2 * i],
                 marker="o",
                 alpha=0.7,
             )
-            ax[i].set(
-                xlabel="Measured ellipticity", ylabel="True ellipticity", xlim=[-1, 1], ylim=[-1, 1]
-            )
-            x = np.linspace(-1, 1, 10)
-            ax[i].plot(x, x, linestyle="--", color="black", zorder=-10)
+            ax[2 * i].set(xlabel="Measured " + k, ylabel="True " + k)
+            xlow, xhigh = ax[2 * i].get_xlim()
+            x = np.linspace(xlow, xhigh, 10)
+            ax[2 * i].plot(x, x, linestyle="--", color="black", zorder=-10)
+
+            for meas_func in keys:
+                bins = np.linspace(xlow, xhigh, n_bins_target)
+                labels = np.digitize(concatenated[k], bins)
+                means = []
+                stds = []
+                to_delete = []
+                for j in range(1, 30):
+                    mean = np.mean(
+                        concatenated["delta_" + k][
+                            (labels == j) & (concatenated["measure_function"] == meas_func)
+                        ]
+                    )
+                    if not np.isnan(mean):
+                        means.append(mean)
+                        stds.append(
+                            np.std(
+                                concatenated["delta_" + k][
+                                    (labels == j) & (concatenated["measure_function"] == meas_func)
+                                ]
+                            )
+                        )
+                    else:
+                        to_delete.append(j)
+                bins = np.delete(bins, to_delete)
+
+                print(len(bins))
+                print(len(means))
+                ax[2 * i + 1].errorbar(bins[1:] - (xhigh - xlow) / n_bins_target, means, stds)
+
+            ax[2 * i + 1].plot(x, np.zeros((10)), linestyle="--", color="black", zorder=-10)
+            ax[2 * i + 1].set_ylabel(f"$\Delta${k}")  # noqa: W605
+        plt.tight_layout()
+
         if save_path is not None:
             plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
         plt.show()
