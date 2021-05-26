@@ -166,10 +166,7 @@ class DrawBlendsGenerator(ABC):
         elif isinstance(surveys, list):
             for s in surveys:
                 if not isinstance(s, Survey):
-                    raise TypeError(
-                        "surveys must be a Survey object \
-                        or a list of Survey objects."
-                    )
+                    raise TypeError("surveys must be a Survey object or a list of Survey objects.")
             self.surveys = surveys
         else:
             raise TypeError("surveys must be a Survey object or a list of Survey objects.")
