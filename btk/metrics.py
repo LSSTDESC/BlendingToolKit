@@ -124,7 +124,7 @@ def distance_center(true_gal, detected_gal):
 
 
 def get_detection_match(
-    true_table, detected_table, f_distance=distance_center, distance_threshold_match=5
+    true_table, detected_table, f_distance=distance_center, distance_threshold_match=5.
 ):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
