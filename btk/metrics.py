@@ -580,8 +580,8 @@ def compute_metrics(  # noqa: C901
         f_distance (func): Function used to compute the distance between true and detected
             galaxies. Takes as arguments the entries corresponding to the two galaxies.
             By default the distance is the euclidean distance from center to center.
-        distance_threshold_match (float): Maximum distance for matching a detected and a
-                true galaxy.
+        distance_threshold_match (float): Maximum distance for matching a detected and a 
+                true galaxy in pixels.
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
