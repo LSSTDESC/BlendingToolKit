@@ -93,7 +93,6 @@ def test_measure_kwargs():
         results["catalog"]["sep_measure0"][0]["x_peak"].item(),
         results["catalog"]["sep_measure0"][0]["y_peak"].item(),
     )
-    print(x_peak)
     detected_centers = np.array([x_peak, y_peak])
     target_detection = np.array([65.603, 51.104])
     np.testing.assert_array_almost_equal(
