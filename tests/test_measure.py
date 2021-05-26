@@ -88,7 +88,6 @@ def test_measure_kwargs():
         btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, results = next(meas_generator)
-    print(results["catalog"])
     x_peak, y_peak = (
         results["catalog"]["sep_measure0"][0]["x_peak"].item(),
         results["catalog"]["sep_measure0"][0]["y_peak"].item(),
