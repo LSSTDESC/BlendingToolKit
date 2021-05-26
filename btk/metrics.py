@@ -690,7 +690,7 @@ class MetricsGenerator:
         noise_threshold_factor=3,
         save_path=None,
         f_distance=distance_center,
-        distance_threshold_match=5,
+        distance_threshold_match=5.,
     ):
         """Initialize metrics generator.
 
