@@ -715,7 +715,7 @@ class MetricsGenerator:
                 galaxies. Takes as arguments the entries corresponding to the two galaxies.
                 By default the distance is the euclidean distance from center to center.
             distance_threshold_match (float): Maximum distance for matching a detected and a
-                true galaxy.
+                true galaxy in pixels.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
