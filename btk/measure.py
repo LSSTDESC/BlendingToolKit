@@ -74,7 +74,7 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
     Returns:
             dict containing catalog with entries corresponding to measured peaks.
     """
-    if if isinstance(batch["blend_images"], dict):
+    if isinstance(batch["blend_images"], dict):
         raise NotImplementedError("This function does not support the multi-resolution feature.")
 
     channel_indx = 0 if not channels_last else -1
