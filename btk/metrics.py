@@ -541,7 +541,7 @@ def compute_metrics(  # noqa: C901
     channels_last=False,
     save_path=None,
     f_distance=distance_center,
-    distance_threshold_match=5,
+    distance_threshold_match=5.,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
