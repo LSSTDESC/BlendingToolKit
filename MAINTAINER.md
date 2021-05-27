@@ -42,7 +42,7 @@ But I find the first method is more robust (works on a MAC too).
 4. You might also want to update the `requirements.txt` file every now and then:
 
 ```
-poetry export -o requirements.txt --without-hashes --dev --extras "galsim-hub"
+poetry export -o requirements.txt --without-hashes --dev
 ```
 
 ideally everytime you run `poetry update`.
