@@ -5,7 +5,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 
-**NOTE:** BTK is currently undergoing development, the interface, tutorials, and documentation are mostly stable but might change before the version 1.0.0 release planned for mid-July. Please feel free to contact [@ismael-mendoza](https://github.com/ismael-mendoza) if you would like to use `BTK` for a current project or contribute.
+**NOTE:** BTK is currently undergoing development so that the interface, tutorials, and documentation are mostly stable but might change before the version 1.0.0 release planned for mid-July. Please feel free to contact [@ismael-mendoza](https://github.com/ismael-mendoza) if you would like to use `BTK` for a current project or contribute.
 
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
