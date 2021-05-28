@@ -28,17 +28,27 @@ template: |-
 
   Assuming that BTK has been pip installed, you can run btk from the command line like: 
 
-  btk sampling=default draw_blends=catsim max_number=3 save_path=/path/to/save/results cpus=1
-    verbose=False 
+  btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1
+    verbose=False surveys=[Rubin, HST]
 
-  You can choose a db driver by appending
-  == Configuration groups ==
-  Compose your configuration from those groups (db=mysql)
-  $APP_CONFIG_GROUPS
-  == Config ==
-  This is the config generated for this run.
-  You can override everything, for example:
-  python my_app.py db.user=foo db.pass=bar
+  Note that in the above example 
+
+  You need to create the directory to save results yourself. Here are all the available options:
+
+  * sampling: Attribute group Specify sampling functions to be used, the options are the sampling functions 
+      implemented in btk/sampling_functions.py, which are 
+      {Default, DefaultGalsimHub, GroupSampling, GroupSamplingNumbered}.
+
+    * catalog: Attribute group consisting of two sub-attributes: 
+      * catalog.name: Name of the BTK catalog class, options: {catsim, cosmos}
+      * catalog.catalog_files: Path to files containing catalog information. The 'catsim' 
+          catalog requires one path, while the `cosmos` type requires two 
+          (see documentation for more details).
+
+    * surveys: Name of the survey(s) you want to use, options are 
+        {Rubin, HST, HSC, DES, CFHT, Euclid}
+
+
   -------
   $CONFIG
   -------
