@@ -801,15 +801,15 @@ def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
     # The integral is from zero to one
     recalls = np.insert(recalls, 0, 0)
     precisions = np.insert(precisions, 0, precisions[0])
-    recalls = np.insert(recalls, -1, 1)
-    precisions = np.insert(precisions, -1, precisions[-1])
+    recalls = np.append(recalls, 1)
+    precisions = np.append(precisions, precisions[-1])
 
     for i in range(1, n_meas):
         average_precision += precisions[i] * (recalls[i] - recalls[i - 1])
 
     if plot:
         ax = plt.gca() if ax is None else ax
-        ax.scatter(recalls, precisions, label=measure_name)
+        ax.plot(recalls, precisions, label=measure_name, marker="x")
         ax.set_xlabel("Recall")
         ax.set_ylabel("Precision")
 
