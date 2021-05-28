@@ -39,14 +39,14 @@ We will first explore the image generation part of BTK. We need to provide 3 mai
 Catalog
 ........
 
-BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs : Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the Catalog class ; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the `from_file` method as demonstrated here with our example catalog.
+BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs : Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the Catalog class ; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the ``from_file`` method as demonstrated here with our example catalog.
 
 .. jupyter-execute::
 
   catalog_name = "../data/sample_input_catalog.fits"
   catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 
-It is also possible to instantiate the class by giving it the catalog directly ; the `from_file` method is merely a shortcut.
+It is also possible to instantiate the class by giving it the catalog directly ; the ``from_file`` method is merely a shortcut.
 
 .. jupyter-execute::
 
@@ -55,12 +55,12 @@ It is also possible to instantiate the class by giving it the catalog directly ;
   raw_catalog = astropy.table.Table.read(catalog_name, format=fmt)
   catalog = btk.catalog.CatsimCatalog(raw_catalog)
 
-When the Catalog object is created, it creates internally a `table` attribute containing a modified table from the input, which will be used in the rest of the code.
+When the Catalog object is created, it creates internally a ``table`` attribute containing a modified table from the input, which will be used in the rest of the code.
 
 Sampling Function
 ..................
 
-The sampling function is an object which is used to determine the informations about the blends, eg which galaxies are drawn, with what shifts, ... This is achieved using the `SamplingFunction` class, which is callable like a function, taking as argument the `Catalog.table` and returning modified selected entries corresponding to the galaxies being drawn. For this tutorial, we will use the default sampling function, which can be instantiated like this :
+The sampling function is an object which is used to determine the informations about the blends, eg which galaxies are drawn, with what shifts, ... This is achieved using the ``SamplingFunction`` class, which is callable like a function, taking as argument the ``Catalog.table`` and returning modified selected entries corresponding to the galaxies being drawn. For this tutorial, we will use the default sampling function, which can be instantiated like this:
 
 .. jupyter-execute::
 
@@ -70,7 +70,6 @@ The sampling function is an object which is used to determine the informations a
   sampling_function = btk.sampling_functions.DefaultSampling(max_number=max_number, stamp_size=stamp_size, maxshift=max_shift)
 
 As a reference, here is the code for this sampling function.::
-
 
   class DefaultSampling(btk.sampling_functions.SamplingFunction):
       """Default sampling function used for producing blend tables."""
@@ -137,12 +136,12 @@ As a reference, here is the code for this sampling function.::
               warnings.warn("Object center lies outside the stamp")
           return blend_table
 
-You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts. You may write more complex sampling functions if you wish to have more control over how the galaxies are drawn ; there are some other examples in the `btk.sampling_functions` file.
+You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts. You may write more complex sampling functions if you wish to have more control over how the galaxies are drawn ; there are some other examples in the ``btk.sampling_functions`` file.
 
 Survey
 .......
 
-The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg exposition time). Numerous surveys are already implemented in BTK ; we will import the Rubin one for this tutorial.
+The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time). Numerous surveys are already implemented in BTK ; we will import the Rubin one for this tutorial.
 
 .. jupyter-execute::
 
@@ -248,7 +247,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg `galsim.Kolmogorov(fwhm=1.5)`) or as a function returning a Galsim model, for randomization purposes. Example :
+Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -256,13 +255,13 @@ Most attributes should be pretty straightforward to modify ; please take a look 
       fwhm = np.random.uniform(1.5,1.7)
       return galsim.Kolmogorov(fwhm)
 
-You may want to use a function taking an argument to avoid rewriting the function for each filter ; we advise using lambda functions to achieve this, eg `get_u_psf = lambda : get_custom_psf(u_band_argument)`.
-Finally, you can use the default function `get_psf` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function `get_psf_from_file(psf_dir, pixel_scale)` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided).
+You may want to use a function taking an argument to avoid rewriting the function for each filter ; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda : get_custom_psf(u_band_argument)``.
+Finally, you can use the default function ``get_psf`` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided).
 
 Drawing the blends
 ...................
 
-Now that we have all the objects at our disposal, we can create the DrawBlendsGenerator. This object is a python generator, meaning it can be called with `next(generator)` to generate a new batch. It is again declined for Catsim and COSMOS, and we will use the Catsim one here. We suggest you refer to the documentation for information on the additionnal parameters here.
+Now that we have all the objects at our disposal, we can create the DrawBlendsGenerator. This object is a python generator, meaning it can be called with ``next(generator)`` to generate a new batch. It is defined for Catsim and COSMOS, and we will use the Catsim one here. We suggest you refer to the documentation for information on the additionnal parameters here.
 
 .. jupyter-execute::
 
@@ -278,14 +277,14 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       add_noise=True,
   )
 
-The results from the `next` call are stored in the dictionnary ; the keys are :
-  * `blend_images` for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
-  * `isolated_images` for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
-  * `blend_list` for the blend information (as a list of astropy tables corresponding to the output of the sampling function for each blend)
-  * `psf` for the PSF (as a list of Galsim object)
-  * `wcs` for the World Coordinate System corresponding to the images (as a list of astropy.wcs.WCS objects)
+The results from the ``next`` call are stored in the dictionnary ; the keys are :
+  * ``blend_images`` for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
+  * ``isolated_images`` for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
+  * ``blend_list`` for the blend information (as a list of astropy tables corresponding to the output of the sampling function for each blend)
+  * ``psf`` for the PSF (as a list of Galsim object)
+  * ``wcs`` for the World Coordinate System corresponding to the images (as a list of astropy.wcs.WCS objects)
 
-Please note that several surveys can be provided as a list to the generator. In that case, each of the entry will contain a dictionnary indexed by the surveys, which in turn contains the results described as above (you would access it with `batch['blend_images']['LSST']` for instance.
+Please note that several surveys can be provided as a list to the generator. In that case, each of the entry will contain a dictionnary indexed by the surveys, which in turn contains the results described as above (you would access it with ``batch['blend_images']['LSST']`` for instance.
 
 .. jupyter-execute::
 
@@ -297,8 +296,12 @@ Please note that several surveys can be provided as a list to the generator. In 
 Measurement
 ............
 
-Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending : detections, segmentations and deblended images. You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function.
-The measure function is a regular function with two positional arguments : `batch` and `idx`. Batch is the direct output of a `DrawBlendsGenerator`, and `idx` is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via `**kwargs`. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
+Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:
+  * detections
+  * segmentations
+  * deblended images.
+
+You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function. The measure function is a regular function with two positional arguments: ``batch`` and ``idx``. Batch is the direct output of a ``DrawBlendsGenerator``, and ``idx`` is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via ``**kwargs``. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).
 
 .. jupyter-execute::
 
@@ -352,7 +355,7 @@ The function is not required to output all three measurements, only the catalog 
 
   meas_generator = btk.measure.MeasureGenerator(btk.measure.sep_measure,draw_generator)
 
-The results returned by the `MeasureGenerator`are both the results from the `DrawBlendsGenerator` and the measures, as a dictionnary with the same keys as the measure function output but containing a list with the results from all the blends.
+The results returned by the ``MeasureGenerator`` are both the results from the ``DrawBlendsGenerator`` and the measures, as a dictionnary with the same keys as the measure function output but containing a list with the results from all the blends.
 
 .. jupyter-execute::
 
@@ -361,7 +364,7 @@ The results returned by the `MeasureGenerator`are both the results from the `Dra
 Metrics
 ........
 
-Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a `MetricsGenerator`, which takes a `MeasureGenerator` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the page of the metrics module in the documentation.
+Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a ``MetricsGenerator``, which takes a ``MeasureGenerator`` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the page of the metrics module in the documentation.
 
 .. jupyter-execute::
 
@@ -444,9 +447,11 @@ We can now create the corresponding instance of DrawBlendsGenerator. There is an
 Galsim_Hub tutorial
 --------------------
 
-BTK supports galaxy image generation with galsim_hub ; please refer to :ref:`this page<Galsim_Hub>` for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. You can find a notebook version of this tutorial in the notebooks folder.
+BTK supports galaxy image generation with galsim_hub ; please refer to :ref:`this page<Galsim_Hub>` for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. NOTE: galsim_hub only works with python 3.7
 
-First, you should use the `CosmosCatalog` catalog instead of the Catsim one. While galsim_hub only require parameters for the image generation, we have chosen to use COSMOS as the source of those parameters so as to get a realistic distribution of those parameters. We have included a small sample of the catalog in BTK, and advise you to download the full catalog (see:ref:`COSMOS`) for better results.
+You can find a notebook version of this tutorial in the notebooks folder.
+
+First, you should use the ``CosmosCatalog`` catalog instead of the Catsim one. While galsim_hub only require parameters for the image generation, we have chosen to use COSMOS as the source of those parameters so as to get a realistic distribution of those parameters. We have included a small sample of the catalog in BTK, and advise you to download the full catalog (see:ref:`COSMOS`) for better results.
 
 .. jupyter-execute::
 
@@ -463,7 +468,7 @@ We then instantiate the sampling function ; you should use the one specific for 
   stamp_size = 24.0
   sampling_function = btk.sampling_functions.DefaultSamplingGalsimHub(stamp_size=stamp_size)
 
-Then we can instantiate the `DrawBlendsGenerator` with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default `"hub:Lanusse2020"`).
+Then we can instantiate the ``DrawBlendsGenerator`` with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default ``"hub:Lanusse2020"``).
 
 .. .. jupyter-execute::
 

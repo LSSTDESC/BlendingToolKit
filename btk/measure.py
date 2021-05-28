@@ -39,7 +39,9 @@ It should return a dictionary containing a subset of the following keys/values (
   `(n_objects, stamp_size, stamp_size, n_bands)` depending on
   convention. The order of this array should correspond to the
   order in the returned `catalog`. Where `n_objects` is the
-  number of detected objects by the algorithm.
+  number of detected objects by the algorithm. If you are using the multiresolution feature,
+  you should instead return a dictionary with a key for each survey containing the
+  aforementioned array.
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
   The pixels set to True in the i-th channel correspond to the i-th
   object. The order should correspond to the order in the returned
@@ -48,6 +50,7 @@ It should return a dictionary containing a subset of the following keys/values (
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
 """
+import os
 from itertools import repeat
 
 import astropy.table
@@ -154,6 +157,7 @@ class MeasureGenerator:
         cpus=1,
         verbose=False,
         measure_kwargs: list = None,
+        save_path=None,
     ):
         """Initialize measurement generator.
 
@@ -168,6 +172,8 @@ class MeasureGenerator:
             to be passed in to each of the `measure_functions`. Each dictionnary is
             passed one time to each function, meaning that each function which be
             ran as many times as there are different dictionnaries.
+            save_path (str): Path to a directory where results will be saved. If left
+                              as None, results will not be saved.
         """
         # setup and verify measure_functions.
         if callable(measure_functions):
@@ -188,6 +194,7 @@ class MeasureGenerator:
         self.batch_size = self.draw_blend_generator.batch_size
         self.channels_last = self.draw_blend_generator.channels_last
         self.verbose = verbose
+        self.save_path = save_path
 
         # initialize measure_kwargs dictionary.
         self.measure_kwargs = [{}] if measure_kwargs is None else measure_kwargs
@@ -260,7 +267,15 @@ class MeasureGenerator:
                 the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
-        measure_results = {}
+        catalog = {}
+        segmentation = {}
+        deblended_images = {}
+        for f in self.measure_functions:
+            for m in range(len(self.measure_kwargs)):
+                key_name = f.__name__ + str(m) if len(self.measure_kwargs) > 1 else f.__name__
+                catalog[key_name] = []
+                segmentation[key_name] = []
+                deblended_images[key_name] = []
         for m, measure_kwargs in enumerate(self.measure_kwargs):
             args_iter = ((blend_output, i) for i in range(self.batch_size))
             kwargs_iter = repeat(measure_kwargs)
@@ -271,15 +286,43 @@ class MeasureGenerator:
                 cpus=self.cpus,
                 verbose=self.verbose,
             )
+
             if self.verbose:
                 print(f"Measurement {m} performed on batch")
             for i, f in enumerate(self.measure_functions):
-                measure_dict = {}
-                for key in ["catalog", "deblended_images", "segmentation"]:
-                    if measure_output[0][i][key] is not None:
-                        measure_dict[key] = [
-                            measure_output[j][i][key] for j in range(len(measure_output))
-                        ]
-                measure_results[f.__name__ + str(m)] = measure_dict
+                key_name = f.__name__ + str(m) if len(self.measure_kwargs) > 1 else f.__name__
+                for j in range(len(measure_output)):
+                    catalog[key_name].append(measure_output[j][i].get("catalog", None))
+                    segmentation[key_name].append(measure_output[j][i].get("segmentation", None))
+                    deblended_images[key_name].append(
+                        measure_output[j][i].get("deblended_images", None)
+                    )
 
+                if self.save_path is not None:
+
+                    if not os.path.exists(os.path.join(self.save_path, key_name)):
+                        os.mkdir(os.path.join(self.save_path, key_name))
+
+                    if segmentation[key_name] is not None:
+                        np.save(
+                            os.path.join(self.save_path, key_name, "segmentation"),
+                            segmentation[key_name],
+                        )
+                    if deblended_images[key_name] is not None:
+                        np.save(
+                            os.path.join(self.save_path, key_name, "deblended_images"),
+                            deblended_images[key_name],
+                        )
+                    for j, cat in enumerate(catalog[key_name]):
+                        cat.write(
+                            os.path.join(self.save_path, key_name, f"detection_catalog_{j}"),
+                            format="ascii",
+                            overwrite=True,
+                        )
+
+        measure_results = {
+            "catalog": catalog,
+            "segmentation": segmentation,
+            "deblended_images": deblended_images,
+        }
         return blend_output, measure_results

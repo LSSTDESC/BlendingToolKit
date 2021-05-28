@@ -1,5 +1,6 @@
 """Module for generating batches of drawn blended images."""
 import copy
+import os
 from abc import ABC
 from abc import abstractmethod
 from itertools import chain
@@ -14,6 +15,7 @@ from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
+from btk.survey import Survey
 
 
 class SourceNotVisible(Exception):
@@ -38,28 +40,6 @@ def get_center_in_pixels(blend_catalog, wcs):
     dx_col = Column(x_peak, name="x_peak")
     dy_col = Column(y_peak, name="y_peak")
     return dx_col, dy_col
-
-
-def get_size(catalog, psf, pixel_scale):
-    """Returns a astropy.table.column with the size of the galaxy in pixels.
-
-    Galaxy size is estimated as second moments size (r_sec) computed as
-    described in A1 of Chang et.al 2012. The PSF second moment size, psf_r_sec,
-    is computed by galsim from the PSF model in obs_conds in the i band.
-    The object size is the defined as sqrt(r_sec**2 + 2*psf_r_sec**2).
-
-    Args:
-        catalog: Catalog with entries corresponding to one blend.
-        psf: Galsim object corresponding to a PSF.
-        pixel_scale: arcseconds per pixel
-
-    Returns:
-        `astropy.table.Column`: size of the galaxy in pixels.
-    """
-    r_sec = catalog["btk_size"]
-    psf_r_sec = psf.calculateMomentRadius()
-    size = np.sqrt(r_sec ** 2 + psf_r_sec ** 2) / pixel_scale
-    return Column(size, name="size")
 
 
 def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn=False):
@@ -141,13 +121,13 @@ class DrawBlendsGenerator(ABC):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        meas_bands=("i",),
         cpus=1,
         verbose=False,
         add_noise=True,
         shifts=None,
         indexes=None,
         channels_last=False,
+        save_path=None,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -158,7 +138,6 @@ class DrawBlendsGenerator(ABC):
             surveys (list): List of btk Survey objects defining the observing conditions
             batch_size (int) : Number of blends generated per batch
             stamp_size (float) : Size of the stamps, in arcseconds
-            meas_bands (tuple) : Tuple containing the bands in which the measurements are carried
             cpus (int) : Number of cpus to use; defines the number of minibatches
             verbose (bool) : Indicates whether additionnal information should be printed
             add_noise (bool) : Indicates if the blends should be generated with noise
@@ -170,6 +149,8 @@ class DrawBlendsGenerator(ABC):
             channels_last (bool): Whether to return images as numpy arrays with the channel
                                 (band) dimension as the last dimension or before the pixels
                                 dimensions (default).
+            save_path (str): Path to a directory where results will be saved. If left
+                            as None, results will not be saved.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -180,19 +161,22 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        if not isinstance(surveys, list):
-            raise TypeError("surveys must be a list of Survey objects.")
-        self.surveys = surveys
-        self.stamp_size = stamp_size
+        if isinstance(surveys, Survey):
+            self.surveys = [surveys]
+        elif isinstance(surveys, list):
+            for s in surveys:
+                if not isinstance(s, Survey):
+                    raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+            self.surveys = surveys
+        else:
+            raise TypeError("surveys must be a Survey object or a list of Survey objects.")
 
-        self.meas_bands = {}
-        for i, s in enumerate(self.surveys):
-            self.meas_bands[s.name] = meas_bands[i]
+        self.stamp_size = stamp_size
 
         self.add_noise = add_noise
         self.verbose = verbose
-
         self.channels_last = channels_last
+        self.save_path = save_path
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -205,7 +189,7 @@ class DrawBlendsGenerator(ABC):
             output : Dictionary with blend images, isolated object images, blend catalog,
             PSF images and WCS.
         """
-        batch_blend_cat, batch_obs_cond = {}, {}
+        blend_list = {}
         blend_images = {}
         isolated_images = {}
         blend_cat = next(self.blend_generator)
@@ -239,19 +223,6 @@ class DrawBlendsGenerator(ABC):
             psfs[s.name] = psf
             wcss[s.name] = wcs
 
-            # allocate memory for output catalogues and images.
-            batch_blend_cat[s.name] = []
-            batch_obs_cond[s.name] = []
-
-            # decide image_shape based on channels_last bool.
-            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
-            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
-            image_shape = option1 if not self.channels_last else option2
-
-            # create emtpy arrays with image_shape.
-            blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
-            isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
-
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
@@ -269,16 +240,37 @@ class DrawBlendsGenerator(ABC):
             # join results across mini-batches.
             batch_results = list(chain(*mini_batch_results))
 
+            # decide image_shape based on channels_last bool.
+            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
+            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
+            image_shape = option1 if not self.channels_last else option2
+
             # organize results.
+            blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
+            isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
+            blend_list[s.name] = []
             for i in range(self.batch_size):
                 blend_images[s.name][i] = batch_results[i][0]
                 isolated_images[s.name][i] = batch_results[i][1]
-                batch_blend_cat[s.name].append(batch_results[i][2])
+                blend_list[s.name].append(batch_results[i][2])
+
+            if self.save_path is not None:
+                if not os.path.exists(os.path.join(self.save_path, s.name)):
+                    os.mkdir(os.path.join(self.save_path, s.name))
+
+                np.save(os.path.join(self.save_path, s.name, "blended"), blend_images[s.name])
+                np.save(os.path.join(self.save_path, s.name, "isolated"), isolated_images[s.name])
+                for i in range(len(batch_results)):
+                    blend_list[s.name][i].write(
+                        os.path.join(self.save_path, s.name, f"blend_info_{i}"),
+                        format="ascii",
+                        overwrite=True,
+                    )
         if len(self.surveys) > 1:
             output = {
                 "blend_images": blend_images,
                 "isolated_images": isolated_images,
-                "blend_list": batch_blend_cat,
+                "blend_list": blend_list,
                 "psf": psfs,
                 "wcs": wcss,
             }
@@ -287,7 +279,7 @@ class DrawBlendsGenerator(ABC):
             output = {
                 "blend_images": blend_images[survey_name],
                 "isolated_images": isolated_images[survey_name],
-                "blend_list": batch_blend_cat[survey_name],
+                "blend_list": blend_list[survey_name],
                 "psf": psfs[survey_name],
                 "wcs": wcss[survey_name],
             }
@@ -328,17 +320,9 @@ class DrawBlendsGenerator(ABC):
             pixel_scale = survey.pixel_scale
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
-            # Band to do measurements of size for given survey.
-            meas_band = self.meas_bands[survey.name]
-            indx_meas_band = [filt.name for filt in survey.filters].index(meas_band)
-
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
             blend.add_column(x_peak)
             blend.add_column(y_peak)
-            # TODO: How to get size for COSMOS?
-            if "CatsimCatalog" in self.compatible_catalogs:
-                size = get_size(blend, psf[indx_meas_band], pixel_scale)
-                blend_list[i].add_column(size)
 
             iso_image_multi = np.zeros(
                 (
@@ -509,7 +493,6 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        meas_bands=("i",),
         cpus=1,
         verbose=False,
         add_noise=True,
@@ -535,7 +518,6 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             surveys,
             batch_size=batch_size,
             stamp_size=stamp_size,
-            meas_bands=meas_bands,
             cpus=cpus,
             verbose=verbose,
             add_noise=add_noise,
