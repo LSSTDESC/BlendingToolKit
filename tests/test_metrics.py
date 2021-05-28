@@ -42,7 +42,6 @@ def get_metrics_generator(
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
-        f_distance=f_distance,
     )
     return metrics_generator
 
