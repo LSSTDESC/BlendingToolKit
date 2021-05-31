@@ -95,13 +95,14 @@ def meas_ksb_ellipticity(image, additional_params):
     psf_image = additional_params["psf"].drawImage(psf_image)
     pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
+    verbose = additional_params["verbose"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
     shear_est = "KSB"
 
     res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=False)
     result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
-    if res.error_message != "":
+    if res.error_message != "" and verbose:
         print(
             f"Shear measurement error : '{res.error_message }'. \
             This error may happen for faint galaxies or inaccurate detections."
@@ -687,6 +688,7 @@ class MetricsGenerator:
         save_path=None,
         f_distance=distance_center,
         distance_threshold_match=5.0,
+        verbose=False,
     ):
         """Initialize metrics generator.
 
@@ -712,6 +714,7 @@ class MetricsGenerator:
                 By default the distance is the euclidean distance from center to center.
             distance_threshold_match (float): Maximum distance for matching a detected and a
                 true galaxy in pixels.
+            verbose (bool): Indicates whether errors in the target_meas should be printed or not.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
@@ -721,6 +724,7 @@ class MetricsGenerator:
         self.save_path = save_path
         self.f_distance = f_distance
         self.distance_threshold_match = distance_threshold_match
+        self.verbose = verbose
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -730,6 +734,7 @@ class MetricsGenerator:
             "psf": blend_results["psf"][self.meas_band_num],
             "pixel_scale": survey.pixel_scale,
             "meas_band_num": self.meas_band_num,
+            "verbose": self.verbose,
         }
         target_meas = {}
         for k in self.target_meas.keys():
