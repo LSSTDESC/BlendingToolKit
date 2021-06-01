@@ -35,7 +35,7 @@ def get_meas_generator(meas_function, cpus=1, measure_kwargs=None):
         stamp_size=stamp_size,
     )
     meas_generator = btk.measure.MeasureGenerator(
-        meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=None
+        meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
     )
     return meas_generator
 
@@ -44,13 +44,12 @@ def compare_sep():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure)
     _, results = next(meas_generator)
-    results = list(results.values())[0]  # extract single element from dict.
     x_peak, y_peak = (
-        results["catalog"][0]["x_peak"].item(),
-        results["catalog"][0]["y_peak"].item(),
+        results["catalog"]["sep_measure"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
-    detected_centers = np.array([[x_peak, y_peak]])
-    target_detection = np.array([[65.495, 51.012]])
+    detected_centers = np.array([x_peak, y_peak])
+    target_detection = np.array([65.495, 51.012])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -63,13 +62,12 @@ def compare_sep_multiprocessing():
     """Test detection with sep"""
     meas_generator = get_meas_generator(btk.measure.sep_measure, cpus=4)
     _, results = next(meas_generator)
-    results = list(results.values())[0]  # extract single element from dict.
     x_peak, y_peak = (
-        results["catalog"][0]["x_peak"].item(),
-        results["catalog"][0]["y_peak"].item(),
+        results["catalog"]["sep_measure"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
-    detected_centers = np.array([[x_peak, y_peak]])
-    target_detection = np.array([[65.495, 51.012]])
+    detected_centers = np.array([x_peak, y_peak])
+    target_detection = np.array([65.495, 51.012])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -90,13 +88,12 @@ def test_measure_kwargs():
         btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, results = next(meas_generator)
-    results = results["sep_measure0"]  # extract single element from dict.
     x_peak, y_peak = (
-        results["catalog"][0]["x_peak"].item(),
-        results["catalog"][0]["y_peak"].item(),
+        results["catalog"]["sep_measure0"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure0"][0]["y_peak"].item(),
     )
-    detected_centers = np.array([[x_peak, y_peak]])
-    target_detection = np.array([[65.495, 51.012]])
+    detected_centers = np.array([x_peak, y_peak])
+    target_detection = np.array([65.603, 51.104])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
