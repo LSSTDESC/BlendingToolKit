@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -116,7 +115,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
         num = len(blend_list[i])
         images = blend_images[i]
         blend_img_rgb = get_rgb_image(images[band_indices])
-        _, ax = plt.subplots(1, 3, figsize=(8, 3))
+        _, ax = plt.subplots(1, 3, figsize=(20, 10))
         ax[0].imshow(blend_img_rgb)
         if limits:
             ax[0].set_xlim(limits)
@@ -124,7 +123,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
         ax[0].set_title("gri bands")
         ax[0].axis("off")
         ax[1].imshow(np.sum(blend_images[i, :, :, :], axis=0))
-        ax[1].set_title("Sum")
+        ax[1].set_title("Coadd")
         if limits:
             ax[1].set_xlim(limits)
             ax[1].set_ylim(limits)
@@ -311,71 +310,6 @@ def plot_efficiency_matrix(eff_matrix, ax=None, wspace=0.2, skip_zero=True):
             ax.add_patch(rect)
 
 
-def show_scarlet_residual(blend, observation, limits=(30, 90)):
-    """Plot scarlet model and residual image in rgb and i band.
-
-    NOTE: this requires scarlet to be installed.
-
-    Args:
-        blend: output of scarlet containing blend fit.
-        observation: `~scarlet.Observation`
-        limits(list, default=`None`): List of start and end coordinates to
-        display image within. Note: limits are applied to both height and
-        width dimensions.
-    """
-    try:
-        import scarlet
-        import scarlet.display
-
-        figsize1 = (12, 12)
-        figsize2 = (16, 16)
-        fig, ax = plt.subplots(1, 4, figsize=figsize1)
-        fig2, ax2 = plt.subplots(1, 4, figsize=figsize2)
-        model = blend.get_model()
-        ax[0].imshow(scarlet.display.img_to_rgb(model))
-        ax[0].set_title("Model")
-        cbar = ax2[0].imshow(model[4] / 10 ** 3)
-        divider1 = make_axes_locatable(ax2[0])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title("$10^3$", size=8)
-        model = observation.render(model)
-        ax[1].imshow(scarlet.display.img_to_rgb(model))
-        ax[1].set_title("Model Rendered")
-        cbar = ax2[1].imshow(model[4] / 10 ** 3)
-        divider1 = make_axes_locatable(ax2[1])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title("$10^3$", size=8)
-        ax[2].imshow(scarlet.display.img_to_rgb(observation.images))
-        ax[2].set_title("Observation")
-        cbar = ax2[2].imshow(observation.images[4] / 10 ** 3)
-        divider1 = make_axes_locatable(ax2[2])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title("$10^3$", size=8)
-        residual = observation.images - model
-        ax[3].imshow(scarlet.display.img_to_rgb(residual))
-        ax[3].set_title("Residual")
-        cbar = ax2[3].imshow(residual[4] / 10 ** 3)
-        divider1 = make_axes_locatable(ax2[3])
-        cax = divider1.append_axes("right", size="4%", pad=0.05)
-        clb = plt.colorbar(cbar, cax=cax)
-        clb.ax.set_title("$10^3$", size=8)
-        fig.tight_layout()
-        for a in ax:
-            a.set_xlim(limits)
-            a.set_ylim(limits)
-        for a in ax2:
-            a.axis("off")
-            a.set_xlim(limits)
-            a.set_ylim(limits)
-        plt.show()
-
-    except ImportError:
-        print("Scarlet is needed to use this function.")
-
-
 def plot_metrics_distribution(metric_arrays, metric_names, ax=None, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
@@ -444,7 +378,12 @@ def plot_metrics_correlation(
 
 
 def plot_metrics_summary(
-    metrics_results, target_meas_keys=[], n_bins_target=30, save_path=None, context="notebook"
+    metrics_results,
+    target_meas_keys=[],
+    n_bins_target=30,
+    target_meas_limits=[],
+    save_path=None,
+    context="notebook",
 ):
     """Plot metrics directly from the MetricsGenerator output.
 
@@ -452,6 +391,8 @@ def plot_metrics_summary(
         metrics_results (dict) : Output of a MetricsGenerator.
         target_meas_keys (list) : List of the keys for the target measures.
         n_bins_target (int) : Number of bins for the target measure plots
+        target_meas_limits (list): List of tuples indicating the limits for the plots
+                                   of the target measures
         save_path (str) : Path to the folder where the figures should be saved.
         context (str) : Context for seaborn ; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
@@ -514,18 +455,25 @@ def plot_metrics_summary(
                 marker="o",
                 alpha=0.7,
             )
-            ax[2 * i].set(xlabel="Measured " + k, ylabel="True " + k)
+            ax[2 * i].set(
+                xlabel="Measured " + k,
+                ylabel="True " + k,
+                xlim=target_meas_limits[i],
+                ylim=target_meas_limits[i],
+            )
             xlow, xhigh = ax[2 * i].get_xlim()
             x = np.linspace(xlow, xhigh, 10)
             ax[2 * i].plot(x, x, linestyle="--", color="black", zorder=-10)
 
+            mag_low = np.min(concatenated["ref_mag"])
+            mag_high = np.max(concatenated["ref_mag"])
             for meas_func in keys:
-                bins = np.linspace(xlow, xhigh, n_bins_target)
-                labels = np.digitize(concatenated[k], bins)
+                bins = np.linspace(mag_low, mag_high, n_bins_target)
+                labels = np.digitize(concatenated["ref_mag"], bins)
                 means = []
                 stds = []
                 to_delete = []
-                for j in range(1, 30):
+                for j in range(1, n_bins_target):
                     mean = np.mean(
                         concatenated["delta_" + k][
                             (labels == j) & (concatenated["measure_function"] == meas_func)
@@ -543,12 +491,16 @@ def plot_metrics_summary(
                     else:
                         to_delete.append(j)
                 bins = np.delete(bins, to_delete)
+                ax[2 * i + 1].errorbar(bins[1:] - (mag_high - mag_low) / n_bins_target, means, stds)
 
-                print(len(bins))
-                print(len(means))
-                ax[2 * i + 1].errorbar(bins[1:] - (xhigh - xlow) / n_bins_target, means, stds)
-
-            ax[2 * i + 1].plot(x, np.zeros((10)), linestyle="--", color="black", zorder=-10)
+            ax[2 * i + 1].plot(
+                np.linspace(mag_low, mag_high, 10),
+                np.zeros((10)),
+                linestyle="--",
+                color="black",
+                zorder=-10,
+            )
+            ax[2 * i + 1].set_xlabel("Magnitude")  # noqa: W605
             ax[2 * i + 1].set_ylabel(f"$\Delta${k}")  # noqa: W605
         plt.tight_layout()
 
