@@ -447,12 +447,21 @@ We can now create the corresponding instance of DrawBlendsGenerator. There is an
 Galsim_Hub tutorial
 --------------------
 
-BTK supports galaxy image generation with galsim_hub ; please refer to :ref:`this page<Galsim_Hub>` for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. NOTE: galsim_hub only works with python 3.7
+BTK supports galaxy image generation with ``galsim_hub`` ; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``. 
+
+The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install ``galsim_hub``, which can be done using pip.
+
+```
+pip install galsim_hub
+```
+
+Alternatively, you can optionally install ``galsim_hub`` along with BTK:
+
+```
+pip install btk[galsim-hub]
+```
 
 You can find a notebook version of this tutorial in the notebooks folder.
-
-.. Add notes on how to install galsim hub with pip extras
-
 
 Advanced features
 ------------------
