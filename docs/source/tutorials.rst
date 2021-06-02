@@ -457,4 +457,4 @@ You can find a notebook version of this tutorial in the notebooks folder.
 Advanced features
 ------------------
 
-You can find a detailed tutorial on several more advanced feature of BTK in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/intro.ipynb>`_, including how to write your own measure function which should be interesting to most user. You will also see how to use the multiresolution, write your own sampling function or survey, use several measure functions and use of the measure_kwargs feature.
+You can find a detailed tutorial on several more advanced feature of BTK in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/advanced-features.ipynb>`_, including how to write your own measure function which should be interesting to most user. You will also see how to use the multiresolution, write your own sampling function or survey, use several measure functions and use of the measure_kwargs feature.
