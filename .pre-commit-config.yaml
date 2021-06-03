@@ -8,6 +8,8 @@ repos:
         args:
           - --markdown-linebreak-ext=md
       - id: check-added-large-files
+        args:
+          - "--maxkb=5000"
       - id: check-merge-conflict
       - id: end-of-file-fixer
         exclude: ^.*fits

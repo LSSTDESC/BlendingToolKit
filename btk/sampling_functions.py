@@ -140,7 +140,7 @@ class DefaultSamplingGalsimHub(SamplingFunction):
     @property
     def compatible_catalogs(self):
         """Defined in parent class."""
-        return "CatsimCatalog", "CosmosCatalog"
+        return "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
         """Method returning a blend sample from table.
