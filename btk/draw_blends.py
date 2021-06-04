@@ -456,7 +456,16 @@ class CosmosGenerator(DrawBlendsGenerator):
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
         galsim_catalog = self.catalog.get_galsim_catalog()
-        gal_flux = get_flux(entry["ref_mag"], filt, survey)
+
+        # get galaxy flux
+        if survey.name == "HSC":
+            try:
+                gal_flux = get_flux(entry["_".join([filt.name, survey.name])], filt, survey)
+            except KeyError:
+                gal_flux = get_flux(entry["ref_mag"], filt, survey)
+        else:
+            gal_flux = get_flux(entry["ref_mag"], filt, survey)
+
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type="real", noise_pad_size=0
         ).withFlux(gal_flux)
