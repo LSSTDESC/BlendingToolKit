@@ -25,6 +25,8 @@ add_noise: True
 channels_last: False
 meas_bands:
   - i
+
+# galsim hub
 galsim_hub:
   model: "hub:Lanusse2020"
   param_names:
