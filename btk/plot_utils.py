@@ -380,8 +380,8 @@ def plot_metrics_correlation(
 def plot_metrics_summary(
     metrics_results,
     target_meas_keys=[],
-    n_bins_target=30,
     target_meas_limits=[],
+    n_bins_target=30,
     save_path=None,
     context="notebook",
 ):
@@ -390,9 +390,9 @@ def plot_metrics_summary(
     Args:
         metrics_results (dict) : Output of a MetricsGenerator.
         target_meas_keys (list) : List of the keys for the target measures.
-        n_bins_target (int) : Number of bins for the target measure plots
         target_meas_limits (list): List of tuples indicating the limits for the plots
                                    of the target measures
+        n_bins_target (int) : Number of bins for the target measure plots
         save_path (str) : Path to the folder where the figures should be saved.
         context (str) : Context for seaborn ; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
@@ -412,7 +412,7 @@ def plot_metrics_summary(
 
     if "msr" in concatenated:
         fig, ax = plt.subplots(3, 1, figsize=(20, 30))
-        fig.suptitle("Distribution of reconstruction and segmentation metrics", fontsize=48)
+        fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
         sns.histplot(
             concatenated,
             x="msr",
@@ -430,9 +430,11 @@ def plot_metrics_summary(
         plt.show()
 
     if "iou" in concatenated:
-        g = sns.histplot(concatenated, x="iou", hue="measure_function")
-        g.set_axis_labels("Intersection-over-Union")
-        plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
+        fig, ax = plt.subplots(figsize=(20, 10))
+        sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax)
+        ax.set_ylabel("Intersection-over-Union")
+        if save_path is not None:
+            plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
         plt.show()
 
     if target_meas_keys != []:
