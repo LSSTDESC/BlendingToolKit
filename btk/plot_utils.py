@@ -1,11 +1,14 @@
 """Utility functions for plotting and displaying images in BTK."""
 import os
 
+import ipywidgets as widgets
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from IPython.display import clear_output
+from IPython.display import display
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -377,7 +380,7 @@ def plot_metrics_correlation(
     ax.set_ylabel(metric_y_name)
 
 
-def plot_metrics_summary(
+def plot_metrics_summary(  # noqa: C901
     metrics_results,
     target_meas_keys=[],
     target_meas_limits=[],
@@ -401,129 +404,154 @@ def plot_metrics_summary(
     sns.set_context(context)
     dataframes = []
     keys = list(metrics_results.keys())
-    for k in keys:
-        dataframes.append(metrics_results[k]["galaxy_summary"].to_pandas())
+    options_dict = {key: widgets.Checkbox(description=key, value=False) for key in keys}
+    options = [options_dict[key] for key in keys]
+    options_widget = widgets.VBox(options)
+    display(options_widget)
 
-    concatenated = pd.concat(
-        [dataframes[i].assign(measure_function=keys[i]) for i in range(len(keys))]
-    )
-    for k in target_meas_keys:
-        concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
+    # w = widgets.SelectMultiple(options=keys,value=keys,description="Measure functions")
 
-    if "msr" in concatenated:
-        fig, ax = plt.subplots(3, 1, figsize=(20, 30))
-        fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
-        sns.histplot(
-            concatenated,
-            x="msr",
-            hue="measure_function",
-            binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
-            ax=ax[0],
+    def draw_plots(value):
+        clear_output()
+        display(options_widget)
+        meas_func_names = [w.description for w in options_widget.children if w.value]
+        if len(meas_func_names) == 0:
+            return 0
+
+        for k in meas_func_names:
+            dataframes.append(metrics_results[k]["galaxy_summary"].to_pandas())
+
+        concatenated = pd.concat(
+            [
+                dataframes[i].assign(measure_function=meas_func_names[i])
+                for i in range(len(meas_func_names))
+            ]
         )
-        ax[0].set_xlabel("Mean square residual")
-        sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[1])
-        ax[1].set_xlabel("Peak Signal-to-Noise Ratio")
-        sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[2])
-        ax[2].set_xlabel("Structure Similarity Index")
-        if save_path is not None:
-            plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
-        plt.show()
+        for k in target_meas_keys:
+            concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
 
-    if "iou" in concatenated:
-        fig, ax = plt.subplots(figsize=(20, 10))
-        sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax)
-        ax.set_ylabel("Intersection-over-Union")
-        if save_path is not None:
-            plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
-        plt.show()
-
-    if target_meas_keys != []:
-        height_ratios = list(np.concatenate([[3, 1] for i in range(len(target_meas_keys))]))
-        fig, ax = plt.subplots(
-            2 * len(target_meas_keys),
-            1,
-            figsize=(10, 13.33 * len(target_meas_keys)),
-            gridspec_kw={"height_ratios": height_ratios},
-        )
-        # if len(target_meas_keys) == 1:
-        #     ax = [ax]
-        for i, k in enumerate(target_meas_keys):
-            sns.scatterplot(
-                data=concatenated,
-                x=k,
-                y=k + "_true",
+        if "msr" in concatenated:
+            fig, ax = plt.subplots(3, 1, figsize=(20, 30))
+            fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
+            sns.histplot(
+                concatenated,
+                x="msr",
                 hue="measure_function",
-                ax=ax[2 * i],
-                marker="o",
-                alpha=0.7,
+                binrange=(0, np.quantile(dataframes[0]["msr"], 0.9)),
+                ax=ax[0],
             )
-            ax[2 * i].set(
-                xlabel="Measured " + k,
-                ylabel="True " + k,
-                xlim=target_meas_limits[i],
-                ylim=target_meas_limits[i],
-            )
-            xlow, xhigh = ax[2 * i].get_xlim()
-            x = np.linspace(xlow, xhigh, 10)
-            ax[2 * i].plot(x, x, linestyle="--", color="black", zorder=-10)
+            ax[0].set_xlabel("Mean square residual")
+            sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[1])
+            ax[1].set_xlabel("Peak Signal-to-Noise Ratio")
+            sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[2])
+            ax[2].set_xlabel("Structure Similarity Index")
+            if save_path is not None:
+                plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
+            plt.show()
 
-            mag_low = np.min(concatenated["ref_mag"])
-            mag_high = np.max(concatenated["ref_mag"])
-            for meas_func in keys:
-                bins = np.linspace(mag_low, mag_high, n_bins_target)
-                labels = np.digitize(concatenated["ref_mag"], bins)
-                means = []
-                stds = []
-                to_delete = []
-                for j in range(1, n_bins_target):
-                    mean = np.mean(
-                        concatenated["delta_" + k][
-                            (labels == j) & (concatenated["measure_function"] == meas_func)
-                        ]
-                    )
-                    if not np.isnan(mean):
-                        means.append(mean)
-                        stds.append(
-                            np.std(
-                                concatenated["delta_" + k][
-                                    (labels == j) & (concatenated["measure_function"] == meas_func)
-                                ]
-                            )
+        if "iou" in concatenated:
+            fig, ax = plt.subplots(figsize=(20, 10))
+            sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax)
+            ax.set_ylabel("Intersection-over-Union")
+            if save_path is not None:
+                plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
+            plt.show()
+
+        if target_meas_keys != []:
+            height_ratios = list(np.concatenate([[3, 1] for i in range(len(target_meas_keys))]))
+            fig, ax = plt.subplots(
+                2 * len(target_meas_keys),
+                1,
+                figsize=(10, 13.33 * len(target_meas_keys)),
+                gridspec_kw={"height_ratios": height_ratios},
+            )
+            # if len(target_meas_keys) == 1:
+            #     ax = [ax]
+            for i, k in enumerate(target_meas_keys):
+                sns.scatterplot(
+                    data=concatenated,
+                    x=k,
+                    y=k + "_true",
+                    hue="measure_function",
+                    ax=ax[2 * i],
+                    marker="o",
+                    alpha=0.7,
+                )
+                ax[2 * i].set(
+                    xlabel="Measured " + k,
+                    ylabel="True " + k,
+                    xlim=target_meas_limits[i],
+                    ylim=target_meas_limits[i],
+                )
+                xlow, xhigh = ax[2 * i].get_xlim()
+                x = np.linspace(xlow, xhigh, 10)
+                ax[2 * i].plot(x, x, linestyle="--", color="black", zorder=-10)
+
+                mag_low = np.min(concatenated["ref_mag"])
+                mag_high = np.max(concatenated["ref_mag"])
+                for meas_func in keys:
+                    bins = np.linspace(mag_low, mag_high, n_bins_target)
+                    labels = np.digitize(concatenated["ref_mag"], bins)
+                    means = []
+                    stds = []
+                    to_delete = []
+                    for j in range(1, n_bins_target):
+                        mean = np.mean(
+                            concatenated["delta_" + k][
+                                (labels == j) & (concatenated["measure_function"] == meas_func)
+                            ]
                         )
-                    else:
-                        to_delete.append(j)
-                bins = np.delete(bins, to_delete)
-                ax[2 * i + 1].errorbar(bins[1:] - (mag_high - mag_low) / n_bins_target, means, stds)
+                        if not np.isnan(mean):
+                            means.append(mean)
+                            stds.append(
+                                np.std(
+                                    concatenated["delta_" + k][
+                                        (labels == j)
+                                        & (concatenated["measure_function"] == meas_func)
+                                    ]
+                                )
+                            )
+                        else:
+                            to_delete.append(j)
+                    bins = np.delete(bins, to_delete)
+                    ax[2 * i + 1].errorbar(
+                        bins[1:] - (mag_high - mag_low) / n_bins_target, means, stds
+                    )
 
-            ax[2 * i + 1].plot(
-                np.linspace(mag_low, mag_high, 10),
-                np.zeros((10)),
-                linestyle="--",
-                color="black",
-                zorder=-10,
-            )
-            ax[2 * i + 1].set_xlabel("Magnitude")  # noqa: W605
-            ax[2 * i + 1].set_ylabel(f"$\Delta${k}")  # noqa: W605
-        plt.tight_layout()
+                ax[2 * i + 1].plot(
+                    np.linspace(mag_low, mag_high, 10),
+                    np.zeros((10)),
+                    linestyle="--",
+                    color="black",
+                    zorder=-10,
+                )
+                ax[2 * i + 1].set_xlabel("Magnitude")  # noqa: W605
+                ax[2 * i + 1].set_ylabel(f"$\Delta${k}")  # noqa: W605
+            plt.tight_layout()
 
+            if save_path is not None:
+                plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
+            plt.show()
+
+        g = sns.JointGrid(
+            data=concatenated, x="blendedness", y="msr", hue="measure_function", height=15
+        )
+        g.plot(sns.scatterplot, sns.histplot, alpha=0.7)
+        g.ax_joint.set_yscale("log")
+        g.set_axis_labels("blendedness", "Mean Square Residual")
         if save_path is not None:
-            plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
+            g.savefig(os.path.join(save_path, "jointdistancemsr.png"))
         plt.show()
 
-    g = sns.JointGrid(data=concatenated, x="blendedness", y="msr", hue="measure_function")
-    g.plot(sns.scatterplot, sns.histplot, alpha=0.7)
-    g.ax_joint.set_yscale("log")
-    g.set_axis_labels("blendedness", "Mean Square Residual")
-    if save_path is not None:
-        g.savefig(os.path.join(save_path, "jointdistancemsr.png"))
-    plt.show()
+        fig, ax = plt.subplots(1, len(keys), figsize=(15, 15 * len(keys)))
+        if len(keys) == 1:
+            ax = [ax]
+        for i, k in enumerate(keys):
+            plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
+            ax[i].set_title(k)
+        if save_path is not None:
+            plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
+        plt.show()
 
-    fig, ax = plt.subplots(1, len(keys), figsize=(10, 10 * len(keys)))
-    if len(keys) == 1:
-        ax = [ax]
-    for i, k in enumerate(keys):
-        plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
-        ax[i].set_title(k)
-    if save_path is not None:
-        plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
-    plt.show()
+    for k in keys:
+        options_dict[k].observe(draw_plots, "value")
