@@ -459,7 +459,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = get_flux(entry["_".join([filt.name, survey.name])], filt, survey)
+            gal_flux = get_flux(entry[f"{survey.name}_{filt.name}"], filt, survey)
         except KeyError:
             gal_flux = get_flux(entry["ref_mag"], filt, survey)
 
