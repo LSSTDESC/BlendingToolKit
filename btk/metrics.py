@@ -95,15 +95,18 @@ def meas_ksb_ellipticity(image, additional_params):
     psf_image = additional_params["psf"].drawImage(psf_image)
     pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
+    verbose = additional_params["verbose"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
     shear_est = "KSB"
-    try:
-        res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=True)
-        result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
-    except RuntimeError as e:
-        print(e)
-        result = [-10.0, -10.0, -10.0]
+
+    res = galsim.hsm.EstimateShear(gal_image, psf_image, shear_est=shear_est, strict=False)
+    result = [res.corrected_g1, res.corrected_g2, res.observed_shape.e]
+    if res.error_message != "" and verbose:
+        print(
+            f"Shear measurement error : '{res.error_message }'. \
+            This error may happen for faint galaxies or inaccurate detections."
+        )
     return result
 
 
@@ -121,7 +124,9 @@ def distance_center(true_gal, detected_gal):
     )
 
 
-def get_detection_match(true_table, detected_table, f_distance=distance_center):
+def get_detection_match(
+    true_table, detected_table, f_distance=distance_center, distance_threshold_match=5.0
+):
     r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
 
     The optimal matching is computed based on the following optimization problem:
@@ -145,6 +150,8 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
         f_distance (func): Function used to compute the distance between true and detected
             galaxies. Takes as arguments the entries corresponding to the two galaxies.
             By default the distance is the euclidean distance from center to center.
+        distance_threshold_match (float): Maximum distance for matching a detected and a
+                true galaxy in pixels.
 
     Returns:
         match_table (astropy.table.Table): Table where each row corresponds to each true
@@ -181,7 +188,7 @@ def get_detection_match(true_table, detected_table, f_distance=distance_center):
     match_indx = [-1] * len(true_table)
     dist_m = [0.0] * len(true_table)
     for i, indx in enumerate(true_indx):
-        if dist[indx][detected_indx[i]] <= 5:
+        if dist[indx][detected_indx[i]] <= distance_threshold_match:
             match_indx[indx] = detected_indx[i]
             dist_m[indx] = dist[indx][detected_indx[i]]
 
@@ -522,7 +529,6 @@ def reconstruction_metrics(
 
 
 def compute_metrics(  # noqa: C901
-    blended_images,
     isolated_images,
     blend_list,
     detection_catalogs,
@@ -535,12 +541,11 @@ def compute_metrics(  # noqa: C901
     channels_last=False,
     save_path=None,
     f_distance=distance_center,
+    distance_threshold_match=5.0,
 ):
     """Computes all requested metrics given information in a single batch from measure_generator.
 
     Args:
-        blended_images (array) : Contains all the blend images, with shape as specified
-                                 by channels_last.
         isolated_images (array) : Contains all the isolated images, with shape NMCHW OR NMHWC
                                   depending on channels_last, with M the maximum number of galaxies
                                   in a blend.
@@ -573,6 +578,8 @@ def compute_metrics(  # noqa: C901
         f_distance (func): Function used to compute the distance between true and detected
             galaxies. Takes as arguments the entries corresponding to the two galaxies.
             By default the distance is the euclidean distance from center to center.
+        distance_threshold_match (float): Maximum distance for matching a detected and a
+                true galaxy in pixels.
 
     Returns:
         results (dict) : Contains all the computed metrics. Entries are :
@@ -585,13 +592,14 @@ def compute_metrics(  # noqa: C901
                            blends and related metrics
     """
     if channels_last:
-        blended_images = np.moveaxis(blended_images, -1, 1)
         isolated_images = np.moveaxis(isolated_images, -1, 2)
         if deblended_images is not None:
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
     results = {}
     matches = [
-        get_detection_match(blend_list[i], detection_catalogs[i], f_distance)
+        get_detection_match(
+            blend_list[i], detection_catalogs[i], f_distance, distance_threshold_match
+        )
         for i in range(len(blend_list))
     ]
     results["matches"] = matches
@@ -679,6 +687,8 @@ class MetricsGenerator:
         noise_threshold_factor=3,
         save_path=None,
         f_distance=distance_center,
+        distance_threshold_match=5.0,
+        verbose=False,
     ):
         """Initialize metrics generator.
 
@@ -698,10 +708,13 @@ class MetricsGenerator:
                 correspond to a threshold of 3 sigmas (with sigma the standard deviation of
                 the noise)
             save_path (str): Path to directory where results will be saved. If left
-                    as None, results will not be saved.
+                as None, results will not be saved.
             f_distance (func): Function used to compute the distance between true and detected
                 galaxies. Takes as arguments the entries corresponding to the two galaxies.
                 By default the distance is the euclidean distance from center to center.
+            distance_threshold_match (float): Maximum distance for matching a detected and a
+                true galaxy in pixels.
+            verbose (bool): Indicates whether errors in the target_meas should be printed or not.
         """
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
@@ -710,6 +723,8 @@ class MetricsGenerator:
         self.noise_threshold_factor = noise_threshold_factor
         self.save_path = save_path
         self.f_distance = f_distance
+        self.distance_threshold_match = distance_threshold_match
+        self.verbose = verbose
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -719,6 +734,7 @@ class MetricsGenerator:
             "psf": blend_results["psf"][self.meas_band_num],
             "pixel_scale": survey.pixel_scale,
             "meas_band_num": self.meas_band_num,
+            "verbose": self.verbose,
         }
         target_meas = {}
         for k in self.target_meas.keys():
@@ -728,16 +744,13 @@ class MetricsGenerator:
             get_mean_sky_level(survey, survey.filters[self.meas_band_num])
         )
         metrics_results = {}
-        for meas_func in measure_results:
-            print(meas_func)
-            print(measure_results[meas_func].keys())
+        for meas_func in measure_results["catalog"].keys():
             metrics_results_f = compute_metrics(
-                blend_results["blend_images"],
                 blend_results["isolated_images"],
                 blend_results["blend_list"],
-                measure_results[meas_func]["catalog"],
-                measure_results[meas_func]["segmentation"],
-                measure_results[meas_func]["deblended_images"],
+                measure_results["catalog"][meas_func],
+                measure_results["segmentation"][meas_func],
+                measure_results["deblended_images"][meas_func],
                 self.use_metrics,
                 noise_threshold,
                 self.meas_band_num,
@@ -747,6 +760,7 @@ class MetricsGenerator:
                 if self.save_path is not None
                 else None,
                 f_distance=self.f_distance,
+                distance_threshold_match=self.distance_threshold_match,
             )
             metrics_results[meas_func] = metrics_results_f
 
@@ -792,15 +806,15 @@ def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
     # The integral is from zero to one
     recalls = np.insert(recalls, 0, 0)
     precisions = np.insert(precisions, 0, precisions[0])
-    recalls = np.insert(recalls, -1, 1)
-    precisions = np.insert(precisions, -1, precisions[-1])
+    recalls = np.append(recalls, 1)
+    precisions = np.append(precisions, precisions[-1])
 
     for i in range(1, n_meas):
         average_precision += precisions[i] * (recalls[i] - recalls[i - 1])
 
     if plot:
         ax = plt.gca() if ax is None else ax
-        ax.scatter(recalls, precisions, label=measure_name)
+        ax.plot(recalls, precisions, label=measure_name, marker="x")
         ax.set_xlabel("Recall")
         ax.set_ylabel("Precision")
 
