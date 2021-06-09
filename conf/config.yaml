@@ -1,9 +1,10 @@
 defaults:
   - sampling: default
   - draw_blends: catsim
+  - hydra/help: btk_help
 
 catalog:
-  name: CatsimCatalog
+  name: catsim
   catalog_files: ${paths.data}/sample_input_catalog.fits
 
 surveys:
@@ -42,7 +43,7 @@ use_metrics:
   - detection
 meas_band_num: 0
 noise_threshold_factor: 3
-target_meas: Null
+distance_threshold_match: 5.0
 
 ### organize arguments ###
 measure:
@@ -58,7 +59,7 @@ metrics:
     use_metrics: ${use_metrics}
     meas_band_num: ${meas_band_num}
     noise_threshold_factor: ${noise_threshold_factor}
-    target_meas: ${target_meas}
+    distance_threshold_match: ${distance_threshold_match}
     save_path: ${save_path}
 
 paths:
