@@ -144,4 +144,4 @@ class CosmosCatalog(Catalog):
         return self.galsim_catalog
 
 
-available_catalogs = {"CatsimCatalog": CatsimCatalog, "CosmosCatalog": CosmosCatalog}
+available_catalogs = {"catsim": CatsimCatalog, "cosmos": CosmosCatalog}
