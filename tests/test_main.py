@@ -19,27 +19,22 @@ def test_main():
 
 def test_errors():
 
+    cfg = get_cfg(overrides={"catalog.name": "MyCatalog"})
     with pytest.raises(ValueError) as excinfo:
-        cfg = get_cfg(overrides={"catalog.name": "MyCatalog"})
         main(cfg)
         assert "not implemented" in str(excinfo.value)
 
+    cfg = get_cfg(overrides={"sampling.name": "MySampling"})
     with pytest.raises(ValueError) as excinfo:
-        cfg = get_cfg(overrides={"sampling.name": "MySampling"})
         main(cfg)
         assert "not implemented" in str(excinfo.value)
 
+    cfg = get_cfg(overrides={"surveys": ["survey1", "survey2"]})
     with pytest.raises(ValueError) as excinfo:
-        cfg = get_cfg(overrides={"surveys": ["survey1", "survey2"]})
         main(cfg)
         assert "not implemented" in str(excinfo.value)
 
+    cfg = get_cfg(overrides={"draw_blends.name": "MyDrawBlends"})
     with pytest.raises(ValueError) as excinfo:
-        cfg = get_cfg(overrides={"surveys": ["survey1", "survey2"]})
-        main(cfg)
-        assert "not implemented" in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        cfg = get_cfg(overrides={"draw_blends.name": "MyDrawBlends"})
         main(cfg)
         assert "not implemented" in str(excinfo.value)
