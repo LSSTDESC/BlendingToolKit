@@ -23,8 +23,6 @@ stamp_size: 24.0
 max_shift: Null
 add_noise: True
 channels_last: False
-meas_bands:
-  - i
 
 # galsim hub
 galsim_hub:

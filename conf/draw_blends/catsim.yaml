@@ -3,7 +3,6 @@ name: "CatsimGenerator"
 kwargs:
   batch_size: ${batch_size}
   stamp_size: ${stamp_size}
-  meas_bands: ${meas_bands}
   cpus: ${cpus}
   verbose: ${verbose}
   add_noise: ${add_noise}
