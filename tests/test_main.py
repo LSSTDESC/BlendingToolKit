@@ -1,3 +1,5 @@
+import subprocess
+
 import pytest
 from hydra.experimental import compose
 from hydra.experimental import initialize
@@ -15,6 +17,11 @@ def get_cfg(overrides):
 def test_main():
     cfg = get_cfg(overrides={})
     main(cfg)
+
+
+def test_CLI():
+    subprocess.run("btk", shell=True)
+    subprocess.run("btk --help", shell=True)
 
 
 def test_errors():
