@@ -22,30 +22,30 @@ footer: |-
 template: |-
   ${hydra.help.header}
   Welcome to the Command-Line Interface (CLI) for ${hydra.help.app_name}!
-  The CLI is designed to run BTK from start to end, starting by creating a 
+  The CLI is designed to run BTK from start to end, starting by creating a
   DrawBlendGenerator, followed by a MeasureGenerator, and finally calculating
   and saving the corresponding metrics.
 
-  Assuming that BTK has been pip installed, you can run btk from the command line like: 
+  Assuming that BTK has been pip installed, you can run btk from the command line like:
 
   btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1
     verbose=False surveys=[Rubin, HST]
 
-  Note that in the above example 
+  Note that in the above example
 
   You need to create the directory to save results yourself. Here are all the available options:
 
-  * sampling: Attribute group Specify sampling functions to be used, the options are the sampling functions 
-      implemented in btk/sampling_functions.py, which are 
+  * sampling: Attribute group Specify sampling functions to be used, the options are the sampling functions
+      implemented in btk/sampling_functions.py, which are
       {Default, DefaultGalsimHub, GroupSampling, GroupSamplingNumbered}.
 
-    * catalog: Attribute group consisting of two sub-attributes: 
+    * catalog: Attribute group consisting of two sub-attributes:
       * catalog.name: Name of the BTK catalog class, options: {catsim, cosmos}
-      * catalog.catalog_files: Path to files containing catalog information. The 'catsim' 
-          catalog requires one path, while the `cosmos` type requires two 
+      * catalog.catalog_files: Path to files containing catalog information. The 'catsim'
+          catalog requires one path, while the `cosmos` type requires two
           (see documentation for more details).
 
-    * surveys: Name of the survey(s) you want to use, options are 
+    * surveys: Name of the survey(s) you want to use, options are
         {Rubin, HST, HSC, DES, CFHT, Euclid}
 
 
