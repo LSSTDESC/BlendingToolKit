@@ -26,30 +26,71 @@ template: |-
   DrawBlendGenerator, followed by a MeasureGenerator, and finally calculating
   and saving the corresponding metrics.
 
-  Assuming that BTK has been pip installed, you can run btk from the command line like:
+  Assuming that BTK has been pip installed, you can run btk from the command line like e.g.
 
   btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1
-    verbose=False surveys=[Rubin, HST]
+    verbose=False surveys=[Rubin, HST] sampling=random catalog.name=catsim
+    use_metrics=['detection', 'segmentation'] (...)
 
-  Note that in the above example
+  You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the `save_path` parameter.
 
-  You need to create the directory to save results yourself. Here are all the available options:
+  == Available Options ==
+  Here are all the available options for the CLI.
 
-  * sampling: Attribute group Specify sampling functions to be used, the options are the sampling functions
-      implemented in btk/sampling_functions.py, which are
-      {Default, DefaultGalsimHub, GroupSampling, GroupSamplingNumbered}.
+  * sampling: Specify the sampling function to be used, options:
+      {default, galsim_hub, group_sampling, group_sampling_numbered}
 
-    * catalog: Attribute group consisting of two sub-attributes:
+  * catalog: Attribute group consisting of two sub-attributes.
       * catalog.name: Name of the BTK catalog class, options: {catsim, cosmos}
       * catalog.catalog_files: Path to files containing catalog information. The 'catsim'
-          catalog requires one path, while the `cosmos` type requires two
-          (see documentation for more details).
+          catalog requires one path, while the `cosmos` type requires two paths specified as
+          a list. (see documentation for more details).
 
     * surveys: Name of the survey(s) you want to use, options are
-        {Rubin, HST, HSC, DES, CFHT, Euclid}
+      {Rubin, HST, HSC, DES, CFHT, Euclid}, you can pass in a list of surveys for multi-resolution
+      studies too. For example:
 
+      btk survey=[Rubin, HST] (...)
 
-  -------
-  $CONFIG
-  -------
-  ${hydra.help.footer}
+    * draw_blends: Which draw_blend_generator to use, options are {catsim, cosmos, galsim_hub}
+
+    * save_path: Absolute path to a (preferably) empty directory where you would like to save
+      results of running BTK.
+
+    * cpus: Number of cpus you would like to use for multiprocessing.
+
+    * verbose: Whether you would like BTK to print
+
+    * batch_size: Size of the batches produced by the various BTK generators.
+
+    * stamp_size: Stamp size of images in arcseconds.
+
+    * max_shift: Maximum shift of galaxies from the center of each postage stamp in arcseconds.
+
+    * add_noise: Whether to add (Poisson) noise to the images.
+
+    * channels_last: Whether to use have images in channel last format (True) or not (False).
+
+    * galsim_hub: Attribute group consisting of options:
+        * model: Which galsim_hub model to use (default: 'hub:Lanusse2020')
+        * param_names: list of the parameters with which the generation is parametrized; this
+          is unique to each model (default: `['flux_radious, 'mag_auto', 'zphot']`).
+
+        NOTE: This flag is only used when `draw_blends=galsim_hub`
+
+    * measure_kwargs: Dictionary or list of dictionaries containing the keyword arguments to be
+        passed in to each measure_function.
+
+    * measure_functions: List of measure_functions to be ran, options {'basic', 'sep'}.
+
+    * use_metrics: List of metrics to return, options are:
+      {'detection', 'segmentation', 'reconstruction'}
+
+    * meas_band_num: Band index to perform measurements in.
+
+    * noise_threshold_factor: Factor for determining the threshold which is applied when
+      getting segmentations from true images. A value of 3 would correspond to a threshold of
+      3 sigmas (with sigma the standard deviation of the noise)
+
+    * distance_threshold_match: Maximum distance for matching a detected and a
+      true galaxy in pixels (default: 5.0).
