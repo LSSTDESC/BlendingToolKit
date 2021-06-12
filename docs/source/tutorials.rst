@@ -407,7 +407,7 @@ Once we got the results, we can plot them using functions found in the plot_util
 Using COSMOS galaxies
 ----------------------
 
-We will now focus on generating image using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let's start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog ; feel free to fill in the correct path if you have the complete catalog on your computer.
+We will now focus on generating images using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let's start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog that is already in the BTK repository; feel free to fill in the correct path if you have the complete data set on your computer. It can be downloaded from `this page <https://zenodo.org/record/3242143>`_.
 
 .. jupyter-execute::
 
@@ -420,7 +420,7 @@ We will now focus on generating image using galaxies from the COSMOS catalog. Yo
   catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
   sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
 
-We can now create the corresponding instance of DrawBlendsGenerator. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS catalog only contains images from the f814w band ; when using other bands, the image is only rescaled to get the right flux. Moreover, at the time the flux will not be accurate as we do not have the SED for COSMOS galaxies, meaning that we cannot recover the correct magnitude in other bands than f814w ; the flux is thus computed using the magnitude in that band and the survey parameters provided. We are currently working on getting a more realistic flux.
+We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band ; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. You can refer to the following section to circumvent this issue.
 
 .. jupyter-execute::
 
@@ -442,6 +442,15 @@ We can now create the corresponding instance of DrawBlendsGenerator. There is an
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
+
+
+Using a custom COSMOS data set
+'''''''''''''''''''''''''''''''
+
+In order to circumvent the aforementioned caveat, BTK offers the possibility to retrieve different magnitudes for each band. In order to use this feature, the corresponding magnitudes can be specified in any of the two provided COSMOS catalogs using the following column name format: <sn_fn>, where sn and fn are the Survey and Filter names, respectively, as written in the Survey and Filter named tuple classes. BTK will automatically look for those columns and use the information when available to compute galaxy fluxes.
+
+To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of. As seen in the previous section, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
+Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way : the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. In BTK, we use only the 'real' drawing mode, such that the information of the second catalog is not necessary, even if the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects. Though, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK : (1) the second catalog should contain at least the ``flux_radius`` column, (2) the first catalog should contain the same columns than the official COSMOS data release, (3) the galaxy and PSF stamps should be provided and accessible and (4 optional) one of the two catalogs can contain multiband magnitudes using the format just described.
 
 
 Galsim_Hub tutorial
