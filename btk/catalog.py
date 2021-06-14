@@ -60,16 +60,16 @@ class CatsimCatalog(Catalog):
     """Implementation of Catalog for the Catsim catalog."""
 
     @classmethod
-    def from_file(cls, catalog_file, verbose=False):
+    def from_file(cls, catalog_files, verbose=False):
         """Constructs the catalog object from a file.
 
         Args:
-            catalog_file: path to a file containing a readable astropy table
+            catalog_files: path to a file containing a readable astropy table
             verbose (bool): Whether to print info.
         """
-        _, ext = os.path.splitext(catalog_file)
+        _, ext = os.path.splitext(catalog_files)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
-        catalog = astropy.table.Table.read(catalog_file, format=fmt)
+        catalog = astropy.table.Table.read(catalog_files, format=fmt)
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self, raw_catalog):
@@ -142,3 +142,6 @@ class CosmosCatalog(Catalog):
     def get_galsim_catalog(self):
         """Returns the galsim.COSMOSCatalog object."""
         return self.galsim_catalog
+
+
+available_catalogs = {"catsim": CatsimCatalog, "cosmos": CosmosCatalog}

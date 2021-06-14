@@ -1,0 +1,67 @@
+defaults:
+  - sampling: default
+  - draw_blends: catsim
+  - hydra/help: btk_help
+
+catalog:
+  name: catsim
+  catalog_files: ${paths.data}/sample_input_catalog.fits
+
+surveys:
+  - Rubin
+
+### all arguments ###
+
+# system
+save_path: Null
+cpus: 1
+verbose: False
+
+# blends
+batch_size: 24
+max_number: 2
+stamp_size: 24.0
+max_shift: Null
+add_noise: True
+channels_last: False
+
+# galsim hub
+galsim_hub:
+  model: "hub:Lanusse2020"
+  param_names:
+    - "flux_radius"
+    - "mag_auto"
+    - "zphot"
+
+# measure
+measure_kwargs: Null
+measure_functions:
+  - basic
+
+# metrics
+use_metrics:
+  - detection
+meas_band_num: 0
+noise_threshold_factor: 3
+distance_threshold_match: 5.0
+
+### organize arguments ###
+measure:
+  measure_functions: ${measure_functions}
+  kwargs:
+    verbose: ${verbose}
+    cpus: ${cpus}
+    measure_kwargs: ${measure_kwargs}
+    save_path: ${save_path}
+
+metrics:
+  kwargs:
+    use_metrics: ${use_metrics}
+    meas_band_num: ${meas_band_num}
+    noise_threshold_factor: ${noise_threshold_factor}
+    distance_threshold_match: ${distance_threshold_match}
+    save_path: ${save_path}
+
+paths:
+  root: ${env:BTK_HOME}
+  data: ${paths.root}/data
