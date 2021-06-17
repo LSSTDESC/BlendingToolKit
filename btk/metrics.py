@@ -664,6 +664,8 @@ def compute_metrics(  # noqa: C901
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
+
+    # save results if requested.
     if save_path is not None:
         if not os.path.exists(save_path):
             os.mkdir(save_path)
@@ -683,8 +685,8 @@ class MetricsGenerator:
         measure_generator,
         use_metrics=("detection"),
         meas_band_num=0,
-        target_meas={},
         noise_threshold_factor=3,
+        target_meas=None,
         save_path=None,
         f_distance=distance_center,
         distance_threshold_match=5.0,
@@ -698,8 +700,8 @@ class MetricsGenerator:
                                 - "detection"
                                 - "segmentation"
                                 - "reconstruction"
-            meas_band_num (int): If using multiple bands for each blend,
-                which band index do you want to use for measurement?
+            meas_band_num (int): If using multiple bands for each blend, which band index
+                do you want to use for measurement?
             target_meas (dict): Dictionary containing functions that can measure a physical
                 parameter on isolated galaxy images. Each key is the name of the estimator and
                 value the function performing the estimation (e.g. `meas_ellipticity` above).
@@ -719,7 +721,7 @@ class MetricsGenerator:
         self.measure_generator: MeasureGenerator = measure_generator
         self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
-        self.target_meas = target_meas
+        self.target_meas = target_meas if target_meas is not None else {}
         self.noise_threshold_factor = noise_threshold_factor
         self.save_path = save_path
         self.f_distance = f_distance

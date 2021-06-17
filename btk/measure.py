@@ -300,6 +300,7 @@ class MeasureGenerator:
                         measure_output[j][i].get("deblended_images", None)
                     )
 
+                # save results if requested.
                 if self.save_path is not None:
 
                     if not os.path.exists(os.path.join(self.save_path, key_name)):
@@ -328,3 +329,6 @@ class MeasureGenerator:
             "deblended_images": deblended_images,
         }
         return blend_output, measure_results
+
+
+available_measure_functions = {"basic": basic_measure, "sep": sep_measure}

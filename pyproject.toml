@@ -29,6 +29,7 @@ version = "0.0.1-alpha.5"
 astropy = "^4.2"
 galsim = "^2.2.4"
 galsim-hub = {version = "^0.0.1-rc.4", python = "~3.7", optional = true}
+hydra-core = "^1.0.6"
 matplotlib = "^3.3.3"
 numpy = "^1.18.5"
 python = "^3.7"
@@ -53,6 +54,9 @@ reorder-python-imports = "^2.4.0"
 sphinx = "^3.3"
 sphinx-rtd-theme = "^0.4.3"
 wheel = "^0.36.2"
+
+[tool.poetry.scripts]
+btk = "btk.__main__:run"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
