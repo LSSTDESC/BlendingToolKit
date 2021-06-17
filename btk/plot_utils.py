@@ -148,15 +148,13 @@ def plot_with_isolated(
     blend_images,
     isolated_images,
     blend_list,
-    detected_centers=None,
     limits=None,
     band_indices=None,
 ):
     """Plots blend images and isolated images of all objects in the blend as RGB images.
 
     Outputs of btk draw are plotted here. Blend_list must contain true  centers
-    of the objects. If detected_centers are input, then the centers are also
-    shown in the third panel along with the true centers.
+    of the objects.
 
     Args:
         blend_images(array_like): Array of blend scene images to plot
@@ -165,10 +163,6 @@ def plot_with_isolated(
             [batch, max number of objects, height, width, bands].
         blend_list(list) : List of `astropy.table.Table` with entries of true
             objects. Length of list must be the batch size.
-        detected_centers(list, default=`None`): List of `numpy.ndarray` or
-            lists with centers of detected centers for each image in batch.
-            Length of list must be the batch size. Each list entry must be a
-            list or `numpy.ndarray` of dimensions [N, 2].
         limits(list, default=`None`): List of start and end coordinates to
             display image within. Note: limits are applied to both height and
             width dimensions.
@@ -178,93 +172,161 @@ def plot_with_isolated(
     """
     if band_indices is None:
         band_indices = [1, 2, 3]
-    b_size = len(blend_list)
-    if len(band_indices) != 3:
+    if len(band_indices) not in [1, 3]:
         raise ValueError(
-            f"band_indices must be a list with 3 entries, not \
+            f"band_indices must be a list with 1 or 3 entries, not \
             {band_indices}"
         )
-    if detected_centers is None:
-        detected_centers = [[]] * b_size
-    if (
-        len(detected_centers) != b_size
-        or len(isolated_images) != b_size
-        or blend_images.shape[0] != b_size
-    ):
-        raise ValueError(
-            f"Length of detected_centers and length of blend_list\
-            must be equal to first dimension of blend_images, found \
-            {len(detected_centers), len(blend_list), len(blend_images)}"
-        )
+    rgb = len(band_indices) == 3
     for i in range(len(blend_list)):
         images = blend_images[i]
-        blend_img_rgb = get_rgb_image(
-            images[band_indices], normalize_with_image=images[band_indices]
+        blend_img = (
+            get_rgb_image(images[band_indices], normalize_with_image=images[band_indices])
+            if rgb
+            else images[band_indices]
         )
         plt.figure(figsize=(2, 2))
-        plt.imshow(blend_img_rgb)
+        plt.imshow(blend_img)
         plt.title(f"{len(blend_list[i])} objects")
         if limits:
             plt.xlim(limits)
             plt.ylim(limits)
         plt.axis("off")
-        for cent in detected_centers[i]:
-            plt.plot(cent[0], cent[1], "go", fillstyle="none")
         plt.show()
         iso_blend = isolated_images[i]
         num = iso_blend.shape[0]
         plt.figure(figsize=(2 * num, 2))
         for j in range(num):
             iso_images = iso_blend[j]
-            iso_img_rgb = get_rgb_image(
-                iso_images[band_indices], normalize_with_image=images[band_indices]
+            iso_img = (
+                get_rgb_image(iso_images[band_indices], normalize_with_image=images[band_indices])
+                if rgb
+                else iso_images[band_indices]
             )
             plt.subplot(1, num, j + 1)
-            plt.imshow(iso_img_rgb)
+            plt.imshow(iso_img)
             if limits:
                 plt.xlim(limits)
                 plt.ylim(limits)
             plt.axis("off")
-            if len(detected_centers[i]) > 0:
-                plt.plot(
-                    detected_centers[i][j][0],
-                    detected_centers[i][j][1],
-                    "go",
-                    fillstyle="none",
-                )
         plt.show()
 
 
-def plot_cumulative(table, column_name, ax=None, bins=40, color="red", label=None, xlabel=None):
-    """Plot cumulative counts of input column_name in table.
+def plot_with_deblended(
+    blend_images,
+    isolated_images,
+    blend_list,
+    detection_catalogs,
+    deblended_images,
+    matches,
+    indexes=[0],
+    band_indices=[1, 2, 3],
+):
+    """Plots blend images, along with isolated, deblended and residual images of all objects in a blend.
+
+    Outputs of btk draw are plotted here. blend_images, isolated_images and blend_list
+    are expected to be the corresponding entries from the output of a DrawBlendsGenerator,
+    detection_catalogs and deblended_images are taken from the output of a MeasureGenerator,
+    and matches is the matches entry of a MetricsGenerator (or the compute_metrics function).
 
     Args:
-        table(`astropy.table.Table`) : Catalog with features as columns and
-            different samples at rows.
-        column_name(str): Name of column in input table who's cumulative
-            counts are to be plotted.
-        ax(`matplotlib.axes`, default=`None`): Matplotlib axis on which to draw
-            the plot. If not provided, one is created inside.
-        bins(int or sequence of scalars, optional, default=40): If bins is an
-            int, it defines the number of equal-width bins in the given range
-            (40, by default). If bins is a sequence, it defines a monotonically
-            increasing array of bin edges, including the rightmost edge,
-            allowing for non-uniform bin widths.
-        color(str, default='red'): Color of cumulative counts curve.
-        label(str, default=`None`): label for legend in plot.
-        xlabel(str, default=`None`): x-axis label in plot. If not provided,
-            then the column_name is set as x-axis label.
+        blend_images(array_like): Array of blend scene images to plot
+            [batch, height, width, bands].
+        isolated_images (array_like): Array of isolated object images to plot
+            [batch, max number of objects, bands, height, width].
+        blend_list (list) : List of `astropy.table.Table` with entries of true
+            objects. Length of list must be the batch size.
+        detection_catalogs (list): List of `astropy.table.Table` with entries of
+            detected objects.
+        deblended_images (list): List of arrays containing the deblended images with
+            length 'batch' and array shape [bands,height,width]
+        matches (list): List of `astropy.table.Table` with entries corresponding to the
+            true galaxies. The column 'match_detected_id' must contain the id of the
+            matching true galaxy.
+        indexes (list): List of the indexes of the blends you want to plot.
+        band_indices (list): List of the bands to plot. Should have either 3 elements
+            for RGB images, or one for monochromes images.
+
     """
-    if xlabel is None:
-        xlabel = column_name
-    det_values, det_base = np.histogram(table[column_name], bins=bins)
-    det_cumulative = np.cumsum(det_values)
-    if label is None:
-        ax.plot(det_base[:-1], det_cumulative, c=color)
-    else:
-        ax.plot(det_base[:-1], det_cumulative, c=color, label=label)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel("Cumulative counts")
+    if len(band_indices) not in [1, 3]:
+        raise ValueError(
+            f"band_indices must be a list with 1 or 3 entries, not \
+            {band_indices}"
+        )
+    rgb = len(band_indices) == 3
+    for i in indexes:
+        ncol = len(matches[i])
+        fig = plt.figure(constrained_layout=True, figsize=(10 + 5 * ncol, 10))
+        spec = fig.add_gridspec(3, ncol + 1, width_ratios=[ncol] + [1] * ncol)
+        ax = []
+        ax.append(fig.add_subplot(spec[:, 0]))
+        ax[0].imshow(
+            get_rgb_image(
+                blend_images[i][band_indices], normalize_with_image=blend_images[i][band_indices]
+            )
+            if rgb
+            else blend_images[i][band_indices[0]]
+        )
+        ax[0].scatter(
+            blend_list[i]["x_peak"],
+            blend_list[i]["y_peak"],
+            color="red",
+            marker="x",
+            label="True centroids",
+            s=150,
+            linewidth=3,
+        )
+        ax[0].scatter(
+            detection_catalogs[i]["x_peak"],
+            detection_catalogs[i]["y_peak"],
+            color="blue",
+            marker="+",
+            label="Detected centroids",
+            s=150,
+            linewidth=3,
+        )
+        ax[0].set_title("Blended image", fontsize=18)
+        ax[0].legend(fontsize=16)
+        for k in range(ncol):
+            match = matches[i]["match_detected_id"][k]
+            ax.append(fig.add_subplot(spec[0, k + 1]))
+            isol_im = (
+                get_rgb_image(
+                    isolated_images[i][k][band_indices],
+                    normalize_with_image=isolated_images[i][k][band_indices],
+                )
+                if rgb
+                else isolated_images[i][k][band_indices[0]]
+            )
+            ax[-1].imshow(isol_im)
+            if k == 0:
+                ax[-1].set_ylabel("True galaxies")
+            if match != -1:
+                ax.append(fig.add_subplot(spec[1, k + 1]))
+                ax[-1].imshow(
+                    get_rgb_image(
+                        deblended_images[i][match][band_indices],
+                        normalize_with_image=deblended_images[i][match][band_indices],
+                    )
+                    if rgb
+                    else deblended_images[i][match][band_indices[0]]
+                )
+                if k == 0:
+                    ax[-1].set_ylabel("Detected galaxies")
+                ax.append(fig.add_subplot(spec[2, k + 1]))
+                ax[-1].imshow(
+                    get_rgb_image(
+                        isolated_images[i][k][band_indices]
+                        - deblended_images[i][match][band_indices],
+                        normalize_with_image=isolated_images[i][k][band_indices],
+                    )
+                    if rgb
+                    else isolated_images[i][k][band_indices[0]]
+                    - deblended_images[i][match][band_indices[0]]
+                )
+                if k == 0:
+                    ax[-1].set_ylabel("Residuals")
+        plt.show()
 
 
 def plot_efficiency_matrix(eff_matrix, ax=None, wspace=0.2, skip_zero=True):
@@ -380,13 +442,33 @@ def plot_metrics_correlation(
     ax.set_ylabel(metric_y_name)
 
 
+def plot_gal_parameters(blend_list):
+    """Plots histograms for the magnitude and the size of the galaxies in a batch.
+
+    Args:
+        blend_list (list) : List of astropy Table. Should be obtained from the output of a
+                            DrawBlendsGenerator.
+    """
+    fig, ax = plt.subplots(2, 1, figsize=(20, 10))
+    plot_metrics_distribution(
+        np.concatenate([blend_list[i]["ref_mag"] for i in range(len(blend_list))]),
+        "Magnitude",
+        ax[0],
+    )
+    plot_metrics_distribution(
+        np.concatenate([blend_list[i]["btk_size"] for i in range(len(blend_list))]), "Size", ax[1]
+    )
+    plt.show()
+
+
 def plot_metrics_summary(  # noqa: C901
     metrics_results,
     target_meas_keys=[],
     target_meas_limits=[],
     n_bins_target=30,
     save_path=None,
-    context="notebook",
+    context="talk",
+    interactive=False,
 ):
     """Plot metrics directly from the MetricsGenerator output.
 
@@ -399,25 +481,97 @@ def plot_metrics_summary(  # noqa: C901
         save_path (str) : Path to the folder where the figures should be saved.
         context (str) : Context for seaborn ; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
+        interactive (bool) : Specifies if the plot should be interactive.
 
     """
     sns.set_context(context)
-    dataframes = []
     keys = list(metrics_results.keys())
-    options_dict = {key: widgets.Checkbox(description=key, value=False) for key in keys}
-    options = [options_dict[key] for key in keys]
-    options_widget = widgets.VBox(options)
-    display(options_widget)
+    plot_keys = ["reconstruction", "segmentation", "eff_matrix"] + target_meas_keys + ["custom"]
 
-    # w = widgets.SelectMultiple(options=keys,value=keys,description="Measure functions")
+    if interactive:
+        layout = widgets.Layout(width="auto")
+        measure_functions_dict = {
+            key: widgets.Checkbox(description=key, value=False, layout=layout) for key in keys
+        }
+        measure_functions = [measure_functions_dict[key] for key in keys]
+        measure_functions_widget = widgets.VBox(measure_functions, description="Measure functions")
+        blendedness_widget = widgets.FloatRangeSlider(
+            description="Blendedness",
+            value=[0, 1.0],
+            min=0,
+            max=1.0,
+            step=0.01,
+            continuous_update=False,
+        )
+        min_mag = np.min(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
+        max_mag = np.max(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
+        magnitude_widget = widgets.FloatRangeSlider(
+            description="Magnitude",
+            value=[min_mag, max_mag],
+            min=min_mag,
+            max=max_mag,
+            step=0.01,
+            continuous_update=False,
+        )
+        min_size = np.min(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
+        max_size = np.max(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
+        size_widget = widgets.FloatRangeSlider(
+            description="Size",
+            value=[min_size, max_size],
+            min=min_size,
+            max=max_size,
+            step=0.01,
+            continuous_update=False,
+        )
+        filter_vbox = widgets.VBox([blendedness_widget, magnitude_widget, size_widget])
+        plot_selection_dict = {
+            key: widgets.Checkbox(description=key, value=False) for key in plot_keys
+        }
+        plot_selection = [plot_selection_dict[key] for key in plot_keys]
+        plot_selection_widget = widgets.VBox(plot_selection)
+        custom_x_widget_drop = widgets.Dropdown(
+            options=list(metrics_results[keys[0]]["galaxy_summary"].keys()),
+            description="X coordinate value",
+            layout=layout,
+        )
+        custom_x_widget_log = widgets.Checkbox(description="Log scale", value=False, layout=layout)
+        custom_x_widget = widgets.HBox([custom_x_widget_drop, custom_x_widget_log])
+        custom_y_widget_drop = widgets.Dropdown(
+            options=list(metrics_results[keys[0]]["galaxy_summary"].keys()),
+            description="Y coordinate value",
+            layout=layout,
+        )
+        custom_y_widget_log = widgets.Checkbox(description="Log scale", value=False, layout=layout)
+        custom_y_widget = widgets.HBox([custom_y_widget_drop, custom_y_widget_log])
+
+        plot_selection_vbox = widgets.VBox(plot_selection + [custom_x_widget, custom_y_widget])
+
+        hbox = widgets.HBox([measure_functions_widget, filter_vbox, plot_selection_vbox])
+        display(hbox)
 
     def draw_plots(value):
-        clear_output()
-        display(options_widget)
-        meas_func_names = [w.description for w in options_widget.children if w.value]
+        if interactive:
+            clear_output()
+            display(hbox)
+            meas_func_names = [w.description for w in measure_functions_widget.children if w.value]
+            blendedness_limits = blendedness_widget.value
+            mag_limits = magnitude_widget.value
+            size_limits = size_widget.value
+            custom_x = custom_x_widget_drop.value
+            custom_y = custom_y_widget_drop.value
+            custom_x_log = custom_x_widget_log.value
+            custom_y_log = custom_y_widget_log.value
+            plot_selections = {w.description: w.value for w in plot_selection_widget.children}
+        else:
+            meas_func_names = keys
+            blendedness_limits = [0, 1]
+            mag_limits = [min_mag, max_mag]
+            size_limits = [min_size, max_size]
+            plot_selections = {w: True for w in plot_keys}
         if len(meas_func_names) == 0:
             return 0
 
+        dataframes = []
         for k in meas_func_names:
             dataframes.append(metrics_results[k]["galaxy_summary"].to_pandas())
 
@@ -427,10 +581,32 @@ def plot_metrics_summary(  # noqa: C901
                 for i in range(len(meas_func_names))
             ]
         )
+        concatenated = concatenated.loc[
+            (concatenated["blendedness"] >= blendedness_limits[0])
+            & (concatenated["blendedness"] <= blendedness_limits[1])
+        ]
+        concatenated = concatenated.loc[
+            (concatenated["ref_mag"] >= mag_limits[0]) & (concatenated["ref_mag"] <= mag_limits[1])
+        ]
+        concatenated = concatenated.loc[
+            (concatenated["btk_size"] >= size_limits[0])
+            & (concatenated["btk_size"] <= size_limits[1])
+        ]
         for k in target_meas_keys:
             concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
 
-        if "msr" in concatenated:
+        if plot_selections["custom"]:
+            fig, ax = plt.subplots(figsize=(15, 15))
+            sns.scatterplot(
+                data=concatenated, x=custom_x, y=custom_y, hue="measure_function", ax=ax
+            )
+            if custom_x_log:
+                ax.set_xscale("log")
+            if custom_y_log:
+                ax.set_yscale("log")
+            plt.show()
+
+        if "msr" in concatenated and plot_selections["reconstruction"]:
             fig, ax = plt.subplots(3, 1, figsize=(20, 30))
             fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
             sns.histplot(
@@ -449,25 +625,28 @@ def plot_metrics_summary(  # noqa: C901
                 plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
             plt.show()
 
-        if "iou" in concatenated:
+        if "iou" in concatenated and plot_selections["segmentation"]:
             fig, ax = plt.subplots(figsize=(20, 10))
+            fig.suptitle("Distribution of segmentation metrics", fontsize=48)
             sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax)
-            ax.set_ylabel("Intersection-over-Union")
+            ax.set_xlabel("Intersection-over-Union")
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
             plt.show()
 
-        if target_meas_keys != []:
-            height_ratios = list(np.concatenate([[3, 1] for i in range(len(target_meas_keys))]))
+        selected_target_meas = [m for m in target_meas_keys if plot_selections[m]]
+        if selected_target_meas != []:
+            n_target_meas = len(selected_target_meas)
+            height_ratios = list(np.concatenate([[3, 1] for i in range(n_target_meas)]))
             fig, ax = plt.subplots(
-                2 * len(target_meas_keys),
+                2 * n_target_meas,
                 1,
-                figsize=(10, 13.33 * len(target_meas_keys)),
+                figsize=(10, 13.33 * n_target_meas),
                 gridspec_kw={"height_ratios": height_ratios},
             )
-            # if len(target_meas_keys) == 1:
-            #     ax = [ax]
-            for i, k in enumerate(target_meas_keys):
+            fig.suptitle("Target measures", fontsize=48)
+
+            for i, k in enumerate(selected_target_meas):
                 sns.scatterplot(
                     data=concatenated,
                     x=k,
@@ -533,25 +712,29 @@ def plot_metrics_summary(  # noqa: C901
                 plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
             plt.show()
 
-        g = sns.JointGrid(
-            data=concatenated, x="blendedness", y="msr", hue="measure_function", height=15
-        )
-        g.plot(sns.scatterplot, sns.histplot, alpha=0.7)
-        g.ax_joint.set_yscale("log")
-        g.set_axis_labels("blendedness", "Mean Square Residual")
-        if save_path is not None:
-            g.savefig(os.path.join(save_path, "jointdistancemsr.png"))
-        plt.show()
+        if plot_selections["eff_matrix"]:
+            fig, ax = plt.subplots(1, len(meas_func_names), figsize=(15, 15 * len(meas_func_names)))
+            fig.suptitle("Efficiency matrices", fontsize=48)
+            if len(meas_func_names) == 1:
+                ax = [ax]
+            for i, k in enumerate(meas_func_names):
+                plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
+                ax[i].set_title(k)
+            if save_path is not None:
+                plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
+            plt.show()
 
-        fig, ax = plt.subplots(1, len(keys), figsize=(15, 15 * len(keys)))
-        if len(keys) == 1:
-            ax = [ax]
-        for i, k in enumerate(keys):
-            plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
-            ax[i].set_title(k)
-        if save_path is not None:
-            plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
-        plt.show()
-
-    for k in keys:
-        options_dict[k].observe(draw_plots, "value")
+    if interactive:
+        blendedness_widget.observe(draw_plots, "value")
+        magnitude_widget.observe(draw_plots, "value")
+        size_widget.observe(draw_plots, "value")
+        for k in keys:
+            measure_functions_dict[k].observe(draw_plots, "value")
+        for k in plot_keys:
+            plot_selection_dict[k].observe(draw_plots, "value")
+        custom_x_widget_drop.observe(draw_plots, "value")
+        custom_y_widget_drop.observe(draw_plots, "value")
+        custom_x_widget_log.observe(draw_plots, "value")
+        custom_y_widget_log.observe(draw_plots, "value")
+    else:
+        draw_plots(None)
