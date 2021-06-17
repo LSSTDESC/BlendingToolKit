@@ -488,6 +488,11 @@ def plot_metrics_summary(  # noqa: C901
     keys = list(metrics_results.keys())
     plot_keys = ["reconstruction", "segmentation", "eff_matrix"] + target_meas_keys + ["custom"]
 
+    min_mag = np.min(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
+    max_mag = np.max(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
+    min_size = np.min(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
+    max_size = np.max(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
+
     if interactive:
         layout = widgets.Layout(width="auto")
         measure_functions_dict = {
@@ -503,8 +508,6 @@ def plot_metrics_summary(  # noqa: C901
             step=0.01,
             continuous_update=False,
         )
-        min_mag = np.min(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
-        max_mag = np.max(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
         magnitude_widget = widgets.FloatRangeSlider(
             description="Magnitude",
             value=[min_mag, max_mag],
@@ -513,8 +516,6 @@ def plot_metrics_summary(  # noqa: C901
             step=0.01,
             continuous_update=False,
         )
-        min_size = np.min(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
-        max_size = np.max(metrics_results[keys[0]]["galaxy_summary"]["btk_size"])
         size_widget = widgets.FloatRangeSlider(
             description="Size",
             value=[min_size, max_size],
@@ -568,6 +569,7 @@ def plot_metrics_summary(  # noqa: C901
             mag_limits = [min_mag, max_mag]
             size_limits = [min_size, max_size]
             plot_selections = {w: True for w in plot_keys}
+            plot_selections["custom"] = False
         if len(meas_func_names) == 0:
             return 0
 
