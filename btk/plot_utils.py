@@ -375,32 +375,27 @@ def plot_efficiency_matrix(eff_matrix, ax=None, wspace=0.2, skip_zero=True):
             ax.add_patch(rect)
 
 
-def plot_metrics_distribution(metric_arrays, metric_names, ax=None, bins=50, upper_quantile=1.0):
+def plot_metrics_distribution(metric_array, metric_name, ax=None, bins=50, upper_quantile=1.0):
     """Plot an histogram of the distribution with mean and median.
 
     Args:
-        metric_arrays : Contains the data
-        metric_names (str) : name(s) of the metric(s)
+        metric_array : Contains the data
+        metric_name (str) : name(s) of the metric(s)
         ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
         bins (int) : Optional argument for the number of bins.
         upper_quantile (float) : Quantile from which to cut
     """
     ax = plt.gca() if ax is None else ax
-    df = pd.DataFrame()
-    if not isinstance(metric_arrays, list):
-        metric_arrays = [metric_arrays]
-        metric_names = [metric_names]
-    for i, m in enumerate(metric_arrays):
-        quantile = np.quantile(m, upper_quantile)
-        m_filtered = m[m <= quantile]
-        df[metric_names[i]] = pd.Series(m_filtered)
+    quantile = np.quantile(metric_array, upper_quantile)
+    m_filtered = metric_array[metric_array <= quantile]
 
-    sns.histplot(data=df, ax=ax)
-    if not isinstance(metric_arrays, list):
-        mean = np.mean(m_filtered)
-        ax.axvline(mean, linestyle="--", label="mean", color="blue")
-        median = np.median(m_filtered)
-        ax.axvline(median, linestyle="--", label="median", color="red")
+    sns.histplot(x=m_filtered, ax=ax)
+    ax.set_xlabel(metric_name)
+    mean = np.mean(m_filtered)
+    ax.axvline(mean, linestyle="--", color="blue", label="Mean")
+    median = np.median(m_filtered)
+    ax.axvline(median, linestyle="--", color="red", label="Median")
+    ax.legend()
 
 
 def plot_metrics_correlation(
@@ -442,21 +437,26 @@ def plot_metrics_correlation(
     ax.set_ylabel(metric_y_name)
 
 
-def plot_gal_parameters(blend_list):
+def plot_gal_parameters(blend_list, context="talk"):
     """Plots histograms for the magnitude and the size of the galaxies in a batch.
 
     Args:
         blend_list (list) : List of astropy Table. Should be obtained from the output of a
                             DrawBlendsGenerator.
+        context (str) : Context for seaborn ; see seaborn documentation for details.
+                        Can be one of "paper", "notebook", "talk", and "poster".
     """
-    fig, ax = plt.subplots(2, 1, figsize=(20, 10))
+    sns.set_context(context)
+    fig, ax = plt.subplots(2, 1, figsize=(20, 15))
     plot_metrics_distribution(
         np.concatenate([blend_list[i]["ref_mag"] for i in range(len(blend_list))]),
         "Magnitude",
         ax[0],
     )
     plot_metrics_distribution(
-        np.concatenate([blend_list[i]["btk_size"] for i in range(len(blend_list))]), "Size", ax[1]
+        np.concatenate([blend_list[i]["btk_size"] for i in range(len(blend_list))]),
+        "Size (in pixels)",
+        ax[1],
     )
     plt.show()
 
