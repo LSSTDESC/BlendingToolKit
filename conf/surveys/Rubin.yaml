@@ -1,0 +1,87 @@
+# https://www.lsst.org/about/camera/features
+Rubin:
+  name: "Rubin"
+  pixel_scale: 0.2
+  effective_area: 32.4
+  mirror_diameter: 8.36
+  airmass: 1.2
+  zeropoint_airmass: 1.2
+  filters:
+    y:
+      name: "y"
+      sky_brightness: 18.6
+      exp_time: 4800
+      zeropoint: 10.58
+      extinction: 0.138
+      psf:
+        type: default
+        params:
+          fwhm: 0.703
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.y}
+    z:
+      name: "z"
+      sky_brightness: 19.6
+      exp_time: 4800
+      zeropoint: 22.68
+      extinction: 0.043
+      psf:
+        type: default
+        params:
+          fwhm: 0.725
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.z}
+    i:
+      name: "i"
+      sky_brightness: 20.5
+      exp_time: 5520
+      zeropoint: 32.36
+      extinction: 0.07
+      psf:
+        type: default
+        params:
+          fwhm: 0.748
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.i}
+    r:
+      name: "r"
+      sky_brightness: 21.2
+      exp_time: 5520
+      zeropoint: 43.70
+      extinction: 0.10
+      psf:
+        type: default
+        params:
+          fwhm: 0.781
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.r}
+    g:
+      name: "g"
+      sky_brightness: 22.3
+      exp_time: 2400
+      zeropoint: 50.70
+      extinction: 0.163
+      psf:
+        type: default
+        params:
+          fwhm: 0.814
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.g}
+    u:
+      name: "u"
+      sky_brightness: 22.9
+      exp_time: 1680
+      zeropoint: 9.16
+      extinction: 0.451
+      psf:
+        type: default
+        params:
+          fwhm: 0.859
+          mirror_diameter: ${surveys.Rubin.mirror_diameter}
+          effective_area: ${surveys.Rubin.effective_area}
+          filt_wavelength: ${central_wavelength.u}

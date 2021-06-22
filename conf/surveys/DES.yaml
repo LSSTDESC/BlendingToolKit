@@ -1,0 +1,66 @@
+# http://www.ctio.noao.edu/noao/content/Basic-Optical-Parameters
+# http://www.ctio.noao.edu/noao/content/DECam-What
+# http://www.darkenergysurvey.org/survey/des-description.pdf
+# skybrightness from http://www.ctio.noao.edu/noao/node/1218
+# extinction from https://arxiv.org/pdf/1701.00502.pdf table 6
+# fwhm values from https://arxiv.org/pdf/1407.3801.pdf
+DES:
+  name: DES
+  pixel_scale: 0.263
+  effective_area: 10.014
+  mirror_diameter: 3.934
+  airmass: 1.0
+  zeropoint_airmass: 1.3
+  filters:
+    i:
+      name: "i"
+      sky_brightness: 20.5
+      exp_time: 1000
+      zeropoint: 13.94
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.96
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.i}
+    r:
+      name: "r"
+      sky_brightness: 21.4
+      exp_time: 800
+      zeropoint: 15.65
+      extinction: 0.09
+      psf:
+        type: default
+        params:
+          fwhm: 1.03
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.r}
+    g:
+      name: "g"
+      sky_brightness: 22.3
+      exp_time: 800
+      zeropoint: 12.29
+      extinction: 0.17
+      psf:
+        type: default
+        params:
+          fwhm: 1.24
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.g}
+    z:
+      name: "z"
+      sky_brightness: 18.7
+      exp_time: 800
+      zeropoint: 10.81
+      extinction: 0.06
+      psf:
+        type: default
+        params:
+          fwhm: 1.12
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.z}
