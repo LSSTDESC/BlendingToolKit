@@ -119,9 +119,7 @@ def distance_center(true_gal, detected_gal):
     Returns:
         Distance between the two galaxies
     """
-    return np.hypot(
-        true_gal["x_peak"] - detected_gal["x_peak"], true_gal["y_peak"] - detected_gal["y_peak"]
-    )
+    return np.hypot(true_gal["ra"] - detected_gal["ra"], true_gal["dec"] - detected_gal["dec"])
 
 
 def get_detection_match(
@@ -162,14 +160,14 @@ def get_detection_match(
         - "dist": distance between true object and matched object or 0 if no matches.
 
     """
-    if "x_peak" not in true_table.colnames:
-        raise KeyError("True table has no column x_peak")
-    if "y_peak" not in true_table.colnames:
-        raise KeyError("True table has no column y_peak")
-    if "x_peak" not in true_table.colnames:
-        raise KeyError("Detection table has no column x_peak")
-    if "y_peak" not in true_table.colnames:
-        raise KeyError("Detection table has no column y_peak")
+    if "ra" not in true_table.colnames:
+        raise KeyError("True table has no column ra")
+    if "dec" not in true_table.colnames:
+        raise KeyError("True table has no column dec")
+    if "ra" not in true_table.colnames:
+        raise KeyError("Detection table has no column ra")
+    if "dec" not in true_table.colnames:
+        raise KeyError("Detection table has no column dec")
     match_table = astropy.table.Table()
 
     # dist[i][j] = distance between true object i and detected object j.
@@ -596,6 +594,7 @@ def compute_metrics(  # noqa: C901
         if deblended_images is not None:
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
     results = {}
+
     matches = [
         get_detection_match(
             blend_list[i], detection_catalogs[i], f_distance, distance_threshold_match
@@ -731,7 +730,9 @@ class MetricsGenerator:
     def __next__(self):
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
-        survey = self.measure_generator.draw_blend_generator.surveys[0]
+        surveys = self.measure_generator.draw_blend_generator.surveys
+        print(surveys)
+        survey = surveys[0]
         additional_params = {
             "psf": blend_results["psf"][self.meas_band_num],
             "pixel_scale": survey.pixel_scale,
@@ -747,23 +748,45 @@ class MetricsGenerator:
         )
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
-            metrics_results_f = compute_metrics(
-                blend_results["isolated_images"],
-                blend_results["blend_list"],
-                measure_results["catalog"][meas_func],
-                measure_results["segmentation"][meas_func],
-                measure_results["deblended_images"][meas_func],
-                self.use_metrics,
-                noise_threshold,
-                self.meas_band_num,
-                target_meas,
-                channels_last=self.measure_generator.channels_last,
-                save_path=os.path.join(self.save_path, meas_func)
-                if self.save_path is not None
-                else None,
-                f_distance=self.f_distance,
-                distance_threshold_match=self.distance_threshold_match,
-            )
+            if isinstance(measure_results["catalog"][meas_func], dict):
+                metrics_results_f = {}
+                for surv in measure_results["catalog"][meas_func].keys():
+                    metrics_results_f[surv] = compute_metrics(
+                        blend_results["isolated_images"][surv],
+                        blend_results["blend_list"][surv],
+                        measure_results["catalog"][meas_func],
+                        measure_results["segmentation"][meas_func][surv],
+                        measure_results["deblended_images"][meas_func][surv],
+                        self.use_metrics,
+                        noise_threshold,
+                        self.meas_band_num,
+                        target_meas,
+                        channels_last=self.measure_generator.channels_last,
+                        save_path=os.path.join(self.save_path, meas_func)
+                        if self.save_path is not None
+                        else None,
+                        f_distance=self.f_distance,
+                        distance_threshold_match=self.distance_threshold_match,
+                    )
+
+            else:
+                metrics_results_f = compute_metrics(
+                    blend_results["isolated_images"],
+                    blend_results["blend_list"],
+                    measure_results["catalog"][meas_func],
+                    measure_results["segmentation"][meas_func],
+                    measure_results["deblended_images"][meas_func],
+                    self.use_metrics,
+                    noise_threshold,
+                    self.meas_band_num,
+                    target_meas,
+                    channels_last=self.measure_generator.channels_last,
+                    save_path=os.path.join(self.save_path, meas_func)
+                    if self.save_path is not None
+                    else None,
+                    f_distance=self.f_distance,
+                    distance_threshold_match=self.distance_threshold_match,
+                )
             metrics_results[meas_func] = metrics_results_f
 
         return blend_results, measure_results, metrics_results

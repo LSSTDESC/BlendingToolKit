@@ -74,11 +74,15 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
     Returns:
             dict containing catalog with entries corresponding to measured peaks.
     """
-    if isinstance(batch["blend_images"], dict):
-        raise NotImplementedError("This function does not support the multi-resolution feature.")
-
     channel_indx = 0 if not channels_last else -1
-    coadd = np.mean(batch["blend_images"][idx], axis=channel_indx)
+    if isinstance(batch["blend_images"], dict):
+        surveys = kwargs.get("surveys", None)
+        survey_name = surveys[0].name
+        coadd = np.mean(batch["blend_images"][survey_name][idx], axis=channel_indx)
+        wcs = batch["wcs"][survey_name]
+    else:
+        coadd = np.mean(batch["blend_images"][idx], axis=channel_indx)
+        wcs = batch["wcs"]
 
     # set detection threshold to 5 times std of image
     threshold = 5 * np.std(coadd)
@@ -86,8 +90,8 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
-    catalog["x_peak"] = coordinates[:, 1]
-    catalog["y_peak"] = coordinates[:, 0]
+    catalog["x_peak"], catalog["y_peak"] = coordinates[:, 1], coordinates[:, 0]
+    catalog["ra"], catalog["dec"] = wcs.pixel_to_world_values(coordinates[:, 1], coordinates[:, 0])
     return {"catalog": catalog}
 
 
@@ -104,16 +108,23 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     Returns:
         dict with the centers of sources detected by SEP detection algorithm.
     """
-    if isinstance(batch["blend_images"], dict):
-        raise NotImplementedError("This function does not support the multi-resolution feature.")
     sigma_noise = kwargs.get("sigma_noise", 1.5)
-
-    image = batch["blend_images"][idx]
-    stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
-    channel_indx = 0 if not channels_last else -1
-    coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
-    bkg = sep.Background(coadd)
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
+
+    channel_indx = 0 if not channels_last else -1
+    if isinstance(batch["blend_images"], dict):
+        surveys = kwargs.get("surveys", None)
+        survey_name = surveys[0].name
+        image = batch["blend_images"][survey_name][idx]
+        coadd = np.mean(image, axis=channel_indx)
+        wcs = batch["wcs"][survey_name]
+    else:
+        image = batch["blend_images"][idx]
+        coadd = np.mean(image, axis=channel_indx)
+        wcs = batch["wcs"]
+
+    stamp_size = coadd.shape[0]
+    bkg = sep.Background(coadd)
     catalog, segmentation = sep.extract(
         coadd, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
@@ -130,13 +141,16 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
         deblended_images[i] = image * seg_i_reshaped
 
     t = astropy.table.Table()
-    t["x_peak"] = catalog["x"]
-    t["y_peak"] = catalog["y"]
-    return {
-        "catalog": t,
-        "segmentation": segmentation_exp,
-        "deblended_images": deblended_images,
-    }
+    t["x_peak"], t["y_peak"] = catalog["x"], catalog["y"]
+    t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+    if isinstance(batch["blend_images"], dict):  # If multiresolution, return only the catalog
+        return {"catalog": t}
+    else:
+        return {
+            "catalog": t,
+            "segmentation": segmentation_exp,
+            "deblended_images": deblended_images,
+        }
 
 
 class MeasureGenerator:
