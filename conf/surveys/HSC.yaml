@@ -1,0 +1,74 @@
+# https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
+HSC:
+  name: HSC
+  pixel_scale: 0.167
+  effective_area: 52.81
+  mirror_diameter: 8.2
+  airmass: 1.0
+  zeropoint_airmass: 1.2
+  filters:
+    g:
+      name: "g"
+      sky_brightness: 21.4
+      exp_time: 600
+      zeropoint: 91.11
+      extinction: 0.13
+      psf:
+        type: default
+        params:
+          fwhm: 0.72
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.g}
+    r:
+      name: "r"
+      sky_brightness: 20.6
+      exp_time: 600
+      zeropoint: 87.74
+      extinction: 0.11
+      psf:
+        type: default
+        params:
+          fwhm: 0.67
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.r}
+    i:
+      name: "i"
+      sky_brightness: 19.7
+      exp_time: 1200
+      zeropoint: 69.80
+      extinction: 0.07
+      psf:
+        type: default
+        params:
+          fwhm: 0.56
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.i}
+    y:
+      name: "y"
+      sky_brightness: 18.3
+      exp_time: 1200
+      zeropoint: 29.56
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.64
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.y}
+    z:
+      name: "z"
+      sky_brightness: 17.9
+      exp_time: 1200
+      zeropoint: 21.53
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.64
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.z}
