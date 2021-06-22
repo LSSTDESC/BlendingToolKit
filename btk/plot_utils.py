@@ -715,7 +715,7 @@ def plot_metrics_summary(  # noqa: C901
             plt.show()
 
         if plot_selections["eff_matrix"]:
-            fig, ax = plt.subplots(1, len(meas_func_names), figsize=(15, 15 * len(meas_func_names)))
+            fig, ax = plt.subplots(1, len(meas_func_names), figsize=(15 * len(meas_func_names), 15))
             fig.suptitle("Efficiency matrices", fontsize=48)
             if len(meas_func_names) == 1:
                 ax = [ax]
