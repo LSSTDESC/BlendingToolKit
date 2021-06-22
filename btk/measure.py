@@ -290,6 +290,7 @@ class MeasureGenerator:
 
             if self.verbose:
                 print(f"Measurement {m} performed on batch")
+
             for i, f in enumerate(self.measure_functions):
                 key_name = f.__name__ + str(m) if len(self.measure_kwargs) > 1 else f.__name__
                 for j in range(len(measure_output)):
