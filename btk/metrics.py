@@ -54,6 +54,7 @@ Currently, we support the following metrics :
 
 """
 import os
+from copy import deepcopy
 
 import astropy.table
 import galsim
@@ -91,10 +92,10 @@ def meas_ksb_ellipticity(image, additional_params):
                                   an integer indicating the band in which the measurement
                                   is done.
     """
-    psf_image = galsim.Image(image.shape[1], image.shape[2])
-    psf_image = additional_params["psf"].drawImage(psf_image)
-    pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
+    psf_image = galsim.Image(image.shape[1], image.shape[2])
+    psf_image = additional_params["psf"][meas_band_num].drawImage(psf_image)
+    pixel_scale = additional_params["pixel_scale"]
     verbose = additional_params["verbose"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
@@ -119,7 +120,9 @@ def distance_center(true_gal, detected_gal):
     Returns:
         Distance between the two galaxies
     """
-    return np.hypot(true_gal["ra"] - detected_gal["ra"], true_gal["dec"] - detected_gal["dec"])
+    return np.hypot(
+        true_gal["x_peak"] - detected_gal["x_peak"], true_gal["y_peak"] - detected_gal["y_peak"]
+    )
 
 
 def get_detection_match(
@@ -160,13 +163,13 @@ def get_detection_match(
         - "dist": distance between true object and matched object or 0 if no matches.
 
     """
-    if "ra" not in true_table.colnames:
+    if "x_peak" not in true_table.colnames:
         raise KeyError("True table has no column ra")
-    if "dec" not in true_table.colnames:
+    if "y_peak" not in true_table.colnames:
         raise KeyError("True table has no column dec")
-    if "ra" not in true_table.colnames:
+    if "x_peak" not in true_table.colnames:
         raise KeyError("Detection table has no column ra")
-    if "dec" not in true_table.colnames:
+    if "y_peak" not in true_table.colnames:
         raise KeyError("Detection table has no column dec")
     match_table = astropy.table.Table()
 
@@ -274,9 +277,12 @@ def detection_metrics(detection_catalogs, matches):
     results_detection["false_neg"] = false_neg
     results_detection["precision"] = true_pos / (true_pos + false_pos)
     results_detection["recall"] = true_pos / (true_pos + false_neg)
-    results_detection["f1"] = 2 / (
-        1 / results_detection["precision"] + 1 / results_detection["recall"]
-    )
+    if results_detection["precision"] != 0 and results_detection["recall"] != 0:
+        results_detection["f1"] = 2 / (
+            1 / results_detection["precision"] + 1 / results_detection["recall"]
+        )
+    else:
+        results_detection["f1"] = 0
     results_detection["eff_matrix"] = get_detection_eff_matrix(
         np.array(efficiency_input_table), np.max([len(match) for match in matches])
     )
@@ -731,30 +737,45 @@ class MetricsGenerator:
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         surveys = self.measure_generator.draw_blend_generator.surveys
-        print(surveys)
-        survey = surveys[0]
-        additional_params = {
-            "psf": blend_results["psf"][self.meas_band_num],
-            "pixel_scale": survey.pixel_scale,
-            "meas_band_num": self.meas_band_num,
-            "verbose": self.verbose,
-        }
-        target_meas = {}
-        for k in self.target_meas.keys():
-            target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-        noise_threshold = self.noise_threshold_factor * np.sqrt(
-            get_mean_sky_level(survey, survey.filters[self.meas_band_num])
-        )
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
-            if isinstance(measure_results["catalog"][meas_func], dict):
+            if isinstance(blend_results["isolated_images"], dict):
                 metrics_results_f = {}
-                for surv in measure_results["catalog"][meas_func].keys():
+                for i, surv in enumerate(blend_results["isolated_images"].keys()):
+                    additional_params = {
+                        "psf": blend_results["psf"][surv],
+                        "pixel_scale": surveys[i].pixel_scale,
+                        "meas_band_num": self.meas_band_num[i],
+                        "verbose": self.verbose,
+                    }
+                    noise_threshold = self.noise_threshold_factor * np.sqrt(
+                        get_mean_sky_level(surveys[i], surveys[i].filters[self.meas_band_num[i]])
+                    )
+                    target_meas = {}
+                    for k in self.target_meas.keys():
+                        target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+
+                    catalog = deepcopy(measure_results["catalog"][meas_func])
+                    print(catalog[:5])
+                    for blend in catalog:
+                        x_peak = []
+                        y_peak = []
+                        for gal in blend:
+                            coords = blend_results["wcs"][surv].world_to_pixel_values(
+                                gal["ra"], gal["dec"]
+                            )
+                            x_peak.append(coords[0])
+                            y_peak.append(coords[1])
+                        blend.add_column(x_peak, name="x_peak")
+                        blend.add_column(y_peak, name="y_peak")
+
+                    print(surv)
+                    print(catalog[:5])
                     metrics_results_f[surv] = compute_metrics(
                         blend_results["isolated_images"][surv],
                         blend_results["blend_list"][surv],
-                        measure_results["catalog"][meas_func],
+                        catalog,
                         measure_results["segmentation"][meas_func][surv],
                         measure_results["deblended_images"][meas_func][surv],
                         self.use_metrics,
@@ -770,6 +791,18 @@ class MetricsGenerator:
                     )
 
             else:
+                additional_params = {
+                    "psf": blend_results["psf"],
+                    "pixel_scale": surveys[0].pixel_scale,
+                    "meas_band_num": self.meas_band_num,
+                    "verbose": self.verbose,
+                }
+                noise_threshold = self.noise_threshold_factor * np.sqrt(
+                    get_mean_sky_level(surveys[0], surveys[0].filters[self.meas_band_num])
+                )
+                target_meas = {}
+                for k in self.target_meas.keys():
+                    target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
                 metrics_results_f = compute_metrics(
                     blend_results["isolated_images"],
                     blend_results["blend_list"],

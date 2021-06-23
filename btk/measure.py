@@ -90,7 +90,7 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
-    catalog["x_peak"], catalog["y_peak"] = coordinates[:, 1], coordinates[:, 0]
+    # catalog["x_peak"], catalog["y_peak"] = coordinates[:, 1], coordinates[:, 0]
     catalog["ra"], catalog["dec"] = wcs.pixel_to_world_values(coordinates[:, 1], coordinates[:, 0])
     return {"catalog": catalog}
 
@@ -141,7 +141,7 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
         deblended_images[i] = image * seg_i_reshaped
 
     t = astropy.table.Table()
-    t["x_peak"], t["y_peak"] = catalog["x"], catalog["y"]
+    # t["x_peak"], t["y_peak"] = catalog["x"], catalog["y"]
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
     if isinstance(batch["blend_images"], dict):  # If multiresolution, return only the catalog
         return {"catalog": t}
@@ -313,6 +313,31 @@ class MeasureGenerator:
                     deblended_images[key_name].append(
                         measure_output[j][i].get("deblended_images", None)
                     )
+                if isinstance(blend_output["blend_list"], dict):
+                    survey_keys = list(blend_output["blend_list"].keys())
+                    if segmentation[key_name][0] is None:
+                        segmentation[key_name] = {
+                            k: [None for n in range(len(segmentation[key_name]))]
+                            for k in survey_keys
+                        }
+                    else:
+                        segmentation[key_name] = {
+                            k: [segmentation[key_name][n][k] for n in range(segmentation[key_name])]
+                            for k in survey_keys
+                        }
+                    if deblended_images[key_name][0] is None:
+                        deblended_images[key_name] = {
+                            k: [None for n in range(len(deblended_images[key_name]))]
+                            for k in survey_keys
+                        }
+                    else:
+                        deblended_images[key_name] = {
+                            k: [
+                                deblended_images[key_name][n][k]
+                                for n in range(deblended_images[key_name])
+                            ]
+                            for k in survey_keys
+                        }
 
                 # save results if requested.
                 if self.save_path is not None:
