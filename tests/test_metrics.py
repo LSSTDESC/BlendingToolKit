@@ -42,7 +42,6 @@ def get_metrics_generator(
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
-        f_distance=f_distance,
     )
     return metrics_generator
 
@@ -50,8 +49,8 @@ def get_metrics_generator(
 @patch("btk.plot_utils.plt.show")
 def test_sep_metrics(mock_show):
     metrics_generator = get_metrics_generator(btk.measure.sep_measure)
-    _, _, results = next(metrics_generator)
-    results = list(results.values())[0]
+    blend_results, meas_results, metrics_results = next(metrics_generator)
+    results = list(metrics_results.values())[0]
     gal_summary = results["galaxy_summary"][
         results["galaxy_summary"]["detected"] == True  # noqa: E712
     ]
@@ -62,7 +61,22 @@ def test_sep_metrics(mock_show):
     btk.plot_utils.plot_metrics_correlation(
         dist, msr, "Distance to the closest galaxy", "msr", ax2, upper_quantile=0.9, style="heatmap"
     )
-    btk.plot_utils.plot_efficiency_matrix(results["detection"]["eff_matrix"])
+    btk.plot_utils.plot_metrics_summary(
+        metrics_results,
+        target_meas_keys=["ellipticity0"],
+        target_meas_limits=[[-1, 1]],
+        interactive=False,
+    )
+    btk.plot_utils.plot_with_deblended(
+        blend_results["blend_images"],
+        blend_results["isolated_images"],
+        blend_results["blend_list"],
+        meas_results["catalog"]["sep_measure"],
+        meas_results["deblended_images"]["sep_measure"],
+        metrics_results["sep_measure"]["matches"],
+        indexes=list(range(5)),
+        band_indices=[1, 2, 3],
+    )
     plt.close("all")
 
 
