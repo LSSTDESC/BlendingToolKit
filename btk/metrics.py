@@ -623,7 +623,7 @@ def compute_metrics(  # noqa: C901
     if "segmentation" in use_metrics:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
-        if segmentations is None:
+        if segmentations[0] is None:
             raise ValueError("You should provide segmentations to get segmentation metrics")
         results["segmentation"] = segmentation_metrics(
             isolated_images,
@@ -634,7 +634,7 @@ def compute_metrics(  # noqa: C901
         )
         names += ["iou"]
     if "reconstruction" in use_metrics:
-        if deblended_images is None:
+        if deblended_images[0] is None:
             raise ValueError("You should provide deblended images to get reconstruction metrics")
         results["reconstruction"] = reconstruction_metrics(
             isolated_images,
@@ -757,7 +757,6 @@ class MetricsGenerator:
                         target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
                     catalog = deepcopy(measure_results["catalog"][meas_func])
-                    print(catalog[:5])
                     for blend in catalog:
                         x_peak = []
                         y_peak = []
@@ -770,8 +769,6 @@ class MetricsGenerator:
                         blend.add_column(x_peak, name="x_peak")
                         blend.add_column(y_peak, name="y_peak")
 
-                    print(surv)
-                    print(catalog[:5])
                     metrics_results_f[surv] = compute_metrics(
                         blend_results["isolated_images"][surv],
                         blend_results["blend_list"][surv],
@@ -803,10 +800,22 @@ class MetricsGenerator:
                 target_meas = {}
                 for k in self.target_meas.keys():
                     target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+
+                catalog = deepcopy(measure_results["catalog"][meas_func])
+                for blend in catalog:
+                    x_peak = []
+                    y_peak = []
+                    for gal in blend:
+                        coords = blend_results["wcs"].world_to_pixel_values(gal["ra"], gal["dec"])
+                        x_peak.append(coords[0])
+                        y_peak.append(coords[1])
+                    blend.add_column(x_peak, name="x_peak")
+                    blend.add_column(y_peak, name="y_peak")
+
                 metrics_results_f = compute_metrics(
                     blend_results["isolated_images"],
                     blend_results["blend_list"],
-                    measure_results["catalog"][meas_func],
+                    catalog,
                     measure_results["segmentation"][meas_func],
                     measure_results["deblended_images"][meas_func],
                     self.use_metrics,

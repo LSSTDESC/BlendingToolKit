@@ -234,38 +234,27 @@ class MeasureGenerator:
                     "contain an astropy table as the value of the key 'catalog'."
                 )
 
-            if isinstance(batch["blend_images"], np.ndarray):
-                if not (
-                    "x_peak" in out["catalog"].colnames and "y_peak" in out["catalog"].colnames
-                ):
-                    raise ValueError(
-                        "The output catalog of at least one of your measurement functions does not"
-                        "contain the 'x_peak' and 'y_peak' columns which are mandatory for a single"
-                        "survey study."
-                    )
+            if not ("ra" in out["catalog"].colnames and "dec" in out["catalog"].colnames):
+                raise ValueError(
+                    "The output catalog of at least one of your measurement functions does not"
+                    "contain the 'ra' and 'dec' columns which are mandatory for a"
+                    "multi-resolution study."
+                )
 
-            if isinstance(batch["blend_images"], dict):
-                if not ("ra" in out["catalog"].colnames and "dec" in out["catalog"].colnames):
-                    raise ValueError(
-                        "The output catalog of at least one of your measurement functions does not"
-                        "contain the 'ra' and 'dec' columns which are mandatory for a"
-                        "multi-resolution study."
-                    )
-
-            for key in ["deblended_images", "segmentation"]:
-                if key in out and out[key] is not None:
-                    if not isinstance(out[key], np.ndarray):
-                        raise TypeError(
-                            f"The output '{key}' of at least one of your measurement"
-                            f"functions is not a numpy array."
-                        )
-                    if key == "deblended_images":
-                        if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
-                            raise ValueError(
-                                f"The shapes of the blended images in your {key} don't "
-                                f"match for at least one your measurement functions."
-                                f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
-                            )
+            # for key in ["deblended_images", "segmentation"]:
+            #     if key in out and out[key] is not None:
+            #         if not isinstance(out[key], np.ndarray):
+            #             raise TypeError(
+            #                 f"The output '{key}' of at least one of your measurement"
+            #                 f"functions is not a numpy array."
+            #             )
+            #         if key == "deblended_images":
+            #             if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
+            #                 raise ValueError(
+            #                     f"The shapes of the blended images in your {key} don't "
+            #                     f"match for at least one your measurement functions."
+            #                     f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
+            #                 )
 
             out = {k: out.get(k, None) for k in self.measure_params}
             output.append(out)
@@ -322,7 +311,10 @@ class MeasureGenerator:
                         }
                     else:
                         segmentation[key_name] = {
-                            k: [segmentation[key_name][n][k] for n in range(segmentation[key_name])]
+                            k: [
+                                segmentation[key_name][n][k]
+                                for n in range(len(segmentation[key_name]))
+                            ]
                             for k in survey_keys
                         }
                     if deblended_images[key_name][0] is None:
@@ -334,7 +326,7 @@ class MeasureGenerator:
                         deblended_images[key_name] = {
                             k: [
                                 deblended_images[key_name][n][k]
-                                for n in range(deblended_images[key_name])
+                                for n in range(len(deblended_images[key_name]))
                             ]
                             for k in survey_keys
                         }
@@ -361,7 +353,6 @@ class MeasureGenerator:
                             format="ascii",
                             overwrite=True,
                         )
-
         measure_results = {
             "catalog": catalog,
             "segmentation": segmentation,
