@@ -515,6 +515,9 @@ def plot_metrics_summary(  # noqa: C901
             }
             surveys = [surveys_dict[key] for key in survey_keys]
             surveys_widget = widgets.VBox(surveys, description="Surveys")
+            measure_surveys_widget = widgets.VBox([measure_functions_widget, surveys_widget])
+        else:
+            measure_surveys_widget = measure_functions_widget
         blendedness_widget = widgets.FloatRangeSlider(
             description="Blendedness",
             value=[0, 1.0],
@@ -574,12 +577,7 @@ def plot_metrics_summary(  # noqa: C901
 
         plot_selection_vbox = widgets.VBox(plot_selection + [custom_x_widget, custom_y_widget])
 
-        if multiresolution:
-            hbox = widgets.HBox(
-                [measure_functions_widget, surveys_widget, filter_vbox, plot_selection_vbox]
-            )
-        else:
-            hbox = widgets.HBox([measure_functions_widget, filter_vbox, plot_selection_vbox])
+        hbox = widgets.HBox([measure_surveys_widget, filter_vbox, plot_selection_vbox])
         display(hbox)
 
     def draw_plots(value):
@@ -655,16 +653,17 @@ def plot_metrics_summary(  # noqa: C901
             plt.show()
 
         if "msr" in concatenated and plot_selections["reconstruction"]:
+            print(concatenated["msr"])
             fig, ax = plt.subplots(3, 1, figsize=(20, 30))
             fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
             sns.histplot(
                 concatenated,
                 x="msr",
                 hue="measure_function",
-                binrange=(
-                    0,
-                    np.quantile(dataframes[meas_func_names[0] + "_" + surveys[0]]["msr"], 0.9),
-                ),
+                # binrange=(
+                #     0,
+                #     np.quantile(concatenated["msr"], 0.9),
+                # ),
                 ax=ax[0],
             )
             ax[0].set_xlabel("Mean square residual")
