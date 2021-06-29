@@ -22,7 +22,7 @@ template: |-
   Welcome to the Command-Line Interface (CLI) for ${hydra.help.app_name}!
   The CLI is designed to run BTK from start to end, starting by creating a
   DrawBlendGenerator, followed by a MeasureGenerator, and finally calculating
-  and saving the corresponding metrics.
+  and saving the corresponding metrics via a MetricsGenerator.
 
   Assuming that BTK has been pip installed, you can run btk from the command line like e.g.
 
