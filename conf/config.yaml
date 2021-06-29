@@ -62,7 +62,7 @@ metrics:
     save_path: ${save_path}
 
 paths:
-  root: ${env:BTK_HOME}
+  root: ${oc.env:BTK_HOME}
   data: ${paths.root}/data
 
 
