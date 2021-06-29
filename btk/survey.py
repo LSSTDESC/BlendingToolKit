@@ -128,7 +128,6 @@ def get_surveys(names="Rubin"):
         surveys.append(_get_survey_from_cfg(survey_conf))
     if len(surveys) == 1:
         return surveys[0]
-    # TODO: Check order returned matches order in names.
     return surveys
 
 
