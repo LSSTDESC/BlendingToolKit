@@ -71,26 +71,32 @@ def _get_survey_from_cfg(survey_conf: OmegaConf):
     Returns:
         btk.survey.Survey object.
     """
-    survey_dict = dict(survey_conf.surveys)
+    OmegaConf.resolve(survey_conf)  # in-place
+
+    survey_dict = dict(survey_conf)
     filters_dict = dict(survey_dict.pop("filters"))
-    for key in filters_dict:
-        psf_dict = filters_dict[key]["psf"]
+    filter_names = list(filters_dict.keys())
+    for key in filter_names:
+        filter_dict = dict(filters_dict.pop(key))  # need to make it a dict not DictConfig
+        psf_dict = dict(filter_dict.pop("psf"))
         if "type" not in psf_dict:
             raise AttributeError(
                 f"Your configuration for the PSF in filter {key} in survey {survey_dict['name']}"
                 f"does not have a 'type' field which is required."
             )
         if psf_dict["type"] == "default":
-            psf = get_psf(**psf_dict.params)
-        if psf_dict["type"] == "galsim":
-            galsim_dict = dict(psf=filters_dict[key]["psf"]["params"])
+            psf = get_psf(**psf_dict["params"])
+        elif psf_dict["type"] == "galsim":
+            galsim_dict = dict(psf=psf_dict["params"])
             psf = galsim.config.BuildGSObject(galsim_dict, "psf")
         else:
             raise NotImplementedError(
-                f"The 'type' specified for for the PSF in filter {key} in"
+                f"The 'type' specified for the PSF in filter {key} in "
                 f"survey {survey_dict['name']} is not implemented."
             )
-        filters_dict[key]["psf"] = psf
+
+        filter_dict["psf"] = psf
+        filters_dict[key] = filter_dict
     filters = [Filter(**filters_dict[key]) for key in filters_dict]
     survey = Survey(**survey_dict, filters=filters)
     return survey
@@ -117,9 +123,9 @@ def get_surveys(names="Rubin"):
     surveys = []
     with initialize(config_path="../conf"):
         cfg = compose("config", overrides=overrides)
-        for survey_name in cfg.surveys:
-            survey_conf = cfg.surveys[survey_name]
-            surveys.append(_get_survey_from_cfg(survey_conf))
+    for survey_name in cfg.surveys:
+        survey_conf = cfg.surveys[survey_name]
+        surveys.append(_get_survey_from_cfg(survey_conf))
     if len(surveys) == 1:
         return surveys[0]
     # TODO: Check order returned matches order in names.
