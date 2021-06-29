@@ -18,6 +18,9 @@ def test_main():
     cfg = get_cfg(overrides={})
     main(cfg)
 
+    cfg = get_cfg(overrides={"surveys": "Rubin"})
+    cfg = get_cfg(overrides={"surveys": ["Rubin", "HST"]})
+
 
 def test_CLI():
     subprocess.run("btk", shell=True)
