@@ -18,8 +18,11 @@ def test_main():
     cfg = get_cfg(overrides={})
     main(cfg)
 
+    # test survey CLI
     cfg = get_cfg(overrides={"surveys": "Rubin"})
+    main(cfg)
     cfg = get_cfg(overrides={"surveys": ["Rubin", "HST"]})
+    # TODO: Do end to end with multiple surveys once MR measure function implemented.
 
 
 def test_CLI():
