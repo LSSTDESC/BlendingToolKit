@@ -14,7 +14,7 @@ def get_group_sampling_draw_generator(batch_size=3):
 
     max_number = 10
     stamp_size = 24
-    survey = btk.survey.Rubin
+    survey = btk.survey.get_surveys("Rubin")
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)

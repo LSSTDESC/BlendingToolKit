@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.plot_utils
-from btk.survey import Rubin
+import btk.survey
 
 
 def get_draw_generator(
@@ -40,7 +40,7 @@ def get_draw_generator(
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        [Rubin],
+        btk.survey.get_surveys("Rubin"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         shifts=shifts,

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.metrics
+import btk.survey
 
 
 def get_metrics_generator(
@@ -14,7 +15,7 @@ def get_metrics_generator(
     np.random.seed(0)
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
-    survey = btk.survey.Rubin
+    survey = btk.survey.get_surveys("Rubin")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],

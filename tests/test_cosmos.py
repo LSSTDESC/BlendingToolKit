@@ -15,11 +15,12 @@ def test_cosmos_galaxies():
     batch_size = 2
     catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
     sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    HST = btk.survey.get_surveys("HST")
 
     draw_generator = btk.draw_blends.CosmosGenerator(
         catalog,
         sampling_function,
-        btk.survey.HST,
+        HST,
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,

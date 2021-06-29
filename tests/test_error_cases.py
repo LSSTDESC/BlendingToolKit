@@ -1,9 +1,7 @@
 import pytest
 from conftest import data_dir
 
-import btk
-from btk.survey import Rubin
-
+import btk.survey
 
 CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 
@@ -31,7 +29,7 @@ def test_sampling_no_max_number():
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            btk.survey.get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -62,7 +60,7 @@ def test_sampling_incompatible_catalog():
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            btk.survey.get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -98,7 +96,7 @@ def test_sampling_too_much_objects():
         draw_generator = btk.draw_blends.CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            btk.survey.get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -126,7 +124,7 @@ def test_source_not_visible():
     catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(btk.draw_blends.SourceNotVisible):
         gal = btk.draw_blends.get_catsim_galaxy(  # noqa: F841
-            catalog.table[0], filt, Rubin, True, True, True
+            catalog.table[0], filt, btk.survey.get_surveys("Rubin"), True, True, True
         )
 
 
@@ -197,6 +195,6 @@ def test_psf():
 
     btk.survey.get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
-    btk.survey.get_psf_from_file("tests/example_psf", Rubin)
-    btk.survey.get_psf_from_file("tests/multi_psf", Rubin)
+    btk.survey.get_psf_from_file("tests/example_psf", btk.survey.get_surveys("Rubin"))
+    btk.survey.get_psf_from_file("tests/multi_psf", btk.survey.get_surveys("Rubin"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git

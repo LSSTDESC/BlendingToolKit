@@ -13,7 +13,7 @@ def get_meas_generator(meas_function, cpus=1, measure_kwargs=None):
     np.random.seed(0)
     catalog_name = data_dir / "sample_input_catalog.fits"
     stamp_size = 24
-    survey = btk.survey.Rubin
+    survey = btk.survey.get_surveys("Rubin")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],

@@ -2,8 +2,7 @@ import tempfile
 
 import numpy as np
 
-import btk
-from btk.survey import Rubin
+import btk.survey
 
 
 def test_save():
@@ -16,7 +15,7 @@ def test_save():
     draw_blend_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        [Rubin],
+        btk.survey.get_surveys("Rubin"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         save_path=output_dir,
@@ -32,10 +31,10 @@ def test_save():
     )
     blend_results, measure_results, metrics_results = next(metrics_generator)
     blend_results2, measure_results2, metrics_results2 = btk.utils.load_all_results(
-        output_dir, ["LSST"], ["sep_measure"], batch_size
+        output_dir, ["Rubin"], ["sep_measure"], batch_size
     )
     np.testing.assert_array_equal(
-        blend_results["blend_images"], blend_results2["blend_images"]["LSST"]
+        blend_results["blend_images"], blend_results2["blend_images"]["Rubin"]
     )
     np.testing.assert_array_equal(
         measure_results["segmentation"]["sep_measure"][0],

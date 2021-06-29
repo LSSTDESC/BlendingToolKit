@@ -18,7 +18,7 @@ def draw_galsim_hub():
     draw_generator = btk.draw_blends.GalsimHubGenerator(
         catalog,
         sampling_function,
-        [btk.survey.HST],
+        btk.survey.get_surveys("HST"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,

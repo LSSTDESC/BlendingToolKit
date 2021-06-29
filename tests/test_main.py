@@ -1,8 +1,8 @@
 import subprocess
 
 import pytest
-from hydra.experimental import compose
-from hydra.experimental import initialize
+from hydra import compose
+from hydra import initialize
 
 from btk.main import main
 
@@ -32,11 +32,6 @@ def test_errors():
         assert "not implemented" in str(excinfo.value)
 
     cfg = get_cfg(overrides={"sampling.name": "MySampling"})
-    with pytest.raises(ValueError) as excinfo:
-        main(cfg)
-        assert "not implemented" in str(excinfo.value)
-
-    cfg = get_cfg(overrides={"surveys": ["survey1", "survey2"]})
     with pytest.raises(ValueError) as excinfo:
         main(cfg)
         assert "not implemented" in str(excinfo.value)
