@@ -485,15 +485,21 @@ def plot_metrics_summary(  # noqa: C901
 
     """
     sns.set_context(context)
+    # Keys corresponding to the measure functions
     keys = list(metrics_results.keys())
+
+    # We need to handle the multiresolution case
     if "galaxy_summary" not in metrics_results[keys[0]].keys():
         survey_keys = list(metrics_results[keys[0]].keys())
+        gal_summary_keys = list(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"].keys())
         multiresolution = True
+        # Limits for widgets
         min_mag = np.min(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"]["ref_mag"])
         max_mag = np.max(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"]["ref_mag"])
         min_size = np.min(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"]["btk_size"])
         max_size = np.max(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"]["btk_size"])
     else:
+        gal_summary_keys = list(metrics_results[keys[0]]["galaxy_summary"].keys())
         multiresolution = False
         min_mag = np.min(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
         max_mag = np.max(metrics_results[keys[0]]["galaxy_summary"]["ref_mag"])
@@ -503,11 +509,13 @@ def plot_metrics_summary(  # noqa: C901
 
     if interactive:
         layout = widgets.Layout(width="auto")
+        # Checkboxes for selecting the measure function
         measure_functions_dict = {
             key: widgets.Checkbox(description=key, value=False, layout=layout) for key in keys
         }
         measure_functions = [measure_functions_dict[key] for key in keys]
         measure_functions_widget = widgets.VBox(measure_functions, description="Measure functions")
+        # Checkboxes for selecting the survey (if multiresolution)
         if multiresolution:
             surveys_dict = {
                 key: widgets.Checkbox(description=key, value=False, layout=layout)
@@ -518,6 +526,7 @@ def plot_metrics_summary(  # noqa: C901
             measure_surveys_widget = widgets.VBox([measure_functions_widget, surveys_widget])
         else:
             measure_surveys_widget = measure_functions_widget
+        # Sliders to filter based on parameters
         blendedness_widget = widgets.FloatRangeSlider(
             description="Blendedness",
             value=[0, 1.0],
@@ -543,33 +552,23 @@ def plot_metrics_summary(  # noqa: C901
             continuous_update=False,
         )
         filter_vbox = widgets.VBox([blendedness_widget, magnitude_widget, size_widget])
+        # Checkboxes for selecting which metrics will be plotted
         plot_selection_dict = {
             key: widgets.Checkbox(description=key, value=False) for key in plot_keys
         }
         plot_selection = [plot_selection_dict[key] for key in plot_keys]
         plot_selection_widget = widgets.VBox(plot_selection)
-        if multiresolution:
-            custom_x_widget_drop = widgets.Dropdown(
-                options=list(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"].keys()),
-                description="X coordinate value",
-                layout=layout,
-            )
-            custom_y_widget_drop = widgets.Dropdown(
-                options=list(metrics_results[keys[0]][survey_keys[0]]["galaxy_summary"].keys()),
-                description="Y coordinate value",
-                layout=layout,
-            )
-        else:
-            custom_x_widget_drop = widgets.Dropdown(
-                options=list(metrics_results[keys[0]]["galaxy_summary"].keys()),
-                description="X coordinate value",
-                layout=layout,
-            )
-            custom_y_widget_drop = widgets.Dropdown(
-                options=list(metrics_results[keys[0]]["galaxy_summary"].keys()),
-                description="Y coordinate value",
-                layout=layout,
-            )
+        # Dropdowns for selecting the parameters for the custom plot
+        custom_x_widget_drop = widgets.Dropdown(
+            options=gal_summary_keys,
+            description="X coordinate value",
+            layout=layout,
+        )
+        custom_y_widget_drop = widgets.Dropdown(
+            options=gal_summary_keys,
+            description="Y coordinate value",
+            layout=layout,
+        )
         custom_x_widget_log = widgets.Checkbox(description="Log scale", value=False, layout=layout)
         custom_x_widget = widgets.HBox([custom_x_widget_drop, custom_x_widget_log])
         custom_y_widget_log = widgets.Checkbox(description="Log scale", value=False, layout=layout)
@@ -580,7 +579,9 @@ def plot_metrics_summary(  # noqa: C901
         hbox = widgets.HBox([measure_surveys_widget, filter_vbox, plot_selection_vbox])
         display(hbox)
 
+    # This function is called everytime the values of the widget change, and at the start
     def draw_plots(value):
+        # If there are no widgets we use default values, else we get all the values
         if interactive:
             clear_output()
             display(hbox)
@@ -604,21 +605,24 @@ def plot_metrics_summary(  # noqa: C901
             size_limits = [min_size, max_size]
             plot_selections = {w: True for w in plot_keys}
             plot_selections["custom"] = False
+
+        # If no measure function (or no surveys if multiresolution) is ticked, plot nothing
         if len(meas_func_names) == 0:
             return 0
+        if multiresolution and len(surveys) == 0:
+            return 0
 
+        # Group all the data into a dataframe for using seaborn
         if multiresolution:
             dataframes = {}
-            for f_name, s_name in zip(meas_func_names, surveys):
-                dataframes[f_name + "_" + s_name] = metrics_results[f_name][s_name][
-                    "galaxy_summary"
-                ].to_pandas()
-            concatenated = pd.concat(
-                [
-                    dataframes[f_name + "_" + s_name].assign(measure_function=f_name + "_" + s_name)
-                    for f_name, s_name in zip(meas_func_names, surveys)
-                ]
-            )
+            couples = []
+            for f_name in meas_func_names:
+                for s_name in surveys:
+                    couples.append(f_name + "_" + s_name)
+                    dataframes[f_name + "_" + s_name] = metrics_results[f_name][s_name][
+                        "galaxy_summary"
+                    ].to_pandas()
+            concatenated = pd.concat([dataframes[c].assign(measure_function=c) for c in couples])
         else:
             dataframes = {}
             for f_name in meas_func_names:
@@ -627,6 +631,7 @@ def plot_metrics_summary(  # noqa: C901
                 [dataframes[f_name].assign(measure_function=f_name) for f_name in meas_func_names]
             )
 
+        # Filter the data for the different parameters
         concatenated = concatenated.loc[
             (concatenated["blendedness"] >= blendedness_limits[0])
             & (concatenated["blendedness"] <= blendedness_limits[1])
@@ -641,6 +646,7 @@ def plot_metrics_summary(  # noqa: C901
         for k in target_meas_keys:
             concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
 
+        # Custom scatter plot for the two chosen quantities
         if plot_selections["custom"]:
             fig, ax = plt.subplots(figsize=(15, 15))
             sns.scatterplot(
@@ -652,38 +658,33 @@ def plot_metrics_summary(  # noqa: C901
                 ax.set_yscale("log")
             plt.show()
 
+        # Histograms for the reconstruction metrics
         if "msr" in concatenated and plot_selections["reconstruction"]:
-            print(concatenated["msr"])
             fig, ax = plt.subplots(3, 1, figsize=(20, 30))
             fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
             sns.histplot(
-                concatenated,
-                x="msr",
-                hue="measure_function",
-                # binrange=(
-                #     0,
-                #     np.quantile(concatenated["msr"], 0.9),
-                # ),
-                ax=ax[0],
+                concatenated, x="msr", hue="measure_function", bins=30, ax=ax[0], log_scale=True
             )
             ax[0].set_xlabel("Mean square residual")
-            sns.histplot(concatenated, x="psnr", hue="measure_function", ax=ax[1])
+            sns.histplot(concatenated, x="psnr", hue="measure_function", bins=30, ax=ax[1])
             ax[1].set_xlabel("Peak Signal-to-Noise Ratio")
-            sns.histplot(concatenated, x="ssim", hue="measure_function", ax=ax[2])
+            sns.histplot(concatenated, x="ssim", hue="measure_function", bins=30, ax=ax[2])
             ax[2].set_xlabel("Structure Similarity Index")
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
             plt.show()
 
+        # Histograms for the segmentation metrics
         if "iou" in concatenated and plot_selections["segmentation"]:
             fig, ax = plt.subplots(figsize=(20, 10))
             fig.suptitle("Distribution of segmentation metrics", fontsize=48)
-            sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax)
+            sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax, bins=30)
             ax.set_xlabel("Intersection-over-Union")
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
             plt.show()
 
+        # Plots for the measure functions
         selected_target_meas = [m for m in target_meas_keys if plot_selections[m]]
         if selected_target_meas != []:
             n_target_meas = len(selected_target_meas)
@@ -762,6 +763,7 @@ def plot_metrics_summary(  # noqa: C901
                 plt.savefig(os.path.join(save_path, "scatter_target_measures.png"))
             plt.show()
 
+        # Plotting the efficiency matrices
         if plot_selections["eff_matrix"]:
             fig, ax = plt.subplots(1, len(meas_func_names), figsize=(15 * len(meas_func_names), 15))
             fig.suptitle("Efficiency matrices", fontsize=48)
@@ -776,6 +778,7 @@ def plot_metrics_summary(  # noqa: C901
                 plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
             plt.show()
 
+    # Set the widgets to update the plots if modified
     if interactive:
         blendedness_widget.observe(draw_plots, "value")
         magnitude_widget.observe(draw_plots, "value")

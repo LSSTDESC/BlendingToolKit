@@ -320,7 +320,7 @@ def segmentation_metrics_blend(
     iou_blend_results = []
     matches_blend = matches["match_detected_id"]
     for j, match in enumerate(matches_blend):
-        if match != -1:
+        if match != -1 and detected_segmentations is not None:
             true_segmentation = isolated_images[j][meas_band_num] > noise_threshold
             detected_segmentation = detected_segmentations[match]
             iou_blend_results.append(
@@ -417,7 +417,7 @@ def reconstruction_metrics_blend(
         target_meas_blend_results[k + "_true"] = []
     for j in range(len(matches["match_detected_id"])):
         match_detected = matches["match_detected_id"][j]
-        if match_detected != -1:
+        if match_detected != -1 and deblended_images is not None:
             msr_blend_results.append(
                 skimage.metrics.mean_squared_error(
                     isolated_images[j], deblended_images[match_detected]
@@ -517,6 +517,7 @@ def reconstruction_metrics(
         ) = reconstruction_metrics_blend(
             isolated_images[i], deblended_images[i], matches[i], target_meas, target_meas_keys
         )
+
         msr_results.append(msr_blend_results)
         psnr_results.append(psnr_blend_results)
         ssim_results.append(ssim_blend_results)
@@ -538,7 +539,6 @@ def compute_metrics(  # noqa: C901
     detection_catalogs,
     segmentations=None,
     deblended_images=None,
-    use_metrics=("detection", "segmentation", "reconstruction"),
     noise_threshold=None,
     meas_band_num=0,
     target_meas={},
@@ -618,13 +618,13 @@ def compute_metrics(  # noqa: C901
         "blendedness",
     ]
 
-    if "detection" in use_metrics:
-        results["detection"] = detection_metrics(detection_catalogs, matches)
-    if "segmentation" in use_metrics:
+    to_save_keys = ["detection"]
+
+    results["detection"] = detection_metrics(detection_catalogs, matches)
+    if segmentations is not None:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
-        if segmentations[0] is None:
-            raise ValueError("You should provide segmentations to get segmentation metrics")
+        to_save_keys.append("segmentation")
         results["segmentation"] = segmentation_metrics(
             isolated_images,
             segmentations,
@@ -633,9 +633,8 @@ def compute_metrics(  # noqa: C901
             meas_band_num,
         )
         names += ["iou"]
-    if "reconstruction" in use_metrics:
-        if deblended_images[0] is None:
-            raise ValueError("You should provide deblended images to get reconstruction metrics")
+    if deblended_images is not None:
+        to_save_keys.append("deblended_images")
         results["reconstruction"] = reconstruction_metrics(
             isolated_images,
             deblended_images,
@@ -663,9 +662,9 @@ def compute_metrics(  # noqa: C901
 
             row["blend_id"] = i
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
-            if "segmentation" in use_metrics:
+            if segmentations is not None:
                 row["iou"] = results["segmentation"]["iou"][i][j]
-            if "reconstruction" in use_metrics:
+            if deblended_images is not None:
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
@@ -675,7 +674,7 @@ def compute_metrics(  # noqa: C901
         if not os.path.exists(save_path):
             os.mkdir(save_path)
 
-        for key in use_metrics:
+        for key in to_save_keys:
             np.save(os.path.join(save_path, f"{key}_metric"), results[key])
         results["galaxy_summary"].write(os.path.join(save_path, "galaxy_summary"), format="ascii")
 
@@ -688,7 +687,6 @@ class MetricsGenerator:
     def __init__(
         self,
         measure_generator,
-        use_metrics=("detection"),
         meas_band_num=0,
         noise_threshold_factor=3,
         target_meas=None,
@@ -701,10 +699,6 @@ class MetricsGenerator:
 
         Args:
             measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
-            use_metrics (tuple): Which metrics do you want to use? Options:
-                                - "detection"
-                                - "segmentation"
-                                - "reconstruction"
             meas_band_num (int): If using multiple bands for each blend, which band index
                 do you want to use for measurement?
             target_meas (dict): Dictionary containing functions that can measure a physical
@@ -724,7 +718,6 @@ class MetricsGenerator:
             verbose (bool): Indicates whether errors in the target_meas should be printed or not.
         """
         self.measure_generator: MeasureGenerator = measure_generator
-        self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas if target_meas is not None else {}
         self.noise_threshold_factor = noise_threshold_factor
@@ -775,9 +768,8 @@ class MetricsGenerator:
                         catalog,
                         measure_results["segmentation"][meas_func][surv],
                         measure_results["deblended_images"][meas_func][surv],
-                        self.use_metrics,
                         noise_threshold,
-                        self.meas_band_num,
+                        self.meas_band_num[i],
                         target_meas,
                         channels_last=self.measure_generator.channels_last,
                         save_path=os.path.join(self.save_path, meas_func)
@@ -818,7 +810,6 @@ class MetricsGenerator:
                     catalog,
                     measure_results["segmentation"][meas_func],
                     measure_results["deblended_images"][meas_func],
-                    self.use_metrics,
                     noise_threshold,
                     self.meas_band_num,
                     target_meas,
