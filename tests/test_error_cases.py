@@ -1,15 +1,22 @@
 import pytest
 from conftest import data_dir
 
-import btk
-from btk.survey import Rubin
-
+from btk.catalog import CatsimCatalog
+from btk.draw_blends import CatsimGenerator
+from btk.draw_blends import get_catsim_galaxy
+from btk.draw_blends import SourceNotVisible
+from btk.sampling_functions import DefaultSampling
+from btk.sampling_functions import SamplingFunction
+from btk.survey import Filter
+from btk.survey import get_psf
+from btk.survey import get_psf_from_file
+from btk.survey import get_surveys
 
 CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 
 
 def test_sampling_no_max_number():
-    class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
+    class TestSamplingFunction(SamplingFunction):
         def __init__(self):
             pass
 
@@ -26,12 +33,12 @@ def test_sampling_no_max_number():
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
+        catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction()
-        draw_generator = btk.draw_blends.CatsimGenerator(
+        draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -43,7 +50,7 @@ def test_sampling_no_max_number():
 
 
 def test_sampling_incompatible_catalog():
-    class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
+    class TestSamplingFunction(SamplingFunction):
         def __call__(self, table, **kwargs):
             pass
 
@@ -57,12 +64,12 @@ def test_sampling_incompatible_catalog():
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
+        catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
-        draw_generator = btk.draw_blends.CatsimGenerator(
+        draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -79,7 +86,7 @@ def test_sampling_too_much_objects():
     # FAILING
     CATALOG_PATH = "data/sample_input_catalog.fits"
 
-    class TestSamplingFunction(btk.sampling_functions.SamplingFunction):
+    class TestSamplingFunction(SamplingFunction):
         def __call__(self, table, **kwargs):
             return table[: self.max_number + 1]
 
@@ -93,12 +100,12 @@ def test_sampling_too_much_objects():
         cpus = 1
         add_noise = True
 
-        catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
+        catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
-        draw_generator = btk.draw_blends.CatsimGenerator(
+        draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            [Rubin],
+            get_surveys("Rubin"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -110,9 +117,9 @@ def test_sampling_too_much_objects():
 
 
 def test_source_not_visible():
-    filt = btk.survey.Filter(
+    filt = Filter(
         name="u",
-        psf=btk.survey.get_psf(
+        psf=get_psf(
             mirror_diameter=8.36,
             effective_area=32.4,
             filt_wavelength=3592.13,
@@ -123,10 +130,10 @@ def test_source_not_visible():
         zeropoint=9.16,
         extinction=0.451,
     )
-    catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
-    with pytest.raises(btk.draw_blends.SourceNotVisible):
-        gal = btk.draw_blends.get_catsim_galaxy(  # noqa: F841
-            catalog.table[0], filt, Rubin, True, True, True
+    catalog = CatsimCatalog.from_file(CATALOG_PATH)
+    with pytest.raises(SourceNotVisible):
+        gal = get_catsim_galaxy(  # noqa: F841
+            catalog.table[0], filt, get_surveys("Rubin"), True, True, True
         )
 
 
@@ -136,10 +143,10 @@ def test_survey_not_list():
     cpus = 1
     add_noise = True
 
-    catalog = btk.catalog.CatsimCatalog.from_file(CATALOG_PATH)
-    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
+    catalog = CatsimCatalog.from_file(CATALOG_PATH)
+    sampling_function = DefaultSampling(stamp_size=stamp_size)
     with pytest.raises(TypeError):
-        draw_generator = btk.draw_blends.CatsimGenerator(
+        draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
             3,
@@ -152,14 +159,14 @@ def test_survey_not_list():
 
 
 def test_psf():
-    btk.survey.get_psf(
+    get_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
         fwhm=0.748,
         atmospheric_model="Moffat",
     )
-    btk.survey.get_psf(
+    get_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
@@ -167,7 +174,7 @@ def test_psf():
         atmospheric_model=None,
     )
     with pytest.raises(NotImplementedError) as excinfo:
-        btk.survey.get_psf(
+        get_psf(
             mirror_diameter=8.36,
             effective_area=32.4,
             filt_wavelength=7528.51,
@@ -178,12 +185,12 @@ def test_psf():
     assert "atmospheric model request" in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        btk.survey.get_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
+        get_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
 
     assert "Incompatible effective-area and mirror-diameter values." in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        btk.survey.get_psf(
+        get_psf(
             mirror_diameter=0,
             effective_area=0,
             filt_wavelength=7528.51,
@@ -195,8 +202,8 @@ def test_psf():
         excinfo.value
     )
 
-    btk.survey.get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
+    get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
-    btk.survey.get_psf_from_file("tests/example_psf", Rubin)
-    btk.survey.get_psf_from_file("tests/multi_psf", Rubin)
+    get_psf_from_file("tests/example_psf", get_surveys("Rubin"))
+    get_psf_from_file("tests/multi_psf", get_surveys("Rubin"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git

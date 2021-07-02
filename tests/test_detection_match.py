@@ -1,7 +1,7 @@
 import numpy as np
 from astropy.table import Table
 
-import btk.metrics
+from btk.metrics import get_detection_match
 
 
 def test_true_detected_catalog():
@@ -10,7 +10,7 @@ def test_true_detected_catalog():
     cols = [[0.0, 1.0], [0.0, 0.0]]
     true_table = Table(cols, names=names)
     detected_table = Table([[0.1], [0.1]], names=["x_peak", "y_peak"])
-    matches = btk.metrics.get_detection_match(true_table, detected_table)
+    matches = get_detection_match(true_table, detected_table)
     target_num_detections = np.array([0, -1])
     np.testing.assert_array_equal(
         matches["match_detected_id"],
@@ -30,7 +30,7 @@ def test_no_detection():
     cols = [[0.0], [0.0]]
     true_table = Table(cols, names=names)
     detected_table = Table([[], []], names=["x_peak", "y_peak"])
-    matches = btk.metrics.get_detection_match(true_table, detected_table)
+    matches = get_detection_match(true_table, detected_table)
     np.testing.assert_array_equal(
         matches["match_detected_id"], [-1], err_msg="A match was returned when it should not have."
     )

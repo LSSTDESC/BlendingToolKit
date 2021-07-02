@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.plot_utils
-from btk.survey import Rubin
+from btk.survey import get_surveys
 
 
 def get_draw_generator(
@@ -40,7 +40,7 @@ def get_draw_generator(
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        [Rubin],
+        get_surveys("Rubin"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         shifts=shifts,
@@ -73,7 +73,7 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a proiri for the default input settings.
         """
-        test_batch_max = np.array([4772.817, 8506.056, 10329.56, 7636.189, 1245.693, 90.721])
+        test_batch_max = np.array([90.721, 1245.693, 7636.189, 10329.56, 8506.056, 4772.817])
         test_batch_mean = 3.1101762559117585
         test_batch_std = 90.74182140645624
         batch_max = isolated_images.max(axis=(0, 1, 3, 4))
@@ -104,9 +104,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a priori for the default input settings.
         """
-        test_batch_max = np.array([5428.147, 8947.227, 11190.504, 8011.935, 1536.116, 191.629])
-        test_batch_mean = 5.912076135028083
-        test_batch_std = 403.5577217178115
+        test_batch_max = np.array([193.629, 1402.116, 7794.935, 10367.504, 8892.227, 5628.147])
+        test_batch_mean = 6.182633137342898
+        test_batch_std = 403.571067602025
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -132,11 +132,11 @@ class TestBasicDraw:
     @staticmethod
     def match_background_noise(blend_images):
         """Computes the background noise value of second blend scene image for in
-        the i band. This is compared to the values measured a priori for the
+        the r band. This is compared to the values measured a priori for the
         default input settings.
         """
-        test_batch_noise = 129660.6576538086
-        batch_noise = np.var(blend_images[1, 3, 0:32, 0:32])
+        test_batch_noise = 125756.34878444672
+        batch_noise = np.var(blend_images[1, 2, 0:32, 0:32])
         np.testing.assert_almost_equal(
             batch_noise,
             test_batch_noise,

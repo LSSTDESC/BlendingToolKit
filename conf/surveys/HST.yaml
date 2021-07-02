@@ -1,0 +1,23 @@
+# Source https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6
+# .6UVISOpticalPerformance-6.6.1 800nm
+HST:
+  name: "HST"
+  pixel_scale: 0.06
+  effective_area: 1.0 # TODO: placeholder
+  mirror_diameter: 2.4 # TODO: placeholder
+  airmass: 1.0 # TODO: double-check
+  zeropoint_airmass: 1.0 # TODO: double-check
+  filters:
+    f814w:
+      name: "f814w"
+      sky_brightness: 22
+      exp_time: 3000
+      zeropoint: 20
+      extinction: 0 # TODO: double-check
+      psf:
+        type: default
+        params:
+          fwhm: 0.074
+          mirror_diameter: ${surveys.HST.mirror_diameter}
+          effective_area: ${surveys.HST.effective_area}
+          filt_wavelength: ${central_wavelength.f814w}

@@ -2,11 +2,15 @@
 import os
 import random as rd
 from collections import namedtuple
+from typing import Iterable
 
 import astropy.wcs as WCS
 import galsim
 import numpy as np
 from astropy.io import fits
+from hydra import compose
+from hydra import initialize
+from omegaconf import OmegaConf
 
 
 Survey = namedtuple(
@@ -57,6 +61,78 @@ Args:
     exp_time (int) : Total exposition time, in seconds
     zeropoint (float) : Simulated camera zero point in electrons per second at 24th magnitude
     extinction (float) : Exponential extinction coefficient for atmospheric absorption"""
+
+
+def _get_survey_from_cfg(survey_conf: OmegaConf):
+    """Creates the corresponding `btk.survey.Survey` object using the information from config file.
+
+    Args:
+        cfg (OmegaConf): Hydra configuration object corresponding to a single survey.
+
+    Returns:
+        btk.survey.Survey object.
+    """
+    OmegaConf.resolve(survey_conf)  # in-place
+
+    survey_dict = dict(survey_conf)
+    filters_dict = dict(survey_dict.pop("filters"))
+    filter_names = list(filters_dict.keys())
+    for key in filter_names:
+        filter_dict = dict(filters_dict.pop(key))  # need to make it a dict not DictConfig
+        psf_dict = dict(filter_dict.pop("psf"))
+        if "type" not in psf_dict:
+            raise AttributeError(
+                f"Your configuration for the PSF in filter {key} in survey {survey_dict['name']}"
+                f"does not have a 'type' field which is required."
+            )
+        if psf_dict["type"] == "default":
+            psf = get_psf(**psf_dict["params"])
+        elif psf_dict["type"] == "galsim":
+            galsim_dict = dict(psf=psf_dict["params"])
+            psf = galsim.config.BuildGSObject(galsim_dict, "psf")
+        else:
+            raise NotImplementedError(
+                f"The 'type' specified for the PSF in filter {key} in "
+                f"survey {survey_dict['name']} is not implemented."
+            )
+
+        filter_dict["psf"] = psf
+        filters_dict[key] = filter_dict
+    filters = [Filter(**filters_dict[key]) for key in filters_dict]
+    survey = Survey(**survey_dict, filters=filters)
+    return survey
+
+
+def get_surveys(names="Rubin", overrides: Iterable = ()):
+    """Return specified surveys as `btk.survey.Survey` objects.
+
+    NOTE: The surveys currently implemented correspond to config files inside `conf/surveys`. See
+        the documentation for how to add your own surveys via custom config files.
+
+    Args:
+        names (str or list): A single str specifying a survey from conf/surveys or a list with
+            multiple survey names.
+        overrides (Iterable): List or tuple containg overrides for the survey config files. An
+            example element of overrides could be 'surveys.Rubin.airmass=1.1', i.e. what you would
+            pass into the CLI in order to customize the surveys used (here specified by `names`).
+
+    Returns:
+        btk.survey.Survey object or list of such objects.
+    """
+    if isinstance(names, str):
+        names = [names]
+    if not isinstance(names, list):
+        raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
+    overrides = [f"surveys={names}", *overrides]
+    surveys = []
+    with initialize(config_path="../conf"):
+        cfg = compose("config", overrides=overrides)
+    for survey_name in cfg.surveys:
+        survey_conf = cfg.surveys[survey_name]
+        surveys.append(_get_survey_from_cfg(survey_conf))
+    if len(surveys) == 1:
+        return surveys[0]
+    return surveys
 
 
 def get_psf(
@@ -146,355 +222,6 @@ def get_psf_from_file(psf_dir, survey):
     return psf_model
 
 
-# Central wavelengths in Angstroms for each filter band, calculated from the
-# baseline total filter throughputs tabulated at
-# http://dev.lsstcorp.org/cgit/LSST/sims/throughputs.git/snapshot/throughputs-1.2.tar.gz
-_central_wavelength = {
-    "u": 3592.13,
-    "g": 4789.98,
-    "r": 6199.52,
-    "i": 7528.51,
-    "z": 8689.83,
-    "y": 9674.05,
-    "VIS": 7135.0,
-    "f814w": 5000.0,  # TODO: placeholder
-}
-
-# https://sci.esa.int/documents/33859/36320/1567253682555-Euclid_presentation_Paris_1Dec2009.pdf
-# http://www.mssl.ucl.ac.uk/~smn2/instrument.html
-# area in square meters after 13% obscuration as in: https://arxiv.org/pdf/1608.08603.pdf
-# exposure time: 4 exposures combined as in Cropper et al. 2018
-# sky brightness: http://www.mssl.ucl.ac.uk/~smn2/instrument.html
-# extinction: No atmosphere
-Euclid = Survey(
-    name="Euclid",
-    pixel_scale=0.101,
-    effective_area=1.15,
-    mirror_diameter=1.3,
-    airmass=1.0,
-    zeropoint_airmass=1.0,
-    filters=[
-        Filter(
-            name="VIS",
-            psf=get_psf(
-                mirror_diameter=1.3,
-                effective_area=1.15,
-                filt_wavelength=_central_wavelength["VIS"],
-                fwhm=0.17,
-            ),
-            sky_brightness=22.9207,
-            exp_time=2260,
-            zeropoint=6.85,
-            extinction=0.05,
-        )
-    ],
-)
-
-# Source https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6
-# .6UVISOpticalPerformance-6.6.1 800nm
-HST = Survey(
-    name="HST",
-    pixel_scale=0.06,
-    effective_area=1.0,  # TODO: placeholder
-    mirror_diameter=2.4,  # TODO: placeholder
-    airmass=1.0,  # TODO: double-check
-    zeropoint_airmass=1.0,  # TODO: double-check
-    filters=[
-        Filter(
-            name="f814w",
-            psf=get_psf(
-                mirror_diameter=2.4,
-                effective_area=1.0,
-                filt_wavelength=_central_wavelength["f814w"],
-                fwhm=0.074,
-            ),
-            sky_brightness=22,
-            exp_time=3000,
-            zeropoint=20,
-            extinction=0,  # TODO: double-check
-        )
-    ],
-)
-
-# https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
-HSC = Survey(
-    name="HSC",
-    pixel_scale=0.167,
-    effective_area=52.81,
-    mirror_diameter=8.2,
-    airmass=1.0,
-    zeropoint_airmass=1.2,
-    filters=[
-        Filter(
-            name="g",
-            psf=get_psf(
-                mirror_diameter=8.2,
-                effective_area=52.81,
-                filt_wavelength=_central_wavelength["g"],
-                fwhm=0.72,
-            ),
-            sky_brightness=21.4,
-            exp_time=600,
-            zeropoint=91.11,
-            extinction=0.13,
-        ),
-        Filter(
-            name="r",
-            psf=get_psf(
-                mirror_diameter=8.2,
-                effective_area=52.81,
-                filt_wavelength=_central_wavelength["r"],
-                fwhm=0.67,
-            ),
-            sky_brightness=20.6,
-            exp_time=600,
-            zeropoint=87.74,
-            extinction=0.11,
-        ),
-        Filter(
-            name="i",
-            psf=get_psf(
-                mirror_diameter=8.2,
-                effective_area=52.81,
-                filt_wavelength=_central_wavelength["i"],
-                fwhm=0.56,
-            ),
-            sky_brightness=19.7,
-            exp_time=1200,
-            zeropoint=69.80,
-            extinction=0.07,
-        ),
-        Filter(
-            name="y",
-            psf=get_psf(
-                mirror_diameter=8.2,
-                effective_area=52.81,
-                filt_wavelength=_central_wavelength["y"],
-                fwhm=0.64,
-            ),
-            sky_brightness=18.3,
-            exp_time=1200,
-            zeropoint=29.56,
-            extinction=0.05,
-        ),
-        Filter(
-            name="z",
-            psf=get_psf(
-                mirror_diameter=8.2,
-                effective_area=52.81,
-                filt_wavelength=_central_wavelength["z"],
-                fwhm=0.64,
-            ),
-            sky_brightness=17.9,
-            exp_time=1200,
-            zeropoint=21.53,
-            extinction=0.05,
-        ),
-    ],
-)
-
-
-# https://www.lsst.org/about/camera/features
-Rubin = Survey(
-    "LSST",
-    pixel_scale=0.2,
-    effective_area=32.4,
-    mirror_diameter=8.36,
-    airmass=1.2,
-    zeropoint_airmass=1.2,
-    filters=[
-        Filter(
-            name="y",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["y"],
-                fwhm=0.703,
-            ),
-            sky_brightness=18.6,
-            exp_time=4800,
-            zeropoint=10.58,
-            extinction=0.138,
-        ),
-        Filter(
-            name="z",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["z"],
-                fwhm=0.725,
-            ),
-            sky_brightness=19.6,
-            exp_time=4800,
-            zeropoint=22.68,
-            extinction=0.043,
-        ),
-        Filter(
-            name="i",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["i"],
-                fwhm=0.748,
-            ),
-            sky_brightness=20.5,
-            exp_time=5520,
-            zeropoint=32.36,
-            extinction=0.07,
-        ),
-        Filter(
-            name="r",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["r"],
-                fwhm=0.781,
-            ),
-            sky_brightness=21.2,
-            exp_time=5520,
-            zeropoint=43.70,
-            extinction=0.10,
-        ),
-        Filter(
-            name="g",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["g"],
-                fwhm=0.814,
-            ),
-            sky_brightness=22.3,
-            exp_time=2400,
-            zeropoint=50.70,
-            extinction=0.163,
-        ),
-        Filter(
-            name="u",
-            psf=get_psf(
-                mirror_diameter=8.36,
-                effective_area=32.4,
-                filt_wavelength=_central_wavelength["u"],
-                fwhm=0.859,
-            ),
-            sky_brightness=22.9,
-            exp_time=1680,
-            zeropoint=9.16,
-            extinction=0.451,
-        ),
-    ],
-)
-
-# http://www.ctio.noao.edu/noao/content/Basic-Optical-Parameters
-# http://www.ctio.noao.edu/noao/content/DECam-What
-# http://www.darkenergysurvey.org/survey/des-description.pdf
-# skybrightness from http://www.ctio.noao.edu/noao/node/1218
-# extinction from https://arxiv.org/pdf/1701.00502.pdf table 6
-# fwhm values from https://arxiv.org/pdf/1407.3801.pdf
-DES = Survey(
-    name="DES",
-    pixel_scale=0.263,
-    effective_area=10.014,
-    mirror_diameter=3.934,
-    airmass=1.0,
-    zeropoint_airmass=1.3,
-    filters=[
-        Filter(
-            name="i",
-            psf=get_psf(
-                mirror_diameter=3.934,
-                effective_area=10.014,
-                filt_wavelength=_central_wavelength["i"],
-                fwhm=0.96,
-            ),
-            sky_brightness=20.5,
-            exp_time=1000,
-            zeropoint=13.94,
-            extinction=0.05,
-        ),
-        Filter(
-            name="r",
-            psf=get_psf(
-                mirror_diameter=3.934,
-                effective_area=10.014,
-                filt_wavelength=_central_wavelength["r"],
-                fwhm=1.03,
-            ),
-            sky_brightness=21.4,
-            exp_time=800,
-            zeropoint=15.65,
-            extinction=0.09,
-        ),
-        Filter(
-            name="g",
-            psf=get_psf(
-                mirror_diameter=3.934,
-                effective_area=10.014,
-                filt_wavelength=_central_wavelength["g"],
-                fwhm=1.24,
-            ),
-            sky_brightness=22.3,
-            exp_time=800,
-            zeropoint=12.29,
-            extinction=0.17,
-        ),
-        Filter(
-            name="z",
-            psf=get_psf(
-                mirror_diameter=3.934,
-                effective_area=10.014,
-                filt_wavelength=_central_wavelength["z"],
-                fwhm=1.12,
-            ),
-            sky_brightness=18.7,
-            exp_time=800,
-            zeropoint=10.81,
-            extinction=0.06,
-        ),
-    ],
-)
-
-# http://www.cfht.hawaii.edu/Instruments/Imaging/Megacam/generalinformation.html
-# http://www.cfht.hawaii.edu/Instruments/ObservatoryManual/om-focplndat.gif
-# Calculating zeropoints with:
-# http://www1.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/community/CFHTLS-SG/docs/extra/filters.html
-CFHT = Survey(
-    name="CFHT",
-    pixel_scale=0.185,
-    effective_area=8.022,
-    mirror_diameter=3.592,
-    airmass=1.0,  # TODO: double-check
-    zeropoint_airmass=1.0,  # TODO: double-check
-    filters=[
-        Filter(
-            name="i",
-            psf=get_psf(
-                mirror_diameter=3.592,
-                effective_area=8.022,
-                filt_wavelength=_central_wavelength["i"],
-                fwhm=0.64,
-            ),
-            sky_brightness=20.3,
-            exp_time=4300,
-            zeropoint=8.46,
-            extinction=0.07,
-        ),
-        Filter(
-            name="r",
-            psf=get_psf(
-                mirror_diameter=3.592,
-                effective_area=8.022,
-                filt_wavelength=_central_wavelength["r"],
-                fwhm=0.71,
-            ),
-            sky_brightness=20.8,
-            exp_time=2000,
-            zeropoint=10.72,
-            extinction=0.10,
-        ),
-    ],
-)
-
-
 def get_flux(ab_magnitude, filt, survey):
     """Convert source magnitude to flux.
 
@@ -555,13 +282,3 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
     w.wcs.crval = [c / 3600 for c in center_sky]
     w.array_shape = shape
     return w
-
-
-available_surveys = {
-    "Rubin": Rubin,
-    "CFHT": CFHT,
-    "HST": HST,
-    "HSC": HSC,
-    "DES": DES,
-    "Euclid": Euclid,
-}

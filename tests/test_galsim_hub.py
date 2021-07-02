@@ -1,7 +1,9 @@
 from conftest import data_dir
 
-import btk.draw_blends
-import btk.survey
+from btk.catalog import CosmosCatalog
+from btk.draw_blends import GalsimHubGenerator
+from btk.sampling_functions import DefaultSamplingGalsimHub
+from btk.survey import get_surveys
 
 COSMOS_CATALOG_PATHS = [
     data_dir / "cosmos/real_galaxy_catalog_23.5_example.fits",
@@ -12,13 +14,13 @@ COSMOS_CATALOG_PATHS = [
 def draw_galsim_hub():
     stamp_size = 24.0
     batch_size = 2
-    catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
-    sampling_function = btk.sampling_functions.DefaultSamplingGalsimHub(stamp_size=stamp_size)
+    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    sampling_function = DefaultSamplingGalsimHub(stamp_size=stamp_size)
 
-    draw_generator = btk.draw_blends.GalsimHubGenerator(
+    draw_generator = GalsimHubGenerator(
         catalog,
         sampling_function,
-        [btk.survey.HST],
+        get_surveys("HST"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,

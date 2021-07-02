@@ -9,7 +9,7 @@ from btk.measure import available_measure_functions
 from btk.measure import MeasureGenerator
 from btk.metrics import MetricsGenerator
 from btk.sampling_functions import available_sampling_functions
-from btk.survey import available_surveys
+from btk.survey import _get_survey_from_cfg
 
 
 def main(cfg: OmegaConf):
@@ -30,11 +30,8 @@ def main(cfg: OmegaConf):
 
     surveys = []
     for survey_name in cfg.surveys:
-        if survey_name not in available_surveys:
-            raise ValueError(f"Survey '{survey_name}' is not implemented in BTK.")
-        survey = available_surveys[survey_name]
+        survey = _get_survey_from_cfg(cfg.surveys[survey_name])
         surveys.append(survey)
-        # TODO: Possibility to customize PSF inside each filter, etc.
 
     # get draw blends generator.
     if cfg.draw_blends.name not in available_draw_blends:
