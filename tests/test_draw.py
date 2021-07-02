@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import btk.plot_utils
-import btk.survey
+from btk.survey import get_surveys
 
 
 def get_draw_generator(
@@ -40,7 +40,7 @@ def get_draw_generator(
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        btk.survey.get_surveys("Rubin"),
+        get_surveys("Rubin"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         shifts=shifts,

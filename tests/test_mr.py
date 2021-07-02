@@ -1,6 +1,9 @@
 from conftest import data_dir
 
-import btk.survey
+from btk.catalog import CatsimCatalog
+from btk.draw_blends import CatsimGenerator
+from btk.sampling_functions import DefaultSampling
+from btk.survey import get_surveys
 
 
 def test_multiresolution():
@@ -10,11 +13,11 @@ def test_multiresolution():
     batch_size = 8
     cpus = 1
     add_noise = True
-    surveys = btk.survey.get_surveys(["Rubin", "HSC"])
+    surveys = get_surveys(["Rubin", "HSC"])
 
-    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
-    sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
-    draw_generator = btk.draw_blends.CatsimGenerator(
+    catalog = CatsimCatalog.from_file(catalog_name)
+    sampling_function = DefaultSampling(stamp_size=stamp_size)
+    draw_generator = CatsimGenerator(
         catalog,
         sampling_function,
         surveys,

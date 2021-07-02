@@ -3,19 +3,27 @@ from unittest.mock import patch
 import matplotlib.pyplot as plt
 import numpy as np
 
-import btk.metrics
-import btk.survey
+import btk.plot_utils as plot_utils
+from btk.catalog import CatsimCatalog
+from btk.draw_blends import CatsimGenerator
+from btk.measure import MeasureGenerator
+from btk.measure import sep_measure
+from btk.metrics import auc
+from btk.metrics import distance_center
+from btk.metrics import get_detection_eff_matrix
+from btk.metrics import meas_ksb_ellipticity
+from btk.metrics import MetricsGenerator
+from btk.sampling_functions import DefaultSampling
+from btk.survey import get_surveys
 
 
-def get_metrics_generator(
-    meas_function, cpus=1, f_distance=btk.metrics.distance_center, measure_kwargs=None
-):
+def get_metrics_generator(meas_function, cpus=1, f_distance=distance_center, measure_kwargs=None):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
-    survey = btk.survey.get_surveys("Rubin")
+    survey = get_surveys("Rubin")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],
@@ -27,29 +35,29 @@ def get_metrics_generator(
         [[0.2, 2.4], [-1.8, -2.0]],
     ]
     indexes = [[4, 5], [9, 1], [9, 2], [0, 2], [3, 8], [0, 7], [10, 2], [0, 10]]
-    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
-    draw_blend_generator = btk.draw_blends.CatsimGenerator(
+    catalog = CatsimCatalog.from_file(catalog_name)
+    draw_blend_generator = CatsimGenerator(
         catalog,
-        btk.sampling_functions.DefaultSampling(),
+        DefaultSampling(),
         [survey],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,
     )
-    meas_generator = btk.measure.MeasureGenerator(
+    meas_generator = MeasureGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
     )
-    metrics_generator = btk.metrics.MetricsGenerator(
+    metrics_generator = MetricsGenerator(
         meas_generator,
         use_metrics=("detection", "segmentation", "reconstruction"),
-        target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
+        target_meas={"ellipticity": meas_ksb_ellipticity},
     )
     return metrics_generator
 
 
 @patch("btk.plot_utils.plt.show")
 def test_sep_metrics(mock_show):
-    metrics_generator = get_metrics_generator(btk.measure.sep_measure)
+    metrics_generator = get_metrics_generator(sep_measure)
     blend_results, meas_results, metrics_results = next(metrics_generator)
     results = list(metrics_results.values())[0]
     gal_summary = results["galaxy_summary"][
@@ -58,17 +66,17 @@ def test_sep_metrics(mock_show):
     msr = gal_summary["msr"]
     dist = gal_summary["distance_closest_galaxy"]
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    btk.plot_utils.plot_metrics_distribution(msr, "msr", ax1, upper_quantile=0.9)
-    btk.plot_utils.plot_metrics_correlation(
+    plot_utils.plot_metrics_distribution(msr, "msr", ax1, upper_quantile=0.9)
+    plot_utils.plot_metrics_correlation(
         dist, msr, "Distance to the closest galaxy", "msr", ax2, upper_quantile=0.9, style="heatmap"
     )
-    btk.plot_utils.plot_metrics_summary(
+    plot_utils.plot_metrics_summary(
         metrics_results,
         target_meas_keys=["ellipticity0"],
         target_meas_limits=[[-1, 1]],
         interactive=False,
     )
-    btk.plot_utils.plot_with_deblended(
+    plot_utils.plot_with_deblended(
         blend_results["blend_images"],
         blend_results["isolated_images"],
         blend_results["blend_list"],
@@ -88,7 +96,7 @@ def test_detection_eff_matrix():
     secondary diagonal being one"""
     summary = np.array([[1, 1, 0, 0, 0], [2, 2, 0, 0, 0], [3, 3, 0, 0, 0], [4, 4, 0, 0, 0]])
     num = 4
-    eff_matrix = btk.metrics.get_detection_eff_matrix(summary, num)
+    eff_matrix = get_detection_eff_matrix(summary, num)
     test_eff_matrix = np.eye(num + 2)[:, : num + 1] * 100
     test_eff_matrix[0, 0] = 0.0
     np.testing.assert_array_equal(
@@ -100,8 +108,8 @@ def test_detection_eff_matrix():
 def test_measure_kwargs(mock_show):
     """Test detection with sep"""
     meas_generator = get_metrics_generator(
-        btk.measure.sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, _, results = next(meas_generator)
-    average_precision = btk.metrics.auc(results, "sep_measure", 2, plot=True)
+    average_precision = auc(results, "sep_measure", 2, plot=True)
     assert average_precision == 0.4375
