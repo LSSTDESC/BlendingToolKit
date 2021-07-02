@@ -707,7 +707,7 @@ def plot_metrics_summary(  # noqa: C901
                     zorder=-10,
                 )
                 ax[2 * i + 1].set_xlabel("Magnitude")  # noqa: W605
-                ax[2 * i + 1].set_ylabel(f"$\Delta${k}")  # noqa: W605
+                ax[2 * i + 1].set_ylabel(f"$\\Delta${k}")  # noqa: W605
             plt.tight_layout()
 
             if save_path is not None:
