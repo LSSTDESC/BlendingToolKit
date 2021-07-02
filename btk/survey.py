@@ -2,6 +2,7 @@
 import os
 import random as rd
 from collections import namedtuple
+from typing import Iterable
 
 import astropy.wcs as WCS
 import galsim
@@ -102,7 +103,7 @@ def _get_survey_from_cfg(survey_conf: OmegaConf):
     return survey
 
 
-def get_surveys(names="Rubin"):
+def get_surveys(names="Rubin", overrides: Iterable = ()):
     """Return specified surveys as `btk.survey.Survey` objects.
 
     NOTE: The surveys currently implemented correspond to config files inside `conf/surveys`. See
@@ -111,6 +112,9 @@ def get_surveys(names="Rubin"):
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
             multiple survey names.
+        overrides (Iterable): List or tuple containg overrides for the survey config files. An
+            example element of overrides could be 'surveys.Rubin.airmass=1.1', i.e. what you would
+            pass into the CLI in order to customize the surveys used (here specified by `names`).
 
     Returns:
         btk.survey.Survey object or list of such objects.
@@ -119,7 +123,7 @@ def get_surveys(names="Rubin"):
         names = [names]
     if not isinstance(names, list):
         raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
-    overrides = [f"surveys={names}"]
+    overrides = [f"surveys={names}", *overrides]
     surveys = []
     with initialize(config_path="../conf"):
         cfg = compose("config", overrides=overrides)
