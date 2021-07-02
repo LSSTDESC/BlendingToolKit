@@ -35,7 +35,7 @@ def test_group_sampling():
     batch_max = blend_images.max(axis=(0, 2, 3))
     batch_mean = blend_images.mean()
     batch_std = blend_images.std()
-    test_batch_max = np.array([17e3, 30e3, 45e3, 43e3, 13e3, 13e2])
+    test_batch_max = np.array([13e2, 13e3, 43e3, 45e3, 30e3, 17e3])
     test_batch_mean = 82.1
     test_batch_std = 1027.6
 
