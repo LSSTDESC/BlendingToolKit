@@ -12,32 +12,6 @@ DES:
   airmass: 1.0
   zeropoint_airmass: 1.3
   filters:
-    i:
-      name: "i"
-      sky_brightness: 20.5
-      exp_time: 1000
-      zeropoint: 13.94
-      extinction: 0.05
-      psf:
-        type: default
-        params:
-          fwhm: 0.96
-          mirror_diameter: ${surveys.DES.mirror_diameter}
-          effective_area: ${surveys.DES.effective_area}
-          filt_wavelength: ${central_wavelength.i}
-    r:
-      name: "r"
-      sky_brightness: 21.4
-      exp_time: 800
-      zeropoint: 15.65
-      extinction: 0.09
-      psf:
-        type: default
-        params:
-          fwhm: 1.03
-          mirror_diameter: ${surveys.DES.mirror_diameter}
-          effective_area: ${surveys.DES.effective_area}
-          filt_wavelength: ${central_wavelength.r}
     g:
       name: "g"
       sky_brightness: 22.3
@@ -51,6 +25,32 @@ DES:
           mirror_diameter: ${surveys.DES.mirror_diameter}
           effective_area: ${surveys.DES.effective_area}
           filt_wavelength: ${central_wavelength.g}
+    r:
+      name: "r"
+      sky_brightness: 21.4
+      exp_time: 800
+      zeropoint: 15.65
+      extinction: 0.09
+      psf:
+        type: default
+        params:
+          fwhm: 1.03
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.r}
+    i:
+      name: "i"
+      sky_brightness: 20.5
+      exp_time: 1000
+      zeropoint: 13.94
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.96
+          mirror_diameter: ${surveys.DES.mirror_diameter}
+          effective_area: ${surveys.DES.effective_area}
+          filt_wavelength: ${central_wavelength.i}
     z:
       name: "z"
       sky_brightness: 18.7
