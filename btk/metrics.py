@@ -164,13 +164,13 @@ def get_detection_match(
 
     """
     if "x_peak" not in true_table.colnames:
-        raise KeyError("True table has no column ra")
+        raise KeyError("True table has no column x_peak")
     if "y_peak" not in true_table.colnames:
-        raise KeyError("True table has no column dec")
+        raise KeyError("True table has no column y_peak")
     if "x_peak" not in true_table.colnames:
-        raise KeyError("Detection table has no column ra")
+        raise KeyError("Detection table has no column x_peak")
     if "y_peak" not in true_table.colnames:
-        raise KeyError("Detection table has no column dec")
+        raise KeyError("Detection table has no column y_peak")
     match_table = astropy.table.Table()
 
     # dist[i][j] = distance between true object i and detected object j.

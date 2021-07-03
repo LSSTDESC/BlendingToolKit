@@ -75,6 +75,7 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
             dict containing catalog with entries corresponding to measured peaks.
     """
     channel_indx = 0 if not channels_last else -1
+    # We differentiate between the normal case and the multiresolution case
     if isinstance(batch["blend_images"], dict):
         surveys = kwargs.get("surveys", None)
         survey_name = surveys[0].name
@@ -90,7 +91,6 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
-    # catalog["x_peak"], catalog["y_peak"] = coordinates[:, 1], coordinates[:, 0]
     catalog["ra"], catalog["dec"] = wcs.pixel_to_world_values(coordinates[:, 1], coordinates[:, 0])
     return {"catalog": catalog}
 
@@ -98,7 +98,9 @@ def basic_measure(batch, idx, channels_last=False, **kwargs):
 def sep_measure(batch, idx, channels_last=False, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
-    NOTE: This function does not support the multi-resolution feature.
+    NOTE: If this function is used with the multiresolution feature,
+    measurements will be carried on the first survey, and deblended images
+    or segmentations will not be returned.
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
@@ -112,6 +114,7 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
     # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
 
     channel_indx = 0 if not channels_last else -1
+    # We differentiate between the normal case and the multiresolution case
     if isinstance(batch["blend_images"], dict):
         surveys = kwargs.get("surveys", None)
         survey_name = surveys[0].name
@@ -141,7 +144,6 @@ def sep_measure(batch, idx, channels_last=False, **kwargs):
         deblended_images[i] = image * seg_i_reshaped
 
     t = astropy.table.Table()
-    # t["x_peak"], t["y_peak"] = catalog["x"], catalog["y"]
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
     if isinstance(batch["blend_images"], dict):  # If multiresolution, return only the catalog
         return {"catalog": t}
@@ -223,6 +225,7 @@ class MeasureGenerator:
     def run_batch(self, batch, index, **kwargs):
         """Perform measurements on a single blend."""
         output = []
+        surveys = kwargs.get("surveys", 0)
         for f in self.measure_functions:
 
             out = f(batch, index, **kwargs)
@@ -237,24 +240,42 @@ class MeasureGenerator:
             if not ("ra" in out["catalog"].colnames and "dec" in out["catalog"].colnames):
                 raise ValueError(
                     "The output catalog of at least one of your measurement functions does not"
-                    "contain the 'ra' and 'dec' columns which are mandatory for a"
-                    "multi-resolution study."
+                    "contain the mandatory 'ra' and 'dec' columns"
                 )
 
-            # for key in ["deblended_images", "segmentation"]:
-            #     if key in out and out[key] is not None:
-            #         if not isinstance(out[key], np.ndarray):
-            #             raise TypeError(
-            #                 f"The output '{key}' of at least one of your measurement"
-            #                 f"functions is not a numpy array."
-            #             )
-            #         if key == "deblended_images":
-            #             if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
-            #                 raise ValueError(
-            #                     f"The shapes of the blended images in your {key} don't "
-            #                     f"match for at least one your measurement functions."
-            #                     f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
-            #                 )
+            for key in ["deblended_images", "segmentation"]:
+                if key in out and out[key] is not None:
+                    if len(surveys) == 1:
+                        if not isinstance(out[key], np.ndarray):
+                            raise TypeError(
+                                f"The output '{key}' of at least one of your measurement"
+                                f"functions is not a numpy array."
+                            )
+                        if key == "deblended_images":
+                            if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
+                                raise ValueError(
+                                    f"The shapes of the blended images in your {key} don't "
+                                    f"match for at least one your measurement functions."
+                                    f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
+                                )
+                    else:
+                        for survey in surveys:
+                            if not isinstance(out[key][survey], np.ndarray):
+                                raise TypeError(
+                                    f"The output '{key}' for survey '{survey}' of at least one"
+                                    f"of your measurement functions is not a numpy array."
+                                )
+                            if key == "deblended_images":
+                                if (
+                                    not out[key][survey].shape[-3:]
+                                    == batch["blend_images"][survey].shape[-3:]
+                                ):
+                                    raise ValueError(
+                                        f"The shapes of the blended images in your {key} for"
+                                        f"survey '{survey}' do not match for at least one of"
+                                        f"your measurement functions."
+                                        f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
+                                    )
 
             out = {k: out.get(k, None) for k in self.measure_params}
             output.append(out)
@@ -302,6 +323,8 @@ class MeasureGenerator:
                     deblended_images[key_name].append(
                         measure_output[j][i].get("deblended_images", None)
                     )
+                # If multiresolution, we reverse the order between the survey name and
+                # the index of the blend
                 if isinstance(blend_output["blend_list"], dict):
                     survey_keys = list(blend_output["blend_list"].keys())
                     if segmentation[key_name][0] is None:

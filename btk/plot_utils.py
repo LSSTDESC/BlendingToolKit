@@ -770,9 +770,12 @@ def plot_metrics_summary(  # noqa: C901
             if len(meas_func_names) == 1:
                 ax = [ax]
             for i, k in enumerate(meas_func_names):
-                plot_efficiency_matrix(
-                    metrics_results[k][survey_keys[0]]["detection"]["eff_matrix"], ax=ax[i]
-                )
+                if multiresolution:
+                    plot_efficiency_matrix(
+                        metrics_results[k][survey_keys[0]]["detection"]["eff_matrix"], ax=ax[i]
+                    )
+                else:
+                    plot_efficiency_matrix(metrics_results[k]["detection"]["eff_matrix"], ax=ax[i])
                 ax[i].set_title(k)
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))

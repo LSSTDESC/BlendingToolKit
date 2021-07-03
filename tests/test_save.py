@@ -26,7 +26,6 @@ def test_save():
     )
     metrics_generator = btk.metrics.MetricsGenerator(
         meas_generator,
-        use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": btk.metrics.meas_ksb_ellipticity},
         save_path=output_dir,
     )
