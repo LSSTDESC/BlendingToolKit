@@ -54,7 +54,6 @@ Currently, we support the following metrics :
 
 """
 import os
-from copy import deepcopy
 
 import astropy.table
 import galsim
@@ -749,23 +748,10 @@ class MetricsGenerator:
                     for k in self.target_meas.keys():
                         target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-                    catalog = deepcopy(measure_results["catalog"][meas_func])
-                    for blend in catalog:
-                        x_peak = []
-                        y_peak = []
-                        for gal in blend:
-                            coords = blend_results["wcs"][surv].world_to_pixel_values(
-                                gal["ra"], gal["dec"]
-                            )
-                            x_peak.append(coords[0])
-                            y_peak.append(coords[1])
-                        blend.add_column(x_peak, name="x_peak")
-                        blend.add_column(y_peak, name="y_peak")
-
                     metrics_results_f[surv] = compute_metrics(
                         blend_results["isolated_images"][surv],
                         blend_results["blend_list"][surv],
-                        catalog,
+                        measure_results["catalog"][meas_func][surv],
                         measure_results["segmentation"][meas_func][surv],
                         measure_results["deblended_images"][meas_func][surv],
                         noise_threshold,
@@ -793,21 +779,10 @@ class MetricsGenerator:
                 for k in self.target_meas.keys():
                     target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-                catalog = deepcopy(measure_results["catalog"][meas_func])
-                for blend in catalog:
-                    x_peak = []
-                    y_peak = []
-                    for gal in blend:
-                        coords = blend_results["wcs"].world_to_pixel_values(gal["ra"], gal["dec"])
-                        x_peak.append(coords[0])
-                        y_peak.append(coords[1])
-                    blend.add_column(x_peak, name="x_peak")
-                    blend.add_column(y_peak, name="y_peak")
-
                 metrics_results_f = compute_metrics(
                     blend_results["isolated_images"],
                     blend_results["blend_list"],
-                    catalog,
+                    measure_results["catalog"][meas_func],
                     measure_results["segmentation"][meas_func],
                     measure_results["deblended_images"][meas_func],
                     noise_threshold,

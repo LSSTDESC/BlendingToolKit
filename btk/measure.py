@@ -51,6 +51,7 @@ Omitted keys in the returned dictionary are automatically assigned a `None` valu
 `catalog` which is a mandatory entry).
 """
 import os
+from copy import deepcopy
 from itertools import repeat
 
 import astropy.table
@@ -260,19 +261,23 @@ class MeasureGenerator:
                                 )
                     else:
                         for survey in surveys:
-                            if not isinstance(out[key][survey], np.ndarray):
+                            # print(type(out[key][survey.name]))
+                            # if isinstance(out[key][survey.name],list):
+                            #     print(out[key][survey.name])
+                            if not isinstance(out[key][survey.name], np.ndarray):
                                 raise TypeError(
-                                    f"The output '{key}' for survey '{survey}' of at least one"
-                                    f"of your measurement functions is not a numpy array."
+                                    f"The output '{key}' for survey '{survey.name}' of at least one"
+                                    f" of your measurement functions is not a numpy array, but a "
+                                    f"{type(out[key][survey.name])}"
                                 )
                             if key == "deblended_images":
                                 if (
-                                    not out[key][survey].shape[-3:]
-                                    == batch["blend_images"][survey].shape[-3:]
+                                    not out[key][survey.name].shape[-3:]
+                                    == batch["blend_images"][survey.name].shape[-3:]
                                 ):
                                     raise ValueError(
                                         f"The shapes of the blended images in your {key} for"
-                                        f"survey '{survey}' do not match for at least one of"
+                                        f"survey '{survey.name}' do not match for at least one of"
                                         f"your measurement functions."
                                         f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
                                     )
@@ -281,7 +286,7 @@ class MeasureGenerator:
             output.append(out)
         return output
 
-    def __next__(self):
+    def __next__(self):  # noqa: C901
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
@@ -327,6 +332,24 @@ class MeasureGenerator:
                 # the index of the blend
                 if isinstance(blend_output["blend_list"], dict):
                     survey_keys = list(blend_output["blend_list"].keys())
+                    # We duplicate the catalog for each survey to get the pixel coordinates
+                    catalogs_temp = {}
+                    for surv in survey_keys:
+                        catalog_t = deepcopy(catalog[key_name])
+                        for blend in catalog_t:
+                            x_peak = []
+                            y_peak = []
+                            for gal in blend:
+                                coords = blend_output["wcs"][surv].world_to_pixel_values(
+                                    gal["ra"], gal["dec"]
+                                )
+                                x_peak.append(coords[0])
+                                y_peak.append(coords[1])
+                            blend.add_column(x_peak, name="x_peak")
+                            blend.add_column(y_peak, name="y_peak")
+                        catalogs_temp[surv] = catalog_t
+                    catalog[key_name] = catalogs_temp
+
                     if segmentation[key_name][0] is None:
                         segmentation[key_name] = {
                             k: [None for n in range(len(segmentation[key_name]))]
@@ -353,6 +376,20 @@ class MeasureGenerator:
                             ]
                             for k in survey_keys
                         }
+                else:
+                    catalog_t = deepcopy(catalog[key_name])
+                    for blend in catalog_t:
+                        x_peak = []
+                        y_peak = []
+                        for gal in blend:
+                            coords = blend_output["wcs"].world_to_pixel_values(
+                                gal["ra"], gal["dec"]
+                            )
+                            x_peak.append(coords[0])
+                            y_peak.append(coords[1])
+                        blend.add_column(x_peak, name="x_peak")
+                        blend.add_column(y_peak, name="y_peak")
+                    catalog[key_name] = catalog_t
 
                 # save results if requested.
                 if self.save_path is not None:
