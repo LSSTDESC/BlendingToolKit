@@ -2,6 +2,10 @@ from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
+from btk.measure import MeasureGenerator
+from btk.measure import sep_measure
+from btk.metrics import meas_ksb_ellipticity
+from btk.metrics import MetricsGenerator
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
@@ -17,7 +21,7 @@ def test_multiresolution():
 
     catalog = CatsimCatalog.from_file(catalog_name)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
-    draw_generator = CatsimGenerator(
+    draw_blend_generator = CatsimGenerator(
         catalog,
         sampling_function,
         surveys,
@@ -26,13 +30,26 @@ def test_multiresolution():
         cpus=cpus,
         add_noise=add_noise,
     )
-    draw_output = next(draw_generator)
 
-    assert "Rubin" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert "HSC" in draw_output["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert draw_output["blend_images"]["Rubin"][0].shape[-1] == int(
+    meas_generator = MeasureGenerator(sep_measure, draw_blend_generator, cpus=cpus)
+    metrics_generator = MetricsGenerator(
+        meas_generator, target_meas={"ellipticity": meas_ksb_ellipticity}, meas_band_num=(2, 1)
+    )
+    blend_results, measure_results, metrics_results = next(metrics_generator)
+
+    assert "Rubin" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
+    assert "HSC" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
+    assert blend_results["blend_images"]["Rubin"][0].shape[-1] == int(
         24.0 / 0.2
     ), "Rubin survey should have a pixel scale of 0.2"
-    assert draw_output["blend_images"]["HSC"][0].shape[-1] == int(
+    assert blend_results["blend_images"]["HSC"][0].shape[-1] == int(
         24.0 / 0.167
     ), "HSC survey should have a pixel scale of 0.167"
+    assert (
+        "Rubin" in measure_results["catalog"]["sep_measure"].keys()
+    ), "Both surveys get well defined outputs"
+    assert (
+        "HSC" in measure_results["catalog"]["sep_measure"].keys()
+    ), "Both surveys get well defined outputs"
+    assert "Rubin" in metrics_results["sep_measure"].keys(), "Both surveys get well defined outputs"
+    assert "HSC" in metrics_results["sep_measure"].keys(), "Both surveys get well defined outputs"
