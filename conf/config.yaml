@@ -1,14 +1,13 @@
 defaults:
   - sampling: default
   - draw_blends: catsim
-  - hydra/help: btk_help
+  - surveys:
+    - Rubin
+  - override hydra/help: btk_help
 
 catalog:
   name: catsim
   catalog_files: ${paths.data}/sample_input_catalog.fits
-
-surveys:
-  - Rubin
 
 ### all arguments ###
 
@@ -63,5 +62,21 @@ metrics:
     save_path: ${save_path}
 
 paths:
-  root: ${env:BTK_HOME}
+  root: ${oc.env:BTK_HOME}
   data: ${paths.root}/data
+
+
+### Global values ###
+
+# Central wavelengths in Angstroms for each filter band, calculated
+# from the baseline total filter throughputs tabulated at
+# http://dev.lsstcorp.org/cgit/LSST/sims/throughputs.git/snapshot/throughputs-1.2.tar.gz
+central_wavelength:
+  u: 3592.13
+  g: 4789.98
+  r: 6199.52
+  i: 7528.51
+  z: 8689.83
+  y: 9674.05
+  VIS: 7135.0
+  f814w: 5000.0 # TODO: placeholder
