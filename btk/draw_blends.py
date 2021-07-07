@@ -473,7 +473,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         # around them, so a gaussian kernel convolution smoothes it out.
         # It has the slight disadvantage of adding some band-limitedness to the image,
         # but with a small kernel, it's better than doing nothing.
-        gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
+        # gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
