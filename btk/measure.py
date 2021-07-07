@@ -60,6 +60,30 @@ import sep
 from skimage.feature import peak_local_max
 
 from btk.multiprocess import multiprocess
+from btk.utils import reverse_list_dictionary
+
+
+def add_pixel_columns(catalog, wcs):
+    """Uses the wcs to add column corresponding to pixel coordinates.
+
+    The catalog must contain `ra` and `dec` columns.
+
+    Args:
+        catalog (astropy.table.Table): Catalog to modify.
+        wcs (astropy.wcs.WCS): WCS corresponding to the wanted
+                               transformation.
+    """
+    catalog_t = deepcopy(catalog)
+    for blend in catalog_t:
+        x_peak = []
+        y_peak = []
+        for gal in blend:
+            coords = wcs.world_to_pixel_values(gal["ra"], gal["dec"])
+            x_peak.append(coords[0])
+            y_peak.append(coords[1])
+        blend.add_column(x_peak, name="x_peak")
+        blend.add_column(y_peak, name="y_peak")
+    return catalog_t
 
 
 def basic_measure(batch, idx, channels_last=False, **kwargs):
@@ -286,7 +310,7 @@ class MeasureGenerator:
             output.append(out)
         return output
 
-    def __next__(self):  # noqa: C901
+    def __next__(self):
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
@@ -335,61 +359,20 @@ class MeasureGenerator:
                     # We duplicate the catalog for each survey to get the pixel coordinates
                     catalogs_temp = {}
                     for surv in survey_keys:
-                        catalog_t = deepcopy(catalog[key_name])
-                        for blend in catalog_t:
-                            x_peak = []
-                            y_peak = []
-                            for gal in blend:
-                                coords = blend_output["wcs"][surv].world_to_pixel_values(
-                                    gal["ra"], gal["dec"]
-                                )
-                                x_peak.append(coords[0])
-                                y_peak.append(coords[1])
-                            blend.add_column(x_peak, name="x_peak")
-                            blend.add_column(y_peak, name="y_peak")
-                        catalogs_temp[surv] = catalog_t
+                        catalogs_temp[surv] = add_pixel_columns(
+                            catalog[key_name], blend_output["wcs"][surv]
+                        )
                     catalog[key_name] = catalogs_temp
 
-                    if segmentation[key_name][0] is None:
-                        segmentation[key_name] = {
-                            k: [None for n in range(len(segmentation[key_name]))]
-                            for k in survey_keys
-                        }
-                    else:
-                        segmentation[key_name] = {
-                            k: [
-                                segmentation[key_name][n][k]
-                                for n in range(len(segmentation[key_name]))
-                            ]
-                            for k in survey_keys
-                        }
-                    if deblended_images[key_name][0] is None:
-                        deblended_images[key_name] = {
-                            k: [None for n in range(len(deblended_images[key_name]))]
-                            for k in survey_keys
-                        }
-                    else:
-                        deblended_images[key_name] = {
-                            k: [
-                                deblended_images[key_name][n][k]
-                                for n in range(len(deblended_images[key_name]))
-                            ]
-                            for k in survey_keys
-                        }
+                    segmentation[key_name] = reverse_list_dictionary(
+                        segmentation[key_name], survey_keys
+                    )
+                    deblended_images[key_name] = reverse_list_dictionary(
+                        deblended_images[key_name], survey_keys
+                    )
+
                 else:
-                    catalog_t = deepcopy(catalog[key_name])
-                    for blend in catalog_t:
-                        x_peak = []
-                        y_peak = []
-                        for gal in blend:
-                            coords = blend_output["wcs"].world_to_pixel_values(
-                                gal["ra"], gal["dec"]
-                            )
-                            x_peak.append(coords[0])
-                            y_peak.append(coords[1])
-                        blend.add_column(x_peak, name="x_peak")
-                        blend.add_column(y_peak, name="y_peak")
-                    catalog[key_name] = catalog_t
+                    catalog[key_name] = add_pixel_columns(catalog[key_name], blend_output["wcs"])
 
                 # save results if requested.
                 if self.save_path is not None:
