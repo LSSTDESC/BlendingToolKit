@@ -75,6 +75,12 @@ def test_sep_metrics(mock_show):
         target_meas_limits=[[-1, 1]],
         interactive=False,
     )
+    plot_utils.plot_metrics_summary(
+        metrics_results,
+        target_meas_keys=["ellipticity0"],
+        target_meas_limits=[[-1, 1]],
+        interactive=True,
+    )
     plot_utils.plot_with_deblended(
         blend_results["blend_images"],
         blend_results["isolated_images"],
