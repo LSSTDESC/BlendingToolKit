@@ -46,15 +46,15 @@ def compare_sep():
     _, results = next(meas_generator)
     print(results["catalog"]["sep_measure"][0])
     x_peak, y_peak = (
-        results["catalog"]["sep_measure"][0]["ra"].item(),
-        results["catalog"]["sep_measure"][0]["dec"].item(),
+        results["catalog"]["sep_measure"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([0.000333, -0.000472])
+    target_detection = np.array([65.495, 51.012])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
-        decimal=6,
+        decimal=3,
         err_msg="Did not get desired detections",
     )
 
@@ -64,15 +64,15 @@ def compare_sep_multiprocessing():
     meas_generator = get_meas_generator(btk.measure.sep_measure, cpus=4)
     _, results = next(meas_generator)
     x_peak, y_peak = (
-        results["catalog"]["sep_measure"][0]["ra"].item(),
-        results["catalog"]["sep_measure"][0]["dec"].item(),
+        results["catalog"]["sep_measure"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([0.000333, -0.000472])
+    target_detection = np.array([65.495, 51.012])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
-        decimal=6,
+        decimal=3,
         err_msg="Did not get desired detections",
     )
 
@@ -90,14 +90,14 @@ def test_measure_kwargs():
     )
     _, results = next(meas_generator)
     x_peak, y_peak = (
-        results["catalog"]["sep_measure0"][0]["ra"].item(),
-        results["catalog"]["sep_measure0"][0]["dec"].item(),
+        results["catalog"]["sep_measure0"][0]["x_peak"].item(),
+        results["catalog"]["sep_measure0"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([0.000339, -0.000466])
+    target_detection = np.array([65.603, 51.104])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
-        decimal=6,
+        decimal=3,
         err_msg="Did not get desired detections",
     )
