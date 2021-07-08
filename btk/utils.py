@@ -118,14 +118,13 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
     blend_results = {}
     for key in BLEND_RESULT_KEYS:
         blend_results[key] = {}
-    measure_results = {}
+    measure_results = {"catalog": {}, "segmentation": {}, "deblended_images": {}}
     metrics_results = {}
     for s in surveys:
         blend_results_temp = load_blend_results(path, s)
         for key in BLEND_RESULT_KEYS:
             blend_results[key][s] = blend_results_temp[key]
 
-    measure_results = {"catalog": {}, "segmentation": {}, "deblended_images": {}}
     for meas in measure_names:
         for n in range(n_meas_kwargs):
             dir_name = meas + str(n) if n_meas_kwargs > 1 else meas
@@ -135,3 +134,24 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
             metrics_results[dir_name] = load_metrics_results(path, dir_name)
 
     return blend_results, measure_results, metrics_results
+
+
+def reverse_list_dictionary(to_reverse, keys):
+    """Transforms a list of dictionaries into a dictionary of lists.
+
+    Additionally, if the initial list contains None instead of dictionaries,
+    the dictionnary will contain lists of None.
+    Mainly used in the measure.py file.
+
+    Args:
+        to_reverse (list): List to reverse, should contain dictionaries (or None)
+        keys (list): Keys of the dictionaries inside the list.
+
+    Returns:
+        Dictionary.
+    """
+    if to_reverse[0] is None:
+        to_reverse = {k: [None for _ in range(len(to_reverse))] for k in keys}
+    else:
+        to_reverse = {k: [to_reverse[n][k] for n in range(len(to_reverse))] for k in keys}
+    return to_reverse

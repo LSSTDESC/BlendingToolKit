@@ -38,8 +38,6 @@ measure_functions:
   - basic
 
 # metrics
-use_metrics:
-  - detection
 meas_band_num: 0
 noise_threshold_factor: 3
 distance_threshold_match: 5.0
@@ -55,7 +53,6 @@ measure:
 
 metrics:
   kwargs:
-    use_metrics: ${use_metrics}
     meas_band_num: ${meas_band_num}
     noise_threshold_factor: ${noise_threshold_factor}
     distance_threshold_match: ${distance_threshold_match}

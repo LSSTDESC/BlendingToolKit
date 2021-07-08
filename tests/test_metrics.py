@@ -49,7 +49,6 @@ def get_metrics_generator(meas_function, cpus=1, f_distance=distance_center, mea
     )
     metrics_generator = MetricsGenerator(
         meas_generator,
-        use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": meas_ksb_ellipticity},
     )
     return metrics_generator
@@ -75,6 +74,12 @@ def test_sep_metrics(mock_show):
         target_meas_keys=["ellipticity0"],
         target_meas_limits=[[-1, 1]],
         interactive=False,
+    )
+    plot_utils.plot_metrics_summary(
+        metrics_results,
+        target_meas_keys=["ellipticity0"],
+        target_meas_limits=[[-1, 1]],
+        interactive=True,
     )
     plot_utils.plot_with_deblended(
         blend_results["blend_images"],

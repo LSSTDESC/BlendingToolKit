@@ -91,10 +91,10 @@ def meas_ksb_ellipticity(image, additional_params):
                                   an integer indicating the band in which the measurement
                                   is done.
     """
-    psf_image = galsim.Image(image.shape[1], image.shape[2])
-    psf_image = additional_params["psf"].drawImage(psf_image)
-    pixel_scale = additional_params["pixel_scale"]
     meas_band_num = additional_params["meas_band_num"]
+    psf_image = galsim.Image(image.shape[1], image.shape[2])
+    psf_image = additional_params["psf"][meas_band_num].drawImage(psf_image)
+    pixel_scale = additional_params["pixel_scale"]
     verbose = additional_params["verbose"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
@@ -276,9 +276,12 @@ def detection_metrics(detection_catalogs, matches):
     results_detection["false_neg"] = false_neg
     results_detection["precision"] = true_pos / (true_pos + false_pos)
     results_detection["recall"] = true_pos / (true_pos + false_neg)
-    results_detection["f1"] = 2 / (
-        1 / results_detection["precision"] + 1 / results_detection["recall"]
-    )
+    if results_detection["precision"] != 0 and results_detection["recall"] != 0:
+        results_detection["f1"] = 2 / (
+            1 / results_detection["precision"] + 1 / results_detection["recall"]
+        )
+    else:
+        results_detection["f1"] = 0
     results_detection["eff_matrix"] = get_detection_eff_matrix(
         np.array(efficiency_input_table), np.max([len(match) for match in matches])
     )
@@ -316,7 +319,7 @@ def segmentation_metrics_blend(
     iou_blend_results = []
     matches_blend = matches["match_detected_id"]
     for j, match in enumerate(matches_blend):
-        if match != -1:
+        if match != -1 and detected_segmentations is not None:
             true_segmentation = isolated_images[j][meas_band_num] > noise_threshold
             detected_segmentation = detected_segmentations[match]
             iou_blend_results.append(
@@ -413,7 +416,7 @@ def reconstruction_metrics_blend(
         target_meas_blend_results[k + "_true"] = []
     for j in range(len(matches["match_detected_id"])):
         match_detected = matches["match_detected_id"][j]
-        if match_detected != -1:
+        if match_detected != -1 and deblended_images is not None:
             msr_blend_results.append(
                 skimage.metrics.mean_squared_error(
                     isolated_images[j], deblended_images[match_detected]
@@ -513,6 +516,7 @@ def reconstruction_metrics(
         ) = reconstruction_metrics_blend(
             isolated_images[i], deblended_images[i], matches[i], target_meas, target_meas_keys
         )
+
         msr_results.append(msr_blend_results)
         psnr_results.append(psnr_blend_results)
         ssim_results.append(ssim_blend_results)
@@ -534,7 +538,6 @@ def compute_metrics(  # noqa: C901
     detection_catalogs,
     segmentations=None,
     deblended_images=None,
-    use_metrics=("detection", "segmentation", "reconstruction"),
     noise_threshold=None,
     meas_band_num=0,
     target_meas={},
@@ -596,6 +599,7 @@ def compute_metrics(  # noqa: C901
         if deblended_images is not None:
             deblended_images = [np.moveaxis(im, -1, 1) for im in deblended_images]
     results = {}
+
     matches = [
         get_detection_match(
             blend_list[i], detection_catalogs[i], f_distance, distance_threshold_match
@@ -613,13 +617,13 @@ def compute_metrics(  # noqa: C901
         "blendedness",
     ]
 
-    if "detection" in use_metrics:
-        results["detection"] = detection_metrics(detection_catalogs, matches)
-    if "segmentation" in use_metrics:
+    to_save_keys = ["detection"]
+
+    results["detection"] = detection_metrics(detection_catalogs, matches)
+    if segmentations is not None:
         if noise_threshold is None:
             raise ValueError("You should provide a noise threshold to get segmentation metrics.")
-        if segmentations is None:
-            raise ValueError("You should provide segmentations to get segmentation metrics")
+        to_save_keys.append("segmentation")
         results["segmentation"] = segmentation_metrics(
             isolated_images,
             segmentations,
@@ -628,9 +632,8 @@ def compute_metrics(  # noqa: C901
             meas_band_num,
         )
         names += ["iou"]
-    if "reconstruction" in use_metrics:
-        if deblended_images is None:
-            raise ValueError("You should provide deblended images to get reconstruction metrics")
+    if deblended_images is not None:
+        to_save_keys.append("reconstruction")
         results["reconstruction"] = reconstruction_metrics(
             isolated_images,
             deblended_images,
@@ -658,9 +661,9 @@ def compute_metrics(  # noqa: C901
 
             row["blend_id"] = i
             row["blendedness"] = get_blendedness(isolated_images[i][j], isolated_images[i])
-            if "segmentation" in use_metrics:
+            if segmentations is not None:
                 row["iou"] = results["segmentation"]["iou"][i][j]
-            if "reconstruction" in use_metrics:
+            if deblended_images is not None:
                 for k in reconstruction_keys:
                     row[k] = results["reconstruction"][k][i][j]
             results["galaxy_summary"].add_row(row[0])
@@ -669,8 +672,7 @@ def compute_metrics(  # noqa: C901
     if save_path is not None:
         if not os.path.exists(save_path):
             os.mkdir(save_path)
-
-        for key in use_metrics:
+        for key in to_save_keys:
             np.save(os.path.join(save_path, f"{key}_metric"), results[key])
         results["galaxy_summary"].write(os.path.join(save_path, "galaxy_summary"), format="ascii")
 
@@ -683,7 +685,6 @@ class MetricsGenerator:
     def __init__(
         self,
         measure_generator,
-        use_metrics=("detection"),
         meas_band_num=0,
         noise_threshold_factor=3,
         target_meas=None,
@@ -696,10 +697,6 @@ class MetricsGenerator:
 
         Args:
             measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
-            use_metrics (tuple): Which metrics do you want to use? Options:
-                                - "detection"
-                                - "segmentation"
-                                - "reconstruction"
             meas_band_num (int): If using multiple bands for each blend, which band index
                 do you want to use for measurement?
             target_meas (dict): Dictionary containing functions that can measure a physical
@@ -719,7 +716,6 @@ class MetricsGenerator:
             verbose (bool): Indicates whether errors in the target_meas should be printed or not.
         """
         self.measure_generator: MeasureGenerator = measure_generator
-        self.use_metrics = use_metrics
         self.meas_band_num = meas_band_num
         self.target_meas = target_meas if target_meas is not None else {}
         self.noise_threshold_factor = noise_threshold_factor
@@ -731,39 +727,73 @@ class MetricsGenerator:
     def __next__(self):
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
-        survey = self.measure_generator.draw_blend_generator.surveys[0]
-        additional_params = {
-            "psf": blend_results["psf"][self.meas_band_num],
-            "pixel_scale": survey.pixel_scale,
-            "meas_band_num": self.meas_band_num,
-            "verbose": self.verbose,
-        }
-        target_meas = {}
-        for k in self.target_meas.keys():
-            target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+        surveys = self.measure_generator.draw_blend_generator.surveys
 
-        noise_threshold = self.noise_threshold_factor * np.sqrt(
-            get_mean_sky_level(survey, survey.filters[self.meas_band_num])
-        )
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
-            metrics_results_f = compute_metrics(
-                blend_results["isolated_images"],
-                blend_results["blend_list"],
-                measure_results["catalog"][meas_func],
-                measure_results["segmentation"][meas_func],
-                measure_results["deblended_images"][meas_func],
-                self.use_metrics,
-                noise_threshold,
-                self.meas_band_num,
-                target_meas,
-                channels_last=self.measure_generator.channels_last,
-                save_path=os.path.join(self.save_path, meas_func)
-                if self.save_path is not None
-                else None,
-                f_distance=self.f_distance,
-                distance_threshold_match=self.distance_threshold_match,
-            )
+            if isinstance(blend_results["isolated_images"], dict):
+                metrics_results_f = {}
+                for i, surv in enumerate(blend_results["isolated_images"].keys()):
+                    additional_params = {
+                        "psf": blend_results["psf"][surv],
+                        "pixel_scale": surveys[i].pixel_scale,
+                        "meas_band_num": self.meas_band_num[i],
+                        "verbose": self.verbose,
+                    }
+                    noise_threshold = self.noise_threshold_factor * np.sqrt(
+                        get_mean_sky_level(surveys[i], surveys[i].filters[self.meas_band_num[i]])
+                    )
+                    target_meas = {}
+                    for k in self.target_meas.keys():
+                        target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+
+                    metrics_results_f[surv] = compute_metrics(
+                        blend_results["isolated_images"][surv],
+                        blend_results["blend_list"][surv],
+                        measure_results["catalog"][meas_func][surv],
+                        measure_results["segmentation"][meas_func][surv],
+                        measure_results["deblended_images"][meas_func][surv],
+                        noise_threshold,
+                        self.meas_band_num[i],
+                        target_meas,
+                        channels_last=self.measure_generator.channels_last,
+                        save_path=os.path.join(self.save_path, meas_func)
+                        if self.save_path is not None
+                        else None,
+                        f_distance=self.f_distance,
+                        distance_threshold_match=self.distance_threshold_match,
+                    )
+
+            else:
+                additional_params = {
+                    "psf": blend_results["psf"],
+                    "pixel_scale": surveys[0].pixel_scale,
+                    "meas_band_num": self.meas_band_num,
+                    "verbose": self.verbose,
+                }
+                noise_threshold = self.noise_threshold_factor * np.sqrt(
+                    get_mean_sky_level(surveys[0], surveys[0].filters[self.meas_band_num])
+                )
+                target_meas = {}
+                for k in self.target_meas.keys():
+                    target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+
+                metrics_results_f = compute_metrics(
+                    blend_results["isolated_images"],
+                    blend_results["blend_list"],
+                    measure_results["catalog"][meas_func],
+                    measure_results["segmentation"][meas_func],
+                    measure_results["deblended_images"][meas_func],
+                    noise_threshold,
+                    self.meas_band_num,
+                    target_meas,
+                    channels_last=self.measure_generator.channels_last,
+                    save_path=os.path.join(self.save_path, meas_func)
+                    if self.save_path is not None
+                    else None,
+                    f_distance=self.f_distance,
+                    distance_threshold_match=self.distance_threshold_match,
+                )
             metrics_results[meas_func] = metrics_results_f
 
         return blend_results, measure_results, metrics_results

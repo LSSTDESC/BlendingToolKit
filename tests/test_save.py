@@ -31,7 +31,6 @@ def test_save():
     meas_generator = MeasureGenerator(sep_measure, draw_blend_generator, save_path=output_dir)
     metrics_generator = MetricsGenerator(
         meas_generator,
-        use_metrics=("detection", "segmentation", "reconstruction"),
         target_meas={"ellipticity": meas_ksb_ellipticity},
         save_path=output_dir,
     )
