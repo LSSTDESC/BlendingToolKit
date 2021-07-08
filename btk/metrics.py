@@ -672,7 +672,6 @@ def compute_metrics(  # noqa: C901
     if save_path is not None:
         if not os.path.exists(save_path):
             os.mkdir(save_path)
-        print(results.keys())
         for key in to_save_keys:
             np.save(os.path.join(save_path, f"{key}_metric"), results[key])
         results["galaxy_summary"].write(os.path.join(save_path, "galaxy_summary"), format="ascii")
