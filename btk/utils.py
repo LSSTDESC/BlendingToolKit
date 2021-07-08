@@ -151,7 +151,7 @@ def reverse_list_dictionary(to_reverse, keys):
         Dictionary.
     """
     if to_reverse[0] is None:
-        to_reverse = {k: [None for n in range(len(to_reverse))] for k in keys}
+        to_reverse = {k: [None for _ in range(len(to_reverse))] for k in keys}
     else:
         to_reverse = {k: [to_reverse[n][k] for n in range(len(to_reverse))] for k in keys}
     return to_reverse
