@@ -58,10 +58,8 @@ def get_metrics_generator(meas_function, cpus=1, f_distance=distance_center, mea
 def test_sep_metrics(mock_show):
     metrics_generator = get_metrics_generator(sep_measure)
     blend_results, meas_results, metrics_results = next(metrics_generator)
-    results = list(metrics_results.values())[0]
-    gal_summary = results["galaxy_summary"][
-        results["galaxy_summary"]["detected"] == True  # noqa: E712
-    ]
+    gal_summary = metrics_results["galaxy_summary"]["sep_measure"]
+    gal_summary = gal_summary[gal_summary["detected"] == True]  # noqa: E712
     msr = gal_summary["msr"]
     dist = gal_summary["distance_closest_galaxy"]
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -87,7 +85,7 @@ def test_sep_metrics(mock_show):
         blend_results["blend_list"],
         meas_results["catalog"]["sep_measure"],
         meas_results["deblended_images"]["sep_measure"],
-        metrics_results["sep_measure"]["matches"],
+        metrics_results["matches"]["sep_measure"],
         indexes=list(range(5)),
         band_indices=[1, 2, 3],
     )

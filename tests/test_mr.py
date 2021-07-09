@@ -55,8 +55,12 @@ def test_multiresolution(mock_show):
     assert (
         "HSC" in measure_results["catalog"]["sep_measure"].keys()
     ), "Both surveys get well defined outputs"
-    assert "Rubin" in metrics_results["sep_measure"].keys(), "Both surveys get well defined outputs"
-    assert "HSC" in metrics_results["sep_measure"].keys(), "Both surveys get well defined outputs"
+    assert (
+        "Rubin" in metrics_results["galaxy_summary"]["sep_measure"].keys()
+    ), "Both surveys get well defined outputs"
+    assert (
+        "HSC" in metrics_results["galaxy_summary"]["sep_measure"].keys()
+    ), "Both surveys get well defined outputs"
 
     plot_metrics_summary(
         metrics_results,

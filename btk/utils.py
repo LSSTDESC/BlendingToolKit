@@ -69,7 +69,7 @@ def load_measure_results(path, measure_name, n_batch):
     return measure_results
 
 
-def load_metrics_results(path, measure_name):
+def load_metrics_results(path, measure_name, survey_name):
     """Load results exported from a MetricsGenerator.
 
     Args:
@@ -87,13 +87,14 @@ def load_metrics_results(path, measure_name):
     for key in ["detection", "segmentation", "reconstruction"]:
         try:
             metrics_results[key] = np.load(
-                os.path.join(path, measure_name, f"{key}_metric.npy"), allow_pickle=True
+                os.path.join(path, measure_name, survey_name, f"{key}_metric.npy"),
+                allow_pickle=True,
             )
         except FileNotFoundError:
             print(f"No {key} metrics found.")
 
     metrics_results["galaxy_summary"] = Table.read(
-        os.path.join(path, measure_name, "galaxy_summary"),
+        os.path.join(path, measure_name, survey_name, "galaxy_summary"),
         format="ascii",
     )
     return metrics_results
@@ -119,7 +120,12 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
     for key in BLEND_RESULT_KEYS:
         blend_results[key] = {}
     measure_results = {"catalog": {}, "segmentation": {}, "deblended_images": {}}
-    metrics_results = {}
+    metrics_results = {
+        "detection": {},
+        "segmentation": {},
+        "reconstruction": {},
+        "galaxy_summary": {},
+    }
     for s in surveys:
         blend_results_temp = load_blend_results(path, s)
         for key in BLEND_RESULT_KEYS:
@@ -131,7 +137,17 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
             meas_results = load_measure_results(path, dir_name, n_batch)
             for k in meas_results.keys():
                 measure_results[k][dir_name] = meas_results[k]
-            metrics_results[dir_name] = load_metrics_results(path, dir_name)
+            for k in metrics_results.keys():
+                metrics_results[k][dir_name] = {}
+            if len(surveys) > 1:
+                for s in surveys:
+                    metr_results = load_metrics_results(path, dir_name, s)
+                    for k in metr_results.keys():
+                        metrics_results[k][dir_name][s] = metr_results[k]
+            else:
+                metr_results = load_metrics_results(path, dir_name, surveys[0])
+                for k in metr_results.keys():
+                    metrics_results[k][dir_name] = metr_results[k]
 
     return blend_results, measure_results, metrics_results
 
@@ -155,3 +171,21 @@ def reverse_list_dictionary(to_reverse, keys):
     else:
         to_reverse = {k: [to_reverse[n][k] for n in range(len(to_reverse))] for k in keys}
     return to_reverse
+
+
+def reverse_dictionary_dictionary(to_reverse):
+    """Exchanges two dictionary layers.
+
+    For instance, dic[keyA][key1] will become dic[key1][keyA].
+
+    Args:
+        to_reverse (dict): Dictionary of dictionaries.
+
+    Returns:
+        Reversed dictionary.
+    """
+    first_keys = list(to_reverse.keys())
+    second_keys = list(to_reverse[first_keys[0]].keys())
+    return {
+        s_key: {f_key: to_reverse[f_key][s_key] for f_key in first_keys} for s_key in second_keys
+    }
