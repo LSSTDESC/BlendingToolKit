@@ -470,9 +470,16 @@ Alternatively, you can optionally install ``galsim_hub`` along with BTK:
 pip install btk[galsim-hub]
 ```
 
-You can find a notebook version of this tutorial in the notebooks folder.
+You can find a notebook version of this tutorial in the notebooks folder of the btk repo.
+
+SCARLET implementation
+-----------------------
+
+We provide an implementation of [SCARLET](https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301), a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_ ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
+
+You will find the implementation in the notebook `scarlet-measure` in the notebooks folder of the btk repo.
 
 Advanced features
 ------------------
 
-You can find a detailed tutorial on several more advanced feature of BTK in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/advanced-features.ipynb>`_, including how to write your own measure function which should be interesting to most user. You will also see how to use the multiresolution, write your own sampling function or survey, use several measure functions and use of the measure_kwargs feature.
+You can find more details on specific features of BTK in these two tutorials : `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm.`The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".
