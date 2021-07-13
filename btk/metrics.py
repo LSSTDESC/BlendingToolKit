@@ -64,6 +64,7 @@ from scipy.optimize import linear_sum_assignment
 
 from btk.measure import MeasureGenerator
 from btk.survey import get_mean_sky_level
+from btk.utils import reverse_dictionary_dictionary
 
 
 def get_blendedness(iso_image, blend_iso_images):
@@ -757,12 +758,13 @@ class MetricsGenerator:
                         self.meas_band_num[i],
                         target_meas,
                         channels_last=self.measure_generator.channels_last,
-                        save_path=os.path.join(self.save_path, meas_func)
+                        save_path=os.path.join(self.save_path, meas_func, surv)
                         if self.save_path is not None
                         else None,
                         f_distance=self.f_distance,
                         distance_threshold_match=self.distance_threshold_match,
                     )
+                metrics_results_f = reverse_dictionary_dictionary(metrics_results_f)
 
             else:
                 additional_params = {
@@ -788,13 +790,14 @@ class MetricsGenerator:
                     self.meas_band_num,
                     target_meas,
                     channels_last=self.measure_generator.channels_last,
-                    save_path=os.path.join(self.save_path, meas_func)
+                    save_path=os.path.join(self.save_path, meas_func, surveys[0].name)
                     if self.save_path is not None
                     else None,
                     f_distance=self.f_distance,
                     distance_threshold_match=self.distance_threshold_match,
                 )
             metrics_results[meas_func] = metrics_results_f
+        metrics_results = reverse_dictionary_dictionary(metrics_results)
 
         return blend_results, measure_results, metrics_results
 
@@ -828,9 +831,8 @@ def auc(metrics_results, measure_name, n_meas, plot=False, ax=None):
     recalls = []
     average_precision = 0
     for i in range(n_meas):
-        metrics_results_temp = metrics_results[measure_name + str(i)]
-        precisions.append(metrics_results_temp["detection"]["precision"])
-        recalls.append(metrics_results_temp["detection"]["recall"])
+        precisions.append(metrics_results["detection"][measure_name + str(i)]["precision"])
+        recalls.append(metrics_results["detection"][measure_name + str(i)]["recall"])
     order = np.argsort(recalls)
     recalls = np.array(recalls)[order]
     precisions = np.array(precisions)[order]

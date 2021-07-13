@@ -50,6 +50,6 @@ def test_save():
         measure_results2["deblended_images"]["sep_measure"][0],
     )
     np.testing.assert_array_equal(
-        metrics_results["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
-        metrics_results2["sep_measure"]["galaxy_summary"]["distance_closest_galaxy"],
+        metrics_results["galaxy_summary"]["sep_measure"]["distance_closest_galaxy"],
+        metrics_results2["galaxy_summary"]["sep_measure"]["distance_closest_galaxy"],
     )
