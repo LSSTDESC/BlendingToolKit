@@ -145,7 +145,7 @@ The BTK Survey object defines the observing conditions relative to a survey. It 
 
 .. jupyter-execute::
 
-  from btk.survey import Rubin
+  Rubin = btk.survey.get_surveys("Rubin")
 
 You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for Rubin ::
 
@@ -247,7 +247,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
+Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. You can also take a look at the "custom" tutorial for which you will find the link at the end of this page. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -278,6 +278,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
   )
 
 The results from the ``next`` call are stored in the dictionnary ; the keys are :
+
   * ``blend_images`` for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
   * ``isolated_images`` for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
   * ``blend_list`` for the blend information (as a list of astropy tables corresponding to the output of the sampling function for each blend)
@@ -297,6 +298,7 @@ Measurement
 ............
 
 Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:
+
   * detections
   * segmentations
   * deblended images.
@@ -371,38 +373,29 @@ Finally, now that we have the measurements, we can compute metrics to evaluate t
   import btk.metrics
   import btk.plot_utils
 
-  metrics_generator = btk.metrics.MetricsGenerator(meas_generator,use_metrics=("detection","segmentation","reconstruction"),
+  metrics_generator = btk.metrics.MetricsGenerator(meas_generator,
                                                    target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity})
   blend_results,meas_results,results = next(metrics_generator)
 
 Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys "detection", "segmentation" and "reconstruction", you can directly access all the segmentation and reconstruction metrics with the "galaxy_summary" key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
+We can use the `plot_metrics_summary` to easily plot the results from the metrics.
 
 .. jupyter-execute::
 
-  results = list(results.values())[0]
-  gal_summary = results["galaxy_summary"][results["galaxy_summary"]["detected"]==True]
-  msr = gal_summary["msr"]
-  dist = gal_summary["distance_closest_galaxy"]
-  dist_detect = gal_summary["distance_detection"]
-
-  fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2)
-  btk.plot_utils.plot_metrics_distribution(msr,"msr",ax1,upper_quantile=0.9)
-  btk.plot_utils.plot_metrics_distribution(dist,"Distance to the closest galaxy",ax2)
-  btk.plot_utils.plot_metrics_correlation(dist,msr,"Distance to the closest galaxy","msr",ax3,upper_quantile=0.9,style='heatmap')
-  btk.plot_utils.plot_metrics_correlation(dist,dist_detect,"Distance to the closest galaxy","Distance detection",ax4,upper_quantile=0.9,style='scatter')
-  plt.show()
-
-  btk.plot_utils.plot_efficiency_matrix(results["detection"]["eff_matrix"])
+  btk.plot_utils.plot_metrics_summary(results,interactive=False)
 
 .. jupyter-execute::
 
-  gal_summary_filtered = gal_summary[gal_summary["ellipticity0_true"]<1.0]
-  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0_true"]>-1.0]
-  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0"]<1.0]
-  gal_summary_filtered = gal_summary_filtered[gal_summary_filtered["ellipticity0"]>-1.0]
-  e1 = gal_summary_filtered["ellipticity0"]
-  e1_true = gal_summary_filtered["ellipticity0_true"]
-  btk.plot_utils.plot_metrics_correlation(e1,e1_true,"e1","e1_true",upper_quantile=0.9,style='truth')
+  btk.plot_utils.plot_with_deblended(
+    blend_results["blend_images"],
+    blend_results["isolated_images"],
+    blend_results["blend_list"],
+    meas_results["catalog"]["sep_measure"],
+    meas_results["deblended_images"]["sep_measure"],
+    results["matches"]["sep_measure"],
+    indexes=list(range(5)),
+    band_indices=[1, 2, 3]
+  )
 
 Using COSMOS galaxies
 ----------------------
@@ -427,13 +420,12 @@ We can now create the corresponding instance of ``DrawBlendsGenerator``. There i
   draw_generator = btk.draw_blends.CosmosGenerator(
           catalog,
           sampling_function,
-          [btk.survey.Rubin],
+          btk.survey.get_surveys("Rubin"),
           batch_size=batch_size,
           stamp_size=stamp_size,
           cpus=1,
           add_noise=True,
           verbose=False,
-          meas_bands=["i"],
       )
 
 .. jupyter-execute::
@@ -460,26 +452,26 @@ BTK supports galaxy image generation with ``galsim_hub`` ; please refer to `this
 
 The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install ``galsim_hub``, which can be done using pip.
 
-```
-pip install galsim_hub
-```
+::
+
+  pip install galsim_hub
 
 Alternatively, you can optionally install ``galsim_hub`` along with BTK:
 
-```
-pip install btk[galsim-hub]
-```
+::
+
+  pip install btk[galsim-hub]
 
 You can find a notebook version of this tutorial in the notebooks folder of the btk repo.
 
 SCARLET implementation
 -----------------------
 
-We provide an implementation of [SCARLET](https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301), a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_ ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
+We provide an implementation of `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_ ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
 
 You will find the implementation in the notebook `scarlet-measure` in the notebooks folder of the btk repo.
 
 Advanced features
 ------------------
 
-You can find more details on specific features of BTK in these two tutorials : `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm.`The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".
+You can find more details on specific features of BTK in these two tutorials : `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. `The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".

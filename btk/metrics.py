@@ -45,11 +45,10 @@ Currently, we support the following metrics :
   * Blendedness, defined as :
 
     .. math::
-
-        1 - \\frac{S_k \\cdot S_k}{S_{all} \\cdot S_k}
+        1 - \frac{S_k \cdot S_k}{S_{all} \cdot S_k}
 
     where :math:`S_k` is the flux of the k-th galaxy for each pixel (as a vector),
-    :math:`S_{all}` is the flux of all the galaxies for each pixel, and :math:`\\cdot`
+    :math:`S_{all}` is the flux of all the galaxies for each pixel, and :math:`\cdot`
     is the standard scalar product on vectors.
 
 """
@@ -113,7 +112,7 @@ def meas_ksb_ellipticity(image, additional_params):
 
 
 def distance_center(true_gal, detected_gal):
-    """Computes distance between the two galaxies given as arguments.
+    """Computes the euclidean distance between the two galaxies given as arguments.
 
     Args:
         true_gal (astropy.table.Table): Contains information related to the true galaxy.
@@ -569,8 +568,6 @@ def compute_metrics(  # noqa: C901
                                 or NHWC depending on channels_last, where N is the number of
                                 detected objects (must be consistent with corresponding
                                 detection catalogs).
-        use_metrics (tuple) : Specifies which metrics are to be computed ; can contain "detection",
-                              "segmentation" and "reconstruction".
         noise_threshold (float) : Threshold to use when computing the true segmentations from
                                   isolated images.
         meas_band_num (int) : Indicates in which band some of the measurements should be done.
@@ -699,8 +696,10 @@ class MetricsGenerator:
 
         Args:
             measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
-            meas_band_num (int): If using multiple bands for each blend, which band index
-                do you want to use for measurement?
+            meas_band_num (int or tuple): Specifies the index of the band in which you want
+                measurements to be done (for segmentation and target measures). If
+                multiresolution, should be a tuple containing a band for each survey
+                (in the same order as the surveys were given).
             target_meas (dict): Dictionary containing functions that can measure a physical
                 parameter on isolated galaxy images. Each key is the name of the estimator and
                 value the function performing the estimation (e.g. `meas_ellipticity` above).

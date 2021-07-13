@@ -1,21 +1,22 @@
 """File containing measurement infrastructure for the BlendingToolKit.
 
 Contains examples of functions that can be used to apply a measurement algorithm to the blends
- simulated by BTK. Every measurement function should have the following skeleton:
+simulated by BTK. Every measurement function should have the following skeleton:
 
- ```
-def measure_function(batch, idx, **kwargs):
-    # do some measurements on the images contained in batch.
-    return output
- ```
+::
+
+    def measure_function(batch, idx, **kwargs):
+        # do some measurements on the images contained in batch.
+        return output
+
 
 where `batch` is the output from the `DrawBlendsGenerator` object (see its `__next__` method) and
 `idx` is the index corresponding to which image in the batch to measure. The additional keyword
 arguments `**kwargs` can be passed via the `measure_kwargs` dictionary argument in the
-`MeasureGerator` initialize which are shared among all the measurement functions.
+`MeasureGenerator` initialize which are shared among all the measurement functions.
 
 It should return a dictionary containing a subset of the following keys/values (note the key
-`catalog` is mandatory):
+catalog` is mandatory):
 
 * catalog (astropy.table.Table): An astropy table containing measurement information. The
   `len` of the table should be `n_objects`. If your
@@ -45,7 +46,9 @@ It should return a dictionary containing a subset of the following keys/values (
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
   The pixels set to True in the i-th channel correspond to the i-th
   object. The order should correspond to the order in the returned
-  `catalog`.
+  `catalog`. If you are using the multiresolution feature,
+  you should instead return a dictionary with a key for each survey containing the
+  aforementioned array.
 
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
@@ -64,7 +67,7 @@ from btk.utils import reverse_list_dictionary
 
 
 def add_pixel_columns(catalog, wcs):
-    """Uses the wcs to add column corresponding to pixel coordinates.
+    """Uses the wcs to add a column to the catalog corresponding to pixel coordinates.
 
     The catalog must contain `ra` and `dec` columns.
 
@@ -192,15 +195,7 @@ def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, 
 
 
 class MeasureGenerator:
-    """Generates output of deblender and measurement algorithm.
-
-    Attributes:
-        self.measure_functions (list): List of functions that take as input the output from
-                                        DrawBlendsGenerator and return the output of a measurement
-                                        (see module docstring).
-    """
-
-    measure_params = {"deblended_images", "catalog", "segmentation"}
+    """Generates output of deblender and measurement algorithm."""
 
     def __init__(
         self,
@@ -221,9 +216,9 @@ class MeasureGenerator:
             cpus: The number of parallel processes to run [Default: 1].
             verbose (bool): Whether to print information about measurement.
             measure_kwargs (list): list of dictionaries containing keyword arguments
-            to be passed in to each of the `measure_functions`. Each dictionnary is
-            passed one time to each function, meaning that each function which be
-            ran as many times as there are different dictionnaries.
+                to be passed in to each of the `measure_functions`. Each dictionnary is
+                passed one time to each function, meaning that each function which be
+                ran as many times as there are different dictionnaries.
             save_path (str): Path to a directory where results will be saved. If left
                               as None, results will not be saved.
         """
@@ -313,7 +308,7 @@ class MeasureGenerator:
                                         f"your measurement functions."
                                         f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
                                     )
-            out = {k: out.get(k, None) for k in self.measure_params}
+            out = {k: out.get(k, None) for k in ["deblended_images", "catalog", "segmentation"]}
             output.append(out)
         return output
 

@@ -301,9 +301,9 @@ class DrawBlendsGenerator(ABC):
             wcs (astropy.wcs.WCS) : astropy WCS object
             survey (dict) : Dictionary containing survey information.
             extra_data : This field can be used if some data need to be generated
-            before getting to the step where single galaxies are drawn. It should
-            have a "shape" of (batch_size,n_blend,...) where n_blend is the number
-            of objects in a blend. See GalsimHubGenerator for an example of usage.
+                before getting to the step where single galaxies are drawn. It should
+                have a "shape" of (batch_size,n_blend,...) where n_blend is the number
+                of objects in a blend. See GalsimHubGenerator for an example of usage.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -367,8 +367,8 @@ class DrawBlendsGenerator(ABC):
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
             extra_data : Special field of shape (n_blend,?), containing
-            additionnal data for drawing the blend. See render_minibatch
-            method for more details.
+                additional data for drawing the blend. See render_minibatch
+                method for more details.
 
         Returns:
             Images of blend and isolated galaxies as `numpy.ndarray`.
@@ -412,7 +412,7 @@ class DrawBlendsGenerator(ABC):
             psf : Galsim object containing the PSF relative to the chosen filter
             survey (btk.survey.Survey) : BTK Survey object
             extra_data : Special field containing extra data for drawing a single galaxy.
-            See render_minibatch method for more details.
+                See render_minibatch method for more details.
 
         Returns:
             galsim.Image object
@@ -502,10 +502,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
         save_path=None,
-    ):
+    ):  # noqa: D417
         """Initializes the GalsimHubGenerator class.
 
-        Args:  # noqa: D417
+        Args:
             galsim_hub_model (str) : Source of the model to use. Can be
                     either a distant model or a local one, see the
                     galsim_hub repo for more information.

@@ -107,7 +107,7 @@ def get_surveys(names="Rubin", overrides: Iterable = ()):
     """Return specified surveys as `btk.survey.Survey` objects.
 
     NOTE: The surveys currently implemented correspond to config files inside `conf/surveys`. See
-        the documentation for how to add your own surveys via custom config files.
+    the documentation for how to add your own surveys via custom config files.
 
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
