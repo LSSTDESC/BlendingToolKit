@@ -55,6 +55,7 @@ jobs:
         run: |
           cd docs
           poetry run make html
+          echo $(.SHELLSTATUS)
           cd build/html
           touch .nojekyll
 
