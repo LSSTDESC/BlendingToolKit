@@ -54,7 +54,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd docs
-          make html
+          poetry run make html
           cd build/html
           touch .nojekyll
 
