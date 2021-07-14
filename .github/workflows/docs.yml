@@ -51,7 +51,7 @@ jobs:
           poetry install --extras "galsim-hub"
 
       - name: build docs
-        shell: bash -l {0}
+        shell: powershell
         run: |
           cd docs
           poetry run make html
