@@ -55,7 +55,7 @@ jobs:
         run: |
           cd docs
           poetry run make html
-          if [ $? = 2 ]; then exit 1;
+          if [ $? = 2 ]; then exit 1;fi
           cd build/html
           touch .nojekyll
 
