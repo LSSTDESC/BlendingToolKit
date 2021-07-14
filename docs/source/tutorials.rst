@@ -433,7 +433,7 @@ We can now create the corresponding instance of ``DrawBlendsGenerator``. There i
   batch = next(draw_generator)
   blend_images = batch['blend_images']
   blend_list = batch['blend_list']
-  btk.plot_utils.plot_blens(blend_images, blend_list, limits=(30,90))
+  btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
 
 
 Using a custom COSMOS data set
