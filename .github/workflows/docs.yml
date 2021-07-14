@@ -55,7 +55,7 @@ jobs:
         run: |
           cd docs
           poetry run make html
-          echo $?
+          exit $?
           cd build/html
           touch .nojekyll
 
