@@ -36,7 +36,9 @@ def get_center_in_pixels(blend_catalog, wcs):
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
-    x_peak, y_peak = wcs.all_world2pix(blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600, 0)
+    x_peak, y_peak = wcs.world_to_pixel_values(
+        blend_catalog["ra"] / 3600, blend_catalog["dec"] / 3600
+    )
     dx_col = Column(x_peak, name="x_peak")
     dy_col = Column(y_peak, name="y_peak")
     return dx_col, dy_col
