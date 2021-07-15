@@ -108,6 +108,7 @@ def meas_ksb_ellipticity(image, additional_params):
             f"Shear measurement error : '{res.error_message }'. \
             This error may happen for faint galaxies or inaccurate detections."
         )
+        result = [np.nan, np.nan, np.nan]
     return result
 
 
@@ -328,7 +329,7 @@ def segmentation_metrics_blend(
                 / np.sum(np.logical_or(true_segmentation, detected_segmentation))
             )
         else:
-            iou_blend_results.append(-1)
+            iou_blend_results.append(np.nan)
     return iou_blend_results
 
 
@@ -448,11 +449,11 @@ def reconstruction_metrics_blend(
                     target_meas_blend_results[k].append(res_deblended)
                     target_meas_blend_results[k + "_true"].append(res_isolated)
         else:
-            msr_blend_results.append(-1)
-            psnr_blend_results.append(-1)
-            ssim_blend_results.append(-1)
+            msr_blend_results.append(np.nan)
+            psnr_blend_results.append(np.nan)
+            ssim_blend_results.append(np.nan)
             for k in target_meas_blend_results.keys():
-                target_meas_blend_results[k].append(-1)
+                target_meas_blend_results[k].append(np.nan)
 
     return msr_blend_results, psnr_blend_results, ssim_blend_results, target_meas_blend_results
 
