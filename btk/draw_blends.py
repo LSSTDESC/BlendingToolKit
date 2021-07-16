@@ -469,12 +469,6 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
 
-        # Convolution by a small gaussian: the galsim models actually have noise in a little patch
-        # around them, so a gaussian kernel convolution smoothes it out.
-        # It has the slight disadvantage of adding some band-limitedness to the image,
-        # but with a small kernel, it's better than doing nothing.
-        # gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
-
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
         # Apply the shift
