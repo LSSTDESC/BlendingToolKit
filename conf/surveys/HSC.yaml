@@ -48,7 +48,7 @@ HSC:
           filt_wavelength: ${central_wavelength.i}
     y:
       name: "y"
-      sky_brightness: 18.3
+      sky_brightness: 17.9
       exp_time: 1200
       zeropoint: 29.56
       extinction: 0.05
@@ -61,7 +61,7 @@ HSC:
           filt_wavelength: ${central_wavelength.y}
     z:
       name: "z"
-      sky_brightness: 17.9
+      sky_brightness: 18.3
       exp_time: 1200
       zeropoint: 21.53
       extinction: 0.05

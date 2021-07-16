@@ -456,18 +456,18 @@ class CosmosGenerator(DrawBlendsGenerator):
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
         galsim_catalog = self.catalog.get_galsim_catalog()
-        gal_flux = get_flux(entry["ref_mag"], filt, survey)
+
+        # get galaxy flux
+        try:
+            gal_flux = get_flux(entry[f"{survey.name}_{filt.name}"], filt, survey)
+        except KeyError:
+            gal_flux = get_flux(entry["ref_mag"], filt, survey)
+
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type="real", noise_pad_size=0
         ).withFlux(gal_flux)
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
-
-        # Convolution by a small gaussian: the galsim models actually have noise in a little patch
-        # around them, so a gaussian kernel convolution smoothes it out.
-        # It has the slight disadvantage of adding some band-limitedness to the image,
-        # but with a small kernel, it's better than doing nothing.
-        gal = galsim.Convolve(gal, galsim.Gaussian(sigma=2 * survey.pixel_scale))
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)

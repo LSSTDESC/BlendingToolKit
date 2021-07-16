@@ -137,6 +137,7 @@ class CosmosCatalog(Catalog):
         size = raw_catalog["flux_radius"] * raw_catalog["PIXEL_SCALE"]
         table["btk_size"] = size
         table["btk_index"] = index
+
         return table
 
     def get_galsim_catalog(self):
