@@ -27,13 +27,18 @@ version = "0.0.0"
 
 [tool.poetry.dependencies]
 astropy = "^4.2"
+autograd = {version = "^1.3", optional = true}
 galsim = "^2.2.4"
 galsim-hub = {version = "^0.0.1-rc.4", python = "~3.7", optional = true}
 hydra-core = "^1.0.6"
 matplotlib = "^3.3.3"
 numpy = "^1.18.5"
 pandas = "^1.2.5"
+peigen = {version = "^0.0.9", optional = true}
+proxmin = {version = "^0.6.11", optional = true}
+pybind11 = {version = "^2.7.0", optional = true}
 python = "^3.7.1"
+scarlet = {git = "https://github.com/pmelchior/scarlet", optional = true}
 scikit-image = "^0.18.0"
 scipy = "^1.4.1"
 seaborn = "^0.11.1"
@@ -75,6 +80,7 @@ target-version = ['py37']
 
 [tool.poetry.extras]
 galsim-hub = ["galsim-hub", "tensorflow"]
+scarlet = ["peigen", "autograd", "pybind11", "proxmin", "scarlet"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

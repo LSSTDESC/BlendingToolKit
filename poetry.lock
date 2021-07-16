@@ -125,6 +125,18 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [[package]]
+name = "autograd"
+version = "1.3"
+description = "Efficiently computes derivatives of numpy code."
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+future = ">=0.15.2"
+numpy = ">=1.12"
+
+[[package]]
 name = "babel"
 version = "2.9.1"
 description = "Internationalization utilities"
@@ -1126,6 +1138,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "peigen"
+version = "0.0.9"
+description = "Python wrapper for Eigen C++ header"
+category = "main"
+optional = true
+python-versions = "*"
+
+[[package]]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -1223,6 +1243,18 @@ python-versions = "*"
 
 [package.dependencies]
 six = ">=1.9"
+
+[[package]]
+name = "proxmin"
+version = "0.6.11"
+description = "Proximal methods for constrained optimization"
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
 
 [[package]]
 name = "ptyprocess"
@@ -1465,6 +1497,30 @@ urllib3 = ">=1.21.1,<1.27"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+
+[[package]]
+name = "scarlet"
+version = "1.0.1+g3e83d8e"
+description = "Blind Source Separation using proximal matrix factorization"
+category = "main"
+optional = true
+python-versions = "*"
+develop = false
+
+[package.dependencies]
+astropy = "*"
+autograd = ">=1.3"
+numpy = "*"
+peigen = ">=0.0.9"
+proxmin = ">=0.6.11"
+pybind11 = ">=2.2"
+scipy = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/pmelchior/scarlet"
+reference = "master"
+resolved_reference = "3e83d8e294813de35cb9cb57d33a35a3429b936a"
 
 [[package]]
 name = "scikit-image"
@@ -1921,11 +1977,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 
 [extras]
 galsim-hub = ["galsim-hub", "tensorflow"]
+scarlet = ["peigen", "autograd", "pybind11", "proxmin", "scarlet"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "fc7e97f4337568373c1539aaf2d0fe3dd14128abfbe165787231777f4e070049"
+content-hash = "ef792688bde66019475548404282aeeac858bf95f141e7dcd1a32807537f32d7"
 
 [metadata.files]
 absl-py = [
@@ -2004,6 +2061,9 @@ atomicwrites = [
 attrs = [
     {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
+]
+autograd = [
+    {file = "autograd-1.3.tar.gz", hash = "sha256:a15d147577e10de037de3740ca93bfa3b5a7cdfbc34cfb9105429c3580a33ec4"},
 ]
 babel = [
     {file = "Babel-2.9.1-py2.py3-none-any.whl", hash = "sha256:ab49e12b91d937cd11f0b67cb259a57ab4ad2b59ac7a3b41d6c06c0ac5b0def9"},
@@ -2716,6 +2776,9 @@ pathspec = [
     {file = "pathspec-0.8.1-py2.py3-none-any.whl", hash = "sha256:aa0cb481c4041bf52ffa7b0d8fa6cd3e88a2ca4879c533c9153882ee2556790d"},
     {file = "pathspec-0.8.1.tar.gz", hash = "sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd"},
 ]
+peigen = [
+    {file = "peigen-0.0.9.tar.gz", hash = "sha256:97f88e9f044ccb99327ea2526f1e41c104162f7671c8d72729857f209064416f"},
+]
 pexpect = [
     {file = "pexpect-4.8.0-py2.py3-none-any.whl", hash = "sha256:0b48a55dcb3c05f3329815901ea4fc1537514d6ba867a152b581d69ae3710937"},
     {file = "pexpect-4.8.0.tar.gz", hash = "sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"},
@@ -2809,6 +2872,10 @@ protobuf = [
     {file = "protobuf-3.17.3-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e76d9686e088fece2450dbc7ee905f9be904e427341d289acbe9ad00b78ebd47"},
     {file = "protobuf-3.17.3-py2.py3-none-any.whl", hash = "sha256:2bfb815216a9cd9faec52b16fd2bfa68437a44b67c56bee59bc3926522ecb04e"},
     {file = "protobuf-3.17.3.tar.gz", hash = "sha256:72804ea5eaa9c22a090d2803813e280fb273b62d5ae497aaf3553d141c4fdd7b"},
+]
+proxmin = [
+    {file = "proxmin-0.6.11-py2.py3-none-any.whl", hash = "sha256:bb527c18ea4406360093583ac48823a44f6348a4dcf0b853004cda4bae6e341c"},
+    {file = "proxmin-0.6.11.tar.gz", hash = "sha256:34f51e524e52ffa2a0b7faf716e9f0d69561dd55d3522edb5d80e31c839d2ef5"},
 ]
 ptyprocess = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
@@ -3068,6 +3135,7 @@ requests = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
+scarlet = []
 scikit-image = [
     {file = "scikit-image-0.18.2.tar.gz", hash = "sha256:32ff472355fbf8ab40a8e9ed685906c6c51a863f1ea8737882d26be9221631f3"},
     {file = "scikit_image-0.18.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:6f6d0e79a91c62360708111951abb3a774cefac865902ea797c3b72d8ece6382"},

@@ -51,7 +51,7 @@ jobs:
       - name: Install poetry dependencies
         run: |
           poetry run pip install Cython
-          poetry install --extras "galsim-hub"
+          poetry install
 
       - name: Run pre-commit checks
         run: |
