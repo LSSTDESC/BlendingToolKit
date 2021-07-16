@@ -23,7 +23,7 @@ name = "blending_toolkit"
 packages = [{include = "btk"}]
 readme = "README.md"
 repository = "https://github.com/LSSTDESC/BlendingToolKit"
-version = "0.0.1-alpha.5"
+version = "0.0.0"
 
 [tool.poetry.dependencies]
 astropy = "^4.2"
@@ -32,13 +32,13 @@ galsim-hub = {version = "^0.0.1-rc.4", python = "~3.7", optional = true}
 hydra-core = "^1.0.6"
 matplotlib = "^3.3.3"
 numpy = "^1.18.5"
+pandas = "^1.2.5"
 python = "^3.7.1"
 scikit-image = "^0.18.0"
 scipy = "^1.4.1"
+seaborn = "^0.11.1"
 sep = "^1.1.1"
 tensorflow = {version = "1.15.5", python = "~3.7", optional = true}
-pandas = "^1.2.5"
-seaborn = "^0.11.1"
 
 [tool.poetry.dev-dependencies]
 Cython = "^0.29.21"
