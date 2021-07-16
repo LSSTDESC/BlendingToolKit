@@ -73,7 +73,7 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a proiri for the default input settings.
         """
-        test_batch_max = np.array([90.721, 1245.693, 7636.189, 10329.56, 8506.056, 4772.817])
+        test_batch_max = np.array([90.721, 1245.694, 7636.193, 10329.563, 8506.06, 4772.819])
         test_batch_mean = 3.1101762559117585
         test_batch_std = 90.74182140645624
         batch_max = isolated_images.max(axis=(0, 1, 3, 4))
