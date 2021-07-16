@@ -524,8 +524,9 @@ def plot_metrics_summary(  # noqa: C901
             key: widgets.Checkbox(description=key, value=False, layout=layout)
             for key in measure_keys
         }
+        title_widget = widgets.HTML("<em>Measure functions</em>")
         measure_functions = [measure_functions_dict[key] for key in measure_keys]
-        measure_functions_widget = widgets.VBox(measure_functions, description="Measure functions")
+        measure_functions_widget = widgets.VBox([*measure_functions, title_widget])
         # Checkboxes for selecting the survey (if multiresolution)
         if multiresolution:
             surveys_dict = {
@@ -533,7 +534,8 @@ def plot_metrics_summary(  # noqa: C901
                 for key in survey_keys
             }
             surveys = [surveys_dict[key] for key in survey_keys]
-            surveys_widget = widgets.VBox(surveys, description="Surveys")
+            title_widget = widgets.HTML("<em>Surveys</em>")
+            surveys_widget = widgets.VBox([*surveys, title_widget])
             measure_surveys_widget = widgets.VBox([measure_functions_widget, surveys_widget])
         else:
             measure_surveys_widget = measure_functions_widget
