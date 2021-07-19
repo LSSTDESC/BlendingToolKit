@@ -32,7 +32,7 @@ def get_center_in_pixels(blend_catalog, wcs):
 
     Args:
         blend_catalog: Catalog with entries corresponding to one blend.
-        wcs (astropy.wcs.WCS) : astropy WCS object corresponding to the image
+        wcs (astropy.wcs.WCS): astropy WCS object corresponding to the image
     Returns:
         `astropy.table.Column`: x and y coordinates of object centroid
     """
@@ -54,12 +54,12 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
     Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
     Args:
-        entry (astropy.table.Table) : single astropy line containing information on the galaxy
-        survey (btk.survey.Survey) : BTK Survey object
-        filt (btk.survey.Filter) : BTK Filter object
-        no_disk (bool) : Sets the flux for the disk to zero
-        no_bulge (bool) : Sets the flux for the bulge to zero
-        no_agn (bool) : Sets the flux for the AGN to zero
+        entry (astropy.table.Table): single astropy line containing information on the galaxy
+        survey (btk.survey.Survey): BTK Survey object
+        filt (btk.survey.Filter): BTK Filter object
+        no_disk (bool): Sets the flux for the disk to zero
+        no_bulge (bool): Sets the flux for the bulge to zero
+        no_agn (bool): Sets the flux for the AGN to zero
     Returns:
         Galsim galaxy profile
     """
@@ -187,7 +187,7 @@ class DrawBlendsGenerator(ABC):
         """Outputs dictionary containing blend output (images and catalogs) in batches.
 
         Returns:
-            output : Dictionary with blend images, isolated object images, blend catalog,
+            output: Dictionary with blend images, isolated object images, blend catalog,
             PSF images and WCS.
         """
         blend_list = {}
@@ -296,13 +296,13 @@ class DrawBlendsGenerator(ABC):
         was not drawn and object centers in pixel coordinates.
 
         Args:
-            blend_list (list) : List of catalogs with entries corresponding to one
+            blend_list (list): List of catalogs with entries corresponding to one
                                blend. The size of this list is equal to the
                                mini_batch_size.
-            psf (list) : List of Galsim objects containing the PSF
-            wcs (astropy.wcs.WCS) : astropy WCS object
-            survey (dict) : Dictionary containing survey information.
-            extra_data : This field can be used if some data need to be generated
+            psf (list): List of Galsim objects containing the PSF
+            wcs (astropy.wcs.WCS): astropy WCS object
+            survey (dict): Dictionary containing survey information.
+            extra_data: This field can be used if some data need to be generated
                 before getting to the step where single galaxies are drawn. It should
                 have a "shape" of (batch_size,n_blend,...) where n_blend is the number
                 of objects in a blend. See GalsimHubGenerator for an example of usage.
@@ -364,11 +364,11 @@ class DrawBlendsGenerator(ABC):
         If a galaxy was not drawn by descwl, then this flag is set to 1.
 
         Args:
-            blend_catalog (astropy.table.Table) : Catalog with entries corresponding to one blend.
-            psf : Galsim object containing the psf for the given filter
+            blend_catalog (astropy.table.Table): Catalog with entries corresponding to one blend.
+            psf: Galsim object containing the psf for the given filter
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
-            extra_data : Special field of shape (n_blend,?), containing
+            extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
                 method for more details.
 
@@ -409,11 +409,11 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             entry (astropy.table.Table): Line from astropy describing the galaxy to draw
-            filt (btk.survey.Filter) : BTK Filter object corresponding to the band where
+            filt (btk.survey.Filter): BTK Filter object corresponding to the band where
                                 the image is drawn `
-            psf : Galsim object containing the PSF relative to the chosen filter
-            survey (btk.survey.Survey) : BTK Survey object
-            extra_data : Special field containing extra data for drawing a single galaxy.
+            psf: Galsim object containing the PSF relative to the chosen filter
+            survey (btk.survey.Survey): BTK Survey object
+            extra_data: Special field containing extra data for drawing a single galaxy.
                 See render_minibatch method for more details.
 
         Returns:
@@ -508,10 +508,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         """Initializes the GalsimHubGenerator class.
 
         Args:
-            galsim_hub_model (str) : Source of the model to use. Can be
+            galsim_hub_model (str): Source of the model to use. Can be
                     either a distant model or a local one, see the
                     galsim_hub repo for more information.
-            param_names (list) : list of the parameters with which
+            param_names (list): list of the parameters with which
                     the generation is parametrized; this is unique to
                     each model.
         """
