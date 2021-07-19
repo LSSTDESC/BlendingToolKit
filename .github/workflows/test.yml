@@ -48,11 +48,15 @@ jobs:
       - name: Install poetry dependencies
         run: |
           poetry run pip install Cython
-          poetry install --extras "galsim-hub"
+          poetry install --extras "galsim-hub scarlet"
 
       - name: Run Tests
         run: |
           poetry run pytest --cov=./btk --cov-report=xml --durations=0
+
+      - name: Run notebooks
+        run: |
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/galsim_hub_tutorial.ipynb"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

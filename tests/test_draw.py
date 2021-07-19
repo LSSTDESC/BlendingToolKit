@@ -164,7 +164,7 @@ class TestBasicDraw:
         self.match_background_noise(draw_output["blend_images"])
 
     def test_basic_sampling(self):
-        sampling_function = btk.sampling_functions.BasicSamplingFunction()
+        sampling_function = btk.sampling_functions.BasicSampling()
         draw_generator = get_draw_generator(
             fixed_parameters=True, sampling_function=sampling_function
         )

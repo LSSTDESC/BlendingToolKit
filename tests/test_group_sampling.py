@@ -3,7 +3,7 @@ from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
-from btk.sampling_functions import GroupSamplingFunctionNumbered
+from btk.sampling_functions import GroupSamplingNumbered
 from btk.survey import get_surveys
 
 
@@ -18,7 +18,7 @@ def get_group_sampling_draw_generator(batch_size=3):
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     catalog = CatsimCatalog.from_file(catalog_name)
-    sampling_function = GroupSamplingFunctionNumbered(
+    sampling_function = GroupSamplingNumbered(
         max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
     )
     draw_blend_generator = CatsimGenerator(

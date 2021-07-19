@@ -184,7 +184,7 @@ class DefaultSamplingGalsimHub(SamplingFunction):
         return blend_table
 
 
-class BasicSamplingFunction(SamplingFunction):
+class BasicSampling(SamplingFunction):
     """Example of basic sampling function features.
 
     Includes magnitude cut, restriction on the shape, shift randomization.
@@ -249,7 +249,7 @@ class BasicSamplingFunction(SamplingFunction):
         return blend_table
 
 
-class GroupSamplingFunction(SamplingFunction):
+class GroupSampling(SamplingFunction):
     """Uses a pre-analyzed WLD catalog to draw blends."""
 
     def __init__(
@@ -333,7 +333,7 @@ class GroupSamplingFunction(SamplingFunction):
         return no_boundary[select]
 
 
-class GroupSamplingFunctionNumbered(SamplingFunction):
+class GroupSamplingNumbered(SamplingFunction):
     """Defines blends based on previously analyzed WLD catalog & exits once all groups are used."""
 
     def __init__(
@@ -426,6 +426,6 @@ class GroupSamplingFunctionNumbered(SamplingFunction):
 available_sampling_functions = {
     "DefaultSampling": DefaultSampling,
     "DefaultSamplingGalsimHub": DefaultSamplingGalsimHub,
-    "GroupSamplingFunction": GroupSamplingFunction,
-    "GroupSamplingFunctionNumbered": GroupSamplingFunctionNumbered,
+    "GroupSampling": GroupSampling,
+    "GroupSamplingNumbered": GroupSamplingNumbered,
 }
