@@ -33,7 +33,7 @@ You can skip step `2.` if you are OK using poetry. Please post an issue in the g
 
 ## Pull Requests
 
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch. If you are planning to create a PR and merge it into BTK, it is recommended that you create a branch inside the `BTK` repo so that other people can contribute too :) (and not a separate fork).
+1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch.
 
 2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
