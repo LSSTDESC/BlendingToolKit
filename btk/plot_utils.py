@@ -525,7 +525,9 @@ def plot_metrics_summary(  # noqa: C901
             for key in measure_keys
         }
         measure_functions = [measure_functions_dict[key] for key in measure_keys]
-        measure_functions_widget = widgets.VBox(measure_functions, description="Measure functions")
+        measure_functions_widget = widgets.VBox(measure_functions)
+        measure_title_widget = widgets.HTML("<em>Measure functions</em>")
+        measure_vbox = widgets.VBox([measure_title_widget, measure_functions_widget])
         # Checkboxes for selecting the survey (if multiresolution)
         if multiresolution:
             surveys_dict = {
@@ -533,10 +535,12 @@ def plot_metrics_summary(  # noqa: C901
                 for key in survey_keys
             }
             surveys = [surveys_dict[key] for key in survey_keys]
-            surveys_widget = widgets.VBox(surveys, description="Surveys")
-            measure_surveys_widget = widgets.VBox([measure_functions_widget, surveys_widget])
+            surveys_widget = widgets.VBox(surveys)
+            surveys_title_widget = widgets.HTML("<em>Surveys</em>")
+            surveys_vbox = widgets.VBox([surveys_title_widget, surveys_widget])
+            measure_surveys_widget = widgets.VBox([measure_vbox, surveys_vbox])
         else:
-            measure_surveys_widget = measure_functions_widget
+            measure_surveys_widget = measure_vbox
         # Sliders to filter based on parameters
         blendedness_widget = widgets.FloatRangeSlider(
             description="Blendedness",
