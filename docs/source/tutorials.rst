@@ -39,14 +39,14 @@ We will first explore the image generation part of BTK. We need to provide 3 mai
 Catalog
 ........
 
-BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs : Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the Catalog class ; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the ``from_file`` method as demonstrated here with our example catalog.
+BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs : Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the Catalog class; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the ``from_file`` method as demonstrated here with our example catalog.
 
 .. jupyter-execute::
 
   catalog_name = "../data/sample_input_catalog.fits"
   catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 
-It is also possible to instantiate the class by giving it the catalog directly ; the ``from_file`` method is merely a shortcut.
+It is also possible to instantiate the class by giving it the catalog directly; the ``from_file`` method is merely a shortcut.
 
 .. jupyter-execute::
 
@@ -136,12 +136,12 @@ As a reference, here is the code for this sampling function.::
               warnings.warn("Object center lies outside the stamp")
           return blend_table
 
-You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts. You may write more complex sampling functions if you wish to have more control over how the galaxies are drawn ; there are some other examples in the ``btk.sampling_functions`` file.
+You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts. You may write more complex sampling functions if you wish to have more control over how the galaxies are drawn; there are some other examples in the ``btk.sampling_functions`` file.
 
 Survey
 .......
 
-The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time). Numerous surveys are already implemented in BTK ; we will import the Rubin one for this tutorial.
+The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time). Numerous surveys are already implemented in BTK; we will import the Rubin one for this tutorial.
 
 .. jupyter-execute::
 
@@ -247,7 +247,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. You can also take a look at the "custom" tutorial for which you will find the link at the end of this page. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
+Most attributes should be pretty straightforward to modify; please take a look at the documentation for a more substantial description of the attributes. You can also take a look at the "custom" tutorial for which you will find the link at the end of this page. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
 
 .. jupyter-execute::
 
@@ -255,7 +255,7 @@ Most attributes should be pretty straightforward to modify ; please take a look 
       fwhm = np.random.uniform(1.5,1.7)
       return galsim.Kolmogorov(fwhm)
 
-You may want to use a function taking an argument to avoid rewriting the function for each filter ; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda : get_custom_psf(u_band_argument)``.
+You may want to use a function taking an argument to avoid rewriting the function for each filter; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda : get_custom_psf(u_band_argument)``.
 Finally, you can use the default function ``get_psf`` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided).
 
 Drawing the blends
@@ -277,7 +277,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       add_noise=True,
   )
 
-The results from the ``next`` call are stored in the dictionnary ; the keys are :
+The results from the ``next`` call are stored in the dictionnary; the keys are :
 
   * ``blend_images`` for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
   * ``isolated_images`` for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
@@ -413,7 +413,7 @@ We will now focus on generating images using galaxies from the COSMOS catalog. Y
   catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
   sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
 
-We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band ; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. You can refer to the following section to circumvent this issue.
+We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. You can refer to the following section to circumvent this issue.
 
 .. jupyter-execute::
 
@@ -448,7 +448,7 @@ Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates
 Galsim_Hub tutorial
 --------------------
 
-BTK supports galaxy image generation with ``galsim_hub`` ; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``.
+BTK supports galaxy image generation with ``galsim_hub``; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``.
 
 The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install ``galsim_hub``, which can be done using pip.
 
@@ -467,7 +467,7 @@ You can find a notebook version of this tutorial in the notebooks folder of the 
 SCARLET implementation
 -----------------------
 
-We provide an implementation of `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_ ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
+We provide an implementation of `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
 
 You will find the implementation in the notebook `scarlet-measure` in the notebooks folder of the btk repo.
 

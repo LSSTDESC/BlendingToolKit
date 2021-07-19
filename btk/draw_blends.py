@@ -512,7 +512,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
                     either a distant model or a local one, see the
                     galsim_hub repo for more information.
             param_names (list) : list of the parameters with which
-                    the generation is parametrized ; this is unique to
+                    the generation is parametrized; this is unique to
                     each model.
         """
         super().__init__(

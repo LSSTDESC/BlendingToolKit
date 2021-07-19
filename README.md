@@ -18,9 +18,9 @@ Documentation can be found at https://lsstdesc.org/BlendingToolKit/index.html
 
 Color code for this flowchart :
 - Classes in black should be used as is by the user.
-- Classes in red may be reimplemented by the experienced user ; we recommend for new users to use the default implementations until they are familiar with them.
+- Classes in red may be reimplemented by the experienced user; we recommend for new users to use the default implementations until they are familiar with them.
 - In blue is the code for instantiating the classes within the code (optional arguments not included).
-- In green are the revelant methods for the classes ; please note that the `__call__` method is executed when calling the object (eg `sampling_function(catalog)`) and the `__next__` method is executed when using `next` (eg `next(generator)`).
+- In green are the revelant methods for the classes; please note that the `__call__` method is executed when calling the object (eg `sampling_function(catalog)`) and the `__next__` method is executed when using `next` (eg `next(generator)`).
 
 ## Running BlendingToolKit
 - BlendingToolKit (btk) requires an input catalog that contains information required to simulate galaxies and blends.

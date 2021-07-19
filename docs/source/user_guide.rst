@@ -1,7 +1,7 @@
 User Guide
 ==============
 
-This document gives a detailed look into the work-flow of *BlendingToolKit* (btk). For a quick tutorial on how to run btk, see the jupyter notebook tutorials `here <tutorials.html>`_. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm. The workflow presented here should be as general as possible ; examples for the WeakLensingDeblending case are also given.
+This document gives a detailed look into the work-flow of *BlendingToolKit* (btk). For a quick tutorial on how to run btk, see the jupyter notebook tutorials `here <tutorials.html>`_. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm. The workflow presented here should be as general as possible; examples for the WeakLensingDeblending case are also given.
 
 
 The workflow of btk is shown here:

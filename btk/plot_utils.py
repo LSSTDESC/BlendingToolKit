@@ -443,7 +443,7 @@ def plot_gal_parameters(blend_list, context="talk"):
     Args:
         blend_list (list) : List of astropy Table. Should be obtained from the output of a
                             DrawBlendsGenerator.
-        context (str) : Context for seaborn ; see seaborn documentation for details.
+        context (str) : Context for seaborn; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
     """
     sns.set_context(context)
@@ -479,7 +479,7 @@ def plot_metrics_summary(  # noqa: C901
                                    of the target measures
         n_bins_target (int) : Number of bins for the target measure plots
         save_path (str) : Path to the folder where the figures should be saved.
-        context (str) : Context for seaborn ; see seaborn documentation for details.
+        context (str) : Context for seaborn; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
         interactive (bool) : Specifies if the plot should be interactive.
 

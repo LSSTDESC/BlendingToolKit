@@ -12,12 +12,12 @@ Currently, we support the following metrics :
   * Number of false positives, ie number of detected galaxies which do not correspond
     to a true galaxy
   * Number of false negatives, ie number of true galaxies which have not been detected
-  * Precision, the ratio of true positives against the total number of positives ; describes
+  * Precision, the ratio of true positives against the total number of positives; describes
     how much the algorithm is susceptible to make false detections (closer to 1 is better)
   * Recall, the ratio of true positives against the number of true galaxies (which is equal
-    to true positives + false negatives) ; indicates the capacity of the algorithm for
+    to true positives + false negatives); indicates the capacity of the algorithm for
     detecting all the galaxies (closer to 1 is better)
-  * F1 score, the harmonic mean of precision and recall ; gives an overall assessment of the
+  * F1 score, the harmonic mean of precision and recall; gives an overall assessment of the
     detection (closer to 1 is better)
   * Efficiency matrix, contains for each possible number of true galaxies in a blend the
     distribution of the number of detected galaxies in blends containing this number of true
