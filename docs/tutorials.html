@@ -103,8 +103,13 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#using-cosmos-galaxies">Using COSMOS galaxies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-cosmos-galaxies">Using COSMOS galaxies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-a-custom-cosmos-data-set">Using a custom COSMOS data set</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#galsim-hub-tutorial">Galsim_Hub tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scarlet-implementation">SCARLET implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-features">Advanced features</a></li>
 </ul>
 </li>
 </ul>
@@ -327,7 +332,7 @@
 <p>The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time). Numerous surveys are already implemented in BTK ; we will import the Rubin one for this tutorial.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">btk.survey</span> <span class="kn">import</span> <span class="n">Rubin</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Rubin</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">get_surveys</span><span class="p">(</span><span class="s2">&quot;Rubin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -434,7 +439,7 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. The <cite>psf</cite> attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg <code class="docutils literal notranslate"><span class="pre">galsim.Kolmogorov(fwhm=1.5)</span></code>) or as a function returning a Galsim model, for randomization purposes. Example :</p>
+<p>Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. You can also take a look at the “custom” tutorial for which you will find the link at the end of this page. The <cite>psf</cite> attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg <code class="docutils literal notranslate"><span class="pre">galsim.Kolmogorov(fwhm=1.5)</span></code>) or as a function returning a Galsim model, for randomization purposes. Example :</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">random_psf</span><span class="p">():</span>
@@ -471,16 +476,16 @@ Finally, you can use the default function <code class="docutils literal notransl
 <div class="cell_output docutils container">
 </div>
 </div>
-<dl class="simple">
-<dt>The results from the <code class="docutils literal notranslate"><span class="pre">next</span></code> call are stored in the dictionnary ; the keys are :</dt><dd><ul class="simple">
+<p>The results from the <code class="docutils literal notranslate"><span class="pre">next</span></code> call are stored in the dictionnary ; the keys are :</p>
+<blockquote>
+<div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">blend_images</span></code> for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">isolated_images</span></code> for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">blend_list</span></code> for the blend information (as a list of astropy tables corresponding to the output of the sampling function for each blend)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">psf</span></code> for the PSF (as a list of Galsim object)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wcs</span></code> for the World Coordinate System corresponding to the images (as a list of astropy.wcs.WCS objects)</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <p>Please note that several surveys can be provided as a list to the generator. In that case, each of the entry will contain a dictionnary indexed by the surveys, which in turn contains the results described as above (you would access it with <code class="docutils literal notranslate"><span class="pre">batch['blend_images']['LSST']</span></code> for instance.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -505,14 +510,14 @@ Finally, you can use the default function <code class="docutils literal notransl
 </div>
 <div class="section" id="measurement">
 <h4>Measurement<a class="headerlink" href="#measurement" title="Permalink to this headline">¶</a></h4>
-<dl class="simple">
-<dt>Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:</dt><dd><ul class="simple">
+<p>Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>detections</p></li>
 <li><p>segmentations</p></li>
 <li><p>deblended images.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <p>You can use BTK to directly carry out the measurements on the generated data. To do this, you need to define a measure function. The measure function is a regular function with two positional arguments: <code class="docutils literal notranslate"><span class="pre">batch</span></code> and <code class="docutils literal notranslate"><span class="pre">idx</span></code>. Batch is the direct output of a <code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code>, and <code class="docutils literal notranslate"><span class="pre">idx</span></code> is the index of the blend on which the measurements should be done. It also takes an arbitrary number of keyword arguments via <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>. Here is an example of what the function looks like for SEP (python implementation of Source Extractor).</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -594,72 +599,50 @@ Finally, you can use the default function <code class="docutils literal notransl
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk.metrics</span>
 <span class="kn">import</span> <span class="nn">btk.plot_utils</span>
 
-<span class="n">metrics_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">MetricsGenerator</span><span class="p">(</span><span class="n">meas_generator</span><span class="p">,</span><span class="n">use_metrics</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;detection&quot;</span><span class="p">,</span><span class="s2">&quot;segmentation&quot;</span><span class="p">,</span><span class="s2">&quot;reconstruction&quot;</span><span class="p">),</span>
+<span class="n">metrics_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">MetricsGenerator</span><span class="p">(</span><span class="n">meas_generator</span><span class="p">,</span>
                                                  <span class="n">target_meas</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ellipticity&quot;</span><span class="p">:</span><span class="n">btk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">meas_ksb_ellipticity</span><span class="p">})</span>
 <span class="n">blend_results</span><span class="p">,</span><span class="n">meas_results</span><span class="p">,</span><span class="n">results</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">metrics_generator</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-Shear measurement error : &#39;Error: too many iterations in adaptive moments
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-</pre></div>
-</div>
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF is smaller than PSF!
-&#39;.             This error may happen for faint galaxies or inaccurate detections.
-</pre></div>
 </div>
 </div>
-</div>
-<p>Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys “detection”, “segmentation” and “reconstruction”, you can directly access all the segmentation and reconstruction metrics with the “galaxy_summary” key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.</p>
+<p>Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys “detection”, “segmentation” and “reconstruction”, you can directly access all the segmentation and reconstruction metrics with the “galaxy_summary” key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
+We can use the <cite>plot_metrics_summary</cite> to easily plot the results from the metrics.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">gal_summary</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;galaxy_summary&quot;</span><span class="p">][</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;galaxy_summary&quot;</span><span class="p">][</span><span class="s2">&quot;detected&quot;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">]</span>
-<span class="n">msr</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;msr&quot;</span><span class="p">]</span>
-<span class="n">dist</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;distance_closest_galaxy&quot;</span><span class="p">]</span>
-<span class="n">dist_detect</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;distance_detection&quot;</span><span class="p">]</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="p">((</span><span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">),(</span><span class="n">ax3</span><span class="p">,</span><span class="n">ax4</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_distribution</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span><span class="s2">&quot;msr&quot;</span><span class="p">,</span><span class="n">ax1</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_distribution</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="n">ax2</span><span class="p">)</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="n">msr</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="s2">&quot;msr&quot;</span><span class="p">,</span><span class="n">ax3</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;heatmap&#39;</span><span class="p">)</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span><span class="n">dist_detect</span><span class="p">,</span><span class="s2">&quot;Distance to the closest galaxy&quot;</span><span class="p">,</span><span class="s2">&quot;Distance detection&quot;</span><span class="p">,</span><span class="n">ax4</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;scatter&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_efficiency_matrix</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;detection&quot;</span><span class="p">][</span><span class="s2">&quot;eff_matrix&quot;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
 <img alt="_images/tutorials_12_0.png" src="_images/tutorials_12_0.png" />
 <img alt="_images/tutorials_12_1.png" src="_images/tutorials_12_1.png" />
+<img alt="_images/tutorials_12_2.png" src="_images/tutorials_12_2.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary</span><span class="p">[</span><span class="n">gal_summary</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="p">]</span>
-<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span><span class="o">&gt;-</span><span class="mf">1.0</span><span class="p">]</span>
-<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="p">]</span>
-<span class="n">gal_summary_filtered</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span><span class="o">&gt;-</span><span class="mf">1.0</span><span class="p">]</span>
-<span class="n">e1</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0&quot;</span><span class="p">]</span>
-<span class="n">e1_true</span> <span class="o">=</span> <span class="n">gal_summary_filtered</span><span class="p">[</span><span class="s2">&quot;ellipticity0_true&quot;</span><span class="p">]</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_metrics_correlation</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="n">e1_true</span><span class="p">,</span><span class="s2">&quot;e1&quot;</span><span class="p">,</span><span class="s2">&quot;e1_true&quot;</span><span class="p">,</span><span class="n">upper_quantile</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;truth&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_with_deblended</span><span class="p">(</span>
+  <span class="n">blend_results</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">],</span>
+  <span class="n">blend_results</span><span class="p">[</span><span class="s2">&quot;isolated_images&quot;</span><span class="p">],</span>
+  <span class="n">blend_results</span><span class="p">[</span><span class="s2">&quot;blend_list&quot;</span><span class="p">],</span>
+  <span class="n">meas_results</span><span class="p">[</span><span class="s2">&quot;catalog&quot;</span><span class="p">][</span><span class="s2">&quot;sep_measure&quot;</span><span class="p">],</span>
+  <span class="n">meas_results</span><span class="p">[</span><span class="s2">&quot;deblended_images&quot;</span><span class="p">][</span><span class="s2">&quot;sep_measure&quot;</span><span class="p">],</span>
+  <span class="n">results</span><span class="p">[</span><span class="s2">&quot;matches&quot;</span><span class="p">][</span><span class="s2">&quot;sep_measure&quot;</span><span class="p">],</span>
+  <span class="n">indexes</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+  <span class="n">band_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
 <img alt="_images/tutorials_13_0.png" src="_images/tutorials_13_0.png" />
+<img alt="_images/tutorials_13_1.png" src="_images/tutorials_13_1.png" />
+<img alt="_images/tutorials_13_2.png" src="_images/tutorials_13_2.png" />
+<img alt="_images/tutorials_13_3.png" src="_images/tutorials_13_3.png" />
+<img alt="_images/tutorials_13_4.png" src="_images/tutorials_13_4.png" />
 </div>
 </div>
 </div>
@@ -667,7 +650,7 @@ Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF i
 </div>
 <div class="section" id="using-cosmos-galaxies">
 <h2>Using COSMOS galaxies<a class="headerlink" href="#using-cosmos-galaxies" title="Permalink to this headline">¶</a></h2>
-<p>We will now focus on generating image using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let’s start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog ; feel free to fill in the correct path if you have the complete catalog on your computer.</p>
+<p>We will now focus on generating images using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let’s start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog that is already in the BTK repository; feel free to fill in the correct path if you have the complete data set on your computer. It can be downloaded from <a class="reference external" href="https://zenodo.org/record/3242143">this page</a>.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">COSMOS_CATALOG_PATHS</span> <span class="o">=</span> <span class="p">[</span>
@@ -684,19 +667,18 @@ Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF i
 <div class="cell_output docutils container">
 </div>
 </div>
-<p>We can now create the corresponding instance of DrawBlendsGenerator. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS catalog only contains images from the f814w band ; when using other bands, the image is only rescaled to get the right flux. Moreover, at the time the flux will not be accurate as we do not have the SED for COSMOS galaxies, meaning that we cannot recover the correct magnitude in other bands than f814w ; the flux is thus computed using the magnitude in that band and the survey parameters provided. We are currently working on getting a more realistic flux.</p>
+<p>We can now create the corresponding instance of <code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code>. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band ; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. You can refer to the following section to circumvent this issue.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">draw_generator</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">draw_blends</span><span class="o">.</span><span class="n">CosmosGenerator</span><span class="p">(</span>
         <span class="n">catalog</span><span class="p">,</span>
         <span class="n">sampling_function</span><span class="p">,</span>
-        <span class="p">[</span><span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Rubin</span><span class="p">],</span>
+        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">get_surveys</span><span class="p">(</span><span class="s2">&quot;Rubin&quot;</span><span class="p">),</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
         <span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">,</span>
         <span class="n">cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">add_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">meas_bands</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -724,57 +706,34 @@ Shear measurement error : &#39;Unphysical situation: galaxy convolved with PSF i
 <img alt="_images/tutorials_16_7.png" src="_images/tutorials_16_7.png" />
 </div>
 </div>
+<div class="section" id="using-a-custom-cosmos-data-set">
+<h3>Using a custom COSMOS data set<a class="headerlink" href="#using-a-custom-cosmos-data-set" title="Permalink to this headline">¶</a></h3>
+<p>In order to circumvent the aforementioned caveat, BTK offers the possibility to retrieve different magnitudes for each band. In order to use this feature, the corresponding magnitudes can be specified in any of the two provided COSMOS catalogs using the following column name format: &lt;sn_fn&gt;, where sn and fn are the Survey and Filter names, respectively, as written in the Survey and Filter named tuple classes. BTK will automatically look for those columns and use the information when available to compute galaxy fluxes.</p>
+<p>To go a little bit deeper about providing custom COSMOS data to BTK, let’s review in more details in what the COSMOS data set and its BTK implementation consists of. As seen in the previous section, the BTK <code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code> is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set <a class="reference external" href="https://zenodo.org/record/3242143">download</a> to check the column details of each catalog.
+Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a <code class="docutils literal notranslate"><span class="pre">galsim.COSMOSCatalog</span></code>, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way : the parametric mode uses information of the second catalog while the ‘real’ mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim <a class="reference external" href="https://galsim-developers.github.io/GalSim/_build/html/real_gal.html">documentation</a> for more details. In BTK, we use only the ‘real’ drawing mode, such that the information of the second catalog is not necessary, even if the file must exist to instantiate the <code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code> and <code class="docutils literal notranslate"><span class="pre">galsim.COSMOSCatalog</span></code> objects. Though, BTK still retrieves the <code class="docutils literal notranslate"><span class="pre">flux_radius</span></code> information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK : (1) the second catalog should contain at least the <code class="docutils literal notranslate"><span class="pre">flux_radius</span></code> column, (2) the first catalog should contain the same columns than the official COSMOS data release, (3) the galaxy and PSF stamps should be provided and accessible and (4 optional) one of the two catalogs can contain multiband magnitudes using the format just described.</p>
+</div>
 </div>
 <div class="section" id="galsim-hub-tutorial">
 <h2>Galsim_Hub tutorial<a class="headerlink" href="#galsim-hub-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>BTK supports galaxy image generation with galsim_hub ; please refer to <span class="xref std std-ref">this page</span> for more details on galsim_hub. The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install galsim_hub, which can be done using pip. NOTE: galsim_hub only works with python 3.7</p>
-<p>You can find a notebook version of this tutorial in the notebooks folder.</p>
-<p>First, you should use the <code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code> catalog instead of the Catsim one. While galsim_hub only require parameters for the image generation, we have chosen to use COSMOS as the source of those parameters so as to get a realistic distribution of those parameters. We have included a small sample of the catalog in BTK, and advise you to download the full catalog (see:ref:<cite>COSMOS</cite>) for better results.</p>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">COSMOS_CATALOG_PATHS</span> <span class="o">=</span> <span class="p">[</span>
-  <span class="s2">&quot;../data/cosmos/real_galaxy_catalog_23.5_example.fits&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;../data/cosmos/real_galaxy_catalog_23.5_example_fits.fits&quot;</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">catalog</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">CosmosCatalog</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">COSMOS_CATALOG_PATHS</span><span class="p">)</span>
+<p>BTK supports galaxy image generation with <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code> ; please refer to <a class="reference external" href="https://github.com/McWilliamsCenter/galsim_hub">this page</a> for more details on <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code>. Please note that <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code> only works with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.7</span></code>.</p>
+<p>The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code>, which can be done using pip.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">galsim_hub</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-</div>
-</div>
-<p>We then instantiate the sampling function ; you should use the one specific for galsim_hub, which includes a cut on the size of the galaxies, as artifacts tend to appear when trying to generate galaxies which are too big.</p>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stamp_size</span> <span class="o">=</span> <span class="mf">24.0</span>
-<span class="n">sampling_function</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">sampling_functions</span><span class="o">.</span><span class="n">DefaultSamplingGalsimHub</span><span class="p">(</span><span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">)</span>
+<p>Alternatively, you can optionally install <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code> along with BTK:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">btk</span><span class="p">[</span><span class="n">galsim</span><span class="o">-</span><span class="n">hub</span><span class="p">]</span>
 </pre></div>
 </div>
+<p>You can find a notebook version of this tutorial in the notebooks folder of the btk repo.</p>
 </div>
-<div class="cell_output docutils container">
+<div class="section" id="scarlet-implementation">
+<h2>SCARLET implementation<a class="headerlink" href="#scarlet-implementation" title="Permalink to this headline">¶</a></h2>
+<p>We provide an implementation of <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301">SCARLET</a> , a deblending algorithm based on matrix factorization, as a measure function, based on this <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">repo</a> ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.</p>
+<p>You will find the implementation in the notebook <cite>scarlet-measure</cite> in the notebooks folder of the btk repo.</p>
 </div>
-</div>
-<p>Then we can instantiate the <code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code> with the survey of your choice. Please bear in mind that while BTK will draw the images in any band you desire, galsim_hub does not generate a SED for the galaxy ; this means that the magnitude will be inacurrate in any other band than the one generated by the galsim_hub model you use (by default <code class="docutils literal notranslate"><span class="pre">&quot;hub:Lanusse2020&quot;</span></code>).</p>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">draw_generator</span><span class="p">)</span>
-<span class="n">blend_images</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;blend_images&#39;</span><span class="p">]</span>
-<span class="n">blend_list</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;blend_list&#39;</span><span class="p">]</span>
-<span class="n">btk</span><span class="o">.</span><span class="n">plot_utils</span><span class="o">.</span><span class="n">plot_blends</span><span class="p">(</span><span class="n">blend_images</span><span class="p">,</span> <span class="n">blend_list</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">90</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="_images/tutorials_19_0.png" src="_images/tutorials_19_0.png" />
-<img alt="_images/tutorials_19_1.png" src="_images/tutorials_19_1.png" />
-<img alt="_images/tutorials_19_2.png" src="_images/tutorials_19_2.png" />
-<img alt="_images/tutorials_19_3.png" src="_images/tutorials_19_3.png" />
-<img alt="_images/tutorials_19_4.png" src="_images/tutorials_19_4.png" />
-<img alt="_images/tutorials_19_5.png" src="_images/tutorials_19_5.png" />
-<img alt="_images/tutorials_19_6.png" src="_images/tutorials_19_6.png" />
-<img alt="_images/tutorials_19_7.png" src="_images/tutorials_19_7.png" />
-</div>
-</div>
+<div class="section" id="advanced-features">
+<h2>Advanced features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
+<p>You can find more details on specific features of BTK in these two tutorials : <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb">the first one</a> explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb">The second one</a> details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the “measure_kwargs”.</p>
 </div>
 </div>
 

@@ -175,23 +175,19 @@
   <div class="section" id="module-btk.measure">
 <span id="btk-measure-module"></span><h1>btk.measure module<a class="headerlink" href="#module-btk.measure" title="Permalink to this headline">¶</a></h1>
 <p>File containing measurement infrastructure for the BlendingToolKit.</p>
-<dl>
-<dt>Contains examples of functions that can be used to apply a measurement algorithm to the blends</dt><dd><p>simulated by BTK. Every measurement function should have the following skeleton:</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a></p>
-</dd>
-<dt>def measure_function(batch, idx, <a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs):</dt><dd><blockquote>
-<div><p># do some measurements on the images contained in batch.
-return output</p>
-</div></blockquote>
-<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a></p>
-</dd>
-</dl>
+<p>Contains examples of functions that can be used to apply a measurement algorithm to the blends
+simulated by BTK. Every measurement function should have the following skeleton:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">measure_function</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># do some measurements on the images contained in batch.</span>
+    <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+</div>
 <p>where <cite>batch</cite> is the output from the <cite>DrawBlendsGenerator</cite> object (see its <cite>__next__</cite> method) and
 <cite>idx</cite> is the index corresponding to which image in the batch to measure. The additional keyword
 arguments <cite>**kwargs</cite> can be passed via the <cite>measure_kwargs</cite> dictionary argument in the
-<cite>MeasureGerator</cite> initialize which are shared among all the measurement functions.</p>
+<cite>MeasureGenerator</cite> initialize which are shared among all the measurement functions.</p>
 <p>It should return a dictionary containing a subset of the following keys/values (note the key
-<cite>catalog</cite> is mandatory):</p>
+catalog` is mandatory):</p>
 <ul>
 <li><p>catalog (astropy.table.Table): An astropy table containing measurement information. The
 <cite>len</cite> of the table should be <cite>n_objects</cite>. If your
@@ -216,11 +212,15 @@ the input batch.</p></li>
 <cite>(n_objects, stamp_size, stamp_size, n_bands)</cite> depending on
 convention. The order of this array should correspond to the
 order in the returned <cite>catalog</cite>. Where <cite>n_objects</cite> is the
-number of detected objects by the algorithm.</p></li>
+number of detected objects by the algorithm. If you are using the multiresolution feature,
+you should instead return a dictionary with a key for each survey containing the
+aforementioned array.</p></li>
 <li><p>segmentation (np.ndarray): Array of booleans with shape <cite>(n_objects,stamp_size,stamp_size)</cite>
 The pixels set to True in the i-th channel correspond to the i-th
 object. The order should correspond to the order in the returned
-<cite>catalog</cite>.</p></li>
+<cite>catalog</cite>. If you are using the multiresolution feature,
+you should instead return a dictionary with a key for each survey containing the
+aforementioned array.</p></li>
 </ul>
 <p>Omitted keys in the returned dictionary are automatically assigned a <cite>None</cite> value (except for
 <cite>catalog</cite> which is a mandatory entry).</p>
@@ -229,19 +229,6 @@ object. The order should correspond to the order in the returned
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">MeasureGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.MeasureGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates output of deblender and measurement algorithm.</p>
-<dl class="py attribute">
-<dt id="btk.measure.MeasureGenerator.self.measure_functions">
-<code class="sig-prename descclassname"><span class="pre">self.</span></code><code class="sig-name descname"><span class="pre">measure_functions</span></code><a class="headerlink" href="#btk.measure.MeasureGenerator.self.measure_functions" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of functions that take as input the output from
-DrawBlendsGenerator and return the output of a measurement
-(see module docstring).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt id="btk.measure.MeasureGenerator.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.MeasureGenerator.__init__" title="Permalink to this definition">¶</a></dt>
@@ -255,22 +242,16 @@ measurements given output from the draw_blend_generator.</p></li>
 isolated images, blend catalog, wcs info, and psf.</p></li>
 <li><p><strong>cpus</strong> – The number of parallel processes to run [Default: 1].</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print information about measurement.</p></li>
-<li><p><strong>measure_kwargs</strong> (<em>list</em>) – list of dictionaries containing keyword arguments</p></li>
-<li><p><strong>be passed in to each of the measure_functions. Each dictionnary is</strong> (<em>to</em>) – </p></li>
-<li><p><strong>one time to each function</strong> (<em>passed</em>) – </p></li>
-<li><p><strong>that each function which be</strong> (<em>meaning</em>) – </p></li>
-<li><p><strong>as many times as there are different dictionnaries.</strong> (<em>ran</em>) – </p></li>
+<li><p><strong>measure_kwargs</strong> (<em>list</em>) – list of dictionaries containing keyword arguments
+to be passed in to each of the <cite>measure_functions</cite>. Each dictionnary is
+passed one time to each function, meaning that each function which be
+ran as many times as there are different dictionnaries.</p></li>
 <li><p><strong>save_path</strong> (<em>str</em>) – Path to a directory where results will be saved. If left
 as None, results will not be saved.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt id="btk.measure.MeasureGenerator.measure_params">
-<code class="sig-name descname"><span class="pre">measure_params</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'catalog',</span> <span class="pre">'deblended_images',</span> <span class="pre">'segmentation'}</span></em><a class="headerlink" href="#btk.measure.MeasureGenerator.measure_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt id="btk.measure.MeasureGenerator.run_batch">
@@ -281,10 +262,27 @@ as None, results will not be saved.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.measure.add_pixel_columns">
+<code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">add_pixel_columns</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.add_pixel_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the wcs to add a column to the catalog corresponding to pixel coordinates.</p>
+<p>The catalog must contain <cite>ra</cite> and <cite>dec</cite> columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog</strong> (<em>astropy.table.Table</em>) – Catalog to modify.</p></li>
+<li><p><strong>wcs</strong> (<em>astropy.wcs.WCS</em>) – WCS corresponding to the wanted
+transformation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.measure.basic_measure">
-<code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">basic_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.basic_measure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">basic_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.basic_measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return centers detected with skimage.feature.peak_local_max.</p>
-<p>NOTE: This function does not support the multi-resolution feature.</p>
+<p>NOTE: If this function is used with the multiresolution feature,
+measurements will be carried on the first survey.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -301,15 +299,18 @@ measurement on.</p></li>
 
 <dl class="py function">
 <dt id="btk.measure.sep_measure">
-<code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">sep_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_measure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">sep_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return detection, segmentation and deblending information with SEP.</p>
-<p>NOTE: This function does not support the multi-resolution feature.</p>
+<p>NOTE: If this function is used with the multiresolution feature,
+measurements will be carried on the first survey, and deblended images
+or segmentations will not be returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>batch</strong> (<em>dict</em>) – Output of DrawBlendsGenerator object’s <cite>__next__</cite> method.</p></li>
 <li><p><strong>idx</strong> (<em>int</em>) – Index number of blend scene in the batch to preform
 measurement on.</p></li>
+<li><p><strong>sigma_noise</strong> (<em>float</em>) – Sigma threshold for detection against noise.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

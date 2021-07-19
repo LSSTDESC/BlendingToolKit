@@ -294,6 +294,28 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.survey.get_surveys">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_surveys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rubin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_surveys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return specified surveys as <cite>btk.survey.Survey</cite> objects.</p>
+<p>NOTE: The surveys currently implemented correspond to config files inside <cite>conf/surveys</cite>. See
+the documentation for how to add your own surveys via custom config files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> (<em>str</em><em> or </em><em>list</em>) – A single str specifying a survey from conf/surveys or a list with
+multiple survey names.</p></li>
+<li><p><strong>overrides</strong> (<em>Iterable</em>) – List or tuple containg overrides for the survey config files. An
+example element of overrides could be ‘surveys.Rubin.airmass=1.1’, i.e. what you would
+pass into the CLI in order to customize the surveys used (here specified by <cite>names</cite>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>btk.survey.Survey object or list of such objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.survey.make_wcs">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">make_wcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_pix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_sky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TAN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.make_wcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates WCS for an image.</p>

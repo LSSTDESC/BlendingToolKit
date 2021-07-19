@@ -247,33 +247,6 @@ then default value of [1, 2, 3] is used.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_cumulative">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_cumulative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_cumulative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot cumulative counts of input column_name in table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table</strong> (<cite>astropy.table.Table</cite>) – Catalog with features as columns and
-different samples at rows.</p></li>
-<li><p><strong>column_name</strong> (<em>str</em>) – Name of column in input table who’s cumulative
-counts are to be plotted.</p></li>
-<li><p><strong>ax</strong> (<cite>matplotlib.axes</cite>, default=`None`) – Matplotlib axis on which to draw
-the plot. If not provided, one is created inside.</p></li>
-<li><p><strong>bins</strong> (<em>int</em><em> or </em><em>sequence of scalars</em><em>, </em><em>optional</em><em>, </em><em>default=40</em>) – If bins is an
-int, it defines the number of equal-width bins in the given range
-(40, by default). If bins is a sequence, it defines a monotonically
-increasing array of bin edges, including the rightmost edge,
-allowing for non-uniform bin widths.</p></li>
-<li><p><strong>color</strong> (<em>str</em><em>, </em><em>default='red'</em>) – Color of cumulative counts curve.</p></li>
-<li><p><strong>label</strong> (<em>str</em><em>, </em><em>default=`None`</em>) – label for legend in plot.</p></li>
-<li><p><strong>xlabel</strong> (<em>str</em><em>, </em><em>default=`None`</em>) – x-axis label in plot. If not provided,
-then the column_name is set as x-axis label.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="btk.plot_utils.plot_efficiency_matrix">
 <code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_efficiency_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eff_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_efficiency_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot detection summary as a matrix of detection efficiency.</p>
@@ -287,6 +260,22 @@ the plot. If not provided, one is created inside.</p></li>
 expressed as a fraction of the average axis width.</p></li>
 <li><p><strong>skip_zero</strong> (<em>bool</em>) – If True, then column corresponding to 0 true objects
 is not shown (default is True).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.plot_utils.plot_gal_parameters">
+<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_gal_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_gal_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots histograms for the magnitude and the size of the galaxies in a batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_list</strong> (<em>list</em>) – List of astropy Table. Should be obtained from the output of a
+DrawBlendsGenerator.</p></li>
+<li><p><strong>context</strong> (<em>str</em>) – Context for seaborn ; see seaborn documentation for details.
+Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li>
 </ul>
 </dd>
 </dl>
@@ -319,7 +308,7 @@ is not shown (default is True).</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>metric_array</strong> – Contains the data</p></li>
-<li><p><strong>metric_name</strong> (<em>str</em>) – name of the metric</p></li>
+<li><p><strong>metric_name</strong> (<em>str</em>) – name(s) of the metric(s)</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – ax on which the plot should be drawn</p></li>
 <li><p><strong>bins</strong> (<em>int</em>) – Optional argument for the number of bins.</p></li>
 <li><p><strong>upper_quantile</strong> (<em>float</em>) – Quantile from which to cut</p></li>
@@ -329,12 +318,64 @@ is not shown (default is True).</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.plot_utils.plot_metrics_summary">
+<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_metrics_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot metrics directly from the MetricsGenerator output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics_results</strong> (<em>dict</em>) – Output of a MetricsGenerator.</p></li>
+<li><p><strong>target_meas_keys</strong> (<em>list</em>) – List of the keys for the target measures.</p></li>
+<li><p><strong>target_meas_limits</strong> (<em>list</em>) – List of tuples indicating the limits for the plots
+of the target measures</p></li>
+<li><p><strong>n_bins_target</strong> (<em>int</em>) – Number of bins for the target measure plots</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Path to the folder where the figures should be saved.</p></li>
+<li><p><strong>context</strong> (<em>str</em>) – Context for seaborn ; see seaborn documentation for details.
+Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li>
+<li><p><strong>interactive</strong> (<em>bool</em>) – Specifies if the plot should be interactive.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="btk.plot_utils.plot_with_deblended">
+<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_with_deblended</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_deblended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots blend images, along with isolated, deblended and residual images of all objects in a blend.</p>
+<p>Outputs of btk draw are plotted here. blend_images, isolated_images and blend_list
+are expected to be the corresponding entries from the output of a DrawBlendsGenerator,
+detection_catalogs and deblended_images are taken from the output of a MeasureGenerator,
+and matches is the matches entry of a MetricsGenerator (or the compute_metrics function).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_images</strong> (<em>array_like</em>) – Array of blend scene images to plot
+[batch, height, width, bands].</p></li>
+<li><p><strong>isolated_images</strong> (<em>array_like</em>) – Array of isolated object images to plot
+[batch, max number of objects, bands, height, width].</p></li>
+<li><p><strong>blend_list</strong> (<em>list</em>) – List of <cite>astropy.table.Table</cite> with entries of true
+objects. Length of list must be the batch size.</p></li>
+<li><p><strong>detection_catalogs</strong> (<em>list</em>) – List of <cite>astropy.table.Table</cite> with entries of
+detected objects.</p></li>
+<li><p><strong>deblended_images</strong> (<em>list</em>) – List of arrays containing the deblended images with
+length ‘batch’ and array shape [bands,height,width]</p></li>
+<li><p><strong>matches</strong> (<em>list</em>) – List of <cite>astropy.table.Table</cite> with entries corresponding to the
+true galaxies. The column ‘match_detected_id’ must contain the id of the
+matching true galaxy.</p></li>
+<li><p><strong>indexes</strong> (<em>list</em>) – List of the indexes of the blends you want to plot.</p></li>
+<li><p><strong>band_indices</strong> (<em>list</em>) – List of the bands to plot. Should have either 3 elements
+for RGB images, or one for monochromes images.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.plot_utils.plot_with_isolated">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_with_isolated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_with_isolated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots blend images and isolated images of all objects in the blend as RGB images.</p>
 <p>Outputs of btk draw are plotted here. Blend_list must contain true  centers
-of the objects. If detected_centers are input, then the centers are also
-shown in the third panel along with the true centers.</p>
+of the objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -344,34 +385,12 @@ shown in the third panel along with the true centers.</p>
 [batch, max number of objects, height, width, bands].</p></li>
 <li><p><strong>blend_list</strong> (<em>list</em>) – List of <cite>astropy.table.Table</cite> with entries of true
 objects. Length of list must be the batch size.</p></li>
-<li><p><strong>detected_centers</strong> (<em>list</em><em>, </em><em>default=`None`</em>) – List of <cite>numpy.ndarray</cite> or
-lists with centers of detected centers for each image in batch.
-Length of list must be the batch size. Each list entry must be a
-list or <cite>numpy.ndarray</cite> of dimensions [N, 2].</p></li>
 <li><p><strong>limits</strong> (<em>list</em><em>, </em><em>default=`None`</em>) – List of start and end coordinates to
 display image within. Note: limits are applied to both height and
 width dimensions.</p></li>
 <li><p><strong>band_indices</strong> (<em>list</em><em>, </em><em>default=None</em>) – list of length 3 with indices of
 bands that are to be plotted in the RGB image. If pass in None,
 then default value of [1, 2, 3] is used.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="btk.plot_utils.show_scarlet_residual">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">show_scarlet_residual</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(30,</span> <span class="pre">90)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.show_scarlet_residual" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot scarlet model and residual image in rgb and i band.</p>
-<p>NOTE: this requires scarlet to be installed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>blend</strong> – output of scarlet containing blend fit.</p></li>
-<li><p><strong>observation</strong> – <cite>~scarlet.Observation</cite></p></li>
-<li><p><strong>limits</strong> (<em>list</em><em>, </em><em>default=`None`</em>) – List of start and end coordinates to</p></li>
-<li><p><strong>image within. Note</strong> (<em>display</em>) – limits are applied to both height and</p></li>
-<li><p><strong>dimensions.</strong> (<em>width</em>) – </p></li>
 </ul>
 </dd>
 </dl>
