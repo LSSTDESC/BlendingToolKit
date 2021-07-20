@@ -51,7 +51,7 @@ HSC:
       name: "z"
       sky_brightness: 18.3
       exp_time: 1200
-      zeropoint: 21.53
+      zeropoint: 29.56
       extinction: 0.05
       psf:
         type: default
@@ -64,7 +64,7 @@ HSC:
       name: "y"
       sky_brightness: 17.9
       exp_time: 1200
-      zeropoint: 29.56
+      zeropoint: 21.53
       extinction: 0.05
       psf:
         type: default
