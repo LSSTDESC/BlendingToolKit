@@ -1,4 +1,4 @@
-# https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
+# exp_time and seeing: https://hsc-release.mtk.nao.ac.jp/doc/
 HSC:
   name: HSC
   pixel_scale: 0.167
@@ -16,7 +16,7 @@ HSC:
       psf:
         type: default
         params:
-          fwhm: 0.72
+          fwhm: 0.77
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.g}
@@ -29,7 +29,7 @@ HSC:
       psf:
         type: default
         params:
-          fwhm: 0.67
+          fwhm: 0.76
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.r}
@@ -42,23 +42,10 @@ HSC:
       psf:
         type: default
         params:
-          fwhm: 0.56
+          fwhm: 0.58
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.i}
-    y:
-      name: "y"
-      sky_brightness: 17.9
-      exp_time: 1200
-      zeropoint: 29.56
-      extinction: 0.05
-      psf:
-        type: default
-        params:
-          fwhm: 0.64
-          mirror_diameter: ${surveys.HSC.mirror_diameter}
-          effective_area: ${surveys.HSC.effective_area}
-          filt_wavelength: ${central_wavelength.y}
     z:
       name: "z"
       sky_brightness: 18.3
@@ -68,7 +55,20 @@ HSC:
       psf:
         type: default
         params:
-          fwhm: 0.64
+          fwhm: 0.68
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.z}
+    y:
+      name: "y"
+      sky_brightness: 17.9
+      exp_time: 1200
+      zeropoint: 29.56
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.68
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.y}
