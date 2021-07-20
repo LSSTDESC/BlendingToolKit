@@ -112,7 +112,9 @@ class CosmosCatalog(Catalog):
         """Constructs the catalog object from a file.
 
         Args:
-            catalog_files(list): list containing the two paths to the COSMOS data.
+            catalog_files(list): list containing the two paths to the COSMOS data. Please see
+                the tutorial page for more details
+                (https://lsstdesc.org/BlendingToolKit/tutorials.html#using-cosmos-galaxies).
             verbose: whether to print verbose info.
         """
         catalog_coord = astropy.table.Table.read(catalog_files[0])

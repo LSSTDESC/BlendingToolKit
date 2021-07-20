@@ -26,7 +26,7 @@ class BlendGenerator:
                            with indexes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
-            verbose (bool) : Whether to print additional information.
+            verbose (bool): Whether to print additional information.
         """
         self.catalog = catalog
         self.batch_size = batch_size
