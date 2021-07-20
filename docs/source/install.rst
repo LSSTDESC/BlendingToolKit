@@ -60,3 +60,4 @@ BTK comes with two optional set of dependencies that can be installed: ``galsim_
 
     # install latest version of scarlet and its dependencies.
     pip install blending_toolkit[scarlet]
+    pip install git+https://github.com/pmelchior/scarlet
