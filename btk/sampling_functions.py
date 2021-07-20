@@ -13,11 +13,11 @@ def _get_random_center_shift(num_objects, maxshift):
     """Returns random shifts in x and y coordinates between + and - max-shift in arcseconds.
 
     Args:
-        num_objects (int) : Number of x and y shifts to return.
+        num_objects (int): Number of x and y shifts to return.
 
     Returns:
-        x_peak (float) : random shift along the x axis
-        y_peak (float) : random shift along the x axis
+        x_peak (float): random shift along the x axis
+        y_peak (float): random shift along the x axis
     """
     x_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
     y_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
@@ -267,10 +267,10 @@ class GroupSampling(SamplingFunction):
         catalog (in i band) to identify galaxies that belong to a group.
 
         Args:
-            max_number (int) : Same as in SamplingFunction
+            max_number (int): Same as in SamplingFunction
             wld_catalog_name: File path to a pre-analyzed WLD Catsim catalog
-            stamp_size (int) : Size of the generated stamps
-            pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
+            stamp_size (int): Size of the generated stamps
+            pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             shift (list): List containing shifts to apply (useful to avoid randomization)
             group_id (list): List containing which group_ids to analyze (avoid randomization)
         """
@@ -358,8 +358,8 @@ class GroupSamplingNumbered(SamplingFunction):
         Args:
             max_number: Same as SamplingFunction
             wld_catalog_name: Same as GroupSamplingFunction
-            stamp_size (int) : Size of the generated stamps
-            pixel_scale (float) : pixel scale of the survey, in arcseconds per pixel
+            stamp_size (int): Size of the generated stamps
+            pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             fmt (str): Format of input wld_catalog used to define groups.
             shift (list): List of shifts to apply (usefult to avoid randomization)
         """

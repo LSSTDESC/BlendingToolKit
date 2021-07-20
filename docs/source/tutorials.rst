@@ -6,7 +6,7 @@ The following jupyter notebooks are included in the `notebooks/` directory:
 Intro notebook
 ----------------
 
-This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/intro.ipynb>`_ shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images -- i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (necessary for interactivity).
+This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/intro.ipynb>`_ shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images -- i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (for interactivity).
 
 Tutorial
 ---------
@@ -34,19 +34,19 @@ Importing the relevant packages
 Drawing some blends
 ''''''''''''''''''''
 
-We will first explore the image generation part of BTK. We need to provide 3 main elements : the catalog, a sampling function and a survey.
+We will first explore the image generation part of BTK. We need to provide 3 main elements: the catalog, a sampling function and a survey.
 
 Catalog
 ........
 
-BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs : Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the Catalog class ; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the ``from_file`` method as demonstrated here with our example catalog.
+BTK uses a wrapper class for the actual catalog object, to get a standardized input for the generator. Currently BTK supports two kind of catalogs: Catsim-like catalogs and the COSMOS catalog (as provided with Galsim). Both have their own implementation of the ``Catalog`` class; we will only use the Catsim one here. You can easily import the catalog from a FITS file using the ``from_file`` method as demonstrated here with our example catalog.
 
 .. jupyter-execute::
 
   catalog_name = "../data/sample_input_catalog.fits"
   catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 
-It is also possible to instantiate the class by giving it the catalog directly ; the ``from_file`` method is merely a shortcut.
+It is also possible to instantiate the class by giving it the catalog directly; the ``from_file`` method is just a convenient shortcut.
 
 .. jupyter-execute::
 
@@ -55,12 +55,13 @@ It is also possible to instantiate the class by giving it the catalog directly ;
   raw_catalog = astropy.table.Table.read(catalog_name, format=fmt)
   catalog = btk.catalog.CatsimCatalog(raw_catalog)
 
-When the Catalog object is created, it creates internally a ``table`` attribute containing a modified table from the input, which will be used in the rest of the code.
+When the ``Catalog`` object is created, it internally creates a ``table`` attribute containing a modified table from the input, which will be used in the rest of the code.
 
 Sampling Function
 ..................
 
-The sampling function is an object which is used to determine the informations about the blends, eg which galaxies are drawn, with what shifts, ... This is achieved using the ``SamplingFunction`` class, which is callable like a function, taking as argument the ``Catalog.table`` and returning modified selected entries corresponding to the galaxies being drawn. For this tutorial, we will use the default sampling function, which can be instantiated like this:
+The sampling function is an object which is used to determine the informations about the blends:
+which galaxies are drawn, with what shifts, etc. This is achieved using the ``SamplingFunction`` class, which is callable like a function, taking as argument the ``Catalog.table`` and returning modified selected entries corresponding to the galaxies being drawn. For this tutorial, we will use the default sampling function, which can be instantiated like this:
 
 .. jupyter-execute::
 
@@ -69,7 +70,9 @@ The sampling function is an object which is used to determine the informations a
   max_shift = 3.0    # Maximum shift of the galaxies, in arcseconds
   sampling_function = btk.sampling_functions.DefaultSampling(max_number=max_number, stamp_size=stamp_size, maxshift=max_shift)
 
-As a reference, here is the code for this sampling function.::
+As a reference, here is the code for this sampling function:
+
+.. jupyter-execute::
 
   class DefaultSampling(btk.sampling_functions.SamplingFunction):
       """Default sampling function used for producing blend tables."""
@@ -136,20 +139,25 @@ As a reference, here is the code for this sampling function.::
               warnings.warn("Object center lies outside the stamp")
           return blend_table
 
-You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts. You may write more complex sampling functions if you wish to have more control over how the galaxies are drawn ; there are some other examples in the ``btk.sampling_functions`` file.
+You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts.
+
+You may write more complex sampling functions to have more control over how the galaxies are drawn; more examples canbe found in the ``btk.sampling_functions`` file.
 
 Survey
 .......
 
-The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale), including a list of Filter objects. The Filter class is also based on a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time). Numerous surveys are already implemented in BTK ; we will import the Rubin one for this tutorial.
+The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale, effective_area), including a list of Filter objects. The Filter class is also a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time, psf). Numerous surveys are already implemented in BTK; we will import the Rubin one for this tutorial.
 
 .. jupyter-execute::
 
   Rubin = btk.survey.get_surveys("Rubin")
 
-You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for Rubin ::
+You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for Rubin:
+
+.. jupyter-execute::
 
   from btk.survey import get_psf
+
   _central_wavelength = {
       "u": 3592.13,
       "g": 4789.98,
@@ -158,6 +166,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       "z": 8689.83,
       "y": 9674.05,
   }
+
   Rubin = btk.survey.Survey(
       "LSST",
       pixel_scale=0.2,
@@ -247,7 +256,9 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify ; please take a look at the documentation for a more substantial description of the attributes. You can also take a look at the "custom" tutorial for which you will find the link at the end of this page. The `psf` attribute deserves an additionnal explanation : it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. Example :
+Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
+
+The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. For example:
 
 .. jupyter-execute::
 
@@ -255,8 +266,9 @@ Most attributes should be pretty straightforward to modify ; please take a look 
       fwhm = np.random.uniform(1.5,1.7)
       return galsim.Kolmogorov(fwhm)
 
-You may want to use a function taking an argument to avoid rewriting the function for each filter ; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda : get_custom_psf(u_band_argument)``.
-Finally, you can use the default function ``get_psf`` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided).
+You may want to use a function taking an argument to avoid rewriting the function for each filter; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda: get_custom_psf(u_band_argument)``.
+
+Finally, you can use the default function ``get_psf`` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided). For more information on these functions take a look at the API.
 
 Drawing the blends
 ...................
@@ -277,7 +289,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       add_noise=True,
   )
 
-The results from the ``next`` call are stored in the dictionnary ; the keys are :
+The results from the ``next`` call are stored in the dictionnary; the keys are:
 
   * ``blend_images`` for the actual images (as a (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
   * ``isolated_images`` for the isolated images (as a (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized numpy array )
@@ -297,7 +309,7 @@ Please note that several surveys can be provided as a list to the generator. In 
 Measurement
 ............
 
-Now that we have some images, we can carry on with the measurements. What we call measurements in BTK is one of the three main targets of deblending:
+Now that we have some images, we can carry on with the measurements. BTK can handle the following three main targets of deblending:
 
   * detections
   * segmentations
@@ -307,29 +319,45 @@ You can use BTK to directly carry out the measurements on the generated data. To
 
 .. jupyter-execute::
 
-  def sep_measure(batch, idx, channels_last=False, **kwargs):
+  def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
-    NOTE: This function does not support the multi-resolution feature.
+    NOTE: If this function is used with the multiresolution feature,
+    measurements will be carried on the first survey, and deblended images
+    or segmentations will not be returned.
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
             measurement on.
+        sigma_noise (float): Sigma threshold for detection against noise.
 
     Returns:
         dict with the centers of sources detected by SEP detection algorithm.
     """
-    if isinstance(batch["blend_images"], dict):
-        raise NotImplementedError("This function does not support the multi-resolution feature.")
-
-    image = batch["blend_images"][idx]
-    stamp_size = image.shape[-2]  # true for both 'NCHW' or 'NHWC' formats.
     channel_indx = 0 if not channels_last else -1
-    coadd = np.mean(image, axis=channel_indx)  # Smallest dimension is the channels
+
+    # multiresolution
+    if isinstance(batch["blend_images"], dict):
+        if surveys is None:
+            raise ValueError("surveys are required in order to use the MR feature.")
+        survey_name = surveys[0].name
+        image = batch["blend_images"][survey_name][idx]
+        coadd = np.mean(image, axis=channel_indx)
+        wcs = batch["wcs"][survey_name]
+
+    # single-survey
+    else:
+        image = batch["blend_images"][idx]
+        coadd = np.mean(image, axis=channel_indx)
+        wcs = batch["wcs"]
+
+    stamp_size = coadd.shape[0]
     bkg = sep.Background(coadd)
-    # Here the 1.5 value corresponds to a 1.5 sigma threshold for detection against noise.
-    catalog, segmentation = sep.extract(coadd, 1.5, err=bkg.globalrms, segmentation_map=True)
+    catalog, segmentation = sep.extract(
+        coadd, sigma_noise, err=bkg.globalrms, segmentation_map=True
+    )
+
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
@@ -343,15 +371,19 @@ You can use BTK to directly carry out the measurements on the generated data. To
         deblended_images[i] = image * seg_i_reshaped
 
     t = astropy.table.Table()
-    t["x_peak"] = catalog["x"]
-    t["y_peak"] = catalog["y"]
-    return {
-        "catalog": t,
-        "segmentation": segmentation_exp,
-        "deblended_images": deblended_images,
-    }
+    t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
 
-The function is not required to output all three measurements, only the catalog containing the detections is mandatory. Once the measure function is defined, it can be given to a `MeasureGenerator` together with the `DrawBlendsGenerator` from the previous step.
+    # If multiresolution, return only the catalog
+    if isinstance(batch["blend_images"], dict):
+        return {"catalog": t}
+    else:
+        return {
+            "catalog": t,
+            "segmentation": segmentation_exp,
+            "deblended_images": deblended_images,
+        }
+
+The function is not required to output all three measurements, only the catalog with ``ra, dec`` columns containing the detections is mandatory. Note that in the example above the ``batch`` also contains the ``wcs`` information so it's easy to convert between pixel and sky coordinates. Once the measure function is defined, it can be given to a ``MeasureGenerator`` together with the ``DrawBlendsGenerator`` from the previous step.
 
 .. jupyter-execute::
 
@@ -361,12 +393,12 @@ The results returned by the ``MeasureGenerator`` are both the results from the `
 
 .. jupyter-execute::
 
-  blend_results,meas_results = next(meas_generator)
+  blend_results, meas_results = next(meas_generator)
 
 Metrics
 ........
 
-Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a ``MetricsGenerator``, which takes a ``MeasureGenerator`` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the page of the metrics module in the documentation.
+Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a ``MetricsGenerator``, which takes a ``MeasureGenerator`` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the metrics API `page <https://lsstdesc.org/BlendingToolKit/src/btk.metrics.html>`_.
 
 .. jupyter-execute::
 
@@ -377,8 +409,9 @@ Finally, now that we have the measurements, we can compute metrics to evaluate t
                                                    target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity})
   blend_results,meas_results,results = next(metrics_generator)
 
-Once we got the results, we can plot them using functions found in the plot_utils module. While you can access all the raw data with the keys "detection", "segmentation" and "reconstruction", you can directly access all the segmentation and reconstruction metrics with the "galaxy_summary" key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
-We can use the `plot_metrics_summary` to easily plot the results from the metrics.
+Once we got the results, we can plot them using functions found in the ``plot_utils`` module. While you can access all the raw data with the keys ``"detection"``, ``"segmentation"`` and ``"reconstruction"``, you can directly access all the segmentation and reconstruction metrics with the ``"galaxy_summary"`` key, which contains an astropy Table with all galaxies from all blends and the associated parameters and metrics.
+
+We can use the ``plot_metrics_summary`` to easily plot the results from the metrics.
 
 .. jupyter-execute::
 
@@ -397,10 +430,13 @@ We can use the `plot_metrics_summary` to easily plot the results from the metric
     band_indices=[1, 2, 3]
   )
 
+
 Using COSMOS galaxies
 ----------------------
 
-We will now focus on generating images using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim. Let's start with the catalog and sampling function. Here we use a small sample of the real COSMOS catalog that is already in the BTK repository; feel free to fill in the correct path if you have the complete data set on your computer. It can be downloaded from `this page <https://zenodo.org/record/3242143>`_.
+In this section we will demonstrate how to generate blends using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim.
+
+Let's start with the catalog and sampling function. We use a small sample of the real COSMOS catalog that is already in the BTK repository, but you can fill in a different path if you have the complete data set on your computer. It can be downloaded from `at this page <https://zenodo.org/record/3242143>`_.
 
 .. jupyter-execute::
 
@@ -413,7 +449,7 @@ We will now focus on generating images using galaxies from the COSMOS catalog. Y
   catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
   sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
 
-We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here : as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band ; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. You can refer to the following section to circumvent this issue.
+We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here: as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. The section that follows explains how to get around this issue.
 
 .. jupyter-execute::
 
@@ -436,19 +472,34 @@ We can now create the corresponding instance of ``DrawBlendsGenerator``. There i
   btk.plot_utils.plot_blends(blend_images, blend_list, limits=(30,90))
 
 
-Using a custom COSMOS data set
-'''''''''''''''''''''''''''''''
+Using different magnitudes for each band
+''''''''''''''''''''''''''''''''''''''''''''
 
-In order to circumvent the aforementioned caveat, BTK offers the possibility to retrieve different magnitudes for each band. In order to use this feature, the corresponding magnitudes can be specified in any of the two provided COSMOS catalogs using the following column name format: <sn_fn>, where sn and fn are the Survey and Filter names, respectively, as written in the Survey and Filter named tuple classes. BTK will automatically look for those columns and use the information when available to compute galaxy fluxes.
+In order to circumvent the aforementioned caveat, BTK offers the possibility to retrieve different magnitudes for each band. In order to use this feature, the corresponding magnitudes can be specified in any of the two provided COSMOS catalogs using the following column name format: ``"sn_fn"``, where ``sn`` and ``fn`` are the Survey and Filter names, respectively, as written in the ``Survey`` and ``Filter`` named tuple classes. BTK will automatically look for those columns and use the information when available to compute galaxy fluxes.
 
-To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of. As seen in the previous section, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
-Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way : the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. In BTK, we use only the 'real' drawing mode, such that the information of the second catalog is not necessary, even if the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects. Though, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK : (1) the second catalog should contain at least the ``flux_radius`` column, (2) the first catalog should contain the same columns than the official COSMOS data release, (3) the galaxy and PSF stamps should be provided and accessible and (4 optional) one of the two catalogs can contain multiband magnitudes using the format just described.
+More information about the COSMOS catalog
+''''''''''''''''''''''''''''''''''''''''''''
+
+To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of.
+
+As seen above, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
+
+Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way: the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. In BTK, we use only the 'real' drawing mode, so that the information of the second catalog is not necessary, even if the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects.
+However, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK:
+
+1. The second catalog should contain at least the ``flux_radius`` column,
+
+2. The first catalog should contain the same columns than the official COSMOS data release
+
+3. The galaxy and PSF stamps should be provided and accessible.
+
+4. (optional) One of the two catalogs can contain multiband magnitudes using the format just described.
 
 
 Galsim_Hub tutorial
 --------------------
 
-BTK supports galaxy image generation with ``galsim_hub`` ; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``.
+BTK supports galaxy image generation with ``galsim_hub``; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``.
 
 The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install ``galsim_hub``, which can be done using pip.
 
@@ -462,16 +513,22 @@ Alternatively, you can optionally install ``galsim_hub`` along with BTK:
 
   pip install btk[galsim-hub]
 
-You can find a notebook version of this tutorial in the notebooks folder of the btk repo.
+You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb>`_.
 
 SCARLET implementation
 -----------------------
 
-We provide an implementation of `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization, as a measure function, based on this `repo <https://pmelchior.github.io/scarlet/install.html>`_ ; you should install the package directly from the source and not from using pip, as the pip version is outdated and will not work properly.
+We provide an implementation of the measure function for `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization. The code for SCARLET can be found in this `repo <https://github.com/pmelchior/scarlet>`_. You can install scarlet and its dependencies directly along BTK by running
 
-You will find the implementation in the notebook `scarlet-measure` in the notebooks folder of the btk repo.
+::
+
+  pip install btk[scarlet]
+
+This will install the latest version of SCARLET in github and NOT in pip (which is outdated).
+
+You can find the SCARLET measure function implementation `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/scarlet-measure.ipynb>`_.
 
 Advanced features
 ------------------
 
-You can find more details on specific features of BTK in these two tutorials : `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. `The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".
+You can find more details on specific features of BTK in these two tutorials: `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. `The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".

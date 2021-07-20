@@ -15,7 +15,7 @@ footer: |-
 #   $HYDRA_CONFIG_GROUPS: All the Hydra config groups (starts with hydra/)
 #
 # Configuration generated with overrides:
-#   $CONFIG : Generated config
+#   $CONFIG: Generated config
 #
 template: |-
   ${hydra.help.header}

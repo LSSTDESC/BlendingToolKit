@@ -161,7 +161,7 @@ def plot_with_isolated(
             [batch, height, width, bands].
         isolated_images (array_like): Array of isolated object images to plot
             [batch, max number of objects, height, width, bands].
-        blend_list(list) : List of `astropy.table.Table` with entries of true
+        blend_list(list): List of `astropy.table.Table` with entries of true
             objects. Length of list must be the batch size.
         limits(list, default=`None`): List of start and end coordinates to
             display image within. Note: limits are applied to both height and
@@ -234,7 +234,7 @@ def plot_with_deblended(
             [batch, height, width, bands].
         isolated_images (array_like): Array of isolated object images to plot
             [batch, max number of objects, bands, height, width].
-        blend_list (list) : List of `astropy.table.Table` with entries of true
+        blend_list (list): List of `astropy.table.Table` with entries of true
             objects. Length of list must be the batch size.
         detection_catalogs (list): List of `astropy.table.Table` with entries of
             detected objects.
@@ -379,11 +379,11 @@ def plot_metrics_distribution(metric_array, metric_name, ax=None, bins=50, upper
     """Plot an histogram of the distribution with mean and median.
 
     Args:
-        metric_array : Contains the data
-        metric_name (str) : name(s) of the metric(s)
-        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
-        bins (int) : Optional argument for the number of bins.
-        upper_quantile (float) : Quantile from which to cut
+        metric_array: Contains the data
+        metric_name (str): name(s) of the metric(s)
+        ax (matplotlib.axes.Axes): ax on which the plot should be drawn
+        bins (int): Optional argument for the number of bins.
+        upper_quantile (float): Quantile from which to cut
     """
     ax = plt.gca() if ax is None else ax
     quantile = np.quantile(metric_array, upper_quantile)
@@ -404,13 +404,13 @@ def plot_metrics_correlation(
     """Plot a scatter plot between two quantities.
 
     Args:
-        metric_x : Contains the data for the x axis
-        metric_y : Contains the data for the y axis
-        metric_x_name (str) : name of the x metric
-        metric_y_name (str) : name of the y metric
-        ax (matplotlib.axes.Axes) : ax on which the plot should be drawn
-        upper_quantile (float) : Quantile from which to cut
-        style (str) : Style of the plot, can be "scatter" or "heatmap"
+        metric_x: Contains the data for the x axis
+        metric_y:Contains the data for the y axis
+        metric_x_name (str): name of the x metric
+        metric_y_name (str): name of the y metric
+        ax (matplotlib.axes.Axes): ax on which the plot should be drawn
+        upper_quantile (float): Quantile from which to cut
+        style (str): Style of the plot, can be "scatter" or "heatmap"
 
     """
     ax = plt.gca() if ax is None else ax
@@ -441,9 +441,9 @@ def plot_gal_parameters(blend_list, context="talk"):
     """Plots histograms for the magnitude and the size of the galaxies in a batch.
 
     Args:
-        blend_list (list) : List of astropy Table. Should be obtained from the output of a
+        blend_list (list): List of astropy Table. Should be obtained from the output of a
                             DrawBlendsGenerator.
-        context (str) : Context for seaborn ; see seaborn documentation for details.
+        context (str): Context for seaborn; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
     """
     sns.set_context(context)
@@ -473,15 +473,15 @@ def plot_metrics_summary(  # noqa: C901
     """Plot metrics directly from the MetricsGenerator output.
 
     Args:
-        metrics_results (dict) : Output of a MetricsGenerator.
-        target_meas_keys (list) : List of the keys for the target measures.
+        metrics_results (dict): Output of a MetricsGenerator.
+        target_meas_keys (list): List of the keys for the target measures.
         target_meas_limits (list): List of tuples indicating the limits for the plots
                                    of the target measures
-        n_bins_target (int) : Number of bins for the target measure plots
-        save_path (str) : Path to the folder where the figures should be saved.
-        context (str) : Context for seaborn ; see seaborn documentation for details.
+        n_bins_target (int): Number of bins for the target measure plots
+        save_path (str): Path to the folder where the figures should be saved.
+        context (str): Context for seaborn; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
-        interactive (bool) : Specifies if the plot should be interactive.
+        interactive (bool): Specifies if the plot should be interactive.
 
     """
     sns.set_context(context)
