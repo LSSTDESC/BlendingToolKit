@@ -5,8 +5,6 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 
-**NOTE:** BTK is currently undergoing development so that the interface, tutorials, and documentation are mostly stable but might change before the version 1.0.0 release planned for mid-July. Please feel free to contact [@ismael-mendoza](https://github.com/ismael-mendoza) if you would like to use `BTK` for a current project or contribute.
-
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
 producing multi-band postage stamp images of blend scenes.
@@ -16,11 +14,11 @@ Documentation can be found at https://lsstdesc.org/BlendingToolKit/index.html
 ## Workflow
 <img src="docs/source/images/current_flowchart.png" alt="btk workflow" width="450"/>
 
-Color code for this flowchart :
+Color code for this flowchart:
 - Classes in black should be used as is by the user.
-- Classes in red may be reimplemented by the experienced user ; we recommend for new users to use the default implementations until they are familiar with them.
+- Classes in red may be reimplemented by the experienced user; we recommend for new users to use the default implementations until they are familiar with them.
 - In blue is the code for instantiating the classes within the code (optional arguments not included).
-- In green are the revelant methods for the classes ; please note that the `__call__` method is executed when calling the object (eg `sampling_function(catalog)`) and the `__next__` method is executed when using `next` (eg `next(generator)`).
+- In green are the revelant methods for the classes; please note that the `__call__` method is executed when calling the object (eg `sampling_function(catalog)`) and the `__next__` method is executed when using `next` (eg `next(generator)`).
 
 ## Running BlendingToolKit
 - BlendingToolKit (btk) requires an input catalog that contains information required to simulate galaxies and blends.

@@ -5,12 +5,15 @@ Installation
 The required packages for ``btk`` are:
 
 * astropy
+* fitsio
 * galsim
+* hydra
 * matplotlib
 * numpy
-* fitsio
+* pandas
 * scikit-image
 * scipy
+* seaborn
 * sep
 
 And their specific versions are listed in the ``pyproject.toml`` file under the ``[tool.poetry.dependencies]`` block.
@@ -44,3 +47,16 @@ This should install all other missing dependencies if necessary. You can then im
 
     import btk
     import btk.catalog
+
+Optional packages
+------------------------------
+BTK comes with two optional set of dependencies that can be installed: ``galsim_hub`` and ``scarlet``. You can install them alongside ``btk`` as follows:
+
+.. code-block::
+
+    # install galsim_hub and its dependencies.
+    # NOTE: it only works on python3.7
+    pip install blending_toolkit[galsim_hub]
+
+    # install latest version of scarlet and its dependencies.
+    pip install blending_toolkit[scarlet]
