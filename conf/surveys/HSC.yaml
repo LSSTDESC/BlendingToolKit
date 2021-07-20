@@ -1,4 +1,5 @@
 # exp_time and seeing: https://hsc-release.mtk.nao.ac.jp/doc/
+# sky_brightness: https://www.naoj.org/Observing/Instruments/SCam/exptime.html
 HSC:
   name: HSC
   pixel_scale: 0.167
