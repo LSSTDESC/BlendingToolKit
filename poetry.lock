@@ -37,7 +37,7 @@ python-versions = "*"
 name = "appnope"
 version = "0.1.2"
 description = "Disable App Nap on macOS >= 10.9"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -45,7 +45,7 @@ python-versions = "*"
 name = "argon2-cffi"
 version = "20.1.0"
 description = "The secure Argon2 password hashing algorithm."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -98,7 +98,7 @@ test = ["pytest-astropy (>=0.8)", "pytest-xdist", "objgraph", "ipython", "covera
 name = "async-generator"
 version = "1.10"
 description = "Async generators and context managers for Python 3.5+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -114,7 +114,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 name = "attrs"
 version = "21.2.0"
 description = "Classes Without Boilerplate"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -151,7 +151,7 @@ pytz = ">=2015.7"
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -196,7 +196,7 @@ d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 name = "bleach"
 version = "3.3.1"
 description = "An easy safelist-based HTML-sanitizing tool."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -267,7 +267,7 @@ importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -305,7 +305,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "debugpy"
 version = "1.3.0"
 description = "An implementation of the Debug Adapter Protocol for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 
@@ -321,7 +321,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*"
 name = "defusedxml"
 version = "0.7.1"
 description = "XML bomb protection for Python stdlib modules"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -345,7 +345,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 name = "entrypoints"
 version = "0.3"
 description = "Discover and load entry points from installed packages."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7"
 
@@ -392,7 +392,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "galsim"
-version = "2.3.1"
+version = "2.3.2"
 description = "The modular galaxy image simulation toolkit"
 category = "main"
 optional = false
@@ -563,7 +563,7 @@ python-versions = "*"
 name = "ipykernel"
 version = "6.0.3"
 description = "IPython Kernel for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -584,7 +584,7 @@ test = ["pytest (!=5.3.4)", "pytest-cov", "flaky", "nose", "ipyparallel"]
 name = "ipython"
 version = "7.25.0"
 description = "IPython: Productive Interactive Computing"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -616,7 +616,7 @@ test = ["nose (>=0.10.1)", "requests", "testpath", "pygments", "nbformat", "ipyk
 name = "ipython-genutils"
 version = "0.2.0"
 description = "Vestigial utilities from IPython"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -624,7 +624,7 @@ python-versions = "*"
 name = "ipywidgets"
 version = "7.6.3"
 description = "IPython HTML widgets for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -643,7 +643,7 @@ test = ["pytest (>=3.6.0)", "pytest-cov", "mock"]
 name = "jedi"
 version = "0.18.0"
 description = "An autocompletion tool for Python that can be used for text editors."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -658,7 +658,7 @@ testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 name = "jinja2"
 version = "3.0.1"
 description = "A very fast and expressive template engine."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -672,7 +672,7 @@ i18n = ["Babel (>=2.7)"]
 name = "jsonschema"
 version = "3.2.0"
 description = "An implementation of JSON Schema validation for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -690,7 +690,7 @@ format_nongpl = ["idna", "jsonpointer (>1.13)", "webcolors", "rfc3986-validator 
 name = "jupyter-client"
 version = "6.2.0"
 description = "Jupyter protocol implementation and client libraries"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.1"
 
@@ -710,7 +710,7 @@ test = ["async-generator", "ipykernel", "ipython", "mock", "pytest-asyncio", "py
 name = "jupyter-core"
 version = "4.7.1"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -737,7 +737,7 @@ Sphinx = ">=2"
 name = "jupyterlab-pygments"
 version = "0.1.2"
 description = "Pygments theme using JupyterLab CSS variables"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -748,7 +748,7 @@ pygments = ">=2.4.1,<3"
 name = "jupyterlab-widgets"
 version = "1.0.0"
 description = "A JupyterLab extension."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -823,7 +823,7 @@ testing = ["coverage", "pyyaml"]
 name = "markupsafe"
 version = "2.0.1"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -847,7 +847,7 @@ python-dateutil = ">=2.7"
 name = "matplotlib-inline"
 version = "0.1.2"
 description = "Inline Matplotlib backend for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -866,7 +866,7 @@ python-versions = "*"
 name = "mistune"
 version = "0.8.4"
 description = "The fastest markdown parser in pure Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -898,7 +898,7 @@ python-versions = "*"
 name = "nbclient"
 version = "0.5.3"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.1"
 
@@ -918,7 +918,7 @@ test = ["codecov", "coverage", "ipython", "ipykernel", "ipywidgets", "pytest (>=
 name = "nbconvert"
 version = "6.1.0"
 description = "Converting Jupyter Notebooks"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -948,7 +948,7 @@ webpdf = ["pyppeteer (==0.2.2)"]
 name = "nbformat"
 version = "5.1.3"
 description = "The Jupyter Notebook format"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -982,7 +982,7 @@ six = "*"
 name = "nest-asyncio"
 version = "1.5.1"
 description = "Patch asyncio to allow nested event loops"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -1022,7 +1022,7 @@ python-versions = "*"
 name = "notebook"
 version = "6.4.0"
 description = "A web-based notebook environment for interactive computing"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1086,7 +1086,7 @@ tests = ["pytest", "pytest-cov", "pytest-pep8"]
 name = "packaging"
 version = "21.0"
 description = "Core utilities for Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1113,7 +1113,7 @@ test = ["hypothesis (>=3.58)", "pytest (>=6.0)", "pytest-xdist"]
 name = "pandocfilters"
 version = "1.4.3"
 description = "Utilities for writing pandoc filters in python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -1121,7 +1121,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 name = "parso"
 version = "0.8.2"
 description = "A Python Parser"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1149,7 +1149,7 @@ python-versions = "*"
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1160,7 +1160,7 @@ ptyprocess = ">=0.5"
 name = "pickleshare"
 version = "0.7.5"
 description = "Tiny 'shelve'-like database with concurrency support"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1215,7 +1215,7 @@ virtualenv = ">=20.0.8"
 name = "prometheus-client"
 version = "0.11.0"
 description = "Python client for the Prometheus monitoring system."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -1226,7 +1226,7 @@ twisted = ["twisted"]
 name = "prompt-toolkit"
 version = "3.0.19"
 description = "Library for building powerful interactive command lines in Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.1"
 
@@ -1260,7 +1260,7 @@ scipy = "*"
 name = "ptyprocess"
 version = "0.7.0"
 description = "Run a subprocess in a pseudo terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1268,7 +1268,7 @@ python-versions = "*"
 name = "py"
 version = "1.10.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -1337,7 +1337,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 name = "pygments"
 version = "2.9.0"
 description = "Pygments is a syntax highlighting package written in Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -1353,7 +1353,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "pyrsistent"
 version = "0.18.0"
 description = "Persistent/Functional/Immutable data structures"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1429,7 +1429,7 @@ numpy = ">=1.13.3"
 name = "pywin32"
 version = "301"
 description = "Python for Window Extensions"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1437,7 +1437,7 @@ python-versions = "*"
 name = "pywinpty"
 version = "1.1.3"
 description = "Pseudo terminal support for Windows from Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1453,7 +1453,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 name = "pyzmq"
 version = "22.1.0"
 description = "Python bindings for 0MQ"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1551,7 +1551,7 @@ scipy = ">=1.0"
 name = "send2trash"
 version = "1.7.1"
 description = "Send file to trash natively under Mac OS X, Windows and Linux."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1777,7 +1777,7 @@ python-versions = "*"
 name = "terminado"
 version = "0.10.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1793,7 +1793,7 @@ test = ["pytest"]
 name = "testpath"
 version = "0.5.0"
 description = "Test utilities for code working with files and commands"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">= 3.5"
 
@@ -1826,7 +1826,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "tornado"
 version = "6.1"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">= 3.5"
 
@@ -1834,7 +1834,7 @@ python-versions = ">= 3.5"
 name = "traitlets"
 version = "5.0.5"
 description = "Traitlets Python configuration system"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1897,7 +1897,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1905,7 +1905,7 @@ python-versions = "*"
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1924,7 +1924,7 @@ watchdog = ["watchdog"]
 name = "widgetsnbextension"
 version = "3.5.1"
 description = "IPython HTML widgets for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1958,7 +1958,7 @@ scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "bea1723ecb8d37024d72eb61578cf3abc3e68d66e21ca9aeb529d4a23ac60304"
+content-hash = "081eff1d89aebdf6daf872c89779218de2fafc2ade91cb15c9307227e54a16fb"
 
 [metadata.files]
 absl-py = [
@@ -2324,33 +2324,33 @@ future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
 ]
 galsim = [
-    {file = "GalSim-2.3.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:3894398a06a2b14cec9e381534985b7d8c67fc3041af21b6c569a84e514dfd4a"},
-    {file = "GalSim-2.3.1-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:1e9a831bad3df0b261b91e4ddb5a66395e89c2a9590047cf3d4293acb4c63d77"},
-    {file = "GalSim-2.3.1-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:9d6e1331729725847c3691418ab0ecfb16cec705581788d4e290194acce62759"},
-    {file = "GalSim-2.3.1-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:6be23f69967cdb67330d7c9ebdd2e42f87880b891595668196f35698e6624628"},
-    {file = "GalSim-2.3.1-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:a5a90babee0a747171e02715ebecd388a8d8e98d7f7fea1415397ba7d14fc220"},
-    {file = "GalSim-2.3.1-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:b874bef60357cf32ae51174ed9094e9ea3c71becf002a30784164de33ea48da3"},
-    {file = "GalSim-2.3.1-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:95aa61cde1b98cc9c61a7756a7d5bd4ac0e83b730b1f2911c275b39bea1cd0ae"},
-    {file = "GalSim-2.3.1-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:b8c08e6576cc93d9ca6fb203f2827b565bd80a1feabfbb624a7f3497004a3cdb"},
-    {file = "GalSim-2.3.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:33b2612c04ad4fdb383fcc42e2e782fef28e79cff25cd620015351f939b0efb4"},
-    {file = "GalSim-2.3.1-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:265aebed3b5eb11b537428e07c7651f558cf41dabcba0a38cce50054819932cd"},
-    {file = "GalSim-2.3.1-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:84bdeba8ac1a7b481b82ea3f11e11c3455d68d36e34a75dba7278f7d799f8c0a"},
-    {file = "GalSim-2.3.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:edc0c2346cad4fee3684412c420283421802050f79fc0f6fefdf11b781679723"},
-    {file = "GalSim-2.3.1-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:675a281b3a3ef1c7c204c3a4f37ec17c4d761d0ff843301bf44b705a378b9ca3"},
-    {file = "GalSim-2.3.1-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:f82a5e158dcf385b2e80cb68e688c850f059a3882c0bfd8e1218c4bde2b30386"},
-    {file = "GalSim-2.3.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:0f80c194455e83b43fe2a537b41c9aa5a9686d712f2ab9665ab58dfecb997f63"},
-    {file = "GalSim-2.3.1-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:b5f09272a8ba8b5188e495b7656ee62f8beb9ccad3b3cc00211b9acae6f61a6b"},
-    {file = "GalSim-2.3.1-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:b6267d141301517970552836fb24bdf24f08d2bf153745fd9c1185f7f2e92831"},
-    {file = "GalSim-2.3.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:3932848ec1bc78f8ab50204fe06eec76aab1f413e9bbd49ce39e0792ce79396c"},
-    {file = "GalSim-2.3.1-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:90b7556cd724ff961b4e6150881e24cfe8fd3a853f4d2f83d204d61944cf74dd"},
-    {file = "GalSim-2.3.1-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:20eac88f06888ca884421184aeb92306ae9905fb5de61cc790dfd244660faf56"},
-    {file = "GalSim-2.3.1-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:b3944efe28765863f417f27a2e62629e49cf33c3c2c067a4eac8e2ef3aae6a57"},
-    {file = "GalSim-2.3.1-pp27-pypy_73-manylinux2010_x86_64.whl", hash = "sha256:f108e56707dc7ed0b7b0f11b07251c08ece6765ef44810445923c9c8f0dd8953"},
-    {file = "GalSim-2.3.1-pp36-pypy36_pp73-macosx_10_9_x86_64.whl", hash = "sha256:16a7eeebac3c7fcb3442376c9387c26c974c856c672520ed73d93d6ea698f563"},
-    {file = "GalSim-2.3.1-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:1acf19af5c2e0feeb9bdfffef017cc2a9a99636e09c00881441daf2076aab40d"},
-    {file = "GalSim-2.3.1-pp37-pypy37_pp73-macosx_10_9_x86_64.whl", hash = "sha256:6704d3794971cd792eb7b06792800e1a42851b1b78d47076bf4d07f7104425ed"},
-    {file = "GalSim-2.3.1-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:9a36b11ed3cc5934afdaf8b5181611520a4e6b2936efb2b8b6cd3611044e4742"},
-    {file = "GalSim-2.3.1.tar.gz", hash = "sha256:ed7bd1b0035256765db91340aa9e1f27318152f658e25e9ee31c79f95db856bc"},
+    {file = "GalSim-2.3.2-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:71a1383058a2e8e0ac1baf4554ef6491872c30b7082c0a615036f07193978180"},
+    {file = "GalSim-2.3.2-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:8ec9dd61c139c2cae29c6ffa5586313e520cb4756798bcac07d132606a28cfc7"},
+    {file = "GalSim-2.3.2-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:7fb468fe369a8d44af6ddcb383207494341886041d8d120f90ec195bfcf860a6"},
+    {file = "GalSim-2.3.2-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:e98ca318882c1187bcc5a2a707a91501febe2ebb9e0821b642df717691a6cb95"},
+    {file = "GalSim-2.3.2-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:23b02f8ea6acbc227fadb4b8a1381a6e5f3e27979ac1940055e1d99693d40b46"},
+    {file = "GalSim-2.3.2-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:cfca48fba4a21159d53cb44da7ac3fde418e251f266034ee5f7d4852196f0100"},
+    {file = "GalSim-2.3.2-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:0d02000dc63f464bcf8406c6437bc194cdd3a99991a18a53e816ce232aa56b26"},
+    {file = "GalSim-2.3.2-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:c162458826e718207897ae01e7140dff92489cb1dfabc0df8ffd077e72260ab6"},
+    {file = "GalSim-2.3.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:50422fd9c80e9d43b613c7667c4b77d14357bf4b19269a6b5686b4d03a76d14f"},
+    {file = "GalSim-2.3.2-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:c444b010c8e614f82b86dc132f42df35114ee9433f50c5557e69eb0ed53855be"},
+    {file = "GalSim-2.3.2-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:871961b641d52477138cc3850c76a6e3d2454ec0da66b407fa94b98302dcbb84"},
+    {file = "GalSim-2.3.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:eb42eceacdd825d80ae7414a6a90b507b8bb4028cbcc719a48c409839afa4ce4"},
+    {file = "GalSim-2.3.2-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:69b6639ac712a1f3d8861da224b1629defa0426a7324dd6bb252109b87425dbc"},
+    {file = "GalSim-2.3.2-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:75bb89b9b51d62d04cf4bbd01fe1fdb433348dfb9f2464408db83205c10ed5ff"},
+    {file = "GalSim-2.3.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:293f604745664d08e201de485fd250456ed59a5d0c2e8d4214c6070c3934e08b"},
+    {file = "GalSim-2.3.2-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:8810d74d93a31cabcb6bba3312710689dfdcabe88be359ea416fe661f2bdccae"},
+    {file = "GalSim-2.3.2-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:313fad789d04b04c2a9c48e2fef881c645b496549c23df9cec14920c796acca0"},
+    {file = "GalSim-2.3.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:20fd10cd221ad74cea5d1ea56c17a9e56f81fede6455d6c1a2029e65f5563bca"},
+    {file = "GalSim-2.3.2-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:683a08448a06ad9d4e68590eb935e8d1f38fab3328790ebc0ef80244b159440a"},
+    {file = "GalSim-2.3.2-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:dff512ef3740279d36173f969bb384cb8c34bfe5e155a93436cc1673cbec29e7"},
+    {file = "GalSim-2.3.2-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:3e077f97bfcc1649ecb747c6472a5fec33bd1f3b818d717546b707eace2caae0"},
+    {file = "GalSim-2.3.2-pp27-pypy_73-manylinux2010_x86_64.whl", hash = "sha256:5d1b9edff5ebbc5b019f6ca10aeebfdf0654e2666b5998a4b6c91db172b5defc"},
+    {file = "GalSim-2.3.2-pp36-pypy36_pp73-macosx_10_9_x86_64.whl", hash = "sha256:dbeec8c108660c7c9e4bf13a168e1098d1468e482a6e96efa4201845c7f03745"},
+    {file = "GalSim-2.3.2-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:470874d0ffb770efef48a864eb6299b97c94477f9071249a9cb7d341f19e1e99"},
+    {file = "GalSim-2.3.2-pp37-pypy37_pp73-macosx_10_9_x86_64.whl", hash = "sha256:78ecf6f1c564ef00e59bb7c3fbbd97ce5a52f5d790e37e179bda7ccd40351623"},
+    {file = "GalSim-2.3.2-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:79d83e5457ca464f9b0aaabc46fbe4185ec92074b5aa0af73524ed82162fc858"},
+    {file = "GalSim-2.3.2.tar.gz", hash = "sha256:c82248211222c7774fc6679ac090d127a54f3f49669f8b6f406ea76e18006f84"},
 ]
 galsim-hub = [
     {file = "galsim_hub-0.0.1rc4.tar.gz", hash = "sha256:45bcd5dbd987f2dfa9a0512a1c5f6c84ff42b7823a6b778b494ce984c13b0940"},
