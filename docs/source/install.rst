@@ -53,6 +53,7 @@ Optional packages
 BTK comes with two optional set of dependencies that can be installed: ``galsim_hub`` and ``scarlet``. You can install them alongside ``btk`` as follows:
 
 .. code-block::
+
     # install galsim_hub and its dependencies.
     # NOTE: it only works on python3.7
     pip install blending_toolkit[galsim_hub]
