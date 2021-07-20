@@ -10,30 +10,21 @@ Please makes sure to complete the following steps if you are interested in contr
 git clone https://github.com/LSSTDESC/BlendingToolKit.git
 ```
 
-2. It is highly recommended that you have a separate virtual environment (e.g. conda, virtualenv) for your BTK development. Then, inside your favorite python virtual environment run the following:
+2. It is highly recommended that you use `poetry` to manage the python environment for developing BTK. This will also allow you to import `btk` anywhere while you are running inside that environment. The following commands should install and activate a `btk` python environment managed by `poetry`:
 
 ```
-cd BlendingToolKit
-pip install -r requirements.txt # includes all requirements you need.
-pre-commit install
-```
-
-If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github.
-
-3. If you would like to install the current `btk` package from your local repo into your python environment (so that you can import it from anywhere), then you need to use `poetry`. The following commands should enable this (again inside your python virtual environment):
-
-```
+ # run the following a python environment like conda.
 cd BlendingToolKit
 pip install --user poetry
 poetry install
 pre-commit install
+poetry shell
 ```
 
-You can skip step `2.` if you are OK using poetry. Please post an issue in the github if you run into problems trying this method.
-
+If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github. Note these last two dependencies only work on `python 3.7`.
 ## Pull Requests
 
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch.
+1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `dev` branch.
 
 2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
@@ -43,7 +34,7 @@ You can skip step `2.` if you are OK using poetry. Please post an issue in the g
 
     - You can run all the tests locally by simply running `pytest` inside your local repository.
 
-3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging:
+3. If other branches were merged while you were working on this PR to the `dev` branch, then you will to rebase before merging:
 
 ```
 git rebase origin/main
