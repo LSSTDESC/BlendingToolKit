@@ -1,9 +1,8 @@
 # http://www.ctio.noao.edu/noao/content/Basic-Optical-Parameters
 # http://www.ctio.noao.edu/noao/content/DECam-What
-# http://www.darkenergysurvey.org/survey/des-description.pdf
-# skybrightness from http://www.ctio.noao.edu/noao/node/1218
-# extinction from https://arxiv.org/pdf/1701.00502.pdf table 6
-# fwhm values from https://arxiv.org/pdf/1407.3801.pdf
+# sky brightness: http://www.ctio.noao.edu/noao/node/1218
+# fwhm: https://arxiv.org/abs/1407.3801 table 2
+# extinction: https://arxiv.org/abs/1701.00502 table 4
 DES:
   name: DES
   pixel_scale: 0.263
