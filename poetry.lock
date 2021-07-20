@@ -1952,12 +1952,13 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
+galsim-hub = ["galsim-hub", "tensorflow"]
 scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "40dd824151ffa360694dd2c892d5c05295e083ced1696cdafec33d5171140683"
+content-hash = "bea1723ecb8d37024d72eb61578cf3abc3e68d66e21ca9aeb529d4a23ac60304"
 
 [metadata.files]
 absl-py = [
