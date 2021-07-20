@@ -24,6 +24,7 @@ Getting Started
    catalog
    user_guide
    tutorials
+   cli
 
 Modules API Reference
 ---------------------

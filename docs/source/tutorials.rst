@@ -72,6 +72,8 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the ``Sa
 
 As a reference, here is the code for this sampling function:
 
+.. jupyter-execute::
+
   class DefaultSampling(btk.sampling_functions.SamplingFunction):
       """Default sampling function used for producing blend tables."""
 
@@ -152,7 +154,10 @@ The BTK Survey object defines the observing conditions relative to a survey. It 
 
 You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for Rubin:
 
+.. jupyter-execute::
+
   from btk.survey import get_psf
+
   _central_wavelength = {
       "u": 3592.13,
       "g": 4789.98,
@@ -161,6 +166,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       "z": 8689.83,
       "y": 9674.05,
   }
+
   Rubin = btk.survey.Survey(
       "LSST",
       pixel_scale=0.2,
@@ -250,7 +256,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify; please take a look at the `API<https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial<https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
+Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
 
 The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. For example:
 
@@ -392,7 +398,7 @@ The results returned by the ``MeasureGenerator`` are both the results from the `
 Metrics
 ........
 
-Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a ``MetricsGenerator``, which takes a ``MeasureGenerator`` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the metrics API `page<https://lsstdesc.org/BlendingToolKit/src/btk.metrics.html>`_.
+Finally, now that we have the measurements, we can compute metrics to evaluate the performance of those measurements. This is done using a ``MetricsGenerator``, which takes a ``MeasureGenerator`` as an input, as well as a handful of parameters. It will match the true galaxies with the detected galaxies and compute metrics evaluating the quality of the detection (precision, recall, F1 score), the segmentation (Intersection over Union) and the reconstruction of the galaxy images (Mean Square Residual, Peak Signal to Noise Ratio, Structure Similarity Index, error on the target measures). You can find more details on those metrics on the metrics API `page <https://lsstdesc.org/BlendingToolKit/src/btk.metrics.html>`_.
 
 .. jupyter-execute::
 
@@ -430,7 +436,7 @@ Using COSMOS galaxies
 
 In this section we will demonstrate how to generate blends using galaxies from the COSMOS catalog. You will find that generating images with COSMOS is very similar to generating images with Catsim.
 
-Let's start with the catalog and sampling function. We use a small sample of the real COSMOS catalog that is already in the BTK repository, but you can fill in a different path if you have the complete data set on your computer. It can be downloaded from `this page <https://zenodo.org/record/3242143>`_.
+Let's start with the catalog and sampling function. We use a small sample of the real COSMOS catalog that is already in the BTK repository, but you can fill in a different path if you have the complete data set on your computer. It can be downloaded from `at this page <https://zenodo.org/record/3242143>`_.
 
 .. jupyter-execute::
 
@@ -474,12 +480,20 @@ In order to circumvent the aforementioned caveat, BTK offers the possibility to 
 More information about the COSMOS catalog
 ''''''''''''''''''''''''''''''''''''''''''''
 
-To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of. A
+To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of.
 
 As seen above, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
 
 Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way: the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. In BTK, we use only the 'real' drawing mode, so that the information of the second catalog is not necessary, even if the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects.
-However, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK: (1) the second catalog should contain at least the ``flux_radius`` column, (2) the first catalog should contain the same columns than the official COSMOS data release, (3) the galaxy and PSF stamps should be provided and accessible, and (4, optional) one of the two catalogs can contain multiband magnitudes using the format just described.
+However, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK:
+
+1. The second catalog should contain at least the ``flux_radius`` column,
+
+2. The first catalog should contain the same columns than the official COSMOS data release
+
+3. The galaxy and PSF stamps should be provided and accessible.
+
+4. (optional) One of the two catalogs can contain multiband magnitudes using the format just described.
 
 
 Galsim_Hub tutorial
@@ -499,7 +513,7 @@ Alternatively, you can optionally install ``galsim_hub`` along with BTK:
 
   pip install btk[galsim-hub]
 
-You can find a notebook version of this tutorial `here<https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb>`_.
+You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb>`_.
 
 SCARLET implementation
 -----------------------
@@ -512,7 +526,7 @@ We provide an implementation of the measure function for `SCARLET <https://www.s
 
 This will install the latest version of SCARLET in github and NOT in pip (which is outdated).
 
-You can find the SCARLET measure function implementation `here<https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/scarlet-measure.ipynb>`_.
+You can find the SCARLET measure function implementation `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/scarlet-measure.ipynb>`_.
 
 Advanced features
 ------------------

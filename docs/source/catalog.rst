@@ -8,7 +8,7 @@ CatSim
 -------
 The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim `page <https://www.lsst.org/scientists/simulations/catsim>`_ for more details.
 
-BTK includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from `here <https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk>`_.
+BTK includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from `this page <https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk>`_.
 
 COSMOS
 -------
@@ -18,7 +18,7 @@ BTK includes an implementation of COSMOS real galaxy rendering, providing the po
 
 Galsim_Hub
 -----------
-Galsim_Hub is a framework for deep learning image generation models, developped by François Lanusse, which is available `here <https://github.com/McWilliamsCenter/galsim_hub>`_ .
+Galsim_Hub is a framework for deep learning image generation models, developped by François Lanusse, which is available `in this page <https://github.com/McWilliamsCenter/galsim_hub>`_ .
 
 BTK supports drawing galaxies generated using any galsim_hub compatible model; the default one generates COSMOS-like galaxies and is described in `this paper <https://arxiv.org/abs/2008.03833>`_, but the BTK implementation should be compatible with any model.
 
