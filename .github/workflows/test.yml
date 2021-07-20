@@ -49,6 +49,7 @@ jobs:
         run: |
           poetry run pip install Cython
           poetry install --extras "galsim-hub scarlet"
+          poetry run pip install git+https://github.com/pmelchior/scarlet
 
       - name: Run Tests
         run: |

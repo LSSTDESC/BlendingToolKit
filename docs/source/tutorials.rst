@@ -523,6 +523,7 @@ We provide an implementation of the measure function for `SCARLET <https://www.s
 ::
 
   pip install btk[scarlet]
+  pip install git+https://github.com/pmelchior/scarlet
 
 This will install the latest version of SCARLET in github and NOT in pip (which is outdated).
 

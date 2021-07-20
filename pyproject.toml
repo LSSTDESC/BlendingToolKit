@@ -38,7 +38,6 @@ peigen = {version = "^0.0.9", optional = true}
 proxmin = {version = "^0.6.11", optional = true}
 pybind11 = {version = "^2.7.0", optional = true}
 python = "^3.7.1"
-scarlet = {git = "https://github.com/pmelchior/scarlet", optional = true}
 scikit-image = "^0.18.0"
 scipy = "^1.4.1"
 seaborn = "^0.11.1"
@@ -80,8 +79,9 @@ target-version = ['py37']
 
 [tool.poetry.extras]
 galsim-hub = ["galsim-hub", "tensorflow"]
-scarlet = ["peigen", "autograd", "pybind11", "proxmin", "scarlet"]
+scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
+galsim-hub = ["galsim-hub", "tensorflow"]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
