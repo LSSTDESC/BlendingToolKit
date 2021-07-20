@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line Interface &mdash; btk 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BlendingToolKit API" href="src/btk.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> btk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-options">Available options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-own-survey">Creating your own Survey</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-help">CLI help</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/btk.html">BlendingToolKit API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">btk</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command Line Interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line-interface">
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The CLI is designed to run BTK from start to end, starting by creating a <code class="docutils literal notranslate"><span class="pre">DrawBlendGenerator</span></code>, followed by a <code class="docutils literal notranslate"><span class="pre">MeasureGenerator</span></code>, and finally calculating and saving the corresponding metrics via a <code class="docutils literal notranslate"><span class="pre">MetricsGenerator</span></code>.</p>
+<p>Assuming that BTK has been pip installed, you can run btk from the command line like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="n">sampling</span><span class="o">=</span><span class="n">default</span> <span class="n">draw_blends</span><span class="o">=</span><span class="n">catsim</span> <span class="n">max_number</span><span class="o">=</span><span class="mi">3</span> <span class="n">save_path</span><span class="o">=/</span><span class="n">directory</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">save</span><span class="o">/</span><span class="n">results</span> <span class="n">cpus</span><span class="o">=</span><span class="mi">1</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span> <span class="n">surveys</span><span class="o">=</span><span class="p">[</span><span class="n">Rubin</span><span class="p">,</span> <span class="n">HST</span><span class="p">]</span> <span class="n">surveys</span><span class="o">.</span><span class="n">Rubin</span><span class="o">.</span><span class="n">airmass</span><span class="o">=</span><span class="mf">1.1</span>
+<span class="n">sampling</span><span class="o">=</span><span class="n">default</span> <span class="n">catalog</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">catsim</span> <span class="n">use_metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;detection&#39;</span><span class="p">,</span> <span class="s1">&#39;segmentation&#39;</span><span class="p">]</span> <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the <code class="docutils literal notranslate"><span class="pre">save_path</span></code> argument.</p>
+<p><strong>Important:</strong> To use the CLI you first need to setup an environment variable that contains the
+absolute path to your BTK local repo:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">BTK_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">btk</span><span class="o">/</span><span class="n">repo</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="available-options">
+<h2>Available options<a class="headerlink" href="#available-options" title="Permalink to this headline">¶</a></h2>
+<p>Here is a list of all the options of BTK you can customize directly from the CLI.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code>: Specify the sampling function to be used, options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>default</p></li>
+<li><p>galsim_hub</p></li>
+<li><p>group_sampling</p></li>
+<li><p>group_sampling_numbered</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">catalog</span></code>: Attribute group consisting of two sub-attributes.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">catalog.name</span></code>: Name of the BTK catalog class, options: [catsim, cosmos]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">catalog.catalog_files</span></code>: Path to files containing catalog information. The ‘catsim’ catalog requires one path, while the ‘cosmos’ type requires two paths specified as a list. See the ‘Using COSMOS galaxies’ section in the tutorials page for more details.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">surveys</span></code>: Name of the survey(s) you want to use, options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Rubin</p></li>
+<li><p>HST</p></li>
+<li><p>HSC</p></li>
+<li><p>DES</p></li>
+<li><p>CFHT</p></li>
+<li><p>Euclid</p></li>
+</ul>
+<p>and correspond to each of the config files available in <code class="docutils literal notranslate"><span class="pre">conf/surveys</span></code>. You can pass in a list of surveys for multi-resolution
+studies too. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="n">surveys</span><span class="o">=</span><span class="p">[</span><span class="n">Rubin</span><span class="p">,</span> <span class="n">HST</span><span class="p">]</span> <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Assuming that you want to use e.g. the Rubin survey default parameters but some changes you can modify individual parameters of this survey directly from the
+command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="n">surveys</span><span class="o">=</span><span class="n">Rubin</span> <span class="n">surveys</span><span class="o">.</span><span class="n">Rubin</span><span class="o">.</span><span class="n">airmass</span><span class="o">=</span><span class="mf">1.1</span> <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to modify a large number of parameters of a given survey, it might be easier to
+add your own config file to <code class="docutils literal notranslate"><span class="pre">conf/surveys</span></code>. See below for instructions on how to do this.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">draw_blends</span></code>: Which draw_blend_generator to use, options are</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>catsim</p></li>
+<li><p>cosmos</p></li>
+<li><p>galsim_hub</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_path</span></code>: Absolute path to a (preferably) empty directory where you would like to save results of running BTK.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cpus</span></code>: Number of cpus you would like to use for multiprocessing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code>: Whether you would like BTK to print</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: Size of the batches produced by the various BTK generators.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stamp_size</span></code>: Stamp size of images in arcseconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_shift</span></code>: Maximum shift of galaxies from the center of each postage stamp in arcseconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">add_noise</span></code>: Whether to add (Poisson) noise to the images.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">channels_last</span></code>: Whether to use have images in channel last format (True) or not (False).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code>: Attribute group consisting of options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: Which galsim_hub model to use (default: ‘hub:Lanusse2020’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param_names</span></code>: list of the parameters with which the generation is parametrized; this is unique to each model (default: <code class="docutils literal notranslate"><span class="pre">['flux_radious,</span> <span class="pre">'mag_auto',</span> <span class="pre">'zphot']</span></code>). <strong>NOTE</strong>: This flag is ignored unless <code class="docutils literal notranslate"><span class="pre">draw_blends=galsim_hub</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">measure_kwargs</span></code>: Dictionary or list of dictionaries containing the keyword arguments to be passed in to each measure_function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">measure_functions</span></code>: List of measure_functions to be ran, options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>basic</p></li>
+<li><p>sep</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">meas_band_num</span></code>: Band index to perform measurements in.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise_threshold_factor</span></code>: Factor for determining the threshold which is applied when getting segmentations from true images. A value of <code class="docutils literal notranslate"><span class="pre">3</span></code> would correspond to a threshold of three sigmas (with sigma the standard deviation of the noise)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold_match</span></code>: Maximum distance for matching a detected and a true galaxy in pixels (default: <code class="docutils literal notranslate"><span class="pre">5.0</span></code>).</p></li>
+</ul>
+</div>
+<div class="section" id="creating-your-own-survey">
+<h2>Creating your own Survey<a class="headerlink" href="#creating-your-own-survey" title="Permalink to this headline">¶</a></h2>
+<p>To create your own survey in BTK, the easiest way is to write your own yaml file that follows the
+same structure as the other yaml file in <cite>conf/surveys</cite>. Note that the top-level dictionary key
+needs to be the <em>unique</em> name of your survey and the corresponding fields</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>name</p></li>
+<li><p>pixel_scale</p></li>
+<li><p>effective_area</p></li>
+<li><p>mirror_diameter</p></li>
+<li><p>airmass</p></li>
+<li><p>zeropoint_airmass</p></li>
+<li><p>filters</p></li>
+</ul>
+</div></blockquote>
+<p>are required. You should have at least one filter with the fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>name</p></li>
+<li><p>sky_brightness</p></li>
+<li><p>exp_time</p></li>
+<li><p>zeropoint</p></li>
+<li><p>extinction</p></li>
+<li><p>psf</p></li>
+</ul>
+</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">psf</span></code> field can be specified with <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">default</span></code> in which case you need to specify the parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>fwhm</p></li>
+<li><p>mirror_diameter</p></li>
+<li><p>effective_area</p></li>
+<li><p>filt_wavelength</p></li>
+</ul>
+</div></blockquote>
+<p>in the <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary (see examples for how to reference already existing values in the
+config file). The <code class="docutils literal notranslate"><span class="pre">psf</span></code> can  also be specified as <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">galsim</span></code> and you can provide the same format of a PSF as you would in a galsim config file (with no reference to external data sources).</p>
+</div>
+<div class="section" id="cli-help">
+<h2>CLI help<a class="headerlink" href="#cli-help" title="Permalink to this headline">¶</a></h2>
+<p>You can always access the help menu of the CLI if you forget any of the options like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src/btk.html" class="btn btn-neutral float-right" title="BlendingToolKit API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, btk developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

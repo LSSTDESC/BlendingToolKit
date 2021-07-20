@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; btk 0.1 documentation</title>
+  <title>Installation &mdash; btk 0.0.0 documentation</title>
   
 
   
@@ -63,6 +63,10 @@
           
             
             
+              <div class="version">
+                0.0
+              </div>
+            
           
 
           
@@ -88,11 +92,13 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-galsim">Install GalSim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-btk">Install BTK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-packages">Optional packages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src/btk.html">BlendingToolKit API</a></li>
@@ -166,12 +172,15 @@
 The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
 <ul class="simple">
 <li><p>astropy</p></li>
+<li><p>fitsio</p></li>
 <li><p>galsim</p></li>
+<li><p>hydra</p></li>
 <li><p>matplotlib</p></li>
 <li><p>numpy</p></li>
-<li><p>fitsio</p></li>
+<li><p>pandas</p></li>
 <li><p>scikit-image</p></li>
 <li><p>scipy</p></li>
+<li><p>seaborn</p></li>
 <li><p>sep</p></li>
 </ul>
 <p>And their specific versions are listed in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> block.</p>
@@ -195,6 +204,18 @@ for more details.</p>
 <p>This should install all other missing dependencies if necessary. You can then import the package as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk</span>
 <span class="kn">import</span> <span class="nn">btk.catalog</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="optional-packages">
+<h2>Optional packages<a class="headerlink" href="#optional-packages" title="Permalink to this headline">¶</a></h2>
+<p>BTK comes with two optional set of dependencies that can be installed: <code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code> and <code class="docutils literal notranslate"><span class="pre">scarlet</span></code>. You can install them alongside <code class="docutils literal notranslate"><span class="pre">btk</span></code> as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># install galsim_hub and its dependencies.</span>
+<span class="c1"># NOTE: it only works on python3.7</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span><span class="p">[</span><span class="n">galsim_hub</span><span class="p">]</span>
+
+<span class="c1"># install latest version of scarlet and its dependencies.</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span><span class="p">[</span><span class="n">scarlet</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>

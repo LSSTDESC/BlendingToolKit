@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>btk.draw_blends module &mdash; btk 0.1 documentation</title>
+  <title>btk.draw_blends module &mdash; btk 0.0.0 documentation</title>
   
 
   
@@ -63,6 +63,10 @@
           
             
             
+              <div class="version">
+                0.0
+              </div>
+            
           
 
           
@@ -89,6 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="btk.html">BlendingToolKit API</a><ul class="current">
@@ -174,7 +179,7 @@
             
   <div class="section" id="btk-draw-blends-module">
 <h1>btk.draw_blends module<a class="headerlink" href="#btk-draw-blends-module" title="Permalink to this headline">¶</a></h1>
-<p>The draw_blends module defines the <code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code> class, which is used for generating blended stamps. It also features implementations of this class for WeakLensingDeblending and COSMOS. A custom class may be created by an experienced user to modify the way blends are rendered ; we advise to modify only the <code class="xref py py-meth docutils literal notranslate"><span class="pre">render_single()</span></code> method if possible.</p>
+<p>The draw_blends module defines the <code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code> class, which is used for generating blended stamps. It also features implementations of this class for WeakLensingDeblending and COSMOS. A custom class may be created by an experienced user to modify the way blends are rendered; we advise to modify only the <code class="xref py py-meth docutils literal notranslate"><span class="pre">render_single()</span></code> method if possible.</p>
 <span class="target" id="module-btk.draw_blends"></span><p>Module for generating batches of drawn blended images.</p>
 <dl class="py class">
 <dt id="btk.draw_blends.CatsimGenerator">
@@ -364,7 +369,7 @@ for generating real-looking galaxies using deep learning models.</p>
 either a distant model or a local one, see the
 galsim_hub repo for more information.</p></li>
 <li><p><strong>param_names</strong> (<em>list</em>) – list of the parameters with which
-the generation is parametrized ; this is unique to
+the generation is parametrized; this is unique to
 each model.</p></li>
 </ul>
 </dd>

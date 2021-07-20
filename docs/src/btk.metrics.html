@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>btk.metrics module &mdash; btk 0.1 documentation</title>
+  <title>btk.metrics module &mdash; btk 0.0.0 documentation</title>
   
 
   
@@ -64,6 +64,10 @@
           
             
             
+              <div class="version">
+                0.0
+              </div>
+            
           
 
           
@@ -90,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="btk.html">BlendingToolKit API</a><ul class="current">
@@ -179,34 +184,34 @@
 <p>BTK users are expected to use the MetricsGenerator class, which is initialized by providing
 a MeasureGenerator as well as some parameters. Users which do not want to use the full BTK
 pipeline may use the compute_metrics function which takes the raw data as an input.</p>
-<p>Currently, we support the following metrics :</p>
+<p>Currently, we support the following metrics:</p>
 <ul>
-<li><p>For detection, all metrics are per batch :</p>
+<li><p>For detection, all metrics are per batch:</p>
 <ul class="simple">
 <li><p>Number of true positives, ie number of true galaxies which have been correctly detected</p></li>
 <li><p>Number of false positives, ie number of detected galaxies which do not correspond
 to a true galaxy</p></li>
 <li><p>Number of false negatives, ie number of true galaxies which have not been detected</p></li>
-<li><p>Precision, the ratio of true positives against the total number of positives ; describes
+<li><p>Precision, the ratio of true positives against the total number of positives; describes
 how much the algorithm is susceptible to make false detections (closer to 1 is better)</p></li>
 <li><p>Recall, the ratio of true positives against the number of true galaxies (which is equal
-to true positives + false negatives) ; indicates the capacity of the algorithm for
+to true positives + false negatives); indicates the capacity of the algorithm for
 detecting all the galaxies (closer to 1 is better)</p></li>
-<li><p>F1 score, the harmonic mean of precision and recall ; gives an overall assessment of the
+<li><p>F1 score, the harmonic mean of precision and recall; gives an overall assessment of the
 detection (closer to 1 is better)</p></li>
 <li><p>Efficiency matrix, contains for each possible number of true galaxies in a blend the
 distribution of the number of detected galaxies in blends containing this number of true
 galaxies.</p></li>
 </ul>
 </li>
-<li><p>For segmentation, all metrics are per galaxy :</p>
+<li><p>For segmentation, all metrics are per galaxy:</p>
 <ul class="simple">
 <li><p>Intersection-over-Union (IoU), the ratio between the intersection of the true and
 detected segmentations (true segmentation is computed by applying a threshold on
 the true image) and the union of the two. Closer to 1 is better.</p></li>
 </ul>
 </li>
-<li><p>For reconstruction, all metrics are per galaxy :</p>
+<li><p>For reconstruction, all metrics are per galaxy:</p>
 <ul class="simple">
 <li><p>Mean Square Residual (MSR), the mean square error between the true image and the
 deblended image. Lower is better.</p></li>
@@ -216,11 +221,11 @@ by the MSR squared (result is in dB). Higher is better.</p></li>
 considerations, divided in luminance, contrast and structure. Closer to 1 is better.</p></li>
 </ul>
 </li>
-<li><p>Additionnal information provided :</p>
+<li><p>Additionnal information provided:</p>
 <ul>
 <li><p>Distance between the detection and the true galaxy</p></li>
 <li><p>Distance to the closest true galaxy</p></li>
-<li><p>Blendedness, defined as :</p>
+<li><p>Blendedness, defined as:</p>
 <div class="math notranslate nohighlight">
 \[1 - \frac{S_k \cdot S_k}{S_{all} \cdot S_k}\]</div>
 <p>where <span class="math notranslate nohighlight">\(S_k\)</span> is the flux of the k-th galaxy for each pixel (as a vector),
@@ -342,13 +347,13 @@ true galaxy in pixels.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Contains all the computed metrics. Entries are :</dt><dd><ul class="simple">
-<li><p>matches : list of astropy Tables containing the matched detected galaxy
+<dt>Contains all the computed metrics. Entries are:</dt><dd><ul class="simple">
+<li><p>matches: list of astropy Tables containing the matched detected galaxy
 for each true galaxy</p></li>
-<li><p>detection : dict containing the raw results for detection</p></li>
-<li><p>segmentation : dict containing the raw results for segmentation</p></li>
-<li><p>reconstruction : dict containing the raw results for reconstruction</p></li>
-<li><p>galaxy_summary : astropy Table containing all the galaxies from all
+<li><p>detection: dict containing the raw results for detection</p></li>
+<li><p>segmentation: dict containing the raw results for segmentation</p></li>
+<li><p>reconstruction: dict containing the raw results for reconstruction</p></li>
+<li><p>galaxy_summary: astropy Table containing all the galaxies from all
 blends and related metrics</p></li>
 </ul>
 </dd>
@@ -543,7 +548,7 @@ by the user.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><p>results_reconstruction (astropy.table.Table)</p>
-<p>with one column for each metric (currently : “msr”
+<p>with one column for each metric (currently: “msr”
 for MSR, “psnr” for PSNR, “ssim” for SSIM, and
 “target_name” and “target_name_true” for each
 function target_name in target_meas (if the
@@ -581,11 +586,11 @@ has multiple outputs.</p></li>
 <dd class="field-even"><p><dl class="simple">
 <dt>Contains the results for the Mean Square Residual</dt><dd><p>metric for each galaxy.</p>
 </dd>
-<dt>psnr_blend_result (list)<span class="classifier">Contains the results for the Peak Signal to Noise</span></dt><dd><p>Ratio metric for each galaxy.</p>
+<dt>psnr_blend_result (list): Contains the results for the Peak Signal to Noise</dt><dd><p>Ratio metric for each galaxy.</p>
 </dd>
-<dt>ssim_blend_result (list)<span class="classifier">Contains the results for the Structure Similarity</span></dt><dd><p>Index metric for each galaxy.</p>
+<dt>ssim_blend_result (list): Contains the results for the Structure Similarity</dt><dd><p>Index metric for each galaxy.</p>
 </dd>
-<dt>target_meas_blend_result (dict)<span class="classifier">Contains the results for the target</span></dt><dd><p>measurement function for each galaxy (both
+<dt>target_meas_blend_result (dict): Contains the results for the target</dt><dd><p>measurement function for each galaxy (both
 true and deblended images).</p>
 </dd>
 </dl>
@@ -625,7 +630,7 @@ expected noise level in the full image.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Contains the results for the batch
-with one column for each metric (currently : “iou” for IoU).</p>
+with one column for each metric (currently: “iou” for IoU).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>results_segmentation (astropy.table.Table)</p>
