@@ -33,9 +33,9 @@ copyright = "2020, btk developers"
 author = "btk developers"
 
 # The short X.Y version
-version = "0.0"
+version = "0.9"
 # The full version, including alpha/beta/rc tags
-release = "0.0.0"
+release = "0.9.0"
 
 
 class Mock(MagicMock):
