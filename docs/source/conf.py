@@ -38,7 +38,6 @@ version = "0.9"
 release = "0.9.0"
 
 
-
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
