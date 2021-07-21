@@ -1,33 +1,19 @@
-# http://www.cfht.hawaii.edu/Instruments/Imaging/Megacam/generalinformation.html
-# http://www.cfht.hawaii.edu/Instruments/ObservatoryManual/om-focplndat.gif
-# Calculating zeropoints with:
-# http://www1.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/community/CFHTLS-SG/docs/extra/filters.html
+# pixel_scale, sky_brightness: http://www.cfht.hawaii.edu/Instruments/Imaging/Megacam/generalinformation.html
+# exp_time, fwhm: https://www.cfht.hawaii.edu/Science/CFHTLS/T0007/CFHTLS_T0007-TechnicalDocumentation.pdf
+# zeropoint: http://www1.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/community/CFHTLS-SG/docs/extra/filters.html
 CFHT:
   name: "CFHT"
-  pixel_scale: 0.185
+  pixel_scale: 0.187
   effective_area: 8.022
   mirror_diameter: 3.592
-  airmass: 1.0 # TODO: double-check
-  zeropoint_airmass: 1.0  # TODO: double-check
+  airmass: 1.2
+  zeropoint_airmass: 1.0
   filters:
-    i:
-      name: "i"
-      sky_brightness: 20.3
-      exp_time: 4300
-      zeropoint: 8.46
-      extinction: 0.07
-      psf:
-        type: default
-        params:
-          fwhm: 0.64
-          mirror_diameter: ${surveys.CFHT.mirror_diameter}
-          effective_area: ${surveys.CFHT.effective_area}
-          filt_wavelength: ${central_wavelength.i}
     r:
       name: "r"
       sky_brightness: 20.8
       exp_time: 2000
-      zeropoint: 10.72
+      zeropoint: 26.74
       extinction: 0.10
       psf:
         type: default
@@ -36,3 +22,16 @@ CFHT:
           mirror_diameter: ${surveys.CFHT.mirror_diameter}
           effective_area: ${surveys.CFHT.effective_area}
           filt_wavelength: ${central_wavelength.r}
+    i:
+      name: "i"
+      sky_brightness: 20.3
+      exp_time: 4300
+      zeropoint: 26.22
+      extinction: 0.07
+      psf:
+        type: default
+        params:
+          fwhm: 0.64
+          mirror_diameter: ${surveys.CFHT.mirror_diameter}
+          effective_area: ${surveys.CFHT.effective_area}
+          filt_wavelength: ${central_wavelength.i}

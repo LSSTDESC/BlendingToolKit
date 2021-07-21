@@ -1,9 +1,8 @@
 # http://www.ctio.noao.edu/noao/content/Basic-Optical-Parameters
 # http://www.ctio.noao.edu/noao/content/DECam-What
-# http://www.darkenergysurvey.org/survey/des-description.pdf
-# skybrightness from http://www.ctio.noao.edu/noao/node/1218
-# extinction from https://arxiv.org/pdf/1701.00502.pdf table 6
-# fwhm values from https://arxiv.org/pdf/1407.3801.pdf
+# sky brightness: http://www.ctio.noao.edu/noao/node/1218
+# fwhm: https://arxiv.org/abs/1407.3801 table 2
+# extinction: https://arxiv.org/abs/1701.00502 table 4
 DES:
   name: DES
   pixel_scale: 0.263
@@ -16,7 +15,7 @@ DES:
       name: "g"
       sky_brightness: 22.3
       exp_time: 800
-      zeropoint: 12.29
+      zeropoint: 26.72
       extinction: 0.17
       psf:
         type: default
@@ -29,7 +28,7 @@ DES:
       name: "r"
       sky_brightness: 21.4
       exp_time: 800
-      zeropoint: 15.65
+      zeropoint: 26.99
       extinction: 0.09
       psf:
         type: default
@@ -42,7 +41,7 @@ DES:
       name: "i"
       sky_brightness: 20.5
       exp_time: 1000
-      zeropoint: 13.94
+      zeropoint: 26.86
       extinction: 0.05
       psf:
         type: default
@@ -55,7 +54,7 @@ DES:
       name: "z"
       sky_brightness: 18.7
       exp_time: 800
-      zeropoint: 10.81
+      zeropoint: 26.58
       extinction: 0.06
       psf:
         type: default

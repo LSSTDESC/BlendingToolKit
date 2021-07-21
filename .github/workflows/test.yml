@@ -56,7 +56,7 @@ jobs:
 
       - name: Run notebooks
         run: |
-          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/galsim_hub_tutorial.ipynb"
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/galsim_hub_tutorial.ipynb" --ignore "notebooks/scarlet-measure.ipynb"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

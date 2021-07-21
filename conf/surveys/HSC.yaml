@@ -1,4 +1,5 @@
-# https://hsc-release.mtk.nao.ac.jp/doc/ deep+udeep
+# exp_time and seeing: https://hsc-release.mtk.nao.ac.jp/doc/
+# sky_brightness: https://www.naoj.org/Observing/Instruments/SCam/exptime.html
 HSC:
   name: HSC
   pixel_scale: 0.167
@@ -11,12 +12,12 @@ HSC:
       name: "g"
       sky_brightness: 21.4
       exp_time: 600
-      zeropoint: 91.11
+      zeropoint: 28.90
       extinction: 0.13
       psf:
         type: default
         params:
-          fwhm: 0.72
+          fwhm: 0.77
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.g}
@@ -24,12 +25,12 @@ HSC:
       name: "r"
       sky_brightness: 20.6
       exp_time: 600
-      zeropoint: 87.74
+      zeropoint: 28.86
       extinction: 0.11
       psf:
         type: default
         params:
-          fwhm: 0.67
+          fwhm: 0.76
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.r}
@@ -37,38 +38,38 @@ HSC:
       name: "i"
       sky_brightness: 19.7
       exp_time: 1200
-      zeropoint: 69.80
+      zeropoint: 28.61
       extinction: 0.07
       psf:
         type: default
         params:
-          fwhm: 0.56
+          fwhm: 0.58
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.i}
-    y:
-      name: "y"
-      sky_brightness: 17.9
-      exp_time: 1200
-      zeropoint: 29.56
-      extinction: 0.05
-      psf:
-        type: default
-        params:
-          fwhm: 0.64
-          mirror_diameter: ${surveys.HSC.mirror_diameter}
-          effective_area: ${surveys.HSC.effective_area}
-          filt_wavelength: ${central_wavelength.y}
     z:
       name: "z"
       sky_brightness: 18.3
       exp_time: 1200
-      zeropoint: 21.53
+      zeropoint: 27.68
       extinction: 0.05
       psf:
         type: default
         params:
-          fwhm: 0.64
+          fwhm: 0.68
           mirror_diameter: ${surveys.HSC.mirror_diameter}
           effective_area: ${surveys.HSC.effective_area}
           filt_wavelength: ${central_wavelength.z}
+    y:
+      name: "y"
+      sky_brightness: 17.9
+      exp_time: 1200
+      zeropoint: 27.33
+      extinction: 0.05
+      psf:
+        type: default
+        params:
+          fwhm: 0.68
+          mirror_diameter: ${surveys.HSC.mirror_diameter}
+          effective_area: ${surveys.HSC.effective_area}
+          filt_wavelength: ${central_wavelength.y}
