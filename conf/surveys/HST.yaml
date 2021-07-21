@@ -1,21 +1,22 @@
 # pixel_scale: https://hst-docs.stsci.edu/acsihb/chapter-3-acs-capabilities-design-and-operations/3-5-acs-quick-reference-guide
 # exp_time: https://hst-docs.stsci.edu/acsdhb/chapter-1-acs-overview/1-2-basic-instrument-operations
 # fwhm: https://hst-docs.stsci.edu/display/WFC3IHB/6.6+UVIS+Optical+Performance#id-6
+# zeropoint : https://galsim-developers.github.io/GalSim/_build/html/real_gal.html
 # .6UVISOpticalPerformance-6.6.1 800nm
 HST:
   name: "HST"
-  pixel_scale: 0.05
+  pixel_scale: 0.03
   effective_area: 1.0 # TODO: placeholder
-  mirror_diameter: 2.4 # TODO: placeholder
-  airmass: 1.0 # TODO: double-check
-  zeropoint_airmass: 1.0 # TODO: double-check
+  mirror_diameter: 2.4
+  airmass: 0.0
+  zeropoint_airmass: 0.0
   filters:
     f814w:
       name: "f814w"
       sky_brightness: 22
-      exp_time: 900
-      zeropoint: 20
-      extinction: 0 # TODO: double-check
+      exp_time: 2028
+      zeropoint: 25.94
+      extinction: 0
       psf:
         type: default
         params:
