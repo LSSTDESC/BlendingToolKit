@@ -28,7 +28,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install poetry
-          pip install poetry-dynamic-versioning
 
       - name: Create environment variables
         run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
