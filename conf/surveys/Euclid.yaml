@@ -14,7 +14,7 @@ Euclid:
       name: VIS
       sky_brightness: 22.3203
       exp_time: 565
-      zeropoint: 5.83
+      zeropoint: 25.91
       extinction: 0.0
       psf:
         type: default

@@ -7,13 +7,13 @@ CFHT:
   effective_area: 8.022
   mirror_diameter: 3.592
   airmass: 1.2
-  zeropoint_airmass: 1.2
+  zeropoint_airmass: 1.0
   filters:
     r:
       name: "r"
       sky_brightness: 20.8
       exp_time: 2000
-      zeropoint: 10.72
+      zeropoint: 26.74
       extinction: 0.10
       psf:
         type: default
@@ -26,7 +26,7 @@ CFHT:
       name: "i"
       sky_brightness: 20.3
       exp_time: 4300
-      zeropoint: 8.46
+      zeropoint: 26.22
       extinction: 0.07
       psf:
         type: default

@@ -15,7 +15,7 @@ HST:
       name: "f814w"
       sky_brightness: 22
       exp_time: 2028
-      zeropoint: 5.97
+      zeropoint: 25.94
       extinction: 0
       psf:
         type: default

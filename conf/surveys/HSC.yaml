@@ -12,7 +12,7 @@ HSC:
       name: "g"
       sky_brightness: 21.4
       exp_time: 600
-      zeropoint: 91.11
+      zeropoint: 28.90
       extinction: 0.13
       psf:
         type: default
@@ -25,7 +25,7 @@ HSC:
       name: "r"
       sky_brightness: 20.6
       exp_time: 600
-      zeropoint: 87.74
+      zeropoint: 28.86
       extinction: 0.11
       psf:
         type: default
@@ -38,7 +38,7 @@ HSC:
       name: "i"
       sky_brightness: 19.7
       exp_time: 1200
-      zeropoint: 69.80
+      zeropoint: 28.61
       extinction: 0.07
       psf:
         type: default
@@ -51,7 +51,7 @@ HSC:
       name: "z"
       sky_brightness: 18.3
       exp_time: 1200
-      zeropoint: 29.56
+      zeropoint: 27.68
       extinction: 0.05
       psf:
         type: default
@@ -64,7 +64,7 @@ HSC:
       name: "y"
       sky_brightness: 17.9
       exp_time: 1200
-      zeropoint: 21.53
+      zeropoint: 27.33
       extinction: 0.05
       psf:
         type: default
