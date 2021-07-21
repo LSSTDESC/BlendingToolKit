@@ -49,7 +49,7 @@ class SamplingFunction(ABC):
     @property
     @abstractmethod
     def compatible_catalogs(self):
-        """Get a tuple of compatible catalogs by their name in `catalog.py`."""
+        """Get a tuple of compatible catalogs by their name in ``catalog.py``."""
 
 
 class DefaultSampling(SamplingFunction):
@@ -81,7 +81,7 @@ class DefaultSampling(SamplingFunction):
 
         Function selects entries from input table that are brighter than 25.3 mag
         in the i band. Number of objects per blend is set at a random integer
-        between 1 and Args.max_number. The blend table is then randomly sampled
+        between 1 and ``self.max_number``. The blend table is then randomly sampled
         entries from the table after selection cuts. The centers are randomly
         distributed within 1/10th of the stamp size. Here even though the galaxies
         are sampled from a CatSim catalog, their spatial location are not
@@ -212,8 +212,8 @@ class BasicSampling(SamplingFunction):
         """Samples galaxies from input catalog to make blend scene.
 
         Then number of galaxies in a blend are drawn from a uniform
-        distribution of one up to Args.max_number. Function always selects one
-        bright galaxy that is less than 24 imag. The other galaxies are selected
+        distribution of one up to ``self.max_number``. Function always selects one
+        bright galaxy that is less than 24 mag. The other galaxies are selected
         from a sample with i<25.3 90% of the times and the remaining 10% with i<28.
         All galaxies must have semi-major axis is between 0.2 and 2 arcsec.
         The centers are randomly distributed within 1/30 *sqrt(N) of the postage
@@ -291,7 +291,7 @@ class GroupSampling(SamplingFunction):
         """Retrun blend info based on self.wld_catalog.
 
         We use self.wld_catalog created above to sample groups, but ultimately returns
-        rows from the input `table` (by matching the corresponding galaxy ids). The group is
+        rows from the input ``table`` (by matching the corresponding galaxy ids). The group is
         centered on the middle of the postage stamp. Function only draws galaxies that lie within
         the postage stamp size.
         """
@@ -326,7 +326,7 @@ class GroupSampling(SamplingFunction):
         no_boundary = blend_table[cond1 & cond2]
         if len(no_boundary) == 0:
             return no_boundary
-        # make sure number of galaxies in blend is less than Args.max_number
+        # make sure number of galaxies in blend is less than self.max_number
         # randomly select max_number of objects if larger.
         num = min([len(no_boundary), self.max_number])
         select = np.random.choice(range(len(no_boundary)), num, replace=False)
