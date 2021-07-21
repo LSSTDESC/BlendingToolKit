@@ -36,7 +36,7 @@ Args:
     mirror_diameter (float): Diameter of the primary mirror, in meters
     airmass (float): Optical path length through atmosphere relative to zenith path length
     filters (list): List of Filter objects corresponding to the filters of this survey
-    zeropoint_airmass (float)"""
+    zeropoint_airmass (float) Airmass at which the zeropoint is measured"""
 
 Filter = namedtuple(
     "Filter",
@@ -45,7 +45,7 @@ Filter = namedtuple(
         "psf",  # galsim psf model or function to generate it
         "sky_brightness",  # mags/sq.arcsec
         "exp_time",  # in seconds [s]
-        "zeropoint",  # in electrons per second at 24th magnitude.
+        "zeropoint",  # in mags
         "extinction",  # Exponential extinction coefficient for atmospheric absorption.
     ],
 )
@@ -59,7 +59,7 @@ Args:
           or as a function returning a Galsim object
     sky_brightness (float): Sky brightness, in mags/sq.arcsec
     exp_time (int): Total exposition time, in seconds
-    zeropoint (float): Simulated camera zero point in electrons per second at 24th magnitude
+    zeropoint (float): Magnitude of an object with a measured flux of 1 electron per second
     extinction (float): Exponential extinction coefficient for atmospheric absorption"""
 
 
@@ -237,7 +237,7 @@ def get_flux(ab_magnitude, filt, survey):
         Flux in detected electrons.
     """
     mag = ab_magnitude + filt.extinction * (survey.airmass - survey.zeropoint_airmass)
-    return filt.exp_time * filt.zeropoint * 10 ** (-0.4 * (mag - 24))
+    return filt.exp_time * 10 ** (-0.4 * (mag - filt.zeropoint))
 
 
 def get_mean_sky_level(survey, filt):
