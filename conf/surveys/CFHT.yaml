@@ -6,8 +6,8 @@ CFHT:
   pixel_scale: 0.187
   effective_area: 8.022
   mirror_diameter: 3.592
-  airmass: 1.0 # TODO: double-check
-  zeropoint_airmass: 1.0  # TODO: double-check
+  airmass: 1.2
+  zeropoint_airmass: 1.2
   filters:
     r:
       name: "r"
