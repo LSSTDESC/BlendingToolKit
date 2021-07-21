@@ -368,7 +368,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 <span class="p">}</span>
 
 <span class="n">Rubin</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Survey</span><span class="p">(</span>
-    <span class="s2">&quot;LSST&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Rubin&quot;</span><span class="p">,</span>
     <span class="n">pixel_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
     <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
     <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
@@ -376,56 +376,17 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
     <span class="n">zeropoint_airmass</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
     <span class="n">filters</span><span class="o">=</span><span class="p">[</span>
         <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">,</span>
             <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
                 <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
                 <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
-                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
-                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.703</span><span class="p">,</span>
+                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span>
+                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.859</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">18.6</span><span class="p">,</span>
-            <span class="n">exp_time</span><span class="o">=</span><span class="mi">4800</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">10.58</span><span class="p">,</span>
-            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.138</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
-            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
-                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
-                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
-                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">],</span>
-                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.725</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">19.6</span><span class="p">,</span>
-            <span class="n">exp_time</span><span class="o">=</span><span class="mi">4800</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">22.68</span><span class="p">,</span>
-            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.043</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;i&quot;</span><span class="p">,</span>
-            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
-                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
-                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
-                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">],</span>
-                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.748</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">20.5</span><span class="p">,</span>
-            <span class="n">exp_time</span><span class="o">=</span><span class="mi">5520</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">32.36</span><span class="p">,</span>
-            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
-            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
-                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
-                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
-                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">],</span>
-                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.781</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">21.2</span><span class="p">,</span>
-            <span class="n">exp_time</span><span class="o">=</span><span class="mi">5520</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">43.70</span><span class="p">,</span>
-            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">22.9</span><span class="p">,</span>
+            <span class="n">exp_time</span><span class="o">=</span><span class="mi">1680</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">26.40</span><span class="p">,</span>
+            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.451</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">,</span>
@@ -437,21 +398,60 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
             <span class="p">),</span>
             <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">22.3</span><span class="p">,</span>
             <span class="n">exp_time</span><span class="o">=</span><span class="mi">2400</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">50.70</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">28.26</span><span class="p">,</span>
             <span class="n">extinction</span><span class="o">=</span><span class="mf">0.163</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
             <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
                 <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
                 <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
-                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span>
-                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.859</span><span class="p">,</span>
+                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">],</span>
+                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.781</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">22.9</span><span class="p">,</span>
-            <span class="n">exp_time</span><span class="o">=</span><span class="mi">1680</span><span class="p">,</span>
-            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">9.16</span><span class="p">,</span>
-            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.451</span><span class="p">,</span>
+            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">21.2</span><span class="p">,</span>
+            <span class="n">exp_time</span><span class="o">=</span><span class="mi">5520</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">28.10</span><span class="p">,</span>
+            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;i&quot;</span><span class="p">,</span>
+            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
+                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
+                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
+                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">],</span>
+                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.748</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">20.5</span><span class="p">,</span>
+            <span class="n">exp_time</span><span class="o">=</span><span class="mi">5520</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">27.78</span><span class="p">,</span>
+            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
+                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
+                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
+                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">],</span>
+                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.725</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">19.6</span><span class="p">,</span>
+            <span class="n">exp_time</span><span class="o">=</span><span class="mi">4800</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">27.39</span><span class="p">,</span>
+            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.043</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">btk</span><span class="o">.</span><span class="n">survey</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">psf</span><span class="o">=</span><span class="n">get_psf</span><span class="p">(</span>
+                <span class="n">mirror_diameter</span><span class="o">=</span><span class="mf">8.36</span><span class="p">,</span>
+                <span class="n">effective_area</span><span class="o">=</span><span class="mf">32.4</span><span class="p">,</span>
+                <span class="n">filt_wavelength</span><span class="o">=</span><span class="n">_central_wavelength</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+                <span class="n">fwhm</span><span class="o">=</span><span class="mf">0.703</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">sky_brightness</span><span class="o">=</span><span class="mf">18.6</span><span class="p">,</span>
+            <span class="n">exp_time</span><span class="o">=</span><span class="mi">4800</span><span class="p">,</span>
+            <span class="n">zeropoint</span><span class="o">=</span><span class="mf">26.56</span><span class="p">,</span>
+            <span class="n">extinction</span><span class="o">=</span><span class="mf">0.138</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">],</span>
 <span class="p">)</span>

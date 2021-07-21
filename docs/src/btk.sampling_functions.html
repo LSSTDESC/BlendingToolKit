@@ -192,8 +192,8 @@
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Samples galaxies from input catalog to make blend scene.</p>
 <p>Then number of galaxies in a blend are drawn from a uniform
-distribution of one up to Args.max_number. Function always selects one
-bright galaxy that is less than 24 imag. The other galaxies are selected
+distribution of one up to <code class="docutils literal notranslate"><span class="pre">self.max_number</span></code>. Function always selects one
+bright galaxy that is less than 24 mag. The other galaxies are selected
 from a sample with i&lt;25.3 90% of the times and the remaining 10% with i&lt;28.
 All galaxies must have semi-major axis is between 0.2 and 2 arcsec.
 The centers are randomly distributed within 1/30 <a href="#id1"><span class="problematic" id="id2">*</span></a>sqrt(N) of the postage
@@ -245,7 +245,7 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 stamp center.</p>
 <p>Function selects entries from input table that are brighter than 25.3 mag
 in the i band. Number of objects per blend is set at a random integer
-between 1 and Args.max_number. The blend table is then randomly sampled
+between 1 and <code class="docutils literal notranslate"><span class="pre">self.max_number</span></code>. The blend table is then randomly sampled
 entries from the table after selection cuts. The centers are randomly
 distributed within 1/10th of the stamp size. Here even though the galaxies
 are sampled from a CatSim catalog, their spatial location are not
@@ -355,7 +355,7 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSampling.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrun blend info based on self.wld_catalog.</p>
 <p>We use self.wld_catalog created above to sample groups, but ultimately returns
-rows from the input <cite>table</cite> (by matching the corresponding galaxy ids). The group is
+rows from the input <code class="docutils literal notranslate"><span class="pre">table</span></code> (by matching the corresponding galaxy ids). The group is
 centered on the middle of the postage stamp. Function only draws galaxies that lie within
 the postage stamp size.</p>
 </dd></dl>
@@ -462,7 +462,7 @@ galaxies chosen for the blend.</p>
 <dl class="py method">
 <dt id="btk.sampling_functions.SamplingFunction.compatible_catalogs">
 <em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.SamplingFunction.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tuple of compatible catalogs by their name in <cite>catalog.py</cite>.</p>
+<dd><p>Get a tuple of compatible catalogs by their name in <code class="docutils literal notranslate"><span class="pre">catalog.py</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
