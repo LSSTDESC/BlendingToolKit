@@ -89,7 +89,9 @@ def add_pixel_columns(catalog, wcs):
     return catalog_t
 
 
-def basic_measure(batch, idx, channels_last=False, surveys=None, **kwargs):
+def basic_measure(
+    batch, idx, channels_last=False, surveys=None, is_multiresolution=False, **kwargs
+):
     """Return centers detected with skimage.feature.peak_local_max.
 
     NOTE: If this function is used with the multiresolution feature,
@@ -106,7 +108,7 @@ def basic_measure(batch, idx, channels_last=False, surveys=None, **kwargs):
     channel_indx = 0 if not channels_last else -1
 
     # multiresolution
-    if isinstance(batch["blend_images"], dict):
+    if is_multiresolution:
         if surveys is None:
             raise ValueError("surveys are required in order to use the MR feature.")
         surveys = kwargs.get("surveys", None)
@@ -129,7 +131,15 @@ def basic_measure(batch, idx, channels_last=False, surveys=None, **kwargs):
     return {"catalog": catalog}
 
 
-def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, **kwargs):
+def sep_measure(
+    batch,
+    idx,
+    channels_last=False,
+    surveys=None,
+    sigma_noise=1.5,
+    is_multiresolution=False,
+    **kwargs,
+):
     """Return detection, segmentation and deblending information with SEP.
 
     NOTE: If this function is used with the multiresolution feature,
@@ -148,7 +158,7 @@ def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, 
     channel_indx = 0 if not channels_last else -1
 
     # multiresolution
-    if isinstance(batch["blend_images"], dict):
+    if is_multiresolution:
         if surveys is None:
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
@@ -184,7 +194,7 @@ def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, 
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
 
     # If multiresolution, return only the catalog
-    if isinstance(batch["blend_images"], dict):
+    if is_multiresolution:
         return {"catalog": t}
     else:
         return {
@@ -241,6 +251,7 @@ class MeasureGenerator:
         self.batch_size = self.draw_blend_generator.batch_size
         self.channels_last = self.draw_blend_generator.channels_last
         self.surveys = self.draw_blend_generator.surveys
+        self.is_multiresolution = self.draw_blend_generator.is_multiresolution
         self.verbose = verbose
         self.save_path = save_path
 
@@ -249,6 +260,7 @@ class MeasureGenerator:
         for m in self.measure_kwargs:
             m["channels_last"] = self.channels_last
             m["surveys"] = self.surveys
+            m["is_multiresolution"] = self.is_multiresolution
 
     def __iter__(self):
         """Return iterator which is the object itself."""
@@ -356,7 +368,7 @@ class MeasureGenerator:
                     )
                 # If multiresolution, we reverse the order between the survey name and
                 # the index of the blend
-                if isinstance(blend_output["blend_list"], dict):
+                if self.is_multiresolution:
                     survey_keys = list(blend_output["blend_list"].keys())
                     # We duplicate the catalog for each survey to get the pixel coordinates
                     catalogs_temp = {}
