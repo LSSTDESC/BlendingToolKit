@@ -724,6 +724,7 @@ class MetricsGenerator:
         self.f_distance = f_distance
         self.distance_threshold_match = distance_threshold_match
         self.verbose = verbose
+        self.is_multiresolution = self.measure_generator.is_multiresolution
 
     def __next__(self):
         """Returns metric results calculated on one batch."""
@@ -732,7 +733,7 @@ class MetricsGenerator:
 
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
-            if isinstance(blend_results["isolated_images"], dict):
+            if self.is_multiresolution:
                 metrics_results_f = {}
                 for i, surv in enumerate(blend_results["isolated_images"].keys()):
                     additional_params = {

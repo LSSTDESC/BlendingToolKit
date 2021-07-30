@@ -172,6 +172,7 @@ class DrawBlendsGenerator(ABC):
             self.surveys = surveys
         else:
             raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+        self.is_multiresolution = len(self.surveys) > 1
 
         self.stamp_size = stamp_size
         self.add_noise = add_noise
@@ -268,7 +269,7 @@ class DrawBlendsGenerator(ABC):
                         format="ascii",
                         overwrite=True,
                     )
-        if len(self.surveys) > 1:
+        if self.is_multiresolution:
             output = {
                 "blend_images": blend_images,
                 "isolated_images": isolated_images,
