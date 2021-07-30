@@ -417,6 +417,8 @@ We can use the ``plot_metrics_summary`` to easily plot the results from the metr
 
   btk.plot_utils.plot_metrics_summary(results,interactive=False)
 
+We can also use the matches from the metrics to plot the isolated galaxy images along with the matching deblended galaxies:
+
 .. jupyter-execute::
 
   btk.plot_utils.plot_with_deblended(
@@ -429,6 +431,44 @@ We can use the ``plot_metrics_summary`` to easily plot the results from the metr
     indexes=list(range(5)),
     band_indices=[1, 2, 3]
   )
+
+Saving the results
+...................
+
+You may wish to save the results of a run of BTK for later use ; or use BTK from the command line (cf documentation) and retrieve the results in a python file later. Here we will show how to save and load the results.
+
+Saving the results can be automatically achieved by providing the save_path argument to the three generators. It can either be a string or use the os.path API. The folder designated by the path must already exist.
+
+.. jupyter-execute::
+
+  save_path = "/home/thuiop/Documents/stageAPC/test_output_intro"
+
+  draw_generator = btk.draw_blends.CatsimGenerator(
+      catalog,
+      sampling_function,
+      Rubin,
+      batch_size=100,
+      stamp_size=stamp_size,
+      shifts=None,
+      indexes=None,
+      cpus=1,
+      add_noise=True,
+      save_path=save_path
+  )
+  meas_generator = btk.measure.MeasureGenerator(btk.measure.sep_measure,draw_generator,save_path=save_path)
+  metrics_generator = btk.metrics.MetricsGenerator(meas_generator,
+                                                   target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity},
+                                                   meas_band_num=0,
+                                                   save_path=save_path)
+  blend_results,meas_results,results = next(metrics_generator)
+
+
+To load the results, you can use the `load_all_results` function ; you need to provide it with the name of the surveys and of the measure functions you used when saving the images, as well as the size of the batch.
+
+.. jupyter-execute::
+
+  blend_results,meas_results,results = btk.utils.load_all_results(save_path,["Rubin"],["sep_measure"],n_batch=100)
+
 
 
 Using COSMOS galaxies
