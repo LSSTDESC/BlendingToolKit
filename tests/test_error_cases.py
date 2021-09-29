@@ -230,10 +230,22 @@ def test_incompatible_catalogs():
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
     with pytest.raises(ValueError):
+        # Wrong generator
         draw_generator = CosmosGenerator(  # noqa: F841
             catalog,
             sampling_function,
             get_surveys("Rubin"),
+            stamp_size=stamp_size,
+            batch_size=batch_size,
+            cpus=cpus,
+            add_noise=add_noise,
+        )
+    with pytest.raises(ValueError):
+        # Missing filter
+        draw_generator = CatsimGenerator(  # noqa: F841
+            catalog,
+            sampling_function,
+            get_surveys("HST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
