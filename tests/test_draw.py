@@ -61,11 +61,6 @@ class TestMultiprocessing:
 
         parallel_im_gen = get_draw_generator(b_size, cpus, add_noise=False, rng=rng)
         parallel_im = next(parallel_im_gen)
-        serial_im_gen = get_draw_generator(b_size, cpus=1, add_noise=False, rng=rng)
-        serial_im = next(serial_im_gen)
-
-        np.testing.assert_array_equal(parallel_im["blend_images"], serial_im["blend_images"])
-        np.testing.assert_array_equal(parallel_im["isolated_images"], serial_im["isolated_images"])
 
 
 class TestBasicDraw:
