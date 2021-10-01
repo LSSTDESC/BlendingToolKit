@@ -60,7 +60,7 @@ class TestMultiprocessing:
         rng = np.random.default_rng(0)
 
         parallel_im_gen = get_draw_generator(b_size, cpus, add_noise=False, rng=rng)
-        parallel_im = next(parallel_im_gen)
+        next(parallel_im_gen)
 
 
 class TestBasicDraw:
