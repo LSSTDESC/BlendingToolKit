@@ -165,10 +165,12 @@ class DrawBlendsGenerator(ABC):
 
         if isinstance(surveys, Survey):
             self.surveys = [surveys]
+            self.check_compatibility(surveys)
         elif isinstance(surveys, list):
             for s in surveys:
                 if not isinstance(s, Survey):
                     raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+                self.check_compatibility(s)
             self.surveys = surveys
         else:
             raise TypeError("surveys must be a Survey object or a list of Survey objects.")
@@ -179,6 +181,13 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
+
+    def check_compatibility(self, survey):
+        """Checks that the compatibility between the survey, the catalog and the generator.
+
+        This should be implemented in subclasses.
+        """
+        pass
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -431,6 +440,24 @@ class CatsimGenerator(DrawBlendsGenerator):
 
     compatible_catalogs = ("CatsimCatalog",)
 
+    def check_compatibility(self, survey):
+        """Checks the compatibility between the catalog and a given survey.
+
+        Args:
+            survey (btk.survey.Survey): Survey to check
+        """
+        if type(self.catalog).__name__ not in self.compatible_catalogs:
+            raise ValueError(
+                f"The catalog provided is of the wrong type. The types of "
+                f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
+            )
+        for f in survey.filters:
+            if f.name + "_ab" not in self.catalog.table.keys():
+                raise ValueError(
+                    f"The {f.name} filter of the survey {survey.name} "
+                    f"has no associated magnitude in the given catalog."
+                )
+
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
         if self.verbose:
@@ -455,6 +482,26 @@ class CosmosGenerator(DrawBlendsGenerator):
     """Subclass of DrawBlendsGenerator for drawing real galaxies from the COSMOS catalog."""
 
     compatible_catalogs = ("CosmosCatalog",)
+
+    def check_compatibility(self, survey):
+        """Checks the compatibility between the catalog and a given survey.
+
+        Args:
+            survey (btk.survey.Survey): Survey to check
+        """
+        if type(self.catalog).__name__ not in self.compatible_catalogs:
+            raise ValueError(
+                f"The catalog provided is of the wrong type. The types of "
+                f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
+            )
+        if "ref_mag" not in self.catalog.table.keys():
+            for f in survey.filters:
+                if f"{survey.name}_{f.name}" not in self.catalog.table.keys():
+                    raise ValueError(
+                        f"The {f.name} filter of the survey {survey.name} "
+                        f"has no associated magnitude in the given catalog, "
+                        f"and the catalog does not contain a 'ref_mag' column"
+                    )
 
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
@@ -488,6 +535,18 @@ class GalsimHubGenerator(DrawBlendsGenerator):
     """
 
     compatible_catalogs = ("CosmosCatalog",)
+
+    def check_compatibility(self, survey):
+        """Checks the compatibility between the catalog and a given survey.
+
+        Args:
+            survey (btk.survey.Survey): Survey to check
+        """
+        if type(self.catalog).__name__ not in self.compatible_catalogs:
+            raise ValueError(
+                f"The catalog provided is of the wrong type. The types of "
+                f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
+            )
 
     def __init__(
         self,
