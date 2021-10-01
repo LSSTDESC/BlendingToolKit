@@ -17,7 +17,13 @@ from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
 
-def get_metrics_generator(meas_function, cpus=1, f_distance=distance_center, measure_kwargs=None):
+def get_metrics_generator(
+    meas_function,
+    cpus=1,
+    f_distance=distance_center,
+    measure_kwargs=None,
+    rng=np.random.default_rng(0),
+):
     """Returns draw generator with group sampling function"""
 
     np.random.seed(0)
@@ -38,11 +44,12 @@ def get_metrics_generator(meas_function, cpus=1, f_distance=distance_center, mea
     catalog = CatsimCatalog.from_file(catalog_name)
     draw_blend_generator = CatsimGenerator(
         catalog,
-        DefaultSampling(),
+        DefaultSampling(rng=rng),
         [survey],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,
+        rng=rng,
     )
     meas_generator = MeasureGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
@@ -115,4 +122,4 @@ def test_measure_kwargs(mock_show):
     )
     _, _, results = next(meas_generator)
     average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.4375
+    assert average_precision == 0.5

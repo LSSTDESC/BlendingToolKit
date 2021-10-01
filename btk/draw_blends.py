@@ -130,6 +130,7 @@ class DrawBlendsGenerator(ABC):
         indexes=None,
         channels_last=False,
         save_path=None,
+        rng=None,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -153,6 +154,8 @@ class DrawBlendsGenerator(ABC):
                                 dimensions (default).
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
+            rng : Controls the random number generation. Can be an integer seed,
+                  or a numpy.random.Generator. If None, a random seed will be used.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -179,6 +182,17 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
+
+        if rng is None:
+            self.rng = np.random.default_rng()
+        elif isinstance(rng, int):
+            self.rng = np.random.default_rng(rng)
+        else:
+            try:
+                rng.random()
+            except AttributeError:
+                raise AttributeError("The random generator you provided is invalid.")
+            self.rng = rng
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -394,7 +408,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
+            generator = galsim.random.BaseDeviate(seed=self.rng.integers(100000))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
