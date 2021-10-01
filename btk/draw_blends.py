@@ -578,6 +578,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
         save_path=None,
+        rng=None,
     ):  # noqa: D417
         """Initializes the GalsimHubGenerator class.
 
@@ -602,6 +603,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             indexes=indexes,
             channels_last=channels_last,
             save_path=save_path,
+            rng=rng,
         )
         import galsim_hub
 

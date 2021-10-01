@@ -69,7 +69,7 @@ def compare_sep_multiprocessing():
         results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.474, 50.814])
+    target_detection = np.array([65.435, 51.391])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
