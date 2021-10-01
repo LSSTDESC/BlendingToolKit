@@ -1,8 +1,9 @@
 defaults:
+  - _self_
   - sampling: default
   - draw_blends: catsim
   - surveys:
-    - Rubin
+      - Rubin
   - override hydra/help: btk_help
 
 catalog:
@@ -61,7 +62,6 @@ metrics:
 paths:
   root: ${oc.env:BTK_HOME}
   data: ${paths.root}/data
-
 
 ### Global values ###
 
