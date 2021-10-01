@@ -2,7 +2,9 @@ import pytest
 from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
+from btk.catalog import CosmosCatalog
 from btk.draw_blends import CatsimGenerator
+from btk.draw_blends import CosmosGenerator
 from btk.draw_blends import get_catsim_galaxy
 from btk.draw_blends import SourceNotVisible
 from btk.sampling_functions import DefaultSampling
@@ -13,6 +15,16 @@ from btk.survey import get_psf_from_file
 from btk.survey import get_surveys
 
 CATALOG_PATH = data_dir / "sample_input_catalog.fits"
+
+COSMOS_CATALOG_PATHS = [
+    str(data_dir / "cosmos/real_galaxy_catalog_23.5_example.fits"),
+    str(data_dir / "cosmos/real_galaxy_catalog_23.5_example_fits.fits"),
+]
+
+COSMOS_EXT_CATALOG_PATHS = [
+    str(data_dir / "cosmos/real_galaxy_catalog_26_extension_example.fits"),
+    str(data_dir / "cosmos/real_galaxy_catalog_26_extension_example_fits.fits"),
+]
 
 
 def test_sampling_no_max_number():
@@ -207,3 +219,47 @@ def test_psf():
     get_psf_from_file("tests/example_psf", get_surveys("Rubin"))
     get_psf_from_file("tests/multi_psf", get_surveys("Rubin"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git
+
+
+def test_incompatible_catalogs():
+    stamp_size = 24.0
+    batch_size = 8
+    cpus = 1
+    add_noise = True
+
+    catalog = CatsimCatalog.from_file(CATALOG_PATH)
+    sampling_function = DefaultSampling(stamp_size=stamp_size)
+    with pytest.raises(ValueError):
+        # Wrong generator
+        draw_generator = CosmosGenerator(  # noqa: F841
+            catalog,
+            sampling_function,
+            get_surveys("Rubin"),
+            stamp_size=stamp_size,
+            batch_size=batch_size,
+            cpus=cpus,
+            add_noise=add_noise,
+        )
+    with pytest.raises(ValueError):
+        # Missing filter
+        draw_generator = CatsimGenerator(  # noqa: F841
+            catalog,
+            sampling_function,
+            get_surveys("HST"),
+            stamp_size=stamp_size,
+            batch_size=batch_size,
+            cpus=cpus,
+            add_noise=add_noise,
+        )
+
+    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    with pytest.raises(ValueError):
+        draw_generator = CatsimGenerator(  # noqa: F841
+            catalog,
+            sampling_function,
+            get_surveys("Rubin"),
+            stamp_size=stamp_size,
+            batch_size=batch_size,
+            cpus=cpus,
+            add_noise=add_noise,
+        )
