@@ -9,7 +9,7 @@ import numpy as np
 from btk.catalog import CatsimCatalog
 
 
-def _get_random_center_shift(num_objects, maxshift):
+def _get_random_center_shift(num_objects, maxshift, rng):
     """Returns random shifts in x and y coordinates between + and - max-shift in arcseconds.
 
     Args:
@@ -19,8 +19,8 @@ def _get_random_center_shift(num_objects, maxshift):
         x_peak (float): random shift along the x axis
         y_peak (float): random shift along the x axis
     """
-    x_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
-    y_peak = np.random.uniform(-maxshift, maxshift, size=num_objects)
+    x_peak = rng.uniform(-maxshift, maxshift, size=num_objects)
+    y_peak = rng.uniform(-maxshift, maxshift, size=num_objects)
     return x_peak, y_peak
 
 
@@ -55,7 +55,7 @@ class SamplingFunction(ABC):
 class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
         """Initializes default sampling function.
 
         Args:
@@ -63,10 +63,12 @@ class DefaultSampling(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
+            rng (numpy.random.Generator) : Controls the random number generation.
         """
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -98,17 +100,17 @@ class DefaultSampling(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = np.random.randint(1, self.max_number + 1)
+        number_of_objects = self.rng.integers(1, self.max_number + 1)
         (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
-            blend_table = table[np.random.choice(q, size=number_of_objects)]
+            blend_table = table[self.rng.choice(q, size=number_of_objects)]
         else:
             blend_table = table[indexes]
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         if shifts is None:
-            x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift)
+            x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift, self.rng)
         else:
             x_peak, y_peak = shifts
         blend_table["ra"] += x_peak
@@ -124,7 +126,7 @@ class DefaultSampling(SamplingFunction):
 class DefaultSamplingGalsimHub(SamplingFunction):
     """Default sampling function used for producing blend tables, esp. for galsim_hub."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
         """Initialize default sampling function for galsim_hub.
 
         Args:
@@ -132,10 +134,12 @@ class DefaultSamplingGalsimHub(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
+            rng (numpy.random.Generator) : Controls the random number generation.
         """
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -161,17 +165,17 @@ class DefaultSamplingGalsimHub(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = np.random.randint(1, self.max_number + 1)
+        number_of_objects = self.rng.integers(1, self.max_number + 1)
         (q,) = np.where((table["ref_mag"] <= 25.3) & (table["flux_radius"] <= 24.0))
 
         if indexes is None:
-            blend_table = table[np.random.choice(q, size=number_of_objects)]
+            blend_table = table[self.rng.choice(q, size=number_of_objects)]
         else:
             blend_table = table[indexes]
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         if shifts is None:
-            dx, dy = _get_random_center_shift(number_of_objects, self.maxshift)
+            dx, dy = _get_random_center_shift(number_of_objects, self.maxshift, self.rng)
         else:
             dx, dy = shifts
         blend_table["ra"] += dx
@@ -190,7 +194,7 @@ class BasicSampling(SamplingFunction):
     Includes magnitude cut, restriction on the shape, shift randomization.
     """
 
-    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None):
+    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
         """Initializes the basic sampling function.
 
         Args:
@@ -198,10 +202,12 @@ class BasicSampling(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
+            rng (numpy.random.Generator) : Controls the random number generation.
         """
         super().__init__(max_number)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -225,25 +231,25 @@ class BasicSampling(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-        number_of_objects = np.random.randint(0, self.max_number)
+        number_of_objects = self.rng.integers(0, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
         (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
-        if np.random.random() >= 0.9:
+        if self.rng.random() >= 0.9:
             (q,) = np.where(cond & (table["ref_mag"] < 28))
         else:
             (q,) = np.where(cond & (table["ref_mag"] <= 25.3))
         blend_table = astropy.table.vstack(
             [
-                table[np.random.choice(q_bright, size=1)],
-                table[np.random.choice(q, size=number_of_objects)],
+                table[self.rng.choice(q_bright, size=1)],
+                table[self.rng.choice(q, size=number_of_objects)],
             ]
         )
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         # keep number density of objects constant
         maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
-        x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, maxshift)
+        x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, maxshift, self.rng)
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
         return blend_table
@@ -260,6 +266,7 @@ class GroupSampling(SamplingFunction):
         pixel_scale,
         shift=None,
         group_id=None,
+        rng=np.random.default_rng(),
     ):
         """Blends are defined from *groups* of galaxies from a CatSim-like catalog.
 
@@ -273,6 +280,7 @@ class GroupSampling(SamplingFunction):
             pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             shift (list): List containing shifts to apply (useful to avoid randomization)
             group_id (list): List containing which group_ids to analyze (avoid randomization)
+            rng (numpy.random.Generator) : Controls the random number generation.
         """
         super().__init__(max_number)
 
@@ -281,6 +289,7 @@ class GroupSampling(SamplingFunction):
         self.pixel_scale = pixel_scale
         self.shift = shift
         self.group_id = group_id
+        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -299,7 +308,7 @@ class GroupSampling(SamplingFunction):
         bool_groups = self.wld_catalog["grp_size"] >= 2
         group_ids = np.unique(self.wld_catalog["grp_id"][bool_groups])
         if self.group_id is None:
-            group_id = np.random.choice(group_ids, replace=False)
+            group_id = self.rng.choice(group_ids, replace=False)
         else:
             group_id = self.group_id
 
@@ -315,7 +324,9 @@ class GroupSampling(SamplingFunction):
         # Add small random shift so that center does not perfectly align with
         # the stamp center
         if self.shift is None:
-            x_peak, y_peak = _get_random_center_shift(1, maxshift=3 * self.pixel_scale)
+            x_peak, y_peak = _get_random_center_shift(
+                1, maxshift=3 * self.pixel_scale, rng=self.rng
+            )
         else:
             x_peak, y_peak = self.shift
         blend_table["ra"] += x_peak
@@ -329,7 +340,7 @@ class GroupSampling(SamplingFunction):
         # make sure number of galaxies in blend is less than self.max_number
         # randomly select max_number of objects if larger.
         num = min([len(no_boundary), self.max_number])
-        select = np.random.choice(range(len(no_boundary)), num, replace=False)
+        select = self.rng.choice(range(len(no_boundary)), num, replace=False)
         return no_boundary[select]
 
 
@@ -344,6 +355,7 @@ class GroupSamplingNumbered(SamplingFunction):
         pixel_scale,
         shift=None,
         fmt="fits",
+        rng=np.random.default_rng(),
     ):
         """Blends defined from *groups* of galaxies from a catalog previously analyzed with WLD.
 
@@ -362,6 +374,7 @@ class GroupSamplingNumbered(SamplingFunction):
             pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             fmt (str): Format of input wld_catalog used to define groups.
             shift (list): List of shifts to apply (usefult to avoid randomization)
+            rng (numpy.random.Generator) : Controls the random number generation.
         """
         super().__init__(max_number)
         self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format=fmt)
@@ -369,6 +382,7 @@ class GroupSamplingNumbered(SamplingFunction):
         self.pixel_scale = pixel_scale
         self.group_id_count = 0
         self.shift = shift
+        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -406,7 +420,9 @@ class GroupSamplingNumbered(SamplingFunction):
         # Add small random shift so that center does not perfectly align with stamp
         # center
         if self.shift is None:
-            x_peak, y_peak = _get_random_center_shift(1, maxshift=5 * self.pixel_scale)
+            x_peak, y_peak = _get_random_center_shift(
+                1, maxshift=5 * self.pixel_scale, rng=self.rng
+            )
         else:
             x_peak, y_peak = self.shift
         blend_table["ra"] += x_peak

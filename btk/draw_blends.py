@@ -130,6 +130,7 @@ class DrawBlendsGenerator(ABC):
         indexes=None,
         channels_last=False,
         save_path=None,
+        rng=None,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -153,6 +154,8 @@ class DrawBlendsGenerator(ABC):
                                 dimensions (default).
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
+            rng : Controls the random number generation. Can be an integer seed,
+                  or a numpy.random.Generator. If None, a random seed will be used.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -181,6 +184,17 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
+
+        if rng is None:
+            self.rng = np.random.default_rng()
+        elif isinstance(rng, int):
+            self.rng = np.random.default_rng(rng)
+        else:
+            try:
+                rng.random()
+            except AttributeError:
+                raise AttributeError("The random generator you provided is invalid.")
+            self.rng = rng
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -403,7 +417,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=np.random.randint(99999999))
+            generator = galsim.random.BaseDeviate(seed=self.rng.integers(100000))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
@@ -564,6 +578,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
         save_path=None,
+        rng=None,
     ):  # noqa: D417
         """Initializes the GalsimHubGenerator class.
 
@@ -588,6 +603,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             indexes=indexes,
             channels_last=channels_last,
             save_path=save_path,
+            rng=rng,
         )
         import galsim_hub
 
