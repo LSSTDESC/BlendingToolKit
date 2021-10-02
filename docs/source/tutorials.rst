@@ -439,9 +439,9 @@ You may wish to save the results of a run of BTK for later use ; or use BTK from
 
 Saving the results can be automatically achieved by providing the save_path argument to the three generators. It can either be a string or use the os.path API. The folder designated by the path must already exist.
 
-.. jupyter-execute::
+::
 
-  save_path = "/home/thuiop/Documents/stageAPC/test_output_intro"
+  save_path = "/path/to/folder"
 
   draw_generator = btk.draw_blends.CatsimGenerator(
       catalog,
@@ -465,7 +465,7 @@ Saving the results can be automatically achieved by providing the save_path argu
 
 To load the results, you can use the `load_all_results` function ; you need to provide it with the name of the surveys and of the measure functions you used when saving the images, as well as the size of the batch.
 
-.. jupyter-execute::
+::
 
   blend_results,meas_results,results = btk.utils.load_all_results(save_path,["Rubin"],["sep_measure"],n_batch=100)
 
