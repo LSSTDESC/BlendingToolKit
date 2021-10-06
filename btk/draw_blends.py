@@ -11,6 +11,7 @@ from astropy.table import Column
 from astropy.table import Table
 
 from btk.create_blend_generator import BlendGenerator
+from btk.generative_model import GenerativeGalaxyModel
 from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
@@ -577,6 +578,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         channels_last=False,
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
+        native_pixel_size=0.03,
         save_path=None,
         rng=None,
     ):  # noqa: D417
@@ -605,9 +607,10 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             save_path=save_path,
             rng=rng,
         )
-        import galsim_hub
 
-        self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
+        self.galsim_hub_model = GenerativeGalaxyModel(
+            galsim_hub_model, param_names, pixel_size=native_pixel_size
+        )
         self.param_names = param_names
 
     def render_mini_batch(self, blend_list, psf, wcs, survey):
