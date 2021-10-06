@@ -17,7 +17,7 @@ conda install -c conda-forge galsim
 
 # poetry allows us to install all dependencies directly from pyproject.toml (except galsim!)
 # poetry reuses the current "btk" virtual environment from conda.
-conda install -c conda-forge poetry
+conda install -c conda-forge poetry==1.1.10
 poetry install
 
 # finally activate pre-commit
