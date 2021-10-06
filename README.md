@@ -3,7 +3,10 @@
 [![codecov](https://codecov.io/gh/LSSTDESC/BlendingToolKit/branch/main/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/BlendingToolKit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
+[![PyPI][pypi-badge]][pypi]
+
+[pypi-badge]: https://img.shields.io/pypi/pyversions/blending-toolkit?color=yellow&logo=pypi
+[pypi]: https://pypi.org/project/blending-toolkit/
 
 # BlendingToolKit
 Framework for fast generation and analysis of galaxy blends catalogs. This toolkit is a convenient way of
