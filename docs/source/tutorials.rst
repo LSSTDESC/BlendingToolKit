@@ -545,6 +545,15 @@ The steps for using the generation of galaxies with `galsim_hub` model are very 
 
 You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb>`_.
 
+Before starting this tutorial, you must install the galsim_hub-compatible version of BTK
+
+::
+
+   pip install btk[galsim-hub]
+
+which will install the `tensorflow` library.
+
+
 SCARLET implementation
 -----------------------
 
