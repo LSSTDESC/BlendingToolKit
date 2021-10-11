@@ -73,6 +73,7 @@ line-length = 100
 target-version = ['py37', 'py38']
 
 [tool.poetry.extras]
+galsim-hub = ["tensorflow"]
 scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 
 [build-system]
