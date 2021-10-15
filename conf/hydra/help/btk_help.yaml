@@ -27,7 +27,7 @@ template: |-
   Assuming that BTK has been pip installed, you can run btk from the command line like e.g.
 
   btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1
-    verbose=False surveys=[Rubin, HST] surveys.Rubin.airmass=1.1
+    verbose=False surveys=[Rubin,HST] surveys.Rubin.airmass=1.1
     sampling=default catalog.name=catsim use_metrics=['detection', 'segmentation'] (...)
 
   You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the `save_path` parameter.
@@ -39,9 +39,9 @@ template: |-
       {default, galsim_hub, group_sampling, group_sampling_numbered}
 
   * catalog: Attribute group consisting of two sub-attributes.
-      * catalog.name: Name of the BTK catalog class, options: {catsim, cosmos}
+      * catalog: Name of the BTK catalog class, options: {catsim, cosmos}
       * catalog.catalog_files: Path to files containing catalog information. The 'catsim'
-          catalog requires one path, while the `cosmos` type requires two paths specified as
+          catalog requires one path, while the 'cosmos' type requires two paths specified as
           a list. (see documentation for more details).
 
     * surveys: Name of the survey(s) you want to use, options are
@@ -49,7 +49,7 @@ template: |-
       in conf/surveys. You can pass in a list of surveys for multi-resolution
       studies too. For example:
 
-      btk surveys=[Rubin, HST] (...)
+      btk surveys=[Rubin,HST] (...)
 
       Assuming that you want to use e.g. the Rubin survey default parameters but with a couple
       of changes, you can modify individual parameters of a given survey directly from the
@@ -83,14 +83,14 @@ template: |-
     * galsim_hub: Attribute group consisting of options:
         * model: Which galsim_hub model to use (default: 'hub:Lanusse2020')
         * param_names: list of the parameters with which the generation is parametrized; this
-          is unique to each model (default: `['flux_radious, 'mag_auto', 'zphot']`).
+          is unique to each model (default: `['flux_radius', 'mag_auto', 'zphot']`).
 
-        NOTE: This flag is only used when `draw_blends=galsim_hub`
+        NOTE: This flag has no effect unless `draw_blends=galsim_hub`
 
     * measure_kwargs: Dictionary or list of dictionaries containing the keyword arguments to be
         passed in to each measure_function.
 
-    * measure_functions: List of measure_functions to be ran, options {'basic', 'sep'}.
+    * measure_functions: List of measure_functions to be ran, options {basic, sep}.
 
     * use_metrics: List of metrics to return, options are:
       {'detection', 'segmentation', 'reconstruction'}
