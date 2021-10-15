@@ -53,6 +53,7 @@ Currently, we support the following metrics:
 
 """
 import os
+from collections.abc import Iterable
 
 import astropy.table
 import galsim
@@ -730,20 +731,31 @@ class MetricsGenerator:
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         surveys = self.measure_generator.draw_blend_generator.surveys
+        meas_band_num = self.meas_band_num
 
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
             if self.is_multiresolution:
+                if not isinstance(meas_band_num, Iterable) and hasattr(meas_band_num, "__len__"):
+                    raise ValueError(
+                        f"meas_band_num is required to be an finite length iterable,"
+                        f"instead type was {type(meas_band_num)}"
+                    )
+                if not len(meas_band_num) == len(surveys):
+                    raise ValueError(
+                        f"meas_band_num should be an iterable of exactly the same len as the"
+                        f"number of surveys: {len(surveys)}, instead len is {len(meas_band_num)}"
+                    )
                 metrics_results_f = {}
                 for i, surv in enumerate(blend_results["isolated_images"].keys()):
                     additional_params = {
                         "psf": blend_results["psf"][surv],
                         "pixel_scale": surveys[i].pixel_scale,
-                        "meas_band_num": self.meas_band_num[i],
+                        "meas_band_num": meas_band_num[i],
                         "verbose": self.verbose,
                     }
                     noise_threshold = self.noise_threshold_factor * np.sqrt(
-                        get_mean_sky_level(surveys[i], surveys[i].filters[self.meas_band_num[i]])
+                        get_mean_sky_level(surveys[i], surveys[i].filters[meas_band_num[i]])
                     )
                     target_meas = {}
                     for k in self.target_meas.keys():
@@ -756,7 +768,7 @@ class MetricsGenerator:
                         measure_results["segmentation"][meas_func][surv],
                         measure_results["deblended_images"][meas_func][surv],
                         noise_threshold,
-                        self.meas_band_num[i],
+                        meas_band_num[i],
                         target_meas,
                         channels_last=self.measure_generator.channels_last,
                         save_path=os.path.join(self.save_path, meas_func, surv)
@@ -771,11 +783,11 @@ class MetricsGenerator:
                 additional_params = {
                     "psf": blend_results["psf"],
                     "pixel_scale": surveys[0].pixel_scale,
-                    "meas_band_num": self.meas_band_num,
+                    "meas_band_num": meas_band_num,
                     "verbose": self.verbose,
                 }
                 noise_threshold = self.noise_threshold_factor * np.sqrt(
-                    get_mean_sky_level(surveys[0], surveys[0].filters[self.meas_band_num])
+                    get_mean_sky_level(surveys[0], surveys[0].filters[meas_band_num])
                 )
                 target_meas = {}
                 for k in self.target_meas.keys():
@@ -788,7 +800,7 @@ class MetricsGenerator:
                     measure_results["segmentation"][meas_func],
                     measure_results["deblended_images"][meas_func],
                     noise_threshold,
-                    self.meas_band_num,
+                    meas_band_num,
                     target_meas,
                     channels_last=self.measure_generator.channels_last,
                     save_path=os.path.join(self.save_path, meas_func, surveys[0].name)
