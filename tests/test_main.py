@@ -21,8 +21,8 @@ def test_main():
     # test survey CLI
     cfg = get_cfg(overrides={"surveys": "Rubin"})
     main(cfg)
-    cfg = get_cfg(overrides={"surveys": ["Rubin", "HST"]})
-    # TODO: Do end to end with multiple surveys once MR measure function implemented.
+    cfg = get_cfg(overrides={"surveys": ["Rubin", "DES"], "meas_band_num": [0, 0]})
+    main(cfg)
 
 
 def test_CLI():
@@ -32,17 +32,7 @@ def test_CLI():
 
 def test_errors():
 
-    cfg = get_cfg(overrides={"catalog.name": "MyCatalog"})
-    with pytest.raises(ValueError) as excinfo:
-        main(cfg)
-        assert "not implemented" in str(excinfo.value)
-
-    cfg = get_cfg(overrides={"sampling.name": "MySampling"})
-    with pytest.raises(ValueError) as excinfo:
-        main(cfg)
-        assert "not implemented" in str(excinfo.value)
-
-    cfg = get_cfg(overrides={"draw_blends.name": "MyDrawBlends"})
+    cfg = get_cfg(overrides={"measure.measure_functions": ["NotExistantMeasureFunction"]})
     with pytest.raises(ValueError) as excinfo:
         main(cfg)
         assert "not implemented" in str(excinfo.value)
