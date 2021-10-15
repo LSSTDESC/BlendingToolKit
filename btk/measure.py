@@ -111,7 +111,6 @@ def basic_measure(
     if is_multiresolution:
         if surveys is None:
             raise ValueError("surveys are required in order to use the MR feature.")
-        surveys = kwargs.get("surveys", None)
         survey_name = surveys[0].name
         coadd = np.mean(batch["blend_images"][survey_name][idx], axis=channel_indx)
         wcs = batch["wcs"][survey_name]

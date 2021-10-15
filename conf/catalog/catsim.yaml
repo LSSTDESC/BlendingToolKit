@@ -1,0 +1,2 @@
+_target_: btk.catalog.CatsimCatalog.from_file
+catalog_files: ${paths.data}/sample_input_catalog.fits
