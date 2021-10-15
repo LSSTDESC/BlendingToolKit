@@ -1,0 +1,4 @@
+name: btk.catalog.CosmosCatalog.from_file
+catalog_files:
+  - ${paths.data}/cosmos/real_galaxy_catalog_23.5_example.fits
+  - ${paths.data}/cosmos/real_galaxy_catalog_23.5_example_fits.fits

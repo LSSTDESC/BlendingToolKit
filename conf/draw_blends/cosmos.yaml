@@ -1,11 +1,13 @@
-name: "CosmosGenerator"
-kwargs:
-  batch_size: ${batch_size}
-  stamp_size: ${stamp_size}
-  cpus: ${cpus}
-  verbose: ${verbose}
-  add_noise: ${add_noise}
-  shifts: Null
-  indexes: Null
-  channels_last: ${channels_last}
-  save_path: ${save_path}
+_target_: btk.draw_blends.CosmosGenerator
+catalog: ${catalog}
+sampling_function: ${sampling}
+surveys: Null
+batch_size: ${batch_size}
+stamp_size: ${stamp_size}
+cpus: ${cpus}
+verbose: ${verbose}
+add_noise: ${add_noise}
+shifts: Null
+indexes: Null
+channels_last: ${channels_last}
+save_path: ${save_path}

@@ -1,14 +1,11 @@
 defaults:
   - _self_
+  - catalog: catsim
   - sampling: default
   - draw_blends: catsim
   - surveys:
       - Rubin
   - override hydra/help: btk_help
-
-catalog:
-  name: catsim
-  catalog_files: ${paths.data}/sample_input_catalog.fits
 
 ### all arguments ###
 

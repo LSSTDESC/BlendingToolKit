@@ -1,15 +1,15 @@
-name: "GalsimHubGenerator"
-kwargs:
-  catalog: ${catalog}
-  surveys: Null
-  batch_size: ${batch_size}
-  stamp_size: ${stamp_size}
-  cpus: ${cpus}
-  verbose: ${verbose}
-  add_noise: ${add_noise}
-  shifts: Null
-  indexes: Null
-  channels_last: ${channels_last}
-  galsim_hub_model: ${galsim_hub_model}
-  param_names: ${param_names}
-  save_path: ${save_path}
+_target_: btk.draw_blends.GalsimHubGenerator
+catalog: ${catalog}
+sampling: ${sampling}
+surveys: Null
+batch_size: ${batch_size}
+stamp_size: ${stamp_size}
+cpus: ${cpus}
+verbose: ${verbose}
+add_noise: ${add_noise}
+shifts: Null
+indexes: Null
+channels_last: ${channels_last}
+galsim_hub_model: ${galsim_hub_model}
+param_names: ${param_names}
+save_path: ${save_path}

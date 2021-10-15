@@ -1,7 +1,6 @@
-name: "GroupSamplingFunctionNumbered"
-kwargs:
-  max_number: ${max_number}
-  stamp_size: ${stamp_size}
-  maxshift: ${max_shift}
-  wld_catalog_name: ${paths.data}/sample_group_catalog.fits
-  shift: Null
+_target_: btk.sampling_functions.GroupSamplingNumbered
+max_number: ${max_number}
+stamp_size: ${stamp_size}
+maxshift: ${max_shift}
+wld_catalog_name: ${paths.data}/sample_group_catalog.fits
+shift: Null
