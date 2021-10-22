@@ -170,9 +170,9 @@ config file). The ``psf`` can  also be specified as ``type: galsim`` and you can
 Further Customization
 ---------------------------
 
-If you would like to use a custom sampling function or measurement function in BTK we recommend that you use the python interface (as in the `tutorial <https://lsstdesc.org/BlendingToolKit/tutorials.html>`_). More specifically, the "custom" `tutorial notebook<https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ include examples for writing a custom sampling function, survey, measure function, and target measure.
+If you would like to use a custom sampling function or measurement function in BTK we recommend that you use the python interface (as in the `tutorial <https://lsstdesc.org/BlendingToolKit/tutorials.html>`_). More specifically, the "custom" `tutorial notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ include examples for writing a custom sampling function, survey, measure function, and target measure.
 
-In the case that it would be really useful for you to run your own sampling function or measurement function directly from the command line, please `write an issue<https://github.com/LSSTDESC/BlendingToolKit/issues>`_ in our github and we are happy to help implementing it into our codebase.
+In the case that it would be really useful for you to run your own sampling function or measurement function directly from the command line, please `write an issue <https://github.com/LSSTDESC/BlendingToolKit/issues>`_ in our github and we are happy to help implementing it into our codebase.
 
 A more "hacky" alternative for advanced users:
 
