@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#available-options">Available options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-your-own-survey">Creating your own Survey</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-customization">Further Customization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cli-help">CLI help</a></li>
 </ul>
 </li>
@@ -201,7 +202,7 @@ absolute path to your BTK local repo:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">catalog</span></code>: Attribute group consisting of two sub-attributes.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">catalog.name</span></code>: Name of the BTK catalog class, options: [catsim, cosmos]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">catalog</span></code>: Name of the BTK catalog class, options: [catsim, cosmos]</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">catalog.catalog_files</span></code>: Path to files containing catalog information. The ‘catsim’ catalog requires one path, while the ‘cosmos’ type requires two paths specified as a list. See the ‘Using COSMOS galaxies’ section in the tutorials page for more details.</p></li>
 </ul>
 </div></blockquote>
@@ -218,7 +219,7 @@ absolute path to your BTK local repo:</p>
 </ul>
 <p>and correspond to each of the config files available in <code class="docutils literal notranslate"><span class="pre">conf/surveys</span></code>. You can pass in a list of surveys for multi-resolution
 studies too. For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="n">surveys</span><span class="o">=</span><span class="p">[</span><span class="n">Rubin</span><span class="p">,</span> <span class="n">HST</span><span class="p">]</span> <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">btk</span> <span class="n">surveys</span><span class="o">=</span><span class="p">[</span><span class="n">Rubin</span><span class="p">,</span><span class="n">HST</span><span class="p">]</span> <span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Assuming that you want to use e.g. the Rubin survey default parameters but some changes you can modify individual parameters of this survey directly from the
@@ -307,6 +308,22 @@ needs to be the <em>unique</em> name of your survey and the corresponding fields
 </div></blockquote>
 <p>in the <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary (see examples for how to reference already existing values in the
 config file). The <code class="docutils literal notranslate"><span class="pre">psf</span></code> can  also be specified as <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">galsim</span></code> and you can provide the same format of a PSF as you would in a galsim config file (with no reference to external data sources).</p>
+</div>
+<div class="section" id="further-customization">
+<h2>Further Customization<a class="headerlink" href="#further-customization" title="Permalink to this headline">¶</a></h2>
+<p>If you would like to use a custom sampling function or measurement function in BTK we recommend that you use the python interface (as in the <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/tutorials.html">tutorial</a>). More specifically, the “custom” <a href="#id1"><span class="problematic" id="id2">`tutorial notebook&lt;https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb&gt;`_</span></a> include examples for writing a custom sampling function, survey, measure function, and target measure.</p>
+<p>In the case that it would be really useful for you to run your own sampling function or measurement function directly from the command line, please <a href="#id3"><span class="problematic" id="id4">`write an issue&lt;https://github.com/LSSTDESC/BlendingToolKit/issues&gt;`_</span></a> in our github and we are happy to help implementing it into our codebase.</p>
+<p>A more “hacky” alternative for advanced users:</p>
+<ol class="arabic simple">
+<li><p>Git clone the BTK repo</p></li>
+</ol>
+<p>2. Add your measurement function to the <code class="docutils literal notranslate"><span class="pre">measure.py</span></code> file (it is recommended that you test it
+first using the python interface in the case of errors).</p>
+<ol class="arabic simple" start="3">
+<li><p>Add your function to the <code class="docutils literal notranslate"><span class="pre">available_measure_functions</span></code> dictionary at the end of this file.</p></li>
+</ol>
+<p>4. You should now be able to run it from the CLI just like any other measure_function with the name
+given in the dictionary in step 3.</p>
 </div>
 <div class="section" id="cli-help">
 <h2>CLI help<a class="headerlink" href="#cli-help" title="Permalink to this headline">¶</a></h2>
