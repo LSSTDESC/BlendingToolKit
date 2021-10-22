@@ -174,6 +174,18 @@ If you would like to use a custom sampling function or measurement function in B
 
 In the case that it would be really useful for you to run your own sampling function or measurement function directly from the command line, please `write an issue<https://github.com/LSSTDESC/BlendingToolKit/issues>`_ in our github and we are happy to help implementing it into our codebase.
 
+A more "hacky" alternative for advanced users:
+
+1. Git clone the BTK repo
+
+2. Add your measurement function to the ``measure.py`` file (it is recommended that you test it
+first using the python interface in the case of errors).
+
+3. Add your function to the ``available_measure_functions`` dictionary at the end of this file.
+
+4. You should now be able to run it from the CLI just like any other measure_function with the name
+given in the dictionary in step 3.
+
 CLI help
 ---------------------------
 You can always access the help menu of the CLI if you forget any of the options like:
