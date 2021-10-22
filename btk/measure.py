@@ -43,6 +43,7 @@ catalog` is mandatory):
   number of detected objects by the algorithm. If you are using the multiresolution feature,
   you should instead return a dictionary with a key for each survey containing the
   aforementioned array.
+
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
   The pixels set to True in the i-th channel correspond to the i-th
   object. The order should correspond to the order in the returned

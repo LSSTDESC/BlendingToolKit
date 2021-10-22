@@ -435,7 +435,7 @@ We can also use the matches from the metrics to plot the isolated galaxy images 
 Saving the results
 ...................
 
-You may wish to save the results of a run of BTK for later use ; or use BTK from the command line (cf documentation) and retrieve the results in a python file later. Here we will show how to save and load the results.
+You may wish to save the results of a run of BTK for later use; or use BTK from the command line (see `documentation <https://lsstdesc.org/BlendingToolKit/cli.html>`_) and retrieve the results in a python file later. Here we will show how to save and load the results.
 
 Saving the results can be automatically achieved by providing the save_path argument to the three generators. It can either be a string or use the os.path API. The folder designated by the path must already exist.
 
