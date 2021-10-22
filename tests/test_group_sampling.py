@@ -18,11 +18,13 @@ def get_group_sampling_draw_generator(batch_size=3):
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     catalog = CatsimCatalog.from_file(catalog_name)
+    rng1 = np.random.default_rng(0)
+    rng2 = np.random.default_rng(0)
     sampling_function = GroupSamplingNumbered(
-        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift
+        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift, rng=rng1
     )
     draw_blend_generator = CatsimGenerator(
-        catalog, sampling_function, [survey], batch_size=batch_size
+        catalog, sampling_function, [survey], batch_size=batch_size, rng=rng2
     )
     return draw_blend_generator
 
