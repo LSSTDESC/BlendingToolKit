@@ -13,7 +13,7 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 2. It is highly recommended that you use `poetry` to manage the python environment for developing BTK. This will also allow you to import `btk` anywhere while you are running inside that environment. The following commands should install and activate a `btk` python environment managed by `poetry`:
 
 ```
- # run the following a python environment like conda.
+# run the following a python environment like conda.
 cd BlendingToolKit
 pip install --user poetry
 poetry install
@@ -24,7 +24,7 @@ poetry shell
 If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github. Note these last two dependencies only work on `python 3.7`.
 ## Pull Requests
 
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `dev` branch.
+1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch.
 
 2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
@@ -34,7 +34,7 @@ If you have any problems with the installation, they are probably due to `galsim
 
     - You can run all the tests locally by simply running `pytest` inside your local repository.
 
-3. If other branches were merged while you were working on this PR to the `dev` branch, then you will to rebase before merging:
+3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging:
 
 ```
 git rebase origin/main
