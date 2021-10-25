@@ -40,7 +40,7 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
 * ``catalog``: Attribute group consisting of two sub-attributes.
 
-    - ``catalog.name``: Name of the BTK catalog class, options: [catsim, cosmos]
+    - ``catalog``: Name of the BTK catalog class, options: [catsim, cosmos]
 
     - ``catalog.catalog_files``: Path to files containing catalog information. The 'catsim' catalog requires one path, while the 'cosmos' type requires two paths specified as a list. See the 'Using COSMOS galaxies' section in the tutorials page for more details.
 
@@ -63,7 +63,7 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
       .. code-block::
 
-          btk surveys=[Rubin, HST] (...)
+          btk surveys=[Rubin,HST] (...)
 
       Assuming that you want to use e.g. the Rubin survey default parameters but some changes you can modify individual parameters of this survey directly from the
       command line:
@@ -166,6 +166,25 @@ The ``psf`` field can be specified with ``type: default`` in which case you need
 
 in the ``params`` dictionary (see examples for how to reference already existing values in the
 config file). The ``psf`` can  also be specified as ``type: galsim`` and you can provide the same format of a PSF as you would in a galsim config file (with no reference to external data sources).
+
+Further Customization
+---------------------------
+
+If you would like to use a custom sampling function or measurement function in BTK we recommend that you use the python interface (as in the `tutorial <https://lsstdesc.org/BlendingToolKit/tutorials.html>`_). More specifically, the "custom" `tutorial notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ include examples for writing a custom sampling function, survey, measure function, and target measure.
+
+In the case that it would be really useful for you to run your own sampling function or measurement function directly from the command line, please `write an issue <https://github.com/LSSTDESC/BlendingToolKit/issues>`_ in our github and we are happy to help implementing it into our codebase.
+
+A more "hacky" alternative for advanced users:
+
+1. Git clone the BTK repo
+
+2. Add your measurement function to the ``measure.py`` file (it is recommended that you test it
+first using the python interface in the case of errors).
+
+3. Add your function to the ``available_measure_functions`` dictionary at the end of this file.
+
+4. You should now be able to run it from the CLI just like any other measure_function with the name
+given in the dictionary in step 3.
 
 CLI help
 ---------------------------

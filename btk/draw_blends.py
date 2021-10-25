@@ -3,6 +3,7 @@ import copy
 import os
 from abc import ABC
 from abc import abstractmethod
+from collections.abc import Iterable
 from itertools import chain
 
 import galsim
@@ -170,14 +171,20 @@ class DrawBlendsGenerator(ABC):
         if isinstance(surveys, Survey):
             self.surveys = [surveys]
             self.check_compatibility(surveys)
-        elif isinstance(surveys, list):
+        elif isinstance(surveys, Iterable):
             for s in surveys:
                 if not isinstance(s, Survey):
-                    raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+                    raise TypeError(
+                        f"surveys must be a Survey object or an Iterable of Survey objects, but"
+                        f"Iterable contained object of type {type(s)}"
+                    )
                 self.check_compatibility(s)
             self.surveys = surveys
         else:
-            raise TypeError("surveys must be a Survey object or a list of Survey objects.")
+            raise TypeError(
+                f"surveys must be a Survey object or an Iterable of Survey objects,"
+                f"but surveys is type {type(surveys)}"
+            )
         self.is_multiresolution = len(self.surveys) > 1
 
         self.stamp_size = stamp_size
@@ -646,10 +653,3 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
         )
         return galaxy_image
-
-
-available_draw_blends = {
-    "CatsimGenerator": CatsimGenerator,
-    "CosmosGenerator": CosmosGenerator,
-    "GalsimHubGenerator": GalsimHubGenerator,
-}

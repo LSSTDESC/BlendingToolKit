@@ -43,6 +43,7 @@ catalog` is mandatory):
   number of detected objects by the algorithm. If you are using the multiresolution feature,
   you should instead return a dictionary with a key for each survey containing the
   aforementioned array.
+
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
   The pixels set to True in the i-th channel correspond to the i-th
   object. The order should correspond to the order in the returned
@@ -111,7 +112,6 @@ def basic_measure(
     if is_multiresolution:
         if surveys is None:
             raise ValueError("surveys are required in order to use the MR feature.")
-        surveys = kwargs.get("surveys", None)
         survey_name = surveys[0].name
         coadd = np.mean(batch["blend_images"][survey_name][idx], axis=channel_indx)
         wcs = batch["wcs"][survey_name]

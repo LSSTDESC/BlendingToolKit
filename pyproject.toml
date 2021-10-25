@@ -73,6 +73,18 @@ btk = "btk.__main__:run"
 line-length = 100
 target-version = ['py37', 'py38']
 
+[tool.pytest.ini_options]
+addopts = "-ra"
+filterwarnings = [
+  "ignore:the imp module is deprecated:DeprecationWarning",
+  "ignore:`np.int` is a deprecated alias:DeprecationWarning",
+  "ignore:numpy.ufunc size changed:RuntimeWarning",
+]
+minversion = "6.0"
+testpaths = [
+  "tests",
+]
+
 [tool.poetry.extras]
 galsim-hub = ["tensorflow", "tensorflow-hub"]
 scarlet = ["peigen", "autograd", "pybind11", "proxmin"]

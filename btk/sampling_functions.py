@@ -437,11 +437,3 @@ class GroupSamplingNumbered(SamplingFunction):
         )
         assert len(no_boundary) <= self.max_number, message
         return no_boundary
-
-
-available_sampling_functions = {
-    "DefaultSampling": DefaultSampling,
-    "DefaultSamplingGalsimHub": DefaultSamplingGalsimHub,
-    "GroupSampling": GroupSampling,
-    "GroupSamplingNumbered": GroupSamplingNumbered,
-}
