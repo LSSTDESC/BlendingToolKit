@@ -8,8 +8,10 @@ from btk.measure import sep_measure
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
+TEST_SEED = 0
 
-def get_meas_generator(meas_function, cpus=1, measure_kwargs=None, rng=np.random.default_rng(0)):
+
+def get_meas_generator(meas_function, cpus=1, measure_kwargs=None):
     """Returns draw generator with group sampling function"""
 
     catalog_name = data_dir / "sample_input_catalog.fits"
@@ -29,12 +31,12 @@ def get_meas_generator(meas_function, cpus=1, measure_kwargs=None, rng=np.random
     catalog = CatsimCatalog.from_file(catalog_name)
     draw_blend_generator = CatsimGenerator(
         catalog,
-        DefaultSampling(rng=rng),
+        DefaultSampling(seed=TEST_SEED),
         [survey],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,
-        rng=rng,
+        seed=TEST_SEED,
     )
     meas_generator = MeasureGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
@@ -51,7 +53,7 @@ def compare_sep():
         results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.474, 50.814])
+    target_detection = np.array([65.419, 51.005])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -69,7 +71,7 @@ def compare_sep_multiprocessing():
         results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.435, 51.391])
+    target_detection = np.array([65.419, 51.005])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -86,9 +88,8 @@ def test_algorithms():
 
 def test_measure_kwargs():
     """Test detection with sep"""
-    rng = np.random.default_rng(0)
     meas_generator = get_meas_generator(
-        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}], rng=rng
+        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, results = next(meas_generator)
     x_peak, y_peak = (
@@ -96,7 +97,7 @@ def test_measure_kwargs():
         results["catalog"]["sep_measure0"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.514, 50.916])
+    target_detection = np.array([65.277, 50.962])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,

@@ -6,6 +6,8 @@ from btk.draw_blends import CatsimGenerator
 from btk.sampling_functions import GroupSamplingNumbered
 from btk.survey import get_surveys
 
+TEST_SEED = 0
+
 
 def get_group_sampling_draw_generator(batch_size=3):
     """Returns draw generator with group sampling function"""
@@ -18,13 +20,11 @@ def get_group_sampling_draw_generator(batch_size=3):
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     catalog = CatsimCatalog.from_file(catalog_name)
-    rng1 = np.random.default_rng(0)
-    rng2 = np.random.default_rng(0)
     sampling_function = GroupSamplingNumbered(
-        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift, rng=rng1
+        max_number, wld_catalog_name, stamp_size, pixel_scale, shift=shift, seed=TEST_SEED
     )
     draw_blend_generator = CatsimGenerator(
-        catalog, sampling_function, [survey], batch_size=batch_size, rng=rng2
+        catalog, sampling_function, [survey], batch_size=batch_size, seed=TEST_SEED
     )
     return draw_blend_generator
 

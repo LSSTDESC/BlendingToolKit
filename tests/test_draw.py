@@ -7,6 +7,8 @@ import numpy as np
 import btk.plot_utils
 from btk.survey import get_surveys
 
+TEST_SEED = 0
+
 
 def get_draw_generator(
     batch_size=8,
@@ -14,7 +16,6 @@ def get_draw_generator(
     add_noise=True,
     fixed_parameters=False,
     sampling_function=None,
-    rng=np.random.default_rng(0),
 ):
     """Returns a btk.draw_blends generator for default parameters"""
     catalog_name = "data/sample_input_catalog.fits"
@@ -36,7 +37,9 @@ def get_draw_generator(
         indexes = None
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     if sampling_function is None:
-        sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size, rng=rng)
+        sampling_function = btk.sampling_functions.DefaultSampling(
+            stamp_size=stamp_size, seed=TEST_SEED
+        )
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
@@ -48,7 +51,7 @@ def get_draw_generator(
         cpus=cpus,
         add_noise=add_noise,
         verbose=True,
-        rng=rng,
+        seed=TEST_SEED,
     )
     return draw_generator
 
@@ -57,9 +60,12 @@ class TestMultiprocessing:
     def test_multiprocessing(self):
         b_size = 16
         cpus = np.min([mp.cpu_count(), 16])
-        rng = np.random.default_rng(0)
-
-        parallel_im_gen = get_draw_generator(b_size, cpus, add_noise=False, rng=rng)
+        parallel_im_gen = get_draw_generator(b_size, cpus, add_noise=False)
+        parallel_im = next(parallel_im_gen)
+        serial_im_gen = get_draw_generator(b_size, cpus=1, add_noise=False)
+        serial_im = next(serial_im_gen)
+        np.testing.assert_array_equal(parallel_im["blend_images"], serial_im["blend_images"])
+        np.testing.assert_array_equal(parallel_im["isolated_images"], serial_im["isolated_images"])
         next(parallel_im_gen)
 
 
@@ -101,9 +107,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a priori for the default input settings.
         """
-        test_batch_max = np.array([184.012, 1480.121, 8538.862, 10710.612, 8580.189, 5311.317])
-        test_batch_mean = 5.2987551031133036
-        test_batch_std = 403.3687278928093
+        test_batch_max = np.array([186.012, 1503.121, 8095.862, 10690.612, 8994.189, 5582.317])
+        test_batch_mean = 1.8058196285762662
+        test_batch_std = 403.0390735615849
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -132,7 +138,7 @@ class TestBasicDraw:
         the r band. This is compared to the values measured a priori for the
         default input settings.
         """
-        test_batch_noise = 126506.84590053558
+        test_batch_noise = 120429.62362289429
         batch_noise = np.var(blend_images[1, 2, 0:32, 0:32])
         np.testing.assert_almost_equal(
             batch_noise,
