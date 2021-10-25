@@ -20,14 +20,14 @@
 Written by François Lanusse (@EiffL) as part of the galsim_hub package
 https://github.com/McWilliamsCenter/galsim_hub
 
-Modified by Alexandre Boucaud (@aboucaud) to adapt the code
-to be used with TensorFlow2 and remove the tensorflow-hub dependency
-for being used in BTK
+Modified by Alexandre Boucaud (@aboucaud) to adapt the code to be used
+with TensorFlow2 in BTK
 
 """
 import galsim
 import numpy as np
 import tensorflow as tf
+import tensorflow_hub as hub
 
 DEFAULT_PIXEL_SIZE = 0.1
 DEFAULT_LATENT_SPACE_SIZE = 32
@@ -116,8 +116,7 @@ class GenerativeGalaxyModel:
         """Samples galaxy images from the model."""
         # If we are sampling for the first time
         if self.model is None:
-            # Equivalent of tensorflow_hub.load()
-            model = tf.saved_model.load(self.model_name)
+            model = hub.load(self.model_name)
             self.model = model.signatures["default"]
 
         # Populate feed dictionary with input data
