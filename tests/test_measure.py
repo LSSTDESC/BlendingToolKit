@@ -53,7 +53,7 @@ def compare_sep():
         results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.419, 51.005])
+    target_detection = np.array([65.302, 51.039])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -71,7 +71,7 @@ def compare_sep_multiprocessing():
         results["catalog"]["sep_measure"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.419, 51.005])
+    target_detection = np.array([65.302, 51.039])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
@@ -97,7 +97,7 @@ def test_measure_kwargs():
         results["catalog"]["sep_measure0"][0]["y_peak"].item(),
     )
     detected_centers = np.array([x_peak, y_peak])
-    target_detection = np.array([65.277, 50.962])
+    target_detection = np.array([65.603, 51.077])
     np.testing.assert_array_almost_equal(
         detected_centers,
         target_detection,
