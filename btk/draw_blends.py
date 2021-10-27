@@ -193,11 +193,7 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
-
-        if isinstance(seed, int):
-            self.rng = np.random.default_rng(seed)
-        else:
-            raise AttributeError("The seed you provided is invalid, should be an int.")
+        self.rng = np.random.default_rng(seed)
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -315,7 +311,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, seed=DEFAULT_SEED, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seed, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -364,7 +360,9 @@ class DrawBlendsGenerator(ABC):
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, psf[b], filt, survey, extra_data[i])
+                single_band_output = self.render_blend(
+                    blend, psf[b], filt, survey, seed, extra_data[i]
+                )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
@@ -377,7 +375,7 @@ class DrawBlendsGenerator(ABC):
             index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey, extra_data, seed=DEFAULT_SEED):
+    def render_blend(self, blend_catalog, psf, filt, survey, seed, extra_data):
         """Draws image of isolated galaxies along with the blend image in the single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
@@ -583,7 +581,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
         save_path=None,
-        seed=None,
+        seed=DEFAULT_SEED,
     ):  # noqa: D417
         """Initializes the GalsimHubGenerator class.
 
@@ -615,7 +613,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
         self.param_names = param_names
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seed):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Here we generate the images for all galaxies in the batch at the same
@@ -633,7 +631,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             base_images_l.append(base_images[index : index + len(blend)])
             index += len(blend)
 
-        return super().render_mini_batch(blend_list, psf, wcs, survey, base_images_l)
+        return super().render_mini_batch(blend_list, psf, wcs, survey, seed, base_images_l)
 
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""
