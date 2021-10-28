@@ -2,3 +2,4 @@ _target_: btk.sampling_functions.DefaultSampling
 max_number: ${max_number}
 stamp_size: ${stamp_size}
 maxshift: ${max_shift}
+seed: ${seed}

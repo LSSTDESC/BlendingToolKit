@@ -11,3 +11,4 @@ shifts: Null
 indexes: Null
 channels_last: ${channels_last}
 save_path: ${save_path}
+seed: ${seed}
