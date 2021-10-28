@@ -33,7 +33,7 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number, seed: int = DEFAULT_SEED):
+    def __init__(self, max_number, seed=DEFAULT_SEED):
         """Initializes the SamplingFunction.
 
         Args:
