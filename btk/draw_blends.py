@@ -134,7 +134,7 @@ class DrawBlendsGenerator(ABC):
         indexes=None,
         channels_last=False,
         save_path=None,
-        seed: int = DEFAULT_SEED,
+        seed=DEFAULT_SEED,
     ):
         """Initializes the DrawBlendsGenerator class.
 
