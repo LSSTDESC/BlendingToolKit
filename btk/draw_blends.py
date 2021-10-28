@@ -13,12 +13,12 @@ from astropy.table import Table
 
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
+from btk.sampling_functions import DEFAULT_SEED
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
 from btk.survey import Survey
 
-DEFAULT_SEED = 0
 MAX_SEED_INT = 1_000_000_000
 
 
