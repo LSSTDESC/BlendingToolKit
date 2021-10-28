@@ -249,9 +249,9 @@ class DrawBlendsGenerator(ABC):
 
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
-                child_seed = self.rng.integers(MAX_SEED_INT)  # reproducibility
+                noise_seed = self.rng.integers(MAX_SEED_INT)  # reproducibility
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s, child_seed))
+                input_args.append((cat, psf, wcs, s, noise_seed))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -311,7 +311,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, seed, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, noise_seed, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -361,7 +361,7 @@ class DrawBlendsGenerator(ABC):
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
                 single_band_output = self.render_blend(
-                    blend, psf[b], filt, survey, seed, extra_data[i]
+                    blend, psf[b], filt, survey, noise_seed, extra_data[i]
                 )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
@@ -375,7 +375,7 @@ class DrawBlendsGenerator(ABC):
             index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey, seed, extra_data):
+    def render_blend(self, blend_catalog, psf, filt, survey, noise_seed, extra_data):
         """Draws image of isolated galaxies along with the blend image in the single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
@@ -402,7 +402,6 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        rng = np.random.default_rng(seed)
         mean_sky_level = get_mean_sky_level(survey, filt)
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
@@ -420,7 +419,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=rng.integers(MAX_SEED_INT))
+            generator = galsim.random.BaseDeviate(seed=noise_seed)
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
