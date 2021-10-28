@@ -11,9 +11,9 @@ import numpy as np
 from astropy.table import Column
 from astropy.table import Table
 
+from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
-from btk.sampling_functions import DEFAULT_SEED
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
