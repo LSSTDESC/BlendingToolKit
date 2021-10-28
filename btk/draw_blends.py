@@ -351,12 +351,7 @@ class DrawBlendsGenerator(ABC):
             blend.add_column(y_peak)
 
             iso_image_multi = np.zeros(
-                (
-                    self.max_number,
-                    len(survey.filters),
-                    pix_stamp_size,
-                    pix_stamp_size,
-                )
+                (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
