@@ -19,7 +19,7 @@ from btk.survey import make_wcs
 from btk.survey import Survey
 
 DEFAULT_SEED = 0
-MAX_SEED_INT = 100000
+MAX_SEED_INT = 1_000_000_000
 
 
 class SourceNotVisible(Exception):
