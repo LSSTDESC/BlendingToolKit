@@ -33,7 +33,7 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number, seed: int = DEFAULT_SEED):
+    def __init__(self, max_number, seed=DEFAULT_SEED):
         """Initializes the SamplingFunction.
 
         Args:
@@ -133,7 +133,7 @@ class DefaultSampling(SamplingFunction):
 class DefaultSamplingGalsimHub(SamplingFunction):
     """Default sampling function used for producing blend tables, esp. for galsim_hub."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, seed: int = DEFAULT_SEED):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
         """Initialize default sampling function for galsim_hub.
 
         Args:
