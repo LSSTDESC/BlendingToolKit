@@ -6,6 +6,7 @@ from abc import abstractmethod
 import astropy.table
 import numpy as np
 
+from btk import DEFAULT_SEED
 from btk.catalog import CatsimCatalog
 
 
@@ -31,13 +32,19 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number):
+    def __init__(self, max_number, seed=DEFAULT_SEED):
         """Initializes the SamplingFunction.
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
         self.max_number = max_number
+
+        if isinstance(seed, int):
+            self.rng = np.random.default_rng(seed)
+        else:
+            raise AttributeError("The seed you provided is invalid, should be an int.")
 
     @abstractmethod
     def __call__(self, table, **kwargs):
@@ -55,7 +62,7 @@ class SamplingFunction(ABC):
 class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
         """Initializes default sampling function.
 
         Args:
@@ -63,12 +70,11 @@ class DefaultSampling(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
-            rng (numpy.random.Generator) : Controls the random number generation.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number)
+        super().__init__(max_number, seed)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
-        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -126,7 +132,7 @@ class DefaultSampling(SamplingFunction):
 class DefaultSamplingGalsimHub(SamplingFunction):
     """Default sampling function used for producing blend tables, esp. for galsim_hub."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
+    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
         """Initialize default sampling function for galsim_hub.
 
         Args:
@@ -134,12 +140,11 @@ class DefaultSamplingGalsimHub(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
-            rng (numpy.random.Generator) : Controls the random number generation.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number)
+        super().__init__(max_number, seed)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
-        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -194,7 +199,7 @@ class BasicSampling(SamplingFunction):
     Includes magnitude cut, restriction on the shape, shift randomization.
     """
 
-    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None, rng=np.random.default_rng()):
+    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
         """Initializes the basic sampling function.
 
         Args:
@@ -202,12 +207,11 @@ class BasicSampling(SamplingFunction):
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
-            rng (numpy.random.Generator) : Controls the random number generation.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number)
+        super().__init__(max_number, seed)
         self.stamp_size = stamp_size
         self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
-        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -266,7 +270,7 @@ class GroupSampling(SamplingFunction):
         pixel_scale,
         shift=None,
         group_id=None,
-        rng=np.random.default_rng(),
+        seed=DEFAULT_SEED,
     ):
         """Blends are defined from *groups* of galaxies from a CatSim-like catalog.
 
@@ -280,16 +284,15 @@ class GroupSampling(SamplingFunction):
             pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             shift (list): List containing shifts to apply (useful to avoid randomization)
             group_id (list): List containing which group_ids to analyze (avoid randomization)
-            rng (numpy.random.Generator) : Controls the random number generation.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number)
+        super().__init__(max_number, seed)
 
         self.wld_catalog = CatsimCatalog.from_file(wld_catalog_name).get_raw_catalog()
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.shift = shift
         self.group_id = group_id
-        self.rng = rng
 
     @property
     def compatible_catalogs(self):
@@ -355,7 +358,7 @@ class GroupSamplingNumbered(SamplingFunction):
         pixel_scale,
         shift=None,
         fmt="fits",
-        rng=np.random.default_rng(),
+        seed=DEFAULT_SEED,
     ):
         """Blends defined from *groups* of galaxies from a catalog previously analyzed with WLD.
 
@@ -374,15 +377,14 @@ class GroupSamplingNumbered(SamplingFunction):
             pixel_scale (float): pixel scale of the survey, in arcseconds per pixel
             fmt (str): Format of input wld_catalog used to define groups.
             shift (list): List of shifts to apply (usefult to avoid randomization)
-            rng (numpy.random.Generator) : Controls the random number generation.
+            seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number)
+        super().__init__(max_number, seed)
         self.wld_catalog = astropy.table.Table.read(wld_catalog_name, format=fmt)
         self.stamp_size = stamp_size
         self.pixel_scale = pixel_scale
         self.group_id_count = 0
         self.shift = shift
-        self.rng = rng
 
     @property
     def compatible_catalogs(self):

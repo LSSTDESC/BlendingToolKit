@@ -9,6 +9,9 @@ defaults:
 
 ### all arguments ###
 
+# reproducibility
+seed: 0 # single seed used for both sampling function AND draw blend generator
+
 # system
 save_path: Null
 cpus: 1

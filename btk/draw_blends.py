@@ -11,12 +11,15 @@ import numpy as np
 from astropy.table import Column
 from astropy.table import Table
 
+from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
 from btk.survey import Survey
+
+MAX_SEED_INT = 1_000_000_000
 
 
 class SourceNotVisible(Exception):
@@ -131,7 +134,7 @@ class DrawBlendsGenerator(ABC):
         indexes=None,
         channels_last=False,
         save_path=None,
-        rng=None,
+        seed=DEFAULT_SEED,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -155,8 +158,7 @@ class DrawBlendsGenerator(ABC):
                                 dimensions (default).
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
-            rng : Controls the random number generation. Can be an integer seed,
-                  or a numpy.random.Generator. If None, a random seed will be used.
+            seed (int): Integer seed for reproducible random noise realizations.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -191,17 +193,7 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
-
-        if rng is None:
-            self.rng = np.random.default_rng()
-        elif isinstance(rng, int):
-            self.rng = np.random.default_rng(rng)
-        else:
-            try:
-                rng.random()
-            except AttributeError:
-                raise AttributeError("The random generator you provided is invalid.")
-            self.rng = rng
+        self.rng = np.random.default_rng(seed)
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -257,8 +249,9 @@ class DrawBlendsGenerator(ABC):
 
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
+                noise_seed = self.rng.integers(MAX_SEED_INT)  # reproducibility
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s))
+                input_args.append((cat, psf, wcs, s, noise_seed))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -318,7 +311,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, noise_seed, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -358,16 +351,13 @@ class DrawBlendsGenerator(ABC):
             blend.add_column(y_peak)
 
             iso_image_multi = np.zeros(
-                (
-                    self.max_number,
-                    len(survey.filters),
-                    pix_stamp_size,
-                    pix_stamp_size,
-                )
+                (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
-                single_band_output = self.render_blend(blend, psf[b], filt, survey, extra_data[i])
+                single_band_output = self.render_blend(
+                    blend, psf[b], filt, survey, noise_seed, extra_data[i]
+                )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
 
@@ -380,7 +370,7 @@ class DrawBlendsGenerator(ABC):
             index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey, extra_data):
+    def render_blend(self, blend_catalog, psf, filt, survey, noise_seed, extra_data):
         """Draws image of isolated galaxies along with the blend image in the single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
@@ -424,7 +414,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=self.rng.integers(100000))
+            generator = galsim.random.BaseDeviate(seed=noise_seed)
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
@@ -585,7 +575,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
         galsim_hub_model="hub:Lanusse2020",
         param_names=["flux_radius", "mag_auto", "zphot"],
         save_path=None,
-        rng=None,
+        seed=DEFAULT_SEED,
     ):  # noqa: D417
         """Initializes the GalsimHubGenerator class.
 
@@ -610,14 +600,14 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             indexes=indexes,
             channels_last=channels_last,
             save_path=save_path,
-            rng=rng,
+            seed=seed,
         )
         import galsim_hub
 
         self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
         self.param_names = param_names
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seed):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Here we generate the images for all galaxies in the batch at the same
@@ -635,7 +625,7 @@ class GalsimHubGenerator(DrawBlendsGenerator):
             base_images_l.append(base_images[index : index + len(blend)])
             index += len(blend)
 
-        return super().render_mini_batch(blend_list, psf, wcs, survey, base_images_l)
+        return super().render_mini_batch(blend_list, psf, wcs, survey, seed, base_images_l)
 
     def render_single(self, entry, filt, psf, survey, extra_data):
         """Returns the Galsim Image of an isolated galaxy."""

@@ -9,7 +9,6 @@ from btk.draw_blends import CatsimGenerator
 from btk.measure import MeasureGenerator
 from btk.measure import sep_measure
 from btk.metrics import auc
-from btk.metrics import distance_center
 from btk.metrics import get_detection_eff_matrix
 from btk.metrics import meas_ksb_ellipticity
 from btk.metrics import MetricsGenerator
@@ -17,16 +16,15 @@ from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
 
+TEST_SEED = 0
+
+
 def get_metrics_generator(
     meas_function,
     cpus=1,
-    f_distance=distance_center,
     measure_kwargs=None,
-    rng=np.random.default_rng(0),
 ):
     """Returns draw generator with group sampling function"""
-
-    np.random.seed(0)
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
     survey = get_surveys("Rubin")
@@ -44,12 +42,12 @@ def get_metrics_generator(
     catalog = CatsimCatalog.from_file(catalog_name)
     draw_blend_generator = CatsimGenerator(
         catalog,
-        DefaultSampling(rng=rng),
+        DefaultSampling(seed=TEST_SEED),
         [survey],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,
-        rng=rng,
+        seed=TEST_SEED,
     )
     meas_generator = MeasureGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
@@ -69,7 +67,7 @@ def test_sep_metrics(mock_show):
     gal_summary = gal_summary[gal_summary["detected"] == True]  # noqa: E712
     msr = gal_summary["msr"]
     dist = gal_summary["distance_closest_galaxy"]
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    _, (ax1, ax2) = plt.subplots(1, 2)
     plot_utils.plot_metrics_distribution(msr, "msr", ax1, upper_quantile=0.9)
     plot_utils.plot_metrics_correlation(
         dist, msr, "Distance to the closest galaxy", "msr", ax2, upper_quantile=0.9, style="heatmap"
@@ -99,6 +97,17 @@ def test_sep_metrics(mock_show):
     plt.close("all")
 
 
+@patch("btk.plot_utils.plt.show")
+def test_measure_kwargs(mock_show):
+    """Test detection with sep"""
+    metrics_generator = get_metrics_generator(
+        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+    )
+    _, _, results = next(metrics_generator)
+    average_precision = auc(results, "sep_measure", 2, plot=True)
+    assert average_precision == 0.25
+
+
 def test_detection_eff_matrix():
     """Tests detection efficiency matrix computation in utils by inputting a
     summary table with 4 entries, with number of true sources between 1-4 and
@@ -112,14 +121,3 @@ def test_detection_eff_matrix():
     np.testing.assert_array_equal(
         eff_matrix, test_eff_matrix, err_msg="Incorrect efficiency matrix"
     )
-
-
-@patch("btk.plot_utils.plt.show")
-def test_measure_kwargs(mock_show):
-    """Test detection with sep"""
-    meas_generator = get_metrics_generator(
-        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
-    )
-    _, _, results = next(meas_generator)
-    average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.5

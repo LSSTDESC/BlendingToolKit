@@ -13,3 +13,4 @@ channels_last: ${channels_last}
 galsim_hub_model: ${galsim_hub_model}
 param_names: ${param_names}
 save_path: ${save_path}
+seed: ${seed}
