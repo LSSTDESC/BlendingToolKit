@@ -31,6 +31,19 @@ Importing the relevant packages
   import btk.draw_blends
   import astropy.table
 
+Reproducibility
+''''''''''''''''
+
+The following cell contains the seed use to generate reproducible random realizations of BTK output. Using the same seed in BTK for **both the sampling function and draw blend generator** (more info below) guarantees the galaxy images and parameters produced will be the same, even across different systems.
+
+.. jupyter-execute::
+
+  from btk import DEFAULT_SEED
+  seed = DEFAULT_SEED
+
+Every object in BTK that needs a seed uses `DEFAULT_SEED` implicitly. In this tutorial we explicitly show how this seed is passed in and which objects needs a seed. However, we omit it in the other tutorials.
+
+
 Drawing some blends
 ''''''''''''''''''''
 
@@ -68,7 +81,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the ``Sa
   stamp_size = 24.0  # Size of the stamp, in arcseconds
   max_number = 3     # Maximum number of galaxies in a blend
   max_shift = 3.0    # Maximum shift of the galaxies, in arcseconds
-  sampling_function = btk.sampling_functions.DefaultSampling(max_number=max_number, stamp_size=stamp_size, maxshift=max_shift)
+  sampling_function = btk.sampling_functions.DefaultSampling(max_number=max_number, stamp_size=stamp_size, maxshift=max_shift, seed=seed)
 
 As a reference, here is the code for this sampling function:
 
@@ -287,6 +300,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       indexes=None,
       cpus=1,
       add_noise=True,
+      seed=seed
   )
 
 The results from the ``next`` call are stored in the dictionnary; the keys are:
