@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#intro-notebook">Intro notebook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial">Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reproducibility">Reproducibility</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drawing-some-blends">Drawing some blends</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#catalog">Catalog</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sampling-function">Sampling Function</a></li>
@@ -219,6 +220,21 @@
 </div>
 </div>
 </div>
+<div class="section" id="reproducibility">
+<h3>Reproducibility<a class="headerlink" href="#reproducibility" title="Permalink to this headline">¶</a></h3>
+<p>The following cell contains the seed use to generate reproducible random realizations of BTK output. Using the same seed in BTK for <strong>both the sampling function and draw blend generator</strong> (more info below) guarantees the galaxy images and parameters produced will be the same, even across different systems.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">btk</span> <span class="kn">import</span> <span class="n">DEFAULT_SEED</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">DEFAULT_SEED</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Every object in BTK that needs a seed uses <cite>DEFAULT_SEED</cite> implicitly. In this tutorial we explicitly show how this seed is passed in and which objects needs a seed. However, we omit it in the other tutorials.</p>
+</div>
 <div class="section" id="drawing-some-blends">
 <h3>Drawing some blends<a class="headerlink" href="#drawing-some-blends" title="Permalink to this headline">¶</a></h3>
 <p>We will first explore the image generation part of BTK. We need to provide 3 main elements: the catalog, a sampling function and a survey.</p>
@@ -259,7 +275,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stamp_size</span> <span class="o">=</span> <span class="mf">24.0</span>  <span class="c1"># Size of the stamp, in arcseconds</span>
 <span class="n">max_number</span> <span class="o">=</span> <span class="mi">3</span>     <span class="c1"># Maximum number of galaxies in a blend</span>
 <span class="n">max_shift</span> <span class="o">=</span> <span class="mf">3.0</span>    <span class="c1"># Maximum shift of the galaxies, in arcseconds</span>
-<span class="n">sampling_function</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">sampling_functions</span><span class="o">.</span><span class="n">DefaultSampling</span><span class="p">(</span><span class="n">max_number</span><span class="o">=</span><span class="n">max_number</span><span class="p">,</span> <span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">,</span> <span class="n">maxshift</span><span class="o">=</span><span class="n">max_shift</span><span class="p">)</span>
+<span class="n">sampling_function</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">sampling_functions</span><span class="o">.</span><span class="n">DefaultSampling</span><span class="p">(</span><span class="n">max_number</span><span class="o">=</span><span class="n">max_number</span><span class="p">,</span> <span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">,</span> <span class="n">maxshift</span><span class="o">=</span><span class="n">max_shift</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -493,6 +509,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
     <span class="n">indexes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">add_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -521,14 +538,14 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/tutorials_9_0.png" src="_images/tutorials_9_0.png" />
-<img alt="_images/tutorials_9_1.png" src="_images/tutorials_9_1.png" />
-<img alt="_images/tutorials_9_2.png" src="_images/tutorials_9_2.png" />
-<img alt="_images/tutorials_9_3.png" src="_images/tutorials_9_3.png" />
-<img alt="_images/tutorials_9_4.png" src="_images/tutorials_9_4.png" />
-<img alt="_images/tutorials_9_5.png" src="_images/tutorials_9_5.png" />
-<img alt="_images/tutorials_9_6.png" src="_images/tutorials_9_6.png" />
-<img alt="_images/tutorials_9_7.png" src="_images/tutorials_9_7.png" />
+<img alt="_images/tutorials_10_0.png" src="_images/tutorials_10_0.png" />
+<img alt="_images/tutorials_10_1.png" src="_images/tutorials_10_1.png" />
+<img alt="_images/tutorials_10_2.png" src="_images/tutorials_10_2.png" />
+<img alt="_images/tutorials_10_3.png" src="_images/tutorials_10_3.png" />
+<img alt="_images/tutorials_10_4.png" src="_images/tutorials_10_4.png" />
+<img alt="_images/tutorials_10_5.png" src="_images/tutorials_10_5.png" />
+<img alt="_images/tutorials_10_6.png" src="_images/tutorials_10_6.png" />
+<img alt="_images/tutorials_10_7.png" src="_images/tutorials_10_7.png" />
 </div>
 </div>
 </div>
@@ -661,9 +678,9 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/tutorials_14_0.png" src="_images/tutorials_14_0.png" />
-<img alt="_images/tutorials_14_1.png" src="_images/tutorials_14_1.png" />
-<img alt="_images/tutorials_14_2.png" src="_images/tutorials_14_2.png" />
+<img alt="_images/tutorials_15_0.png" src="_images/tutorials_15_0.png" />
+<img alt="_images/tutorials_15_1.png" src="_images/tutorials_15_1.png" />
+<img alt="_images/tutorials_15_2.png" src="_images/tutorials_15_2.png" />
 </div>
 </div>
 <p>We can also use the matches from the metrics to plot the isolated galaxy images along with the matching deblended galaxies:</p>
@@ -683,11 +700,11 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/tutorials_15_0.png" src="_images/tutorials_15_0.png" />
-<img alt="_images/tutorials_15_1.png" src="_images/tutorials_15_1.png" />
-<img alt="_images/tutorials_15_2.png" src="_images/tutorials_15_2.png" />
-<img alt="_images/tutorials_15_3.png" src="_images/tutorials_15_3.png" />
-<img alt="_images/tutorials_15_4.png" src="_images/tutorials_15_4.png" />
+<img alt="_images/tutorials_16_0.png" src="_images/tutorials_16_0.png" />
+<img alt="_images/tutorials_16_1.png" src="_images/tutorials_16_1.png" />
+<img alt="_images/tutorials_16_2.png" src="_images/tutorials_16_2.png" />
+<img alt="_images/tutorials_16_3.png" src="_images/tutorials_16_3.png" />
+<img alt="_images/tutorials_16_4.png" src="_images/tutorials_16_4.png" />
 </div>
 </div>
 </div>
@@ -773,14 +790,14 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/tutorials_18_0.png" src="_images/tutorials_18_0.png" />
-<img alt="_images/tutorials_18_1.png" src="_images/tutorials_18_1.png" />
-<img alt="_images/tutorials_18_2.png" src="_images/tutorials_18_2.png" />
-<img alt="_images/tutorials_18_3.png" src="_images/tutorials_18_3.png" />
-<img alt="_images/tutorials_18_4.png" src="_images/tutorials_18_4.png" />
-<img alt="_images/tutorials_18_5.png" src="_images/tutorials_18_5.png" />
-<img alt="_images/tutorials_18_6.png" src="_images/tutorials_18_6.png" />
-<img alt="_images/tutorials_18_7.png" src="_images/tutorials_18_7.png" />
+<img alt="_images/tutorials_19_0.png" src="_images/tutorials_19_0.png" />
+<img alt="_images/tutorials_19_1.png" src="_images/tutorials_19_1.png" />
+<img alt="_images/tutorials_19_2.png" src="_images/tutorials_19_2.png" />
+<img alt="_images/tutorials_19_3.png" src="_images/tutorials_19_3.png" />
+<img alt="_images/tutorials_19_4.png" src="_images/tutorials_19_4.png" />
+<img alt="_images/tutorials_19_5.png" src="_images/tutorials_19_5.png" />
+<img alt="_images/tutorials_19_6.png" src="_images/tutorials_19_6.png" />
+<img alt="_images/tutorials_19_7.png" src="_images/tutorials_19_7.png" />
 </div>
 </div>
 <div class="section" id="using-different-magnitudes-for-each-band">
