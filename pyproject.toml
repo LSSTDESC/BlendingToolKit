@@ -79,6 +79,7 @@ filterwarnings = [
   "ignore:the imp module is deprecated:DeprecationWarning",
   "ignore:`np.int` is a deprecated alias:DeprecationWarning",
   "ignore:numpy.ufunc size changed:RuntimeWarning",
+  "ignore:Creating an ndarray from ragged:numpy.VisibleDeprecationWarning",
 ]
 minversion = "6.0"
 testpaths = [
