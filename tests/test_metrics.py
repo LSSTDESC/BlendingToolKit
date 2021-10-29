@@ -67,7 +67,7 @@ def test_sep_metrics(mock_show):
     gal_summary = gal_summary[gal_summary["detected"] == True]  # noqa: E712
     msr = gal_summary["msr"]
     dist = gal_summary["distance_closest_galaxy"]
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    _, (ax1, ax2) = plt.subplots(1, 2)
     plot_utils.plot_metrics_distribution(msr, "msr", ax1, upper_quantile=0.9)
     plot_utils.plot_metrics_correlation(
         dist, msr, "Distance to the closest galaxy", "msr", ax2, upper_quantile=0.9, style="heatmap"
@@ -97,6 +97,17 @@ def test_sep_metrics(mock_show):
     plt.close("all")
 
 
+@patch("btk.plot_utils.plt.show")
+def test_measure_kwargs(mock_show):
+    """Test detection with sep"""
+    metrics_generator = get_metrics_generator(
+        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+    )
+    _, _, results = next(metrics_generator)
+    average_precision = auc(results, "sep_measure", 2, plot=True)
+    assert average_precision == 0.25
+
+
 def test_detection_eff_matrix():
     """Tests detection efficiency matrix computation in utils by inputting a
     summary table with 4 entries, with number of true sources between 1-4 and
@@ -110,14 +121,3 @@ def test_detection_eff_matrix():
     np.testing.assert_array_equal(
         eff_matrix, test_eff_matrix, err_msg="Incorrect efficiency matrix"
     )
-
-
-@patch("btk.plot_utils.plt.show")
-def test_measure_kwargs(mock_show):
-    """Test detection with sep"""
-    meas_generator = get_metrics_generator(
-        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
-    )
-    _, _, results = next(meas_generator)
-    average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.375
