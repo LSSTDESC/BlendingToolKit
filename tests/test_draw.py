@@ -107,9 +107,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a priori for the default input settings.
         """
-        test_batch_max = np.array([190.012, 1458.121, 8564.862, 10559.612, 9935.189, 5472.317])
-        test_batch_mean = 2.6460062605207106
-        test_batch_std = 403.3028115573917
+        test_batch_max = np.array([157.012, 1432.121, 8024.862, 10654.612, 9056.189, 5771.317])
+        test_batch_mean = 6.018752209594785
+        test_batch_std = 403.6321158841257
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -138,7 +138,7 @@ class TestBasicDraw:
         the r band. This is compared to the values measured a priori for the
         default input settings.
         """
-        test_batch_noise = 120937.45957946777
+        test_batch_noise = 122276.01733398438
         batch_noise = np.var(blend_images[1, 2, 0:32, 0:32])
         np.testing.assert_almost_equal(
             batch_noise,
