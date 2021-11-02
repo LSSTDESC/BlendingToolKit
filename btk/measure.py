@@ -57,6 +57,7 @@ Omitted keys in the returned dictionary are automatically assigned a `None` valu
 import os
 from copy import deepcopy
 from itertools import repeat
+from typing import List
 
 import astropy.table
 import numpy as np
@@ -82,7 +83,7 @@ def add_pixel_columns(catalog, wcs):
         x_peak = []
         y_peak = []
         for gal in blend:
-            coords = wcs.world_to_pixel_values(gal["ra"], gal["dec"])
+            coords = wcs.world_to_pixel_values(gal["ra"] / 3600, gal["dec"] / 3600)
             x_peak.append(coords[0])
             y_peak.append(coords[1])
         blend.add_column(x_peak, name="x_peak")
@@ -213,7 +214,7 @@ class MeasureGenerator:
         draw_blend_generator,
         cpus=1,
         verbose=False,
-        measure_kwargs: list = None,
+        measure_kwargs: List[dict] = None,
         save_path=None,
     ):
         """Initialize measurement generator.
@@ -257,6 +258,11 @@ class MeasureGenerator:
 
         # initialize measure_kwargs dictionary.
         self.measure_kwargs = [{}] if measure_kwargs is None else measure_kwargs
+        if not (
+            isinstance(self.measure_kwargs, list)
+            and np.all([isinstance(m, dict) for m in self.measure_kwargs])
+        ):
+            raise TypeError("measure_kwargs must be a list of dictionnaries.")
         for m in self.measure_kwargs:
             m["channels_last"] = self.channels_last
             m["surveys"] = self.surveys
