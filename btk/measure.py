@@ -129,6 +129,8 @@ def basic_measure(
     # construct catalog from measurement.
     catalog = astropy.table.Table()
     catalog["ra"], catalog["dec"] = wcs.pixel_to_world_values(coordinates[:, 1], coordinates[:, 0])
+    catalog["ra"] *= 3600
+    catalog["dec"] *= 3600
     return {"catalog": catalog}
 
 
@@ -193,6 +195,8 @@ def sep_measure(
 
     t = astropy.table.Table()
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+    t["ra"] *= 3600
+    t["dec"] *= 3600
 
     # If multiresolution, return only the catalog
     if is_multiresolution:
