@@ -247,7 +247,7 @@ measurements given output from the draw_blend_generator.</p></li>
 isolated images, blend catalog, wcs info, and psf.</p></li>
 <li><p><strong>cpus</strong> – The number of parallel processes to run [Default: 1].</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print information about measurement.</p></li>
-<li><p><strong>measure_kwargs</strong> (<em>list</em>) – list of dictionaries containing keyword arguments
+<li><p><strong>measure_kwargs</strong> (<em>list</em>) – List of dictionaries containing keyword arguments
 to be passed in to each of the <cite>measure_functions</cite>. Each dictionnary is
 passed one time to each function, meaning that each function which be
 ran as many times as there are different dictionnaries.</p></li>
@@ -286,7 +286,8 @@ transformation.</p></li>
 <dt id="btk.measure.basic_measure">
 <code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">basic_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_multiresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.basic_measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return centers detected with skimage.feature.peak_local_max.</p>
-<p>NOTE: If this function is used with the multiresolution feature,
+<p>For each potentially multi-band image, an average over the bands is taken before measurement.
+NOTE: If this function is used with the multiresolution feature,
 measurements will be carried on the first survey.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,7 +307,8 @@ measurement on.</p></li>
 <dt id="btk.measure.sep_measure">
 <code class="sig-prename descclassname"><span class="pre">btk.measure.</span></code><code class="sig-name descname"><span class="pre">sep_measure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_multiresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return detection, segmentation and deblending information with SEP.</p>
-<p>NOTE: If this function is used with the multiresolution feature,
+<p>For each potentially multi-band image, an average over the bands is taken before measurement.
+NOTE: If this function is used with the multiresolution feature,
 measurements will be carried on the first survey, and deblended images
 or segmentations will not be returned.</p>
 <dl class="field-list simple">

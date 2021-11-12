@@ -565,6 +565,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sep_measure</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">channels_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">surveys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sigma_noise</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Return detection, segmentation and deblending information with SEP.</span>
 
+<span class="sd">  For each potentially multi-band image, an average over the bands is taken before measurement.</span>
 <span class="sd">  NOTE: If this function is used with the multiresolution feature,</span>
 <span class="sd">  measurements will be carried on the first survey, and deblended images</span>
 <span class="sd">  or segmentations will not be returned.</span>
@@ -586,19 +587,19 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
           <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;surveys are required in order to use the MR feature.&quot;</span><span class="p">)</span>
       <span class="n">survey_name</span> <span class="o">=</span> <span class="n">surveys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
       <span class="n">image</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">][</span><span class="n">survey_name</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
-      <span class="n">coadd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">channel_indx</span><span class="p">)</span>
+      <span class="n">avg_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">channel_indx</span><span class="p">)</span>
       <span class="n">wcs</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;wcs&quot;</span><span class="p">][</span><span class="n">survey_name</span><span class="p">]</span>
 
   <span class="c1"># single-survey</span>
   <span class="k">else</span><span class="p">:</span>
       <span class="n">image</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;blend_images&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
-      <span class="n">coadd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">channel_indx</span><span class="p">)</span>
+      <span class="n">avg_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">channel_indx</span><span class="p">)</span>
       <span class="n">wcs</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;wcs&quot;</span><span class="p">]</span>
 
-  <span class="n">stamp_size</span> <span class="o">=</span> <span class="n">coadd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">bkg</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">Background</span><span class="p">(</span><span class="n">coadd</span><span class="p">)</span>
+  <span class="n">stamp_size</span> <span class="o">=</span> <span class="n">avg_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">bkg</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">Background</span><span class="p">(</span><span class="n">avg_image</span><span class="p">)</span>
   <span class="n">catalog</span><span class="p">,</span> <span class="n">segmentation</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
-      <span class="n">coadd</span><span class="p">,</span> <span class="n">sigma_noise</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">bkg</span><span class="o">.</span><span class="n">globalrms</span><span class="p">,</span> <span class="n">segmentation_map</span><span class="o">=</span><span class="kc">True</span>
+      <span class="n">avg_image</span><span class="p">,</span> <span class="n">sigma_noise</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">bkg</span><span class="o">.</span><span class="n">globalrms</span><span class="p">,</span> <span class="n">segmentation_map</span><span class="o">=</span><span class="kc">True</span>
   <span class="p">)</span>
 
   <span class="n">n_objects</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
