@@ -126,7 +126,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
         ax[0].set_title("gri bands")
         ax[0].axis("off")
         ax[1].imshow(np.sum(blend_images[i, :, :, :], axis=0))
-        ax[1].set_title("Coadd")
+        ax[1].set_title("Sum over bands")
         if limits:
             ax[1].set_xlim(limits)
             ax[1].set_ylim(limits)
