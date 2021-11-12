@@ -336,6 +336,7 @@ You can use BTK to directly carry out the measurements on the generated data. To
   def sep_measure(batch, idx, channels_last=False, surveys=None, sigma_noise=1.5, **kwargs):
     """Return detection, segmentation and deblending information with SEP.
 
+    For each potentially multi-band image, an average over the bands is taken before measurement.
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey, and deblended images
     or segmentations will not be returned.
@@ -357,19 +358,19 @@ You can use BTK to directly carry out the measurements on the generated data. To
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
         image = batch["blend_images"][survey_name][idx]
-        coadd = np.mean(image, axis=channel_indx)
+        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"][survey_name]
 
     # single-survey
     else:
         image = batch["blend_images"][idx]
-        coadd = np.mean(image, axis=channel_indx)
+        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"]
 
-    stamp_size = coadd.shape[0]
-    bkg = sep.Background(coadd)
+    stamp_size = avg_image.shape[0]
+    bkg = sep.Background(avg_image)
     catalog, segmentation = sep.extract(
-        coadd, sigma_noise, err=bkg.globalrms, segmentation_map=True
+        avg_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
 
     n_objects = len(catalog)

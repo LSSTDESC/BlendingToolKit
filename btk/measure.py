@@ -96,6 +96,7 @@ def basic_measure(
 ):
     """Return centers detected with skimage.feature.peak_local_max.
 
+    For each potentially multi-band image, an average over the bands is taken before measurement.
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey.
 
@@ -114,17 +115,17 @@ def basic_measure(
         if surveys is None:
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
-        coadd = np.mean(batch["blend_images"][survey_name][idx], axis=channel_indx)
+        avg_image = np.mean(batch["blend_images"][survey_name][idx], axis=channel_indx)
         wcs = batch["wcs"][survey_name]
 
     # single-survey
     else:
-        coadd = np.mean(batch["blend_images"][idx], axis=channel_indx)
+        avg_image = np.mean(batch["blend_images"][idx], axis=channel_indx)
         wcs = batch["wcs"]
 
     # set detection threshold to 5 times std of image
-    threshold = 5 * np.std(coadd)
-    coordinates = peak_local_max(coadd, min_distance=2, threshold_abs=threshold)
+    threshold = 5 * np.std(avg_image)
+    coordinates = peak_local_max(avg_image, min_distance=2, threshold_abs=threshold)
 
     # construct catalog from measurement.
     catalog = astropy.table.Table()
@@ -145,6 +146,7 @@ def sep_measure(
 ):
     """Return detection, segmentation and deblending information with SEP.
 
+    For each potentially multi-band image, an average over the bands is taken before measurement.
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey, and deblended images
     or segmentations will not be returned.
@@ -166,19 +168,19 @@ def sep_measure(
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
         image = batch["blend_images"][survey_name][idx]
-        coadd = np.mean(image, axis=channel_indx)
+        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"][survey_name]
 
     # single-survey
     else:
         image = batch["blend_images"][idx]
-        coadd = np.mean(image, axis=channel_indx)
+        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"]
 
-    stamp_size = coadd.shape[0]
-    bkg = sep.Background(coadd)
+    stamp_size = avg_image.shape[0]
+    bkg = sep.Background(avg_image)
     catalog, segmentation = sep.extract(
-        coadd, sigma_noise, err=bkg.globalrms, segmentation_map=True
+        avg_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
 
     n_objects = len(catalog)
@@ -230,7 +232,7 @@ class MeasureGenerator:
                                   isolated images, blend catalog, wcs info, and psf.
             cpus: The number of parallel processes to run [Default: 1].
             verbose (bool): Whether to print information about measurement.
-            measure_kwargs (list): list of dictionaries containing keyword arguments
+            measure_kwargs (list): List of dictionaries containing keyword arguments
                 to be passed in to each of the `measure_functions`. Each dictionnary is
                 passed one time to each function, meaning that each function which be
                 ran as many times as there are different dictionnaries.
