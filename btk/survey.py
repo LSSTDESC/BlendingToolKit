@@ -63,7 +63,7 @@ Args:
     extinction (float): Exponential extinction coefficient for atmospheric absorption"""
 
 
-def _get_survey_from_cfg(survey_conf: OmegaConf):
+def get_survey_from_cfg(survey_conf: OmegaConf):
     """Creates the corresponding `btk.survey.Survey` object using the information from config file.
 
     Args:
@@ -129,7 +129,7 @@ def get_surveys(names="Rubin", overrides: Iterable = ()):
         cfg = compose("config", overrides=overrides)
     for survey_name in cfg.surveys:
         survey_conf = cfg.surveys[survey_name]
-        surveys.append(_get_survey_from_cfg(survey_conf))
+        surveys.append(get_survey_from_cfg(survey_conf))
     if len(surveys) == 1:
         return surveys[0]
     return surveys
