@@ -22,7 +22,7 @@ conda create -n btk37 python=3.7
 conda activate btk37
 
 # install poetry
-conda install -c conda-forge poetry 
+conda install -c conda-forge poetry
 
 # install BTK dependencies from pyproject.toml file
 poetry install
