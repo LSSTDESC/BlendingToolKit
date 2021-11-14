@@ -150,9 +150,10 @@ class DrawBlendsGenerator(ABC):
             add_noise (bool): Indicates if the blends should be generated with noise
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
-                           with indexes.
+                           with indexes. Used mostly for internal testing purposes.
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
+                        Used mostly for internal testing purposes.
             channels_last (bool): Whether to return images as numpy arrays with the channel
                                 (band) dimension as the last dimension or before the pixels
                                 dimensions (default).
