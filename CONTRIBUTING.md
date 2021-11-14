@@ -14,11 +14,23 @@ git clone https://github.com/LSSTDESC/BlendingToolKit.git
 
 ```
 cd BlendingToolKit
-conda create -n btk37 python=3.7 # you can skip this step if you already have a new conda environment specifically for BTK.
-conda activate btk37 # activate conda environment.
+
+# you can skip this step if you already have a new conda environment specifically for BTK.
+conda create -n btk37 python=3.7
+
+# activate conda environment.
+conda activate btk37
+
+# install poetry
 conda install -c conda-forge poetry 
+
+# install BTK dependencies from pyproject.toml file
 poetry install
-poetry shell # activate poetry environment inside conda environment.
+
+# activate poetry environment from inside the conda environment.
+poetry shell
+
+# install the git hook scripts
 pre-commit install
 ```
 
