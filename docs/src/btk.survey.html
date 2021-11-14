@@ -299,6 +299,20 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 </dd></dl>
 
 <dl class="py function">
+<dt id="btk.survey.get_survey_from_cfg">
+<code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_survey_from_cfg</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey_conf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">omegaconf.omegaconf.OmegaConf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_survey_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the corresponding <cite>btk.survey.Survey</cite> object using the information from config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>OmegaConf</em>) – Hydra configuration object corresponding to a single survey.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>btk.survey.Survey object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="btk.survey.get_surveys">
 <code class="sig-prename descclassname"><span class="pre">btk.survey.</span></code><code class="sig-name descname"><span class="pre">get_surveys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rubin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_surveys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return specified surveys as <cite>btk.survey.Survey</cite> objects.</p>
