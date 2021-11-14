@@ -83,7 +83,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the ``Sa
   max_shift = 3.0    # Maximum shift of the galaxies, in arcseconds
   sampling_function = btk.sampling_functions.DefaultSampling(max_number=max_number, stamp_size=stamp_size, maxshift=max_shift, seed=seed)
 
-As a reference, here is the code for this sampling function:
+As a reference, here is a (slightly) simplified version of the code for this sampling function:
 
 .. jupyter-execute::
 
@@ -106,7 +106,7 @@ As a reference, here is the code for this sampling function:
       def compatible_catalogs(self):
           return "CatsimCatalog", "CosmosCatalog"
 
-      def __call__(self, table, shifts=None, indexes=None):
+      def __call__(self, table):
           """Applies default sampling to the input CatSim-like catalog and returns an
           astropy table with entries corresponding to a blend centered close to postage
           stamp center.
@@ -122,10 +122,6 @@ As a reference, here is the code for this sampling function:
           Args:
               table (astropy.table): Table containing entries corresponding to galaxies
                                      from which to sample.
-              shifts (list): Contains arbitrary shifts to be applied instead of random ones.
-                             Should of the form [x_peak,y_peak] where x_peak and y_peak are the lists
-                             containing the x and y shifts.
-              indexes (list): Contains the indexes of the galaxies to use.
 
           Returns:
               Astropy.table with entries corresponding to one blend.
@@ -133,16 +129,9 @@ As a reference, here is the code for this sampling function:
           number_of_objects = np.random.randint(1, self.max_number + 1)
           (q,) = np.where(table["ref_mag"] <= 25.3)
 
-          if indexes is None:
-              blend_table = table[np.random.choice(q, size=number_of_objects)]
-          else:
-              blend_table = table[indexes]
+          blend_table = table[np.random.choice(q, size=number_of_objects)]
           blend_table["ra"] = 0.0
           blend_table["dec"] = 0.0
-          if shifts is None:
-              x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift)
-          else:
-              x_peak, y_peak = shifts
           blend_table["ra"] += x_peak
           blend_table["dec"] += y_peak
 
@@ -296,8 +285,6 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       [Rubin],
       batch_size=8,
       stamp_size=stamp_size,
-      shifts=None,
-      indexes=None,
       cpus=1,
       add_noise=True,
       seed=seed
@@ -464,8 +451,6 @@ Saving the results can be automatically achieved by providing the save_path argu
       Rubin,
       batch_size=100,
       stamp_size=stamp_size,
-      shifts=None,
-      indexes=None,
       cpus=1,
       add_noise=True,
       save_path=save_path
