@@ -10,18 +10,32 @@ Please makes sure to complete the following steps if you are interested in contr
 git clone https://github.com/LSSTDESC/BlendingToolKit.git
 ```
 
-2. It is highly recommended that you use `poetry` to manage the python environment for developing BTK. This will also allow you to import `btk` anywhere while you are running inside that environment. The following commands should install and activate a `btk` python environment managed by `poetry`:
+2. It is highly recommended that you use `conda+poetry` to manage the python environment for developing BTK. The following commands should install and activate a `btk` python environment managed by `poetry`:
 
 ```
-# run the following a python environment like conda.
 cd BlendingToolKit
-pip install --user poetry
+
+# you can skip this step if you already have a new conda environment specifically for BTK.
+conda create -n btk37 python=3.7
+
+# activate conda environment.
+conda activate btk37
+
+# install poetry
+conda install -c conda-forge poetry
+
+# install BTK dependencies from pyproject.toml file
 poetry install
-pre-commit install
+
+# activate poetry environment from inside the conda environment.
 poetry shell
+
+# install the git hook scripts
+pre-commit install
 ```
 
-If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first, and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github. Note these last two dependencies only work on `python 3.7`.
+If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first (inside the `btk37` conda environment), and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github. Note that these two dependencies only work on `python 3.7`.
+
 ## Pull Requests
 
 1. Every contribution to BTK must be made in a form of a Pull Request (PR) that can eventually be merged to the `main` branch.
