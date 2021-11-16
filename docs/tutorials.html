@@ -192,7 +192,7 @@
 <p>The following jupyter notebooks are included in the <cite>notebooks/</cite> directory:</p>
 <div class="section" id="intro-notebook">
 <h2>Intro notebook<a class="headerlink" href="#intro-notebook" title="Permalink to this headline">¶</a></h2>
-<p>This <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/intro.ipynb">notebook</a> shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images – i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (for interactivity).</p>
+<p>This <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/00-intro.ipynb">notebook</a> shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images – i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (for interactivity).</p>
 </div>
 <div class="section" id="tutorial">
 <h2>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h2>
@@ -467,7 +467,7 @@ which galaxies are drawn, with what shifts, etc. This is achieved using the <cod
 <div class="cell_output docutils container">
 </div>
 </div>
-<p>Most attributes should be pretty straightforward to modify; please take a look at the <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/src/btk.survey.html">API</a> for a more substantial description of the attributes. The <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb">custom tutorial</a> also provides descriptions of the attributes and more information on how to customize surveys.</p>
+<p>Most attributes should be pretty straightforward to modify; please take a look at the <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/src/btk.survey.html">API</a> for a more substantial description of the attributes. The <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb">custom tutorial</a> also provides descriptions of the attributes and more information on how to customize surveys.</p>
 <p>The <cite>psf</cite> attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg <code class="docutils literal notranslate"><span class="pre">galsim.Kolmogorov(fwhm=1.5)</span></code>) or as a function returning a Galsim model, for randomization purposes. For example:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -815,7 +815,7 @@ However, BTK still retrieves the <code class="docutils literal notranslate"><spa
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">btk</span><span class="p">[</span><span class="n">galsim</span><span class="o">-</span><span class="n">hub</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>You can find a notebook version of this tutorial in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb">link</a>.</p>
+<p>You can find a notebook version of this tutorial in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01c-galsim_hub_tutorial.ipynb">link</a>.</p>
 </div>
 <div class="section" id="scarlet-implementation">
 <h2>SCARLET implementation<a class="headerlink" href="#scarlet-implementation" title="Permalink to this headline">¶</a></h2>
@@ -825,11 +825,11 @@ However, BTK still retrieves the <code class="docutils literal notranslate"><spa
 </pre></div>
 </div>
 <p>This will install the latest version of SCARLET in github and NOT in pip (which is outdated).</p>
-<p>You can find the SCARLET measure function implementation <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/scarlet-measure.ipynb">here</a>.</p>
+<p>You can find the SCARLET measure function implementation <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">here</a>.</p>
 </div>
 <div class="section" id="advanced-features">
 <h2>Advanced features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
-<p>You can find more details on specific features of BTK in these two tutorials: <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb">the first one</a> explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb">The second one</a> details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the “measure_kwargs”.</p>
+<p>You can find more details on specific features of BTK in these two tutorials: <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb">the first one</a> explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02a-multi-tutorial.ipynb">The second one</a> details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the “measure_kwargs”.</p>
 </div>
 </div>
 
