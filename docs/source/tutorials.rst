@@ -6,7 +6,7 @@ The following jupyter notebooks are included in the `notebooks/` directory:
 Intro notebook
 ----------------
 
-This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/intro.ipynb>`_ shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images -- i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (for interactivity).
+This `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/00-intro.ipynb>`_ shows how btk can be used to generate images of multi-band blend scenes, along with isolated object images -- i.e., PSF-convolved object images are drawn both in isolation and in the blend scene for each band. You can find it retranscribed in the next section or access it normally via the link (for interactivity).
 
 Tutorial
 ---------
@@ -258,7 +258,7 @@ You may want to define your own survey if you wish to modify some parameters or 
       ],
   )
 
-Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
+Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
 
 The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. For example:
 
@@ -553,7 +553,7 @@ Alternatively, you can optionally install ``galsim_hub`` along with BTK:
 
   pip install btk[galsim-hub]
 
-You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/galsim_hub_tutorial.ipynb>`_.
+You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01c-galsim_hub_tutorial.ipynb>`_.
 
 SCARLET implementation
 -----------------------
@@ -567,9 +567,9 @@ We provide an implementation of the measure function for `SCARLET <https://www.s
 
 This will install the latest version of SCARLET in github and NOT in pip (which is outdated).
 
-You can find the SCARLET measure function implementation `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/scarlet-measure.ipynb>`_.
+You can find the SCARLET measure function implementation `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_.
 
 Advanced features
 ------------------
 
-You can find more details on specific features of BTK in these two tutorials: `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/custom-tutorial.ipynb>`_ explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. `The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".
+You can find more details on specific features of BTK in these two tutorials: `the first one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb>`_ explains how to write your own sampling function, survey or measure function (the measure function may be particularily important for users who want to test their own algorithm. `The second one <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02a-multi-tutorial.ipynb>`_ details how to use the multiresolution feature, as well as how to deal with multiple measure functions and how to pass them several different arguments using the "measure_kwargs".
