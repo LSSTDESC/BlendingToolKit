@@ -4,13 +4,10 @@ import random as rd
 from collections import namedtuple
 
 import astropy.wcs as WCS
+import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
-from hydra import compose
-from hydra import initialize
-from omegaconf import OmegaConf
-
 
 Survey = namedtuple(
     "Survey",
@@ -20,8 +17,8 @@ Survey = namedtuple(
         "effective_area",  # Effective total light collecting area in square meters [m2]
         "mirror_diameter",  # in meters [m]
         "airmass",  # Optical path length through atmosphere relative to zenith path length.
-        "filters",
         "zeropoint_airmass",
+        "filters",
     ],
 )
 
@@ -34,8 +31,8 @@ Args:
     effective_area (float): Effective total light collecting area, in square meters
     mirror_diameter (float): Diameter of the primary mirror, in meters
     airmass (float): Optical path length through atmosphere relative to zenith path length
-    filters (list): List of Filter objects corresponding to the filters of this survey
-    zeropoint_airmass (float) Airmass at which the zeropoint is measured"""
+    zeropoint_airmass (float) Airmass at which the zeropoint is measured
+    filters (list): List of Filter objects corresponding to the filters of this survey"""
 
 Filter = namedtuple(
     "Filter",
@@ -62,52 +59,15 @@ Args:
     extinction (float): Exponential extinction coefficient for atmospheric absorption"""
 
 
-def get_survey_from_cfg(survey_conf: OmegaConf):
-    """Creates the corresponding `btk.survey.Survey` object using the information from config file.
-
-    Args:
-        cfg (OmegaConf): Hydra configuration object corresponding to a single survey.
-
-    Returns:
-        btk.survey.Survey object.
-    """
-    OmegaConf.resolve(survey_conf)  # in-place
-
-    survey_dict = dict(survey_conf)
-    filters_dict = dict(survey_dict.pop("filters"))
-    filter_names = list(filters_dict.keys())
-    for key in filter_names:
-        filter_dict = dict(filters_dict.pop(key))  # need to make it a dict not DictConfig
-        psf_dict = dict(filter_dict.pop("psf"))
-        if "type" not in psf_dict:
-            raise AttributeError(
-                f"Your configuration for the PSF in filter {key} in survey {survey_dict['name']}"
-                f"does not have a 'type' field which is required."
-            )
-        if psf_dict["type"] == "default":
-            psf = get_psf(**psf_dict["params"])
-        elif psf_dict["type"] == "galsim":
-            galsim_dict = dict(psf=psf_dict["params"])
-            psf = galsim.config.BuildGSObject(galsim_dict, "psf")
-        else:
-            raise NotImplementedError(
-                f"The 'type' specified for the PSF in filter {key} in "
-                f"survey {survey_dict['name']} is not implemented."
-            )
-
-        filter_dict["psf"] = psf
-        filters_dict[key] = filter_dict
-    filters = [Filter(**filters_dict[key]) for key in filters_dict]
-    survey = Survey(**survey_dict, filters=filters)
-    return survey
-
-
-def get_surveys(names="Rubin"):
+def get_surveys(names="Rubin", psf_dict: dict = None):
     """Return specified surveys as `btk.survey.Survey` objects.
 
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
             multiple survey names.
+        psf_dict (str): Dictionary specifying psf model to be used in the different filters of
+             the survey. See the `get_psf` function for additional information on how to construct
+             this dictionary.
 
     Returns:
         btk.survey.Survey object or list of such objects.
@@ -116,18 +76,87 @@ def get_surveys(names="Rubin"):
         names = [names]
     if not isinstance(names, list):
         raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
-    surveys = []
-    with initialize(config_path="../conf"):
-        cfg = compose("config")
-    for survey_name in cfg.surveys:
-        survey_conf = cfg.surveys[survey_name]
-        surveys.append(get_survey_from_cfg(survey_conf))
-    if len(surveys) == 1:
-        return surveys[0]
-    return surveys
+
+    psf_dict = (
+        {"type": "default", "params": {"atmospheric_model": "Kolmogorov"}}
+        if psf_dict is None
+        else psf_dict
+    )
+
+    btk_surveys = []
+    for survey_name in names:
+        survey = galcheat.get_survey(survey_name)
+        galcheat_filters = survey.get_filters()
+        filters = []
+        for filtr in galcheat_filters:
+            psf = get_psf(psf_dict, survey, filtr)
+            btk_filter = Filter(
+                filtr.name,
+                psf,
+                filtr.sky_brightness.value,
+                filtr.exposure_time.value,
+                filtr.zeropoint.value,
+                filtr.extinction.value,
+            )
+            filters.append(btk_filter)
+        btk_survey = Survey(
+            survey.name,
+            survey.pixel_scale.value,
+            survey.effective_area.value,
+            survey.mirror_diameter.value,
+            survey.airmass.value,
+            filters,
+        )
+        btk_surveys.append(btk_survey)
+
+    if len(btk_surveys) == 1:
+        return btk_surveys[0]
+    return btk_surveys
 
 
-def get_psf(
+def get_psf(psf_dict, survey, filtr):
+    """Return the PSF model as a galsim object.
+
+    Args:
+        psf_dict (dict): Dictionary containing the parameters of the PSF to simulate. To be read
+            from the config file.
+        survey (galcheat.survey.Survey): Survey object from galcheat.
+        filtr (galcheat.filter.Filter): Filter object from galcheat.
+
+    Returns:
+        btk.survey.Survey object or list of such objects.
+    """
+    if "type" not in psf_dict:
+        raise AttributeError(
+            f"Your configuration for the PSF in filter {filtr.name} in survey {survey.name}"
+            f"does not have a 'type' field which is required."
+        )
+    if psf_dict["type"] == "default":
+        atmospheric_model = psf_dict["params"]["atmospheric_model"]
+        if isinstance(psf_dict["params"]["psf_fwhm"], dict):
+            psf_fwhm = psf_dict["params"]["psf_fwhm"][filtr.name]
+        else:
+            psf_fwhm = filtr.psf_fwhm
+        psf = get_default_psf(
+            survey.mirror_diameter,
+            survey.effective_area,
+            filtr.central_wavelength,
+            psf_fwhm,
+            atmospheric_model=atmospheric_model,
+        )
+    elif psf_dict["type"] == "galsim":
+        galsim_dict = dict(psf=psf_dict["params"][filtr.name])
+        psf = galsim.config.BuildGSObject(galsim_dict, "psf")
+    else:
+        raise NotImplementedError(
+            f"The 'type' specified for the PSF in filter {filtr.name} in "
+            f"survey {survey.name} is not implemented."
+        )
+
+    return psf
+
+
+def get_default_psf(
     mirror_diameter,
     effective_area,
     filt_wavelength,
