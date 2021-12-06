@@ -1,6 +1,7 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
+from collections import Callable
 from collections import namedtuple
 
 import astropy.wcs as WCS
@@ -52,22 +53,22 @@ Class containing the informations relative to a filter (for a specific survey).
 Args:
     name (str): Name of the filter
     psf: Contains the PSF information, either as a Galsim object,
-          or as a function returning a Galsim object
+          or as a function returning a Galsim object (with no arguments).
     sky_brightness (float): Sky brightness, in mags/sq.arcsec
     exp_time (int): Total exposition time, in seconds
     zeropoint (float): Magnitude of an object with a measured flux of 1 electron per second
     extinction (float): Exponential extinction coefficient for atmospheric absorption"""
 
 
-def get_surveys(names="Rubin", psf_dict: dict = None):
+def get_surveys(names="Rubin", psf_func: Callable = None):
     """Return specified surveys as `btk.survey.Survey` objects.
 
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
             multiple survey names.
-        psf_dict (str): Dictionary specifying psf model to be used in the different filters of
-             the survey. See the `get_psf` function for additional information on how to construct
-             this dictionary.
+        psf_func (function): Python function which takes in two arguments: `survey` and `filter`
+            that returns a PSF as a galsim object or as a callable with no arguments.
+            If `None`, the default PSF for the specified survey will be used in each band.
 
     Returns:
         btk.survey.Survey object or list of such objects.
@@ -77,21 +78,18 @@ def get_surveys(names="Rubin", psf_dict: dict = None):
     if not isinstance(names, list):
         raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
 
-    psf_dict = (
-        {"type": "default", "params": {"atmospheric_model": "Kolmogorov"}}
-        if psf_dict is None
-        else psf_dict
-    )
-
     btk_surveys = []
     for survey_name in names:
+        print(survey_name)
         survey = galcheat.get_survey(survey_name)
-        galcheat_filters = survey.get_filters()
         filters = []
-        for filtr in galcheat_filters:
-            psf = get_psf(psf_dict, survey, filtr)
+        for band, filtr in survey.get_filters().items():
+            if psf_func is None:
+                psf = get_default_galcheat_psf(survey, filtr)
+            else:
+                psf = psf_func(survey, filtr)
             btk_filter = Filter(
-                filtr.name,
+                band,
                 psf,
                 filtr.sky_brightness.value,
                 filtr.exposure_time.value,
@@ -99,12 +97,14 @@ def get_surveys(names="Rubin", psf_dict: dict = None):
                 filtr.extinction.value,
             )
             filters.append(btk_filter)
+
         btk_survey = Survey(
             survey.name,
             survey.pixel_scale.value,
             survey.effective_area.value,
             survey.mirror_diameter.value,
             survey.airmass.value,
+            survey.zeropoint_airmass.value,
             filters,
         )
         btk_surveys.append(btk_survey)
@@ -114,46 +114,23 @@ def get_surveys(names="Rubin", psf_dict: dict = None):
     return btk_surveys
 
 
-def get_psf(psf_dict, survey, filtr):
-    """Return the PSF model as a galsim object.
+def get_default_galcheat_psf(survey: galcheat.survey.Survey, filtr: galcheat.filter.Filter):
+    """Return the default PSF model as a galsim object based on galcheat survey parameters.
 
     Args:
-        psf_dict (dict): Dictionary containing the parameters of the PSF to simulate. To be read
-            from the config file.
         survey (galcheat.survey.Survey): Survey object from galcheat.
         filtr (galcheat.filter.Filter): Filter object from galcheat.
 
     Returns:
         btk.survey.Survey object or list of such objects.
     """
-    if "type" not in psf_dict:
-        raise AttributeError(
-            f"Your configuration for the PSF in filter {filtr.name} in survey {survey.name}"
-            f"does not have a 'type' field which is required."
-        )
-    if psf_dict["type"] == "default":
-        atmospheric_model = psf_dict["params"]["atmospheric_model"]
-        if isinstance(psf_dict["params"]["psf_fwhm"], dict):
-            psf_fwhm = psf_dict["params"]["psf_fwhm"][filtr.name]
-        else:
-            psf_fwhm = filtr.psf_fwhm
-        psf = get_default_psf(
-            survey.mirror_diameter,
-            survey.effective_area,
-            filtr.central_wavelength,
-            psf_fwhm,
-            atmospheric_model=atmospheric_model,
-        )
-    elif psf_dict["type"] == "galsim":
-        galsim_dict = dict(psf=psf_dict["params"][filtr.name])
-        psf = galsim.config.BuildGSObject(galsim_dict, "psf")
-    else:
-        raise NotImplementedError(
-            f"The 'type' specified for the PSF in filter {filtr.name} in "
-            f"survey {survey.name} is not implemented."
-        )
-
-    return psf
+    return get_default_psf(
+        survey.mirror_diameter.value,
+        survey.effective_area.value,
+        filtr.central_wavelength.value,
+        filtr.psf_fwhm.value,
+        atmospheric_model="Kolmogorov",
+    )
 
 
 def get_default_psf(
@@ -170,9 +147,10 @@ def get_default_psf(
     Args:
         mirror_diameter (float): in meters [m]
         effective_area (float): effective total light collecting area in square meters [m2]
-        filt_wavelength (string): filter wavelength
-        fwhm (float): fwhm of the atmospheric component
-        atmospheric_model (string): type of atmospheric model
+        filt_wavelength (string): filter wavelength in nanometers [nm]
+        fwhm (float): fwhm of the atmospheric component in arcseconds. [arcsec]
+        atmospheric_model (string): type of atmospheric model. Current options:
+            ['Kolmogorov', 'Moffat'].
 
     Returns:
         psf_model: galsim psf model
