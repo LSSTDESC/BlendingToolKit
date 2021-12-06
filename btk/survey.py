@@ -80,7 +80,6 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
 
     btk_surveys = []
     for survey_name in names:
-        print(survey_name)
         survey = galcheat.get_survey(survey_name)
         filters = []
         for band, filtr in survey.get_filters().items():
