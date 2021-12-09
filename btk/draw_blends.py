@@ -250,9 +250,8 @@ class DrawBlendsGenerator(ABC):
 
             input_args = []
             for i in range(0, self.batch_size, mini_batch_size):
-                noise_seed = self.rng.integers(MAX_SEED_INT)  # reproducibility
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s, noise_seed))
+                input_args.append((cat, psf, wcs, s))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -312,7 +311,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, noise_seed, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -356,6 +355,7 @@ class DrawBlendsGenerator(ABC):
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             for b, filt in enumerate(survey.filters):
+                noise_seed = self.rng.integers(MAX_SEED_INT)
                 single_band_output = self.render_blend(
                     blend, psf[b], filt, survey, noise_seed, extra_data[i]
                 )
