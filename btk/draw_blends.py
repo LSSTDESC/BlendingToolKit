@@ -194,7 +194,7 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
-        self.rng = np.random.default_rng(seed)
+        self.seed = seed
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -249,9 +249,12 @@ class DrawBlendsGenerator(ABC):
             wcss[s.name] = wcs
 
             input_args = []
+            ss = np.random.SeedSequence(self.seed)
+            seeds_minibatch = ss.spawn(self.batch_size // mini_batch_size + 1)
+
             for i in range(0, self.batch_size, mini_batch_size):
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s))
+                input_args.append((cat, psf, wcs, s, seeds_minibatch[i // mini_batch_size]))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -311,7 +314,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seeds_minibatch, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -354,10 +357,11 @@ class DrawBlendsGenerator(ABC):
                 (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
+            seeds_blend = seeds_minibatch.spawn(len(survey.filters))
             for b, filt in enumerate(survey.filters):
-                noise_seed = self.rng.integers(MAX_SEED_INT)
+                seed_blend = seeds_blend[b].generate_state(1)
                 single_band_output = self.render_blend(
-                    blend, psf[b], filt, survey, noise_seed, extra_data[i]
+                    blend, psf[b], filt, survey, seed_blend, extra_data[i]
                 )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
