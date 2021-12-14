@@ -314,7 +314,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, seeds_minibatch, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seed_minibatch, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -329,6 +329,8 @@ class DrawBlendsGenerator(ABC):
             psf (list): List of Galsim objects containing the PSF
             wcs (astropy.wcs.WCS): astropy WCS object
             survey (dict): Dictionary containing survey information.
+            seed_minibatch (numpy.random.SeedSequence): Numpy object for generating
+                random seeds (for the noise generation).
             extra_data: This field can be used if some data need to be generated
                 before getting to the step where single galaxies are drawn. It should
                 have a "shape" of (batch_size,n_blend,...) where n_blend is the number
@@ -357,7 +359,7 @@ class DrawBlendsGenerator(ABC):
                 (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
-            seeds_blend = seeds_minibatch.spawn(len(survey.filters))
+            seeds_blend = seed_minibatch.spawn(len(survey.filters))
             for b, filt in enumerate(survey.filters):
                 seed_blend = seeds_blend[b].generate_state(1)
                 single_band_output = self.render_blend(
@@ -394,6 +396,7 @@ class DrawBlendsGenerator(ABC):
             psf: Galsim object containing the psf for the given filter
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
+            noise_seed (int): Seed for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
                 method for more details.
