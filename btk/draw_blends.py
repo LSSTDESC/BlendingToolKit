@@ -361,7 +361,7 @@ class DrawBlendsGenerator(ABC):
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
             seeds_blend = seed_minibatch.spawn(len(survey.filters))
             for b, filt in enumerate(survey.filters):
-                seed_blend = seeds_blend[b].generate_state(1)
+                seed_blend = seeds_blend[b]
                 single_band_output = self.render_blend(
                     blend, psf[b], filt, survey, seed_blend, extra_data[i]
                 )
@@ -396,7 +396,7 @@ class DrawBlendsGenerator(ABC):
             psf: Galsim object containing the psf for the given filter
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
-            noise_seed (int): Seed for the noise generation.
+            noise_seed (numpy.random.SeedSequence): Seed for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
                 method for more details.
@@ -422,7 +422,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=noise_seed)
+            generator = galsim.random.BaseDeviate(seed=noise_seed.generate_state(1))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
