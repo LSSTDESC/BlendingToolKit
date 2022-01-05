@@ -535,26 +535,6 @@ However, BTK still retrieves the ``flux_radius`` information from this catalog, 
 
 4. (optional) One of the two catalogs can contain multiband magnitudes using the format just described.
 
-
-Galsim_Hub tutorial
---------------------
-
-BTK supports galaxy image generation with ``galsim_hub``; please refer to `this page <https://github.com/McWilliamsCenter/galsim_hub>`_ for more details on ``galsim_hub``. Please note that ``galsim_hub`` only works with ``python 3.7``.
-
-The steps for using the galsim_hub generation are very similar to those from the previous section. Before starting this tutorial, you must install ``galsim_hub``, which can be done using pip.
-
-::
-
-  pip install galsim_hub
-
-Alternatively, you can optionally install ``galsim_hub`` along with BTK:
-
-::
-
-  pip install btk[galsim-hub]
-
-You can find a notebook version of this tutorial in this `link <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01c-galsim_hub_tutorial.ipynb>`_.
-
 SCARLET implementation
 -----------------------
 

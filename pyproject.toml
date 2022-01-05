@@ -30,7 +30,6 @@ version = "0.9.3"
 astropy = "~4.3.1"
 autograd = {version = "~1.3", optional = true}
 galsim = "^2.2.4"
-galsim-hub = {version = "0.0.1-rc.4", python = "~3.7", optional = true}
 hydra-core = "^1.0.6"
 ipywidgets = "~7.6.5"
 matplotlib = "~3.4.3"
@@ -44,7 +43,6 @@ scikit-image = "~0.18.3"
 scipy = "~1.6.1"
 seaborn = "~0.11.2"
 sep = "~1.2.0"
-tensorflow = {version = "1.15.5", python = "~3.7", optional = true}
 
 [tool.poetry.dev-dependencies]
 Cython = "~0.29.24"
@@ -87,10 +85,8 @@ testpaths = [
 ]
 
 [tool.poetry.extras]
-galsim-hub = ["galsim-hub", "tensorflow"]
 scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
-galsim-hub = ["galsim-hub", "tensorflow"]
 requires = ["poetry-core>=1.0.0"]

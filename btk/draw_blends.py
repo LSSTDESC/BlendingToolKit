@@ -9,7 +9,6 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
-from astropy.table import Table
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
@@ -330,10 +329,10 @@ class DrawBlendsGenerator(ABC):
             survey (dict): Dictionary containing survey information.
             seedseq_minibatch (numpy.random.SeedSequence): Numpy object for generating
                 random seeds (for the noise generation).
-            extra_data: This field can be used if some data need to be generated
+            extra_data: This field can be used if some data needs to be generated
                 before getting to the step where single galaxies are drawn. It should
-                have a "shape" of (batch_size,n_blend,...) where n_blend is the number
-                of objects in a blend. See GalsimHubGenerator for an example of usage.
+                have a "shape" of (batch_size, n_blend,...) where n_blend is the number
+                of objects in a blend.
 
         Returns:
             `numpy.ndarray` of blend images and isolated galaxy images, along with
@@ -542,107 +541,3 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
-
-
-class GalsimHubGenerator(DrawBlendsGenerator):
-    """Implementation of DrawBlendsGenerator for drawing galaxies simulated with galsim_hub.
-
-    Galsim Hub (https://github.com/McWilliamsCenter/galsim_hub) is a framework
-    for generating real-looking galaxies using deep learning models.
-    """
-
-    compatible_catalogs = ("CosmosCatalog",)
-
-    def check_compatibility(self, survey):
-        """Checks the compatibility between the catalog and a given survey.
-
-        Args:
-            survey (btk.survey.Survey): Survey to check
-        """
-        if type(self.catalog).__name__ not in self.compatible_catalogs:
-            raise ValueError(
-                f"The catalog provided is of the wrong type. The types of "
-                f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
-            )
-
-    def __init__(
-        self,
-        catalog,
-        sampling_function,
-        surveys: list,
-        batch_size=8,
-        stamp_size=24,
-        cpus=1,
-        verbose=False,
-        add_noise=True,
-        shifts=None,
-        indexes=None,
-        channels_last=False,
-        galsim_hub_model="hub:Lanusse2020",
-        param_names=["flux_radius", "mag_auto", "zphot"],
-        save_path=None,
-        seed=DEFAULT_SEED,
-    ):  # noqa: D417
-        """Initializes the GalsimHubGenerator class.
-
-        Args:
-            galsim_hub_model (str): Source of the model to use. Can be
-                    either a distant model or a local one, see the
-                    galsim_hub repo for more information.
-            param_names (list): list of the parameters with which
-                    the generation is parametrized; this is unique to
-                    each model.
-        """
-        super().__init__(
-            catalog,
-            sampling_function,
-            surveys,
-            batch_size=batch_size,
-            stamp_size=stamp_size,
-            cpus=cpus,
-            verbose=verbose,
-            add_noise=add_noise,
-            shifts=shifts,
-            indexes=indexes,
-            channels_last=channels_last,
-            save_path=save_path,
-            seed=seed,
-        )
-        import galsim_hub
-
-        self.galsim_hub_model = galsim_hub.GenerativeGalaxyModel(galsim_hub_model)
-        self.param_names = param_names
-
-    def render_mini_batch(self, blend_list, psf, wcs, survey, seed):
-        """Returns isolated and blended images for blend catalogs in blend_list.
-
-        Here we generate the images for all galaxies in the batch at the same
-        time, since galsim_hub is optimized for batch generation.
-        """
-        galsim_hub_params = Table()
-        for p in self.param_names:
-            column = Column(np.concatenate([blend[p] for blend in blend_list]), p)
-            galsim_hub_params.add_column(column)
-
-        base_images = self.galsim_hub_model.sample(galsim_hub_params)
-        base_images_l = []
-        index = 0
-        for blend in blend_list:
-            base_images_l.append(base_images[index : index + len(blend)])
-            index += len(blend)
-
-        return super().render_mini_batch(blend_list, psf, wcs, survey, seed, base_images_l)
-
-    def render_single(self, entry, filt, psf, survey, extra_data):
-        """Returns the Galsim Image of an isolated galaxy."""
-        base_image = extra_data
-        base_image = galsim.Convolve(base_image, psf)
-        gal_flux = get_flux(entry["ref_mag"], filt, survey)
-        base_image = base_image.withFlux(gal_flux)
-        base_image = base_image.shift(entry["ra"], entry["dec"])
-
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
-        galaxy_image = base_image.drawImage(
-            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale, dtype=np.float64
-        )
-        return galaxy_image
