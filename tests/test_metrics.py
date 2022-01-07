@@ -105,7 +105,7 @@ def test_measure_kwargs(mock_show):
     )
     _, _, results = next(metrics_generator)
     average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.25
+    assert average_precision == 0.3125
 
 
 def test_detection_eff_matrix():

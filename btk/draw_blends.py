@@ -194,7 +194,7 @@ class DrawBlendsGenerator(ABC):
         self.verbose = verbose
         self.channels_last = channels_last
         self.save_path = save_path
-        self.rng = np.random.default_rng(seed)
+        self.seedseq = np.random.SeedSequence(seed)
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -249,10 +249,11 @@ class DrawBlendsGenerator(ABC):
             wcss[s.name] = wcs
 
             input_args = []
+            seedseq_minibatch = self.seedseq.spawn(self.batch_size // mini_batch_size + 1)
+
             for i in range(0, self.batch_size, mini_batch_size):
-                noise_seed = self.rng.integers(MAX_SEED_INT)  # reproducibility
                 cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s, noise_seed))
+                input_args.append((cat, psf, wcs, s, seedseq_minibatch[i // mini_batch_size]))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -312,7 +313,7 @@ class DrawBlendsGenerator(ABC):
             }
         return output
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, noise_seed, extra_data=None):
+    def render_mini_batch(self, blend_list, psf, wcs, survey, seedseq_minibatch, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
 
         Function loops over blend_list and draws blend and isolated images in each
@@ -327,6 +328,8 @@ class DrawBlendsGenerator(ABC):
             psf (list): List of Galsim objects containing the PSF
             wcs (astropy.wcs.WCS): astropy WCS object
             survey (dict): Dictionary containing survey information.
+            seedseq_minibatch (numpy.random.SeedSequence): Numpy object for generating
+                random seeds (for the noise generation).
             extra_data: This field can be used if some data need to be generated
                 before getting to the step where single galaxies are drawn. It should
                 have a "shape" of (batch_size,n_blend,...) where n_blend is the number
@@ -355,9 +358,10 @@ class DrawBlendsGenerator(ABC):
                 (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
             )
             blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
+            seedseq_blend = seedseq_minibatch.spawn(len(survey.filters))
             for b, filt in enumerate(survey.filters):
                 single_band_output = self.render_blend(
-                    blend, psf[b], filt, survey, noise_seed, extra_data[i]
+                    blend, psf[b], filt, survey, seedseq_blend[b], extra_data[i]
                 )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
@@ -371,7 +375,7 @@ class DrawBlendsGenerator(ABC):
             index += len(blend)
         return outputs
 
-    def render_blend(self, blend_catalog, psf, filt, survey, noise_seed, extra_data):
+    def render_blend(self, blend_catalog, psf, filt, survey, seedseq_blend, extra_data):
         """Draws image of isolated galaxies along with the blend image in the single input band.
 
         The WLDeblending package (descwl) renders galaxies corresponding to the
@@ -390,6 +394,7 @@ class DrawBlendsGenerator(ABC):
             psf: Galsim object containing the psf for the given filter
             filt (btk.survey.Filter): BTK Filter object
             survey (btk.survey.Survey): BTK Survey object
+            seedseq_blend (numpy.random.SeedSequence): Seed sequence for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
                 method for more details.
@@ -415,7 +420,7 @@ class DrawBlendsGenerator(ABC):
         if self.add_noise:
             if self.verbose:
                 print("Noise added to blend image")
-            generator = galsim.random.BaseDeviate(seed=noise_seed)
+            generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
             noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             _blend_image.addNoise(noise)
 
