@@ -297,7 +297,7 @@ as None, results will not be saved.</p></li>
 
 <dl class="py method">
 <dt id="btk.draw_blends.DrawBlendsGenerator.render_blend">
-<code class="sig-name descname"><span class="pre">render_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_blend" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">render_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seedseq_blend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_blend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws image of isolated galaxies along with the blend image in the single input band.</p>
 <p>The WLDeblending package (descwl) renders galaxies corresponding to the
 blend_catalog entries and with observing conditions determined by
@@ -315,6 +315,7 @@ If a galaxy was not drawn by descwl, then this flag is set to 1.</p>
 <li><p><strong>psf</strong> – Galsim object containing the psf for the given filter</p></li>
 <li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
 <li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
+<li><p><strong>seedseq_blend</strong> (<em>numpy.random.SeedSequence</em>) – Seed sequence for the noise generation.</p></li>
 <li><p><strong>extra_data</strong> – Special field of shape (n_blend,?), containing
 additional data for drawing the blend. See render_minibatch
 method for more details.</p></li>
@@ -328,7 +329,7 @@ method for more details.</p></li>
 
 <dl class="py method">
 <dt id="btk.draw_blends.DrawBlendsGenerator.render_mini_batch">
-<code class="sig-name descname"><span class="pre">render_mini_batch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_mini_batch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">render_mini_batch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seedseq_minibatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.DrawBlendsGenerator.render_mini_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns isolated and blended images for blend catalogs in blend_list.</p>
 <p>Function loops over blend_list and draws blend and isolated images in each
 band. Even though blend_list was input to the function, we return it since,
@@ -343,6 +344,8 @@ mini_batch_size.</p></li>
 <li><p><strong>psf</strong> (<em>list</em>) – List of Galsim objects containing the PSF</p></li>
 <li><p><strong>wcs</strong> (<em>astropy.wcs.WCS</em>) – astropy WCS object</p></li>
 <li><p><strong>survey</strong> (<em>dict</em>) – Dictionary containing survey information.</p></li>
+<li><p><strong>seedseq_minibatch</strong> (<em>numpy.random.SeedSequence</em>) – Numpy object for generating
+random seeds (for the noise generation).</p></li>
 <li><p><strong>extra_data</strong> – This field can be used if some data need to be generated
 before getting to the step where single galaxies are drawn. It should
 have a “shape” of (batch_size,n_blend,…) where n_blend is the number
