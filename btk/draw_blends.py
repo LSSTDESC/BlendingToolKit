@@ -128,7 +128,7 @@ class DrawBlendsGenerator(ABC):
         stamp_size=24,
         cpus=1,
         verbose=False,
-        add_noise=True,
+        add_noise="all",
         shifts=None,
         indexes=None,
         channels_last=False,
@@ -146,7 +146,11 @@ class DrawBlendsGenerator(ABC):
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
             verbose (bool): Indicates whether additionnal information should be printed
-            add_noise (bool): Indicates if the blends should be generated with noise
+            add_noise (str): Indicates if the blends should be generated with noise.
+                            "all" indicates that all the noise should be applied,
+                            "background" adds only the background noise,
+                            "galaxy" only the galaxy noise, and "none" gives noiseless
+                            images.
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
                            with indexes. Used mostly for internal testing purposes.
@@ -416,15 +420,19 @@ class DrawBlendsGenerator(ABC):
             _blend_image += single_image
 
         # add noise.
-        if self.add_noise:
+        if self.add_noise in ["galaxy", "all"]:
             if self.verbose:
-                print("Noise added to blend image")
+                print("Galaxy noise added to blend image")
+            generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
+            galaxy_noise = galsim.PoissonNoise(rng=generator, sky_level=0.0)
+            _blend_image.addNoise(galaxy_noise)
+        if self.add_noise in ["background", "all"]:
+            if self.verbose:
+                print("Background noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
             background_noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
             noise_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
-            galaxy_noise = galsim.PoissonNoise(rng=generator, sky_level=0.0)
             noise_image.addNoise(background_noise)
-            _blend_image.addNoise(galaxy_noise)
             _blend_image += noise_image
 
         blend_image = _blend_image.array

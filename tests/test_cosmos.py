@@ -30,7 +30,7 @@ def test_cosmos_galaxies():
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,
-        add_noise=True,
+        add_noise="all",
         verbose=True,
     )
 
@@ -51,7 +51,7 @@ def test_cosmos_ext_galaxies():
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,
-        add_noise=True,
+        add_noise="all",
         verbose=True,
     )
 
