@@ -294,61 +294,6 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="btk.sampling_functions.DefaultSamplingGalsimHub">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">DefaultSamplingGalsimHub</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
-<p>Default sampling function used for producing blend tables, esp. for galsim_hub.</p>
-<dl class="py method">
-<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.__call__">
-<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method returning a blend sample from table.</p>
-<p>This sampling function is almost identical to the default one, except that an
-additionnal cut on the flux radius is applied. This is done to avoid having
-galaxies too large being selected, as generating large galaxies causes artifacts
-in galsim_hub images.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table</strong> (<em>Astropy.table</em>) – Table containing entries corresponding to galaxies
-from which to sample.</p></li>
-<li><p><strong>shifts</strong> (<em>list</em>) – Contains arbitrary shifts to be applied instead of random ones.
-Should of the form [dx,dy] where dx and dy are the lists
-containing the x and y shifts.</p></li>
-<li><p><strong>indexes</strong> (<em>list</em>) – Contains the indexes of the galaxies to use.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Astropy.table with entries corresponding to one blend.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize default sampling function for galsim_hub.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
-<li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the desired stamp.</p></li>
-<li><p><strong>maxshift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
-is set as one-tenth the stamp size. (in arcseconds)</p></li>
-<li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.sampling_functions.DefaultSamplingGalsimHub.compatible_catalogs">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingGalsimHub.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defined in parent class.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt id="btk.sampling_functions.GroupSampling">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></code><code class="sig-name descname"><span class="pre">GroupSampling</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>

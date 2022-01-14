@@ -346,10 +346,10 @@ mini_batch_size.</p></li>
 <li><p><strong>survey</strong> (<em>dict</em>) – Dictionary containing survey information.</p></li>
 <li><p><strong>seedseq_minibatch</strong> (<em>numpy.random.SeedSequence</em>) – Numpy object for generating
 random seeds (for the noise generation).</p></li>
-<li><p><strong>extra_data</strong> – This field can be used if some data need to be generated
+<li><p><strong>extra_data</strong> – This field can be used if some data needs to be generated
 before getting to the step where single galaxies are drawn. It should
-have a “shape” of (batch_size,n_blend,…) where n_blend is the number
-of objects in a blend. See GalsimHubGenerator for an example of usage.</p></li>
+have a “shape” of (batch_size, n_blend,…) where n_blend is the number
+of objects in a blend.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -381,63 +381,6 @@ See render_minibatch method for more details.</p></li>
 <dd class="field-even"><p>galsim.Image object</p>
 </dd>
 </dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="btk.draw_blends.GalsimHubGenerator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></code><code class="sig-name descname"><span class="pre">GalsimHubGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_hub_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hub:Lanusse2020'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['flux_radius',</span> <span class="pre">'mag_auto',</span> <span class="pre">'zphot']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.draw_blends.DrawBlendsGenerator</span></code></a></p>
-<p>Implementation of DrawBlendsGenerator for drawing galaxies simulated with galsim_hub.</p>
-<p>Galsim Hub (<a class="reference external" href="https://github.com/McWilliamsCenter/galsim_hub">https://github.com/McWilliamsCenter/galsim_hub</a>) is a framework
-for generating real-looking galaxies using deep learning models.</p>
-<dl class="py method">
-<dt id="btk.draw_blends.GalsimHubGenerator.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_hub_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hub:Lanusse2020'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['flux_radius',</span> <span class="pre">'mag_auto',</span> <span class="pre">'zphot']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the GalsimHubGenerator class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>galsim_hub_model</strong> (<em>str</em>) – Source of the model to use. Can be
-either a distant model or a local one, see the
-galsim_hub repo for more information.</p></li>
-<li><p><strong>param_names</strong> (<em>list</em>) – list of the parameters with which
-the generation is parametrized; this is unique to
-each model.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.draw_blends.GalsimHubGenerator.check_compatibility">
-<code class="sig-name descname"><span class="pre">check_compatibility</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator.check_compatibility" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks the compatibility between the catalog and a given survey.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – Survey to check</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="btk.draw_blends.GalsimHubGenerator.compatible_catalogs">
-<code class="sig-name descname"><span class="pre">compatible_catalogs</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('CosmosCatalog',)</span></em><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator.compatible_catalogs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="btk.draw_blends.GalsimHubGenerator.render_mini_batch">
-<code class="sig-name descname"><span class="pre">render_mini_batch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator.render_mini_batch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns isolated and blended images for blend catalogs in blend_list.</p>
-<p>Here we generate the images for all galaxies in the batch at the same
-time, since galsim_hub is optimized for batch generation.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="btk.draw_blends.GalsimHubGenerator.render_single">
-<code class="sig-name descname"><span class="pre">render_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.GalsimHubGenerator.render_single" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the Galsim Image of an isolated galaxy.</p>
 </dd></dl>
 
 </dd></dl>

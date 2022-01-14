@@ -193,7 +193,6 @@ absolute path to your BTK local repo:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>default</p></li>
-<li><p>galsim_hub</p></li>
 <li><p>group_sampling</p></li>
 <li><p>group_sampling_numbered</p></li>
 </ul>
@@ -236,7 +235,6 @@ add your own config file to <code class="docutils literal notranslate"><span cla
 <div><ul class="simple">
 <li><p>catsim</p></li>
 <li><p>cosmos</p></li>
-<li><p>galsim_hub</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -248,14 +246,6 @@ add your own config file to <code class="docutils literal notranslate"><span cla
 <li><p><code class="docutils literal notranslate"><span class="pre">max_shift</span></code>: Maximum shift of galaxies from the center of each postage stamp in arcseconds.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">add_noise</span></code>: Whether to add (Poisson) noise to the images.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">channels_last</span></code>: Whether to use have images in channel last format (True) or not (False).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">galsim_hub</span></code>: Attribute group consisting of options:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: Which galsim_hub model to use (default: ‘hub:Lanusse2020’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">param_names</span></code>: list of the parameters with which the generation is parametrized; this is unique to each model (default: <code class="docutils literal notranslate"><span class="pre">['flux_radious,</span> <span class="pre">'mag_auto',</span> <span class="pre">'zphot']</span></code>). <strong>NOTE</strong>: This flag is ignored unless <code class="docutils literal notranslate"><span class="pre">draw_blends=galsim_hub</span></code></p></li>
-</ul>
-</div></blockquote>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">measure_kwargs</span></code>: Dictionary or list of dictionaries containing the keyword arguments to be passed in to each measure_function.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">measure_functions</span></code>: List of measure_functions to be ran, options:</p>
 <blockquote>
