@@ -435,7 +435,7 @@ def reconstruction_metrics_blend(
                 skimage.metrics.structural_similarity(
                     np.moveaxis(isolated_images[j], 0, -1),
                     np.moveaxis(deblended_images[match_detected], 0, -1),
-                    multichannel=True,
+                    channel_axis=-1,
                 )
             )
             for k in target_meas.keys():
