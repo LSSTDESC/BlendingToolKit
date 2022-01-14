@@ -1,75 +1,42 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>btk.plot_utils module &mdash; btk 0.9.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="btk.sampling_functions module" href="btk.sampling_functions.html" />
     <link rel="prev" title="btk.metrics module" href="btk.metrics.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> btk
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 0.9
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,17 +44,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
@@ -113,77 +70,38 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">btk</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="btk.html">BlendingToolKit API</a> &raquo;</li>
-        
       <li>btk.plot_utils module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/src/btk.plot_utils.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="btk-plot-utils-module">
-<h1>btk.plot_utils module<a class="headerlink" href="#btk-plot-utils-module" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="btk-plot-utils-module">
+<h1>btk.plot_utils module<a class="headerlink" href="#btk-plot-utils-module" title="Permalink to this headline"></a></h1>
 <p>The plot_utils module contains useful plotting functions.</p>
 <span class="target" id="module-btk.plot_utils"></span><p>Utility functions for plotting and displaying images in BTK.</p>
 <dl class="py function">
-<dt id="btk.plot_utils.get_rgb">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">get_rgb</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.get_rgb">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">get_rgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb" title="Permalink to this definition"></a></dt>
 <dd><p>Function to normalize 3 band input image to RGB 0-255 image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -191,7 +109,7 @@
 <li><p><strong>image</strong> (<em>array_like</em>) – Image array to convert to RGB image with dtype
 uint8 [bands, height, width].</p></li>
 <li><p><strong>min_val</strong> (<em>float32</em><em> or </em><em>3-d float array</em><em>, </em><em>default=`None`</em>) – Pixel values in</p></li>
-<li><p><strong>less than</strong><strong> or </strong><strong>equal to this are set to zero in the RGB output.</strong> (<em>image</em>) – </p></li>
+<li><p><strong>output.</strong> (<em>image less than</em><em> or </em><em>equal to this are set to zero in the RGB</em>) – </p></li>
 <li><p><strong>max_val</strong> (<em>float32</em><em>, </em><em>default=`None`</em>) – Pixel values in image greater than
 or equal to this are set to zero in the RGB output.</p></li>
 </ul>
@@ -203,8 +121,8 @@ or equal to this are set to zero in the RGB output.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.get_rgb_image">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">get_rgb_image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_with_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb_image" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.get_rgb_image">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">get_rgb_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_with_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb_image" title="Permalink to this definition"></a></dt>
 <dd><p>Returns RGB (0-255) image corresponding to the input 3 band image.</p>
 <p>If scarlet.display is imported then the normalization is performed by
 scarlet Asinh function. If not, a basic normalization is performed.</p>
@@ -223,8 +141,8 @@ with [bands, height, width].</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_blends">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_blends</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_blends" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_blends">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_blends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_blends" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images as RGB image, sum in all bands, and RGB image with centers of objects.</p>
 <p>Outputs of btk draw are plotted here. Blend_list must contain true  centers
 of the objects. If detected_centers are input, then the centers are also
@@ -252,8 +170,8 @@ then default value of [1, 2, 3] is used.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_efficiency_matrix">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_efficiency_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eff_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_efficiency_matrix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_efficiency_matrix">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_efficiency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eff_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_efficiency_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Plot detection summary as a matrix of detection efficiency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -271,8 +189,8 @@ is not shown (default is True).</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_gal_parameters">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_gal_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_gal_parameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_gal_parameters">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_gal_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_gal_parameters" title="Permalink to this definition"></a></dt>
 <dd><p>Plots histograms for the magnitude and the size of the galaxies in a batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -287,8 +205,8 @@ Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_metrics_correlation">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_metrics_correlation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_x_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scatter'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_correlation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_metrics_correlation">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_metrics_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_x_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scatter'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_correlation" title="Permalink to this definition"></a></dt>
 <dd><p>Plot a scatter plot between two quantities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,8 +224,8 @@ Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_metrics_distribution">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_metrics_distribution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_distribution" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_metrics_distribution">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_metrics_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_distribution" title="Permalink to this definition"></a></dt>
 <dd><p>Plot an histogram of the distribution with mean and median.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -323,8 +241,8 @@ Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_metrics_summary">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_metrics_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_summary" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_metrics_summary">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_metrics_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'talk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_metrics_summary" title="Permalink to this definition"></a></dt>
 <dd><p>Plot metrics directly from the MetricsGenerator output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -344,8 +262,8 @@ Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_with_deblended">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_with_deblended</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_deblended" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_with_deblended">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_deblended</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_deblended" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images, along with isolated, deblended and residual images of all objects in a blend.</p>
 <p>Outputs of btk draw are plotted here. blend_images, isolated_images and blend_list
 are expected to be the corresponding entries from the output of a DrawBlendsGenerator,
@@ -376,8 +294,8 @@ for RGB images, or one for monochromes images.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.plot_utils.plot_with_isolated">
-<code class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></code><code class="sig-name descname"><span class="pre">plot_with_isolated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.plot_utils.plot_with_isolated">
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_isolated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images and isolated images of all objects in the blend as RGB images.</p>
 <p>Outputs of btk draw are plotted here. Blend_list must contain true  centers
 of the objects.</p>
@@ -401,55 +319,37 @@ then default value of [1, 2, 3] is used.</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="btk.sampling_functions.html" class="btn btn-neutral float-right" title="btk.sampling_functions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="btk.metrics.html" class="btn btn-neutral float-left" title="btk.metrics module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="btk.metrics.html" class="btn btn-neutral float-left" title="btk.metrics module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="btk.sampling_functions.html" class="btn btn-neutral float-right" title="btk.sampling_functions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, btk developers
-
-    </p>
+    <p>&#169; Copyright 2020, btk developers.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

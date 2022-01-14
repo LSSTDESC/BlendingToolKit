@@ -1,76 +1,43 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>btk.metrics module &mdash; btk 0.9.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="btk.plot_utils module" href="btk.plot_utils.html" />
     <link rel="prev" title="btk.measure module" href="btk.measure.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> btk
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 0.9
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,17 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
@@ -114,72 +71,33 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">btk</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="btk.html">BlendingToolKit API</a> &raquo;</li>
-        
       <li>btk.metrics module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/src/btk.metrics.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-btk.metrics">
-<span id="btk-metrics-module"></span><h1>btk.metrics module<a class="headerlink" href="#module-btk.metrics" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="module-btk.metrics">
+<span id="btk-metrics-module"></span><h1>btk.metrics module<a class="headerlink" href="#module-btk.metrics" title="Permalink to this headline"></a></h1>
 <p>Implements a variety of metrics for evaluating measurement results in BTK.</p>
 <p>BTK users are expected to use the MetricsGenerator class, which is initialized by providing
 a MeasureGenerator as well as some parameters. Users which do not want to use the full BTK
@@ -236,13 +154,13 @@ is the standard scalar product on vectors.</p>
 </li>
 </ul>
 <dl class="py class">
-<dt id="btk.metrics.MetricsGenerator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricsGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">target_meas=None</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em>, <em class="sig-param"><span class="pre">distance_threshold_match=5.0</span></em>, <em class="sig-param"><span class="pre">verbose=False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.MetricsGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">MetricsGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generator that calculates metrics on batches returned by the MeasureGenerator.</p>
 <dl class="py method">
-<dt id="btk.metrics.MetricsGenerator.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">measure_generator</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">noise_threshold_factor=3</span></em>, <em class="sig-param"><span class="pre">target_meas=None</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em>, <em class="sig-param"><span class="pre">distance_threshold_match=5.0</span></em>, <em class="sig-param"><span class="pre">verbose=False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.MetricsGenerator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize metrics generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,8 +193,8 @@ true galaxy in pixels.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.auc">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">auc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.auc" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.auc">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.auc" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the average precision metric and plot the Precision-Recall curve.</p>
 <p>The average precision is defined as the area under the precision-recall curve.
 The precision-recall curve is obtained by running the same algorithm with
@@ -295,7 +213,7 @@ evaluated.</p></li>
 <li><p><strong>n_meas</strong> (<em>int</em>) – Number of different kwargs which were given.</p></li>
 <li><p><strong>plot</strong> (<em>bool</em>) – Set to True to plot the precision-recall curve.</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – If plot is True, the results will be</p></li>
-<li><p><strong>on this ax.</strong> (<em>drawn</em>) – </p></li>
+<li><p><strong>ax.</strong> (<em>drawn on this</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -305,8 +223,8 @@ evaluated.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.compute_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">compute_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">isolated_images</span></em>, <em class="sig-param"><span class="pre">blend_list</span></em>, <em class="sig-param"><span class="pre">detection_catalogs</span></em>, <em class="sig-param"><span class="pre">segmentations=None</span></em>, <em class="sig-param"><span class="pre">deblended_images=None</span></em>, <em class="sig-param"><span class="pre">noise_threshold=None</span></em>, <em class="sig-param"><span class="pre">meas_band_num=0</span></em>, <em class="sig-param"><span class="pre">target_meas={}</span></em>, <em class="sig-param"><span class="pre">channels_last=False</span></em>, <em class="sig-param"><span class="pre">save_path=None</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em>, <em class="sig-param"><span class="pre">distance_threshold_match=5.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.compute_metrics">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,8 +285,8 @@ blends and related metrics</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.detection_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">detection_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.detection_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.detection_metrics">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">detection_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.detection_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate detection metrics based on matches from <cite>get_detection_match</cite> function.</p>
 <p>Currently implemented detection metrics include:
 - recall
@@ -396,8 +314,8 @@ the batch (a single blend).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.distance_center">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">distance_center</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_gal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_gal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.distance_center" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.distance_center">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">distance_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_gal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_gal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.distance_center" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the euclidean distance between the two galaxies given as arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -413,8 +331,8 @@ the batch (a single blend).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.get_blendedness">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_blendedness</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_iso_images</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blendedness" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.get_blendedness">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">get_blendedness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_iso_images</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blendedness" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate blendedness given isolated images of each galaxy in a blend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -430,8 +348,8 @@ part of the blend (includes <cite>iso_image</cite>).</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.get_detection_eff_matrix">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_eff_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_eff_matrix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.get_detection_eff_matrix">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">get_detection_eff_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_eff_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the detection efficiency matrix for the input detection summary table.</p>
 <p>Input argument num sets the maximum number of true objects per blend in the
 test set for which the
@@ -459,8 +377,8 @@ will correspond to no true objects.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.get_detection_match">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">get_detection_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">true_table</span></em>, <em class="sig-param"><span class="pre">detected_table</span></em>, <em class="sig-param"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></em>, <em class="sig-param"><span class="pre">distance_threshold_match=5.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.get_detection_match">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">get_detection_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_detection_match" title="Permalink to this definition"></a></dt>
 <dd><p>Uses the Hungarian algorithm to find optimal matching between detections and true objects.</p>
 <p>The optimal matching is computed based on the following optimization problem:</p>
 <div class="math notranslate nohighlight">
@@ -501,8 +419,8 @@ matched detected object. If no match, value is -1.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.meas_ksb_ellipticity">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">meas_ksb_ellipticity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.meas_ksb_ellipticity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.meas_ksb_ellipticity">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">meas_ksb_ellipticity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.meas_ksb_ellipticity" title="Permalink to this definition"></a></dt>
 <dd><p>Utility function to measure ellipticity using the <cite>galsim.hsm</cite> package, with the KSB method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -518,8 +436,8 @@ is done.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.reconstruction_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">reconstruction_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.reconstruction_metrics">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate reconstruction metrics given information from a single batch.</p>
 <p>Currently implemented reconstruction metrics include:
 - Mean Squared Residual (MSR)
@@ -560,8 +478,8 @@ after target_name for each output)).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.reconstruction_metrics_blend">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">reconstruction_metrics_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics_blend" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.reconstruction_metrics_blend">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics_blend" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates reconstruction metrics given information from a single blend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -603,8 +521,8 @@ true and deblended images).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.segmentation_metrics">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">segmentation_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.segmentation_metrics">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">segmentation_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates segmentation metrics given information from a single batch.</p>
 <p>Currently implemented segmentation metrics include:
 - Intersection-over-Union (IOU)</p>
@@ -639,8 +557,8 @@ with one column for each metric (currently: “iou” for IoU).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="btk.metrics.segmentation_metrics_blend">
-<code class="sig-prename descclassname"><span class="pre">btk.metrics.</span></code><code class="sig-name descname"><span class="pre">segmentation_metrics_blend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics_blend" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="btk.metrics.segmentation_metrics_blend">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">segmentation_metrics_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_segmentations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.segmentation_metrics_blend" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates segmentation metrics given information from a single blend.</p>
 <p>The true segmentation is obtained from the isolated images by setting to True
 the pixels above the noise_threshold in the band meas_band_num.</p>
@@ -672,55 +590,37 @@ galaxy.</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="btk.plot_utils.html" class="btn btn-neutral float-right" title="btk.plot_utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="btk.measure.html" class="btn btn-neutral float-left" title="btk.measure module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="btk.measure.html" class="btn btn-neutral float-left" title="btk.measure module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="btk.plot_utils.html" class="btn btn-neutral float-right" title="btk.plot_utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, btk developers
-
-    </p>
+    <p>&#169; Copyright 2020, btk developers.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
