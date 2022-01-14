@@ -25,14 +25,6 @@ max_shift: Null
 add_noise: True
 channels_last: False
 
-# galsim hub
-galsim_hub:
-  model: "hub:Lanusse2020"
-  param_names:
-    - "flux_radius"
-    - "mag_auto"
-    - "zphot"
-
 # measure
 measure_kwargs: Null
 measure_functions:

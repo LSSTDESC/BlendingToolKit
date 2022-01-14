@@ -36,7 +36,7 @@ template: |-
   Here are all the available options for the CLI.
 
   * sampling: Specify the sampling function to be used, options:
-      {default, galsim_hub, group_sampling, group_sampling_numbered}
+      {default, group_sampling, group_sampling_numbered}
 
   * catalog: Attribute group consisting of two sub-attributes.
       * catalog: Name of the BTK catalog class, options: {catsim, cosmos}
@@ -61,7 +61,7 @@ template: |-
       add your own config file to conf/surveys. See the CLI section of the tutorial for
       more details.
 
-    * draw_blends: Which draw_blend_generator to use, options are {catsim, cosmos, galsim_hub}
+    * draw_blends: Which draw_blend_generator to use, options are {catsim, cosmos}
 
     * save_path: Absolute path to a (preferably) empty directory where you would like to save
       results of running BTK.
@@ -79,13 +79,6 @@ template: |-
     * add_noise: Whether to add (Poisson) noise to the images.
 
     * channels_last: Whether to use have images in channel last format (True) or not (False).
-
-    * galsim_hub: Attribute group consisting of options:
-        * model: Which galsim_hub model to use (default: 'hub:Lanusse2020')
-        * param_names: list of the parameters with which the generation is parametrized; this
-          is unique to each model (default: `['flux_radius', 'mag_auto', 'zphot']`).
-
-        NOTE: This flag has no effect unless `draw_blends=galsim_hub`
 
     * measure_kwargs: Dictionary or list of dictionaries containing the keyword arguments to be
         passed in to each measure_function.

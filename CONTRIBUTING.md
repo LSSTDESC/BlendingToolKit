@@ -34,7 +34,7 @@ poetry shell
 pre-commit install
 ```
 
-If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first (inside the `btk37` conda environment), and then try again. Another potential issue might be `tensorflow` and/or `galsim_hub`, if you suspect that might be the problem please create an issue in the BTK github. Note that these two dependencies only work on `python 3.7`.
+If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first (inside the `btk37` conda environment), and then try again.
 
 ## Pull Requests
 
