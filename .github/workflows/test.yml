@@ -47,7 +47,7 @@ jobs:
       - name: Install poetry dependencies
         run: |
           poetry run pip install Cython
-          poetry install --extras "galsim-hub scarlet"
+          poetry install --extras "scarlet"
           poetry run pip install git+https://github.com/pmelchior/scarlet
 
       - name: Run Tests
@@ -56,7 +56,7 @@ jobs:
 
       - name: Run notebooks
         run: |
-          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01c-galsim_hub_tutorial.ipynb" --ignore "notebooks/01b-scarlet-measure.ipynb"
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

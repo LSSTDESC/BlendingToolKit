@@ -32,8 +32,6 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
     - default
 
-    - galsim_hub
-
     - group_sampling
 
     - group_sampling_numbered
@@ -81,8 +79,6 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
     - cosmos
 
-    - galsim_hub
-
 * ``save_path``: Absolute path to a (preferably) empty directory where you would like to save results of running BTK.
 
 * ``cpus``: Number of cpus you would like to use for multiprocessing.
@@ -98,12 +94,6 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 * ``add_noise``: Whether to add (Poisson) noise to the images.
 
 * ``channels_last``: Whether to use have images in channel last format (True) or not (False).
-
-* ``galsim_hub``: Attribute group consisting of options:
-
-    - ``model``: Which galsim_hub model to use (default: 'hub:Lanusse2020')
-
-    - ``param_names``: list of the parameters with which the generation is parametrized; this is unique to each model (default: ``['flux_radious, 'mag_auto', 'zphot']``). **NOTE**: This flag is ignored unless ``draw_blends=galsim_hub``
 
 * ``measure_kwargs``: Dictionary or list of dictionaries containing the keyword arguments to be passed in to each measure_function.
 

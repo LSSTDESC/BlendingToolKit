@@ -16,11 +16,6 @@ The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple
 
 BTK includes an implementation of COSMOS real galaxy rendering, providing the possibility to get more realistic blends.
 
-Galsim_Hub
------------
-Galsim_Hub is a framework for deep learning image generation models, developped by François Lanusse, which is available `in this page <https://github.com/McWilliamsCenter/galsim_hub>`_ .
-
-BTK supports drawing galaxies generated using any galsim_hub compatible model; the default one generates COSMOS-like galaxies and is described in `this paper <https://arxiv.org/abs/2008.03833>`_, but the BTK implementation should be compatible with any model.
 
 .. Cosmo DC2
 .. ---------
