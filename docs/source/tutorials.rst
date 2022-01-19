@@ -286,7 +286,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
       batch_size=8,
       stamp_size=stamp_size,
       cpus=1,
-      add_noise=True,
+      add_noise="all",
       seed=seed
   )
 
@@ -452,7 +452,7 @@ Saving the results can be automatically achieved by providing the save_path argu
       batch_size=100,
       stamp_size=stamp_size,
       cpus=1,
-      add_noise=True,
+      add_noise="all",
       save_path=save_path
   )
   meas_generator = btk.measure.MeasureGenerator(btk.measure.sep_measure,draw_generator,save_path=save_path)
@@ -500,7 +500,7 @@ We can now create the corresponding instance of ``DrawBlendsGenerator``. There i
           batch_size=batch_size,
           stamp_size=stamp_size,
           cpus=1,
-          add_noise=True,
+          add_noise="all",
           verbose=False,
       )
 
