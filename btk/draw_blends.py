@@ -420,13 +420,13 @@ class DrawBlendsGenerator(ABC):
             _blend_image += single_image
 
         # add noise.
-        if self.add_noise in ["galaxy", "all"]:
+        if self.add_noise in ("galaxy", "all"):
             if self.verbose:
                 print("Galaxy noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
             galaxy_noise = galsim.PoissonNoise(rng=generator, sky_level=0.0)
             _blend_image.addNoise(galaxy_noise)
-        if self.add_noise in ["background", "all"]:
+        if self.add_noise in ("background", "all"):
             if self.verbose:
                 print("Background noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
