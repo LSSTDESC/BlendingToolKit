@@ -436,6 +436,7 @@ def reconstruction_metrics_blend(
                     np.moveaxis(isolated_images[j], 0, -1),
                     np.moveaxis(deblended_images[match_detected], 0, -1),
                     channel_axis=-1,
+                    multichannel=True,
                 )
             )
             for k in target_meas.keys():
