@@ -539,7 +539,7 @@ class CosmosGenerator(DrawBlendsGenerator):
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
             gal_type (str): string to specify the type of galaxy simulations. 
-                            Either "real" or "parametric".
+                            Either "real" (default) or "parametric".
         """
         super().__init__(catalog=catalog,
                             sampling_function=sampling_function,
