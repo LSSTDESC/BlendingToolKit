@@ -44,6 +44,6 @@ def test_group_sampling():
     rel_diff1 = (test_batch_max - batch_max) / test_batch_max
     rel_diff2 = (batch_mean - test_batch_mean) / test_batch_mean
     rel_diff3 = (batch_std - test_batch_std) / test_batch_std
-    assert np.all(rel_diff1 <= 0.12)
-    assert np.all(rel_diff2 <= 0.12)
-    assert np.all(rel_diff3 <= 0.12)
+    assert np.all(rel_diff1 <= 0.15)
+    assert np.all(rel_diff2 <= 0.15)
+    assert np.all(rel_diff3 <= 0.15)
