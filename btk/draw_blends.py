@@ -513,9 +513,9 @@ class CosmosGenerator(DrawBlendsGenerator):
         save_path=None,
         seed=DEFAULT_SEED,
         gal_type="real",
-    ): 
+    ):
         """Initializes the CosmosGenerator class.
-        
+
         Args:
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
@@ -538,22 +538,24 @@ class CosmosGenerator(DrawBlendsGenerator):
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
-            gal_type (str): string to specify the type of galaxy simulations. 
+            gal_type (str): string to specify the type of galaxy simulations.
                             Either "real" (default) or "parametric".
         """
-        super().__init__(catalog=catalog,
-                            sampling_function=sampling_function,
-                            surveys=surveys,
-                            batch_size=batch_size,
-                            stamp_size=stamp_size,
-                            cpus=cpus,
-                            verbose=verbose,
-                            add_noise=add_noise,
-                            shifts=shifts,
-                            indexes=indexes,
-                            channels_last=channels_last,
-                            save_path=save_path,
-                            seed=seed)
+        super().__init__(
+            catalog=catalog,
+            sampling_function=sampling_function,
+            surveys=surveys,
+            batch_size=batch_size,
+            stamp_size=stamp_size,
+            cpus=cpus,
+            verbose=verbose,
+            add_noise=add_noise,
+            shifts=shifts,
+            indexes=indexes,
+            channels_last=channels_last,
+            save_path=save_path,
+            seed=seed,
+        )
         self.gal_type = gal_type
 
     compatible_catalogs = ("CosmosCatalog",)
