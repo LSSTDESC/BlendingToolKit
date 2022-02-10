@@ -20,7 +20,7 @@ def test_multiresolution(mock_show):
     stamp_size = 24.0
     batch_size = 8
     cpus = 1
-    add_noise = True
+    add_noise = "all"
     surveys = get_surveys(["Rubin", "HSC"])
 
     catalog = CatsimCatalog.from_file(catalog_name)
