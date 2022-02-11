@@ -13,7 +13,7 @@ TEST_SEED = 0
 def get_draw_generator(
     batch_size=8,
     cpus=1,
-    add_noise=True,
+    add_noise="all",
     fixed_parameters=False,
     sampling_function=None,
 ):
@@ -107,9 +107,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a priori for the default input settings.
         """
-        test_batch_max = np.array([175.012, 1601.121, 7951.862, 11260.612, 9006.189, 5224.317])
-        test_batch_mean = 6.116279698020711
-        test_batch_std = 403.68242694018846
+        test_batch_max = np.array([172.012, 1372.121, 7881.862, 10346.612, 9120.189, 4965.317])
+        test_batch_mean = 6.123635022094785
+        test_batch_std = 403.7842461889957
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
@@ -138,7 +138,7 @@ class TestBasicDraw:
         the r band. This is compared to the values measured a priori for the
         default input settings.
         """
-        test_batch_noise = 128667.07421875
+        test_batch_noise = 128664.3287115097
         batch_noise = np.var(blend_images[1, 2, 0:32, 0:32])
         np.testing.assert_almost_equal(
             batch_noise,
