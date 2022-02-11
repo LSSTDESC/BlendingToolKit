@@ -102,7 +102,8 @@ class CatsimCatalog(Catalog):
 def apply_cosmos_exclusion(
     catalog, catalog_file, use_sample, exclusion_level, min_hlr=0, max_hlr=0, min_flux=0, max_flux=0
 ):
-    """funtion to apply cuts on the cosmos catalogs.
+    """Funtion to apply cuts on the cosmos catalogs.
+
     This function is heavily inspired from the galsim repo
     For more details refer to (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
 
@@ -276,14 +277,14 @@ class CosmosCatalog(Catalog):
     ):
         """Constructs the catalog object from a file. It also places exclusion levels and cuts.
 
-        For more details refer to (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
+        For more details refer: (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
 
         Args:
             catalog_files(list): list containing the two paths to the COSMOS data. Please see
                 the tutorial page for more details
                 (https://lsstdesc.org/BlendingToolKit/tutorials.html#using-cosmos-galaxies).
-            exclusion_level(str): Level of additional cuts to make on the galaxies based on the quality
-                of postage stamp definition and/or parametric fit quality [beyond the
+            exclusion_level(str): Level of additional cuts to make on the galaxies based on the
+                quality of postage stamp definition and/or parametric fit quality [beyond the
                 minimal cuts imposed when making the catalog - see Mandelbaum et
                 al. (2012, MNRAS, 420, 1518) for details].
                 Options:
@@ -296,9 +297,10 @@ class CosmosCatalog(Catalog):
                     subset of the good parametric fits as well.
                 - "marginal": Apply the above cuts, plus ones that eliminate some more
                     marginal cases.
-                Note that the _selection.fits file must be present in the same repo as catalog_files[0]
-                real catalog (catalog_files[0]), Otherwise the "bad_stamp" and "marginal" cuts will fail
+                Note that the _selection.fits file must be present in the same repo as the real
+                images catalog, Otherwise the "bad_stamp" and "marginal" cuts will fail
                 [default: "marginal"]
+            use_sample(str): sample to be used-options: "23.5", "25.2" magnitude cut
             min_hlr(float): Exclude galaxies whose fitted half-light radius is smaller than this
                 value (in arcsec).  [default: 0, meaning no limit]
             max_hlr(float): Exclude galaxies whose fitted half-light radius is larger than this
@@ -309,7 +311,6 @@ class CosmosCatalog(Catalog):
                 [default: 0, meaning no limit]
             verbose: whether to print verbose info.
         """
-
         assert use_sample in ("23.5", "25.2"), 'The options for use_sample are: "23.5" and "25.2"'
 
         assert exclusion_level in (
