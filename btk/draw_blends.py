@@ -507,7 +507,7 @@ class CatsimGenerator(DrawBlendsGenerator):
 
 
 class CosmosGenerator(DrawBlendsGenerator):
-    """Subclass of DrawBlendsGenerator for drawing real or parametric galaxies from the COSMOS catalog."""
+    """Subclass of DrawBlendsGenerator for drawing galaxies from the COSMOS catalog."""
 
     def __init__(
         self,

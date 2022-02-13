@@ -277,7 +277,7 @@ class CosmosCatalog(Catalog):
     ):
         """Constructs the catalog object from a file. It also places exclusion levels and cuts.
 
-        For more details refer: (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
+        For more details: (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
 
         Args:
             catalog_files(list): list containing the two paths to the COSMOS data. Please see
