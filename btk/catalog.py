@@ -109,7 +109,7 @@ class CosmosCatalog(Catalog):
 
     @classmethod
     def from_file(cls, catalog_files, exclusion_level="none", verbose=False):
-        """Constructs the catalog object from a file. It also places exclusion levels and cuts.
+        """Constructs the catalog object from a file. It also places exclusion level cuts.
 
         For more details: (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
 
@@ -133,7 +133,7 @@ class CosmosCatalog(Catalog):
                     marginal cases.
                 Note that the _selection.fits file must be present in the same repo as the real
                 images catalog, Otherwise the "bad_stamp" and "marginal" cuts will fail
-                [default: "marginal"]
+                [default: "none"]
             verbose: whether to print verbose info.
         """
         assert exclusion_level in (
