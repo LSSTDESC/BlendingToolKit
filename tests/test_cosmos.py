@@ -19,7 +19,7 @@ COSMOS_EXT_CATALOG_PATHS = [
 def test_cosmos_galaxies():
     stamp_size = 24.0
     batch_size = 2
-    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS, exclusion_level="none")
     sampling_function = DefaultSampling(stamp_size=stamp_size)
     HST = get_surveys("HST")
 
@@ -40,7 +40,7 @@ def test_cosmos_galaxies():
 def test_cosmos_ext_galaxies():
     stamp_size = 24.0
     batch_size = 2
-    catalog = CosmosCatalog.from_file(COSMOS_EXT_CATALOG_PATHS)
+    catalog = CosmosCatalog.from_file(COSMOS_EXT_CATALOG_PATHS, exclusion_level="none")
     sampling_function = DefaultSampling(stamp_size=stamp_size)
     HST = get_surveys("HST")
 

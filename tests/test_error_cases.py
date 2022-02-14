@@ -252,7 +252,7 @@ def test_incompatible_catalogs():
             add_noise=add_noise,
         )
 
-    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS, exclusion_level="none")
     with pytest.raises(ValueError):
         draw_generator = CatsimGenerator(  # noqa: F841
             catalog,
