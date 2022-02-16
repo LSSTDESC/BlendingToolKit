@@ -54,10 +54,6 @@ jobs:
         run: |
           poetry run pytest --cov=./btk --cov-report=xml --durations=0
 
-      - name: Run notebooks
-        run: |
-          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb"
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
