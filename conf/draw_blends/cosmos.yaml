@@ -12,3 +12,4 @@ indexes: Null
 channels_last: ${channels_last}
 save_path: ${save_path}
 seed: ${seed}
+gal_type: ${gal_type}
