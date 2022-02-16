@@ -1,0 +1,54 @@
+name: notebooks
+
+on:
+  push:
+  schedule:
+    - cron: "0 12 * * MON" #build project everyday at hour 3, minute 7, and hour 15 and minute 7 (aka 3:07 and 15:07)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
+    steps:
+      - name: Checkout github repo (+ download lfs dependencies)
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          pip install --upgrade pip
+          pip install poetry==1.1.11
+
+      - name: Create environment variables
+        run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      - name: Poetry cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('./poetry.lock') }}
+
+      # galsim needs this.
+      - name: Instal FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
+
+      - name: Install poetry dependencies
+        run: |
+          poetry run pip install Cython
+          poetry install --extras "scarlet"
+          poetry run pip install git+https://github.com/pmelchior/scarlet
+
+      - name: Run notebooks
+        run: |
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb"
