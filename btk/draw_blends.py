@@ -348,7 +348,9 @@ class DrawBlendsGenerator(ABC):
 
         if extra_data is None:
             extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
-        for i, blend in tqdm(enumerate(blend_list), total=len(blend_list)):
+        for i, blend in tqdm(
+            enumerate(blend_list), total=len(blend_list), desc="Generating blends"
+        ):
 
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale
