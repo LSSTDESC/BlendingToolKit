@@ -193,6 +193,10 @@ class DrawBlendsGenerator(ABC):
         self.is_multiresolution = len(self.surveys) > 1
 
         self.stamp_size = stamp_size
+
+        noise_options = ("none", "all", "background", "galaxy")
+        if add_noise not in noise_options:
+            raise ValueError(f"The options for add_noise are {noise_options}")
         self.add_noise = add_noise
         self.verbose = verbose
         self.channels_last = channels_last
