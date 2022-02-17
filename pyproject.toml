@@ -43,6 +43,7 @@ scikit-image = ">=0.18.3"
 scipy = ">=1.6.1"
 seaborn = ">=0.11.2"
 sep = ">=1.2.0"
+tqdm = "^4.62.3"
 
 [tool.poetry.dev-dependencies]
 Cython = ">=0.29.24"
