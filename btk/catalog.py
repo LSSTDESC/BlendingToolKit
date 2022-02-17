@@ -136,14 +136,6 @@ class CosmosCatalog(Catalog):
                 [default: "marginal"]
             verbose: whether to print verbose info.
         """
-        assert exclusion_level in (
-            "none",
-            "bad_stamp",
-            "bad_fits",
-            "marginal",
-        ), 'The options for \
-            exclusion_level are: "none", "bad_stamp", "bad_fits", "marginal"'
-
         galsim_catalog = galsim.COSMOSCatalog(catalog_files[0], exclusion_level=exclusion_level)
 
         catalog_coord = astropy.table.Table.read(catalog_files[0])
