@@ -9,7 +9,6 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
-from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
@@ -348,9 +347,7 @@ class DrawBlendsGenerator(ABC):
 
         if extra_data is None:
             extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
-        for i, blend in tqdm(
-            enumerate(blend_list), total=len(blend_list), desc="Generating blends"
-        ):
+        for i, blend in enumerate(blend_list):
 
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale
