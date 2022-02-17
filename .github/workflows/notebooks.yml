@@ -2,7 +2,7 @@ name: notebooks
 
 on:
   schedule:
-    - cron: "0 12 * * MON" #build project everyday at hour 3, minute 7, and hour 15 and minute 7 (aka 3:07 and 15:07)
+    - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
 
 jobs:
   build:
