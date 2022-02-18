@@ -522,7 +522,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         stamp_size=24,
         cpus=1,
         verbose=False,
-        add_noise=True,
+        add_noise="all",
         shifts=None,
         indexes=None,
         channels_last=False,
@@ -541,7 +541,11 @@ class CosmosGenerator(DrawBlendsGenerator):
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
             verbose (bool): Indicates whether additionnal information should be printed
-            add_noise (bool): Indicates if the blends should be generated with noise
+            add_noise (str): Indicates if the blends should be generated with noise.
+                            "all" indicates that all the noise should be applied,
+                            "background" adds only the background noise,
+                            "galaxy" only the galaxy noise, and "none" gives noiseless
+                            images.
             shifts (list): Contains arbitrary shifts to be applied instead of
                            random shifts. Must be of length batch_size. Must be used
                            with indexes. Used mostly for internal testing purposes.
