@@ -9,9 +9,11 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
+from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
+from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
 from btk.survey import get_flux
 from btk.survey import get_mean_sky_level
@@ -351,7 +353,12 @@ class DrawBlendsGenerator(ABC):
 
         if extra_data is None:
             extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
-        for i, blend in enumerate(blend_list):
+
+        # prepare progress bar description
+        process_id = get_current_process()
+        main_desc = f"Generating blends for {survey.name} survey"
+        desc = main_desc if process_id == "main" else f"{main_desc} in process id {process_id}"
+        for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
 
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale
