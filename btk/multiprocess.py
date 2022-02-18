@@ -18,6 +18,13 @@ def _starmap_with_kwargs(fn, args_iter, kwargs_iter):
     return starmap(_apply_args_and_kwargs, args_for_starmap)
 
 
+def get_current_process():
+    """Return ID of current process or 'main' if no multiprocessing."""
+    if mp.current_process().name == "MainProcess":
+        return "main"
+    return mp.current_process().ident
+
+
 def multiprocess(fn, args_iter, kwargs_iter=None, cpus=1, verbose=False):
     """Sole function that implements multiprocessing across mini-batches/batches for BTK.
 
