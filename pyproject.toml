@@ -80,7 +80,7 @@ filterwarnings = [
   "ignore:numpy.ufunc size changed:RuntimeWarning",
   "ignore:Creating an ndarray from ragged:numpy.VisibleDeprecationWarning",
   "ignore:numpy.ndarray size changed, may indicate binary incompatibility. Expected 80 from C header, got 88 from PyObject:RuntimeWarning:",
-  "ignore:The (fspath: py.path.local) argument to IPyNbFile is deprecated. Please use the (path: pathlib.Path) argument instead.:PytestRemovedIn8Warning",
+  "ignore:.*argument to IPyNbFile is deprecated.*:pytest.PytestRemovedIn8Warning",
 ]
 minversion = "6.0"
 testpaths = [
