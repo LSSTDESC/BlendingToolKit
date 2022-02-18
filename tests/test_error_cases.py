@@ -43,7 +43,7 @@ def test_sampling_no_max_number():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        add_noise = True
+        add_noise = "all"
 
         catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction()
@@ -74,7 +74,7 @@ def test_sampling_incompatible_catalog():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        add_noise = True
+        add_noise = "all"
 
         catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
@@ -110,7 +110,7 @@ def test_sampling_too_much_objects():
         stamp_size = 24.0
         batch_size = 8
         cpus = 1
-        add_noise = True
+        add_noise = "all"
 
         catalog = CatsimCatalog.from_file(CATALOG_PATH)
         sampling_function = TestSamplingFunction(max_number=5)
