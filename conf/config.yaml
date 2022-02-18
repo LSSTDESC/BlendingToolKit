@@ -22,7 +22,7 @@ batch_size: 24
 max_number: 2
 stamp_size: 24.0
 max_shift: Null
-add_noise: True
+add_noise: "all"
 channels_last: False
 
 # measure
