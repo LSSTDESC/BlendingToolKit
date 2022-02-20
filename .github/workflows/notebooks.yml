@@ -1,13 +1,8 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: lint
+name: notebooks
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  schedule:
+    - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
 
 jobs:
   build:
@@ -17,7 +12,7 @@ jobs:
         python-version: [3.7, 3.8]
 
     steps:
-      - name: Checkout github repo
+      - name: Checkout github repo (+ download lfs dependencies)
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -27,13 +22,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Create environment variables
-        run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
       - name: Install Poetry
         run: |
           pip install --upgrade pip
           pip install poetry==1.1.11
+
+      - name: Create environment variables
+        run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       - name: Poetry cache
         uses: actions/cache@v2
@@ -43,16 +38,16 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('./poetry.lock') }}
 
       # galsim needs this.
-      - name: Instal FFTW + Eigen
+      - name: Instal FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
       - name: Install poetry dependencies
         run: |
           poetry run pip install Cython
-          poetry install
+          poetry install --extras "scarlet"
+          poetry run pip install git+https://github.com/pmelchior/scarlet
 
-      - name: Run pre-commit checks
+      - name: Run notebooks
         run: |
-          poetry run pre-commit install
-          poetry run pre-commit run --all-files
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb"

@@ -2,9 +2,9 @@ name: pytest
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   pull_request:
-    branches: [main, dev]
+    branches: [main]
 
 jobs:
   build:
@@ -53,10 +53,6 @@ jobs:
       - name: Run Tests
         run: |
           poetry run pytest --cov=./btk --cov-report=xml --durations=0
-
-      - name: Run notebooks
-        run: |
-          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
