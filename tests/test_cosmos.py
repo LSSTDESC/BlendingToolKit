@@ -16,7 +16,7 @@ COSMOS_EXT_CATALOG_PATHS = [
 ]
 
 
-def test_cosmos_galaxies():
+def test_cosmos_galaxies_real():
     stamp_size = 24.0
     batch_size = 2
     catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
@@ -32,6 +32,29 @@ def test_cosmos_galaxies():
         cpus=1,
         add_noise="all",
         verbose=True,
+        gal_type="real",
+    )
+
+    _ = next(draw_generator)
+
+
+def test_cosmos_galaxies_parametric():
+    stamp_size = 24.0
+    batch_size = 2
+    catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
+    sampling_function = DefaultSampling(stamp_size=stamp_size)
+    HST = get_surveys("HST")
+
+    draw_generator = CosmosGenerator(
+        catalog,
+        sampling_function,
+        HST,
+        batch_size=batch_size,
+        stamp_size=stamp_size,
+        cpus=1,
+        add_noise="all",
+        verbose=True,
+        gal_type="parametric",
     )
 
     _ = next(draw_generator)
@@ -40,7 +63,7 @@ def test_cosmos_galaxies():
 def test_cosmos_ext_galaxies():
     stamp_size = 24.0
     batch_size = 2
-    catalog = CosmosCatalog.from_file(COSMOS_EXT_CATALOG_PATHS)
+    catalog = CosmosCatalog.from_file(COSMOS_EXT_CATALOG_PATHS, exclusion_level="none")
     sampling_function = DefaultSampling(stamp_size=stamp_size)
     HST = get_surveys("HST")
 

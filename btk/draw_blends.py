@@ -518,7 +518,72 @@ class CatsimGenerator(DrawBlendsGenerator):
 
 
 class CosmosGenerator(DrawBlendsGenerator):
-    """Subclass of DrawBlendsGenerator for drawing real galaxies from the COSMOS catalog."""
+    """Subclass of DrawBlendsGenerator for drawing galaxies from the COSMOS catalog."""
+
+    def __init__(
+        self,
+        catalog,
+        sampling_function,
+        surveys: list,
+        batch_size=8,
+        stamp_size=24,
+        cpus=1,
+        verbose=False,
+        add_noise="all",
+        shifts=None,
+        indexes=None,
+        channels_last=False,
+        save_path=None,
+        seed=DEFAULT_SEED,
+        gal_type="real",
+    ):
+        """Initializes the CosmosGenerator class.
+
+        Args:
+            catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
+            sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
+                function to use.
+            surveys (list): List of btk Survey objects defining the observing conditions
+            batch_size (int): Number of blends generated per batch
+            stamp_size (float): Size of the stamps, in arcseconds
+            cpus (int): Number of cpus to use; defines the number of minibatches
+            verbose (bool): Indicates whether additionnal information should be printed
+            add_noise (str): Indicates if the blends should be generated with noise.
+                            "all" indicates that all the noise should be applied,
+                            "background" adds only the background noise,
+                            "galaxy" only the galaxy noise, and "none" gives noiseless
+                            images.
+            shifts (list): Contains arbitrary shifts to be applied instead of
+                           random shifts. Must be of length batch_size. Must be used
+                           with indexes. Used mostly for internal testing purposes.
+            indexes (list): Contains the ids of the galaxies to use in the stamp.
+                        Must be of length batch_size. Must be used with shifts.
+                        Used mostly for internal testing purposes.
+            channels_last (bool): Whether to return images as numpy arrays with the channel
+                                (band) dimension as the last dimension or before the pixels
+                                dimensions (default).
+            save_path (str): Path to a directory where results will be saved. If left
+                            as None, results will not be saved.
+            seed (int): Integer seed for reproducible random noise realizations.
+            gal_type (str): string to specify the type of galaxy simulations.
+                            Either "real" (default) or "parametric".
+        """
+        super().__init__(
+            catalog=catalog,
+            sampling_function=sampling_function,
+            surveys=surveys,
+            batch_size=batch_size,
+            stamp_size=stamp_size,
+            cpus=cpus,
+            verbose=verbose,
+            add_noise=add_noise,
+            shifts=shifts,
+            indexes=indexes,
+            channels_last=channels_last,
+            save_path=save_path,
+            seed=seed,
+        )
+        self.gal_type = gal_type
 
     compatible_catalogs = ("CosmosCatalog",)
 
@@ -553,7 +618,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             gal_flux = get_flux(entry["ref_mag"], filt, survey)
 
         gal = galsim_catalog.makeGalaxy(
-            entry["btk_index"], gal_type="real", noise_pad_size=0
+            entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
