@@ -50,5 +50,5 @@ repos:
     rev: 0.5.0
     hooks:
       - id: nbstripout
-      - args:
+        args:
           - --keep-output
