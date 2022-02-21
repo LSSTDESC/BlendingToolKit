@@ -250,7 +250,7 @@ def get_mean_sky_level(survey, filt):
     Returns:
         Corresponding mean sky level
     """
-    return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale ** 2
+    return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale**2
 
 
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):

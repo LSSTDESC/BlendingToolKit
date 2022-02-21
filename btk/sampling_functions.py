@@ -188,7 +188,7 @@ class BasicSampling(SamplingFunction):
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         # keep number density of objects constant
-        maxshift = self.stamp_size / 30.0 * number_of_objects ** 0.5
+        maxshift = self.stamp_size / 30.0 * number_of_objects**0.5
         x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, maxshift, self.rng)
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
