@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.1.0
     hooks:
       - id: trailing-whitespace
         exclude: ^.*fits
@@ -14,18 +14,18 @@ repos:
       - id: end-of-file-fixer
         exclude: ^.*fits
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 22.1.0
     hooks:
       - id: black
         language_version: python3
         args:
           - "--line-length=100"
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.4.0
+    rev: v2.7.1
     hooks:
       - id: reorder-python-imports
   - repo: https://github.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 4.0.1
     hooks:
       - id: flake8
         args: # arguments to configure flake8
@@ -35,7 +35,7 @@ repos:
           - "--ignore=E203, W503"
           - "--exclude=btk/__init__.py"
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.0.0 # pick a git hash / tag to point to
+    rev: 6.1.1 # pick a git hash / tag to point to
     hooks:
       - id: pydocstyle
         args:
@@ -46,3 +46,9 @@ repos:
               ^conftest.py|
               ^tests/
           )
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.5.0
+    hooks:
+      - id: nbstripout
+        args:
+          - --keep-output
