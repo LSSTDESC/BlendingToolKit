@@ -1,8 +1,8 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from collections import Callable
 from collections import namedtuple
+from collections.abc import Callable
 
 import astropy.wcs as WCS
 import galcheat
@@ -135,12 +135,13 @@ def get_default_galcheat_psf(survey: galcheat.survey.Survey, filtr: galcheat.fil
     Returns:
         btk.survey.Survey object or list of such objects.
     """
+    filt_wavelength = _central_wavelenghts[filtr.name]
     return get_default_psf(
         survey.mirror_diameter.value,
         survey.effective_area.value,
         filtr.psf_fwhm.value,
+        filt_wavelength=filt_wavelength,
         atmospheric_model="Kolmogorov",
-        filter_band=filtr.name,
     )
 
 
@@ -148,8 +149,8 @@ def get_default_psf(
     mirror_diameter,
     effective_area,
     fwhm,
+    filt_wavelength,
     atmospheric_model="Kolmogorov",
-    filter_band="r",
 ):
     """Defines a synthetic galsim PSF model.
 
@@ -166,8 +167,6 @@ def get_default_psf(
     Returns:
         psf_model: galsim psf model
     """
-    filt_wavelength = _central_wavelenghts[filter_band]
-
     # define atmospheric psf
     if atmospheric_model == "Kolmogorov":
         atmospheric_psf_model = galsim.Kolmogorov(fwhm=fwhm)

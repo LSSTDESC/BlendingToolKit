@@ -10,7 +10,7 @@ from btk.draw_blends import SourceNotVisible
 from btk.sampling_functions import DefaultSampling
 from btk.sampling_functions import SamplingFunction
 from btk.survey import Filter
-from btk.survey import get_psf
+from btk.survey import get_default_psf
 from btk.survey import get_psf_from_file
 from btk.survey import get_surveys
 
@@ -131,7 +131,7 @@ def test_sampling_too_much_objects():
 def test_source_not_visible():
     filt = Filter(
         name="u",
-        psf=get_psf(
+        psf=get_default_psf(
             mirror_diameter=8.36,
             effective_area=32.4,
             filt_wavelength=3592.13,
@@ -144,9 +144,7 @@ def test_source_not_visible():
     )
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(SourceNotVisible):
-        gal = get_catsim_galaxy(  # noqa: F841
-            catalog.table[0], filt, get_surveys("Rubin"), True, True, True
-        )
+        get_catsim_galaxy(catalog.table[0], filt, get_surveys("Rubin"), True, True, True)
 
 
 def test_survey_not_list():
@@ -167,18 +165,18 @@ def test_survey_not_list():
             cpus=cpus,
             add_noise=add_noise,
         )
-        draw_output = next(draw_generator)  # noqa: F841
+        next(draw_generator)
 
 
 def test_psf():
-    get_psf(
+    get_default_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
         fwhm=0.748,
         atmospheric_model="Moffat",
     )
-    get_psf(
+    get_default_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
@@ -186,7 +184,7 @@ def test_psf():
         atmospheric_model=None,
     )
     with pytest.raises(NotImplementedError) as excinfo:
-        get_psf(
+        get_default_psf(
             mirror_diameter=8.36,
             effective_area=32.4,
             filt_wavelength=7528.51,
@@ -197,12 +195,12 @@ def test_psf():
     assert "atmospheric model request" in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        get_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
+        get_default_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
 
     assert "Incompatible effective-area and mirror-diameter values." in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        get_psf(
+        get_default_psf(
             mirror_diameter=0,
             effective_area=0,
             filt_wavelength=7528.51,
@@ -214,7 +212,7 @@ def test_psf():
         excinfo.value
     )
 
-    get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
+    get_default_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
     get_psf_from_file("tests/example_psf", get_surveys("Rubin"))
     get_psf_from_file("tests/multi_psf", get_surveys("Rubin"))
@@ -242,7 +240,7 @@ def test_incompatible_catalogs():
         )
     with pytest.raises(ValueError):
         # Missing filter
-        draw_generator = CatsimGenerator(  # noqa: F841
+        CatsimGenerator(
             catalog,
             sampling_function,
             get_surveys("HST"),
@@ -254,7 +252,7 @@ def test_incompatible_catalogs():
 
     catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS, exclusion_level="none")
     with pytest.raises(ValueError):
-        draw_generator = CatsimGenerator(  # noqa: F841
+        CatsimGenerator(
             catalog,
             sampling_function,
             get_surveys("Rubin"),
