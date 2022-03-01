@@ -71,20 +71,20 @@ git push origin release/0.1.0
 
 # 6. Opened a "pull request" in GitHub for team to verify the release
 
-# 7. Checkout into master branch
-git checkout master
+# 7. Checkout into main branch
+git checkout main
 
-# 8. Updated local master branch with remote copy
-git pull origin master
+# 8. Updated local main branch with remote copy
+git pull origin main
 
-# 9. Merged release branch into master branch
+# 9. Merged release branch into main branch
 git merge release/0.1.0
 
 # 10. Tagged the release point by creating a new tag
 git tag -a 0.1.0 -m 'Create release tag 0.1.0'
 
-# 11. Pushed master branch to remote repository
-git push origin master
+# 11. Pushed main branch to remote repository
+git push origin main
 
 # 12. Pushed the tags to remote repository
 git push origin --tags
