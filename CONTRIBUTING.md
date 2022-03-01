@@ -6,13 +6,13 @@ Please makes sure to complete the following steps if you are interested in contr
 
 1. Start by git cloning the `BTK` repository:
 
-```
-git clone https://github.com/LSSTDESC/BlendingToolKit.git
-```
+    ```bash
+    git clone https://github.com/LSSTDESC/BlendingToolKit.git
+    ```
 
 2. It is highly recommended that you use `conda+poetry` to manage the python environment for developing BTK. The following commands should install and activate a `btk` python environment managed by `poetry`:
 
-```
+```bash
 cd BlendingToolKit
 
 # you can skip this step if you already have a new conda environment specifically for BTK.
@@ -50,11 +50,11 @@ If you have any problems with the installation, they are probably due to `galsim
 
 3. If other branches were merged while you were working on this PR to the `main` branch, then you will to rebase before merging:
 
-```
-git rebase origin/main
-# follow the instructions and resolve conflicts...
-# Feel free to ask other developers if you are not sure of the conflicts.
-git push --force
-```
+    ```bash
+    git rebase origin/main
+    # follow the instructions and resolve conflicts...
+    # Feel free to ask other developers if you are not sure of the conflicts.
+    git push --force
+    ```
 
 4. Finally, ask for at least one approving review from [@ismael-mendoza](https://github.com/ismael-mendoza) or other collaborators.
