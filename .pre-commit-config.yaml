@@ -52,3 +52,4 @@ repos:
       - id: nbstripout
         args:
           - --keep-output
+          - --keep-count
