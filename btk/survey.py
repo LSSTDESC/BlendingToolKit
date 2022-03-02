@@ -94,7 +94,8 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
     for survey_name in names:
         survey = galcheat.get_survey(survey_name)
         filters = []
-        for band, filtr in survey.get_filters().items():
+        for band in survey.available_filters:
+            filtr = survey.get_filter(band)
             if psf_func is None:
                 psf = get_default_galcheat_psf(survey, filtr)
             else:
