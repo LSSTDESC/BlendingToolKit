@@ -60,10 +60,10 @@ import galsim
 import matplotlib.pyplot as plt
 import numpy as np
 import skimage.metrics
+from galcheat.utilities import mean_sky_level
 from scipy.optimize import linear_sum_assignment
 
 from btk.measure import MeasureGenerator
-from btk.survey import get_mean_sky_level
 from btk.utils import reverse_dictionary_dictionary
 
 
@@ -755,7 +755,7 @@ class MetricsGenerator:
                         "verbose": self.verbose,
                     }
                     noise_threshold = self.noise_threshold_factor * np.sqrt(
-                        get_mean_sky_level(surveys[i], surveys[i].filters[meas_band_num[i]])
+                        mean_sky_level(surveys[i].name, surveys[i].filters[meas_band_num[i]].name)
                     )
                     target_meas = {}
                     for k in self.target_meas.keys():
@@ -787,7 +787,7 @@ class MetricsGenerator:
                     "verbose": self.verbose,
                 }
                 noise_threshold = self.noise_threshold_factor * np.sqrt(
-                    get_mean_sky_level(surveys[0], surveys[0].filters[meas_band_num])
+                    mean_sky_level(surveys[0].name, surveys[0].filters[meas_band_num].name)
                 )
                 target_meas = {}
                 for k in self.target_meas.keys():
