@@ -17,7 +17,6 @@ Survey = namedtuple(
         "pixel_scale",  # arcseconds per pixel
         "effective_area",  # Effective total light collecting area in square meters [m2]
         "mirror_diameter",  # in meters [m]
-        "airmass",  # Optical path length through atmosphere relative to zenith path length.
         "zeropoint_airmass",
         "filters",
     ],
@@ -31,7 +30,6 @@ Args:
     pixel_scale (float): Pixel scale of the survey, in arcseconds per pixel
     effective_area (float): Effective total light collecting area, in square meters
     mirror_diameter (float): Diameter of the primary mirror, in meters
-    airmass (float): Optical path length through atmosphere relative to zenith path length
     zeropoint_airmass (float) Airmass at which the zeropoint is measured
     filters (list): List of Filter objects corresponding to the filters of this survey"""
 
@@ -43,7 +41,6 @@ Filter = namedtuple(
         "sky_brightness",  # mags/sq.arcsec
         "exp_time",  # in seconds [s]
         "zeropoint",  # in mags
-        "extinction",  # Exponential extinction coefficient for atmospheric absorption.
     ],
 )
 
@@ -57,10 +54,10 @@ Args:
     sky_brightness (float): Sky brightness, in mags/sq.arcsec
     exp_time (int): Total exposition time, in seconds
     zeropoint (float): Magnitude of an object with a measured flux of 1 electron per second
-    extinction (float): Exponential extinction coefficient for atmospheric absorption"""
+    """
 
 
-def get_surveys(names="Rubin", psf_func: Callable = None):
+def get_surveys(names="LSST", psf_func: Callable = None):
     """Return specified surveys as `btk.survey.Survey` objects.
 
     Args:
@@ -94,7 +91,6 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
                 filtr.sky_brightness.value,
                 filtr.exposure_time.value,
                 filtr.zeropoint.value,
-                filtr.extinction.value,
             )
             filters.append(btk_filter)
 
@@ -103,7 +99,6 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
             survey.pixel_scale.value,
             survey.effective_area.value,
             survey.mirror_diameter.value,
-            survey.airmass.value,
             survey.zeropoint_airmass.value,
             filters,
         )
