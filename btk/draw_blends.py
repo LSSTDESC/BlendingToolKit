@@ -9,14 +9,14 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
+from galcheat.utilies import mag2count
+from galcheat.utilies import mean_sky_level
 from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
-from btk.survey import get_flux
-from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
 from btk.survey import Survey
 
@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
+    total_flux = mag2count(entry[filt.name + "_ab"], survey.name, filt.name)
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -417,7 +417,7 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        mean_sky_level = get_mean_sky_level(survey, filt)
+        sky_level = mean_sky_level(survey.name, filt.name)
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
@@ -441,7 +441,7 @@ class DrawBlendsGenerator(ABC):
             if self.verbose:
                 print("Background noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
-            background_noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
+            background_noise = galsim.PoissonNoise(rng=generator, sky_level=sky_level)
             noise_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
             noise_image.addNoise(background_noise)
             _blend_image += noise_image
@@ -613,9 +613,9 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = get_flux(entry[f"{survey.name}_{filt.name}"], filt, survey)
+            gal_flux = mag2count(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name)
         except KeyError:
-            gal_flux = get_flux(entry["ref_mag"], filt, survey)
+            gal_flux = mag2count(entry["ref_mag"], survey.name, filt.name)
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0

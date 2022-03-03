@@ -223,37 +223,6 @@ def get_psf_from_file(psf_dir, survey):
     return psf_model
 
 
-def get_flux(ab_magnitude, filt, survey):
-    """Convert source magnitude to flux.
-
-    The calculation includes the effects of atmospheric extinction.
-    Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
-
-    Args:
-        ab_magnitude(float): AB magnitude of source.
-        filt (btk.survey.Filter): BTK Filter object
-        survey (btk.survey.Survey): BTK Survey object
-
-    Returns:
-        Flux in detected electrons.
-    """
-    mag = ab_magnitude + filt.extinction * (survey.airmass - survey.zeropoint_airmass)
-    return filt.exp_time * 10 ** (-0.4 * (mag - filt.zeropoint))
-
-
-def get_mean_sky_level(survey, filt):
-    """Computes the mean sky level given to Galsim for noise generation.
-
-    Args:
-        survey (btk.survey.Survey): BTK Survey object
-        filt (btk.survey.Filter): BTK Filter object
-
-    Returns:
-        Corresponding mean sky level
-    """
-    return get_flux(filt.sky_brightness, filt, survey) * survey.pixel_scale**2
-
-
 def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
     """Creates WCS for an image.
 
