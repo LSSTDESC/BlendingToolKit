@@ -9,8 +9,8 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
-from galcheat.utilies import mag2count
-from galcheat.utilies import mean_sky_level
+from galcheat.utilities import mag2counts
+from galcheat.utilities import mean_sky_level
 from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = mag2count(entry[filt.name + "_ab"], survey.name, filt.name)
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name)
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -613,9 +613,9 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = mag2count(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name)
+            gal_flux = mag2counts(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name)
         except KeyError:
-            gal_flux = mag2count(entry["ref_mag"], survey.name, filt.name)
+            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name)
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
