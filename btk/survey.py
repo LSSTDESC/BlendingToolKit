@@ -10,18 +10,6 @@ import galsim
 import numpy as np
 from astropy.io import fits
 
-# FIXME: Use galcheat values when available
-_central_wavelenghts = {
-    "u": 3592.13,
-    "g": 4789.98,
-    "r": 6199.52,
-    "i": 7528.51,
-    "z": 8689.83,
-    "y": 9674.05,
-    "VIS": 7135.0,
-    "f814w": 5000.0,
-}
-
 Survey = namedtuple(
     "Survey",
     [
@@ -138,12 +126,11 @@ def get_default_psf_with_galcheat_info(
     Returns:
         btk.survey.Survey object or list of such objects.
     """
-    filt_wavelength = _central_wavelenghts[filtr.name]
     return get_default_psf(
         survey.mirror_diameter.value,
         survey.effective_area.value,
         filtr.psf_fwhm.value,
-        filt_wavelength=filt_wavelength,
+        filt_wavelength=filtr.effective_wavelength.value,
         atmospheric_model="Kolmogorov",
     )
 
