@@ -16,7 +16,7 @@ def get_group_sampling_draw_generator(batch_size=3):
 
     max_number = 10
     stamp_size = 24
-    survey = get_surveys("Rubin")
+    survey = get_surveys("LSST")
     pixel_scale = 0.2
     shift = [0.8, -0.7]
     catalog = CatsimCatalog.from_file(catalog_name)

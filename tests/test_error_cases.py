@@ -50,7 +50,7 @@ def test_sampling_no_max_number():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -81,7 +81,7 @@ def test_sampling_incompatible_catalog():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -117,7 +117,7 @@ def test_sampling_too_much_objects():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -140,11 +140,10 @@ def test_source_not_visible():
         sky_brightness=22.9,
         exp_time=1680,
         zeropoint=9.16,
-        extinction=0.451,
     )
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(SourceNotVisible):
-        get_catsim_galaxy(catalog.table[0], filt, get_surveys("Rubin"), True, True, True)
+        get_catsim_galaxy(catalog.table[0], filt, get_surveys("LSST"), True, True, True)
 
 
 def test_survey_not_list():
@@ -214,8 +213,8 @@ def test_psf():
 
     get_default_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
-    get_psf_from_file("tests/example_psf", get_surveys("Rubin"))
-    get_psf_from_file("tests/multi_psf", get_surveys("Rubin"))
+    get_psf_from_file("tests/example_psf", get_surveys("LSST"))
+    get_psf_from_file("tests/multi_psf", get_surveys("LSST"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git
 
 
@@ -232,7 +231,7 @@ def test_incompatible_catalogs():
         draw_generator = CosmosGenerator(  # noqa: F841
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -255,7 +254,7 @@ def test_incompatible_catalogs():
         CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,

@@ -11,7 +11,7 @@ Assuming that BTK has been pip installed, you can run btk from the command line 
 
 .. code-block::
 
-    btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1 verbose=False surveys=[Rubin, HST] surveys.Rubin.airmass=1.1
+    btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1 verbose=False surveys=[LSST, HST] surveys.LSST.airmass=1.1
     sampling=default catalog.name=catsim use_metrics=['detection', 'segmentation'] (...)
 
 You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the ``save_path`` argument.
@@ -44,7 +44,7 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
 * ``surveys``: Name of the survey(s) you want to use, options are:
 
-      - Rubin
+      - LSST
 
       - HST
 
@@ -61,14 +61,14 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
       .. code-block::
 
-          btk surveys=[Rubin,HST] (...)
+          btk surveys=[LSST,HST] (...)
 
-      Assuming that you want to use e.g. the Rubin survey default parameters but some changes you can modify individual parameters of this survey directly from the
+      Assuming that you want to use e.g. the LSST survey default parameters but some changes you can modify individual parameters of this survey directly from the
       command line:
 
       .. code-block::
 
-          btk surveys=Rubin surveys.Rubin.airmass=1.1 (...)
+          btk surveys=LSST surveys.LSST.airmass=1.1 (...)
 
       If you want to modify a large number of parameters of a given survey, it might be easier to
       add your own config file to ``conf/surveys``. See below for instructions on how to do this.
@@ -124,8 +124,6 @@ needs to be the *unique* name of your survey and the corresponding fields
 
     - mirror_diameter
 
-    - airmass
-
     - zeropoint_airmass
 
     - filters
@@ -139,8 +137,6 @@ are required. You should have at least one filter with the fields:
     - exp_time
 
     - zeropoint
-
-    - extinction
 
     - psf
 

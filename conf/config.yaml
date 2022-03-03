@@ -35,7 +35,7 @@ distance_threshold_match: 5.0
 
 ### organize arguments ###
 surveys:
-  - "Rubin"
+  - "LSST"
 
 measure:
   measure_functions: ${measure_functions}

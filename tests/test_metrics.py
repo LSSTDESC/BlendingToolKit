@@ -27,7 +27,7 @@ def get_metrics_generator(
     """Returns draw generator with group sampling function"""
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
-    survey = get_surveys("Rubin")
+    survey = get_surveys("LSST")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],

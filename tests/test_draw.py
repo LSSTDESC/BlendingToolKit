@@ -43,7 +43,7 @@ def get_draw_generator(
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function,
-        get_surveys("Rubin"),
+        get_surveys("LSST"),
         batch_size=batch_size,
         stamp_size=stamp_size,
         shifts=shifts,

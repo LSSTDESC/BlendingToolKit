@@ -21,7 +21,7 @@ def test_multiresolution(mock_show):
     batch_size = 8
     cpus = 1
     add_noise = "all"
-    surveys = get_surveys(["Rubin", "HSC"])
+    surveys = get_surveys(["LSST", "HSC"])
 
     catalog = CatsimCatalog.from_file(catalog_name)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
@@ -41,22 +41,22 @@ def test_multiresolution(mock_show):
     )
     blend_results, measure_results, metrics_results = next(metrics_generator)
 
-    assert "Rubin" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
+    assert "LSST" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
     assert "HSC" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert blend_results["blend_images"]["Rubin"][0].shape[-1] == int(
+    assert blend_results["blend_images"]["LSST"][0].shape[-1] == int(
         24.0 / 0.2
-    ), "Rubin survey should have a pixel scale of 0.2"
+    ), "LSST survey should have a pixel scale of 0.2"
     assert blend_results["blend_images"]["HSC"][0].shape[-1] == int(
         24.0 / 0.167
     ), "HSC survey should have a pixel scale of 0.167"
     assert (
-        "Rubin" in measure_results["catalog"]["sep_measure"].keys()
+        "LSST" in measure_results["catalog"]["sep_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
         "HSC" in measure_results["catalog"]["sep_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
-        "Rubin" in metrics_results["galaxy_summary"]["sep_measure"].keys()
+        "LSST" in metrics_results["galaxy_summary"]["sep_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
         "HSC" in metrics_results["galaxy_summary"]["sep_measure"].keys()
