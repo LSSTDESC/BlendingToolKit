@@ -97,7 +97,7 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
-                psf = get_default_galcheat_psf(survey, filtr)
+                psf = get_default_psf_with_galcheat_info(survey, filtr)
             else:
                 psf = psf_func(survey, filtr)
             btk_filter = Filter(
@@ -126,7 +126,9 @@ def get_surveys(names="Rubin", psf_func: Callable = None):
     return btk_surveys
 
 
-def get_default_galcheat_psf(survey: galcheat.survey.Survey, filtr: galcheat.filter.Filter):
+def get_default_psf_with_galcheat_info(
+    survey: galcheat.survey.Survey, filtr: galcheat.filter.Filter
+):
     """Return the default PSF model as a galsim object based on galcheat survey parameters.
 
     Args:
