@@ -27,7 +27,7 @@ template: |-
   Assuming that BTK has been pip installed, you can run btk from the command line like e.g.
 
   btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1
-    verbose=False surveys=[LSST,HST] surveys.LSST.zeropoint_airmass=1.1
+    verbose=False surveys=[LSST,COSMOS] surveys.LSST.zeropoint_airmass=1.1
     sampling=default catalog.name=catsim use_metrics=['detection', 'segmentation'] (...)
 
   You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the `save_path` parameter.
@@ -45,11 +45,11 @@ template: |-
           a list. (see documentation for more details).
 
     * surveys: Name of the survey(s) you want to use, options are
-      {LSST, HST, HSC, DES, CFHT, Euclid} and correspond to each of the config files available
+      {LSST, COSMOS, HSC, DES, CFHT, Euclid} and correspond to each of the config files available
       in conf/surveys. You can pass in a list of surveys for multi-resolution
       studies too. For example:
 
-      btk surveys=[LSST,HST] (...)
+      btk surveys=[LSST,COSMOS] (...)
 
       Assuming that you want to use e.g. the LSST survey default parameters but with a couple
       of changes, you can modify individual parameters of a given survey directly from the
