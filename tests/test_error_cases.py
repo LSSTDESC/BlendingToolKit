@@ -245,7 +245,7 @@ def test_incompatible_catalogs():
         CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("HST"),
+            get_surveys("COSMOS"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
