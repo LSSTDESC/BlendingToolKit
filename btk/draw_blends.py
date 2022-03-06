@@ -184,7 +184,7 @@ class DrawBlendsGenerator(ABC):
             for s in surveys:
                 if not isinstance(s, Survey):
                     raise TypeError(
-                        f"surveys must be a Survey object or an Iterable of Survey objects, but"
+                        f"surveys must be a Survey object or an Iterable of Survey objects, but "
                         f"Iterable contained object of type {type(s)}"
                     )
                 self.check_compatibility(s)
