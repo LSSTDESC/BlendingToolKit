@@ -9,6 +9,7 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
+from galcheat.survey import Survey
 from galcheat.utilities import mag2counts
 from galcheat.utilities import mean_sky_level
 from tqdm.auto import tqdm
@@ -18,7 +19,6 @@ from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
 from btk.survey import make_wcs
-from btk.survey import Survey
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -125,7 +125,7 @@ class DrawBlendsGenerator(ABC):
         self,
         catalog,
         sampling_function,
-        surveys: list,
+        surveys,
         batch_size=8,
         stamp_size=24,
         cpus=1,
@@ -143,7 +143,8 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (list): List of btk Survey objects defining the observing conditions
+            surveys (list or galcheat.survey.Survey): List of galcheat Survey objects or
+                single Survey object.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -368,12 +369,12 @@ class DrawBlendsGenerator(ABC):
             blend.add_column(x_peak)
             blend.add_column(y_peak)
 
-            iso_image_multi = np.zeros(
-                (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
-            )
-            blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
-            seedseq_blend = seedseq_minibatch.spawn(len(survey.filters))
-            for b, filt in enumerate(survey.filters):
+            filters = survey.get_filters()
+            n_bands = len(filters)
+            iso_image_multi = np.zeros((self.max_number, n_bands, pix_stamp_size, pix_stamp_size))
+            blend_image_multi = np.zeros((n_bands, pix_stamp_size, pix_stamp_size))
+            seedseq_blend = seedseq_minibatch.spawn(n_bands)
+            for b, filt in filters.items():
                 single_band_output = self.render_blend(
                     blend, psf[b], filt, survey, seedseq_blend[b], extra_data[i]
                 )
@@ -490,10 +491,10 @@ class CatsimGenerator(DrawBlendsGenerator):
                 f"The catalog provided is of the wrong type. The types of "
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
-        for f in survey.filters:
-            if f.name + "_ab" not in self.catalog.table.keys():
+        for b in survey.get_filters():
+            if b + "_ab" not in self.catalog.table.keys():
                 raise ValueError(
-                    f"The {f.name} filter of the survey {survey.name} "
+                    f"The {b} filter of the survey {survey.name} "
                     f"has no associated magnitude in the given catalog."
                 )
 
@@ -599,10 +600,10 @@ class CosmosGenerator(DrawBlendsGenerator):
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
         if "ref_mag" not in self.catalog.table.keys():
-            for f in survey.filters:
-                if f"{survey.name}_{f.name}" not in self.catalog.table.keys():
+            for b in survey.get_filters():
+                if f"{survey.name}_{b}" not in self.catalog.table.keys():
                     raise ValueError(
-                        f"The {f.name} filter of the survey {survey.name} "
+                        f"The {b} filter of the survey {survey.name} "
                         f"has no associated magnitude in the given catalog, "
                         f"and the catalog does not contain a 'ref_mag' column"
                     )

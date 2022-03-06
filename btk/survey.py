@@ -1,7 +1,6 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from collections import namedtuple
 from collections.abc import Callable
 
 import astropy.wcs as WCS
@@ -10,55 +9,9 @@ import galsim
 import numpy as np
 from astropy.io import fits
 
-Survey = namedtuple(
-    "Survey",
-    [
-        "name",
-        "pixel_scale",  # arcseconds per pixel
-        "effective_area",  # Effective total light collecting area in square meters [m2]
-        "mirror_diameter",  # in meters [m]
-        "zeropoint_airmass",
-        "filters",
-    ],
-)
-
-Survey.__doc__ = """
-Class containing the informations relative to a survey.
-
-Args:
-    name (str): Name of the survey
-    pixel_scale (float): Pixel scale of the survey, in arcseconds per pixel
-    effective_area (float): Effective total light collecting area, in square meters
-    mirror_diameter (float): Diameter of the primary mirror, in meters
-    zeropoint_airmass (float) Airmass at which the zeropoint is measured
-    filters (list): List of Filter objects corresponding to the filters of this survey"""
-
-Filter = namedtuple(
-    "Filter",
-    [
-        "name",
-        "psf",  # galsim psf model or function to generate it
-        "sky_brightness",  # mags/sq.arcsec
-        "exp_time",  # in seconds [s]
-        "zeropoint",  # in mags
-    ],
-)
-
-Filter.__doc__ = """
-Class containing the informations relative to a filter (for a specific survey).
-
-Args:
-    name (str): Name of the filter
-    psf: Contains the PSF information, either as a Galsim object,
-          or as a function returning a Galsim object (with no arguments).
-    sky_brightness (float): Sky brightness, in mags/sq.arcsec
-    exp_time (int): Total exposition time, in seconds
-    zeropoint (float): Magnitude of an object with a measured flux of 1 electron per second
-    """
-
 
 def get_surveys(names="LSST", psf_func: Callable = None):
-    """Return specified surveys as `btk.survey.Survey` objects.
+    """Return specified surveys from galcheat extended to contain PSF information.
 
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
@@ -68,45 +21,30 @@ def get_surveys(names="LSST", psf_func: Callable = None):
             If `None`, the default PSF for the specified survey will be used in each band.
 
     Returns:
-        btk.survey.Survey object or list of such objects.
+        galcheat.survey.Survey object or list of such objects.
     """
     if isinstance(names, str):
         names = [names]
     if not isinstance(names, list):
         raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
 
-    btk_surveys = []
+    # add PSF to filters
+    surveys = []
     for survey_name in names:
         survey = galcheat.get_survey(survey_name)
-        filters = []
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
                 psf = get_default_psf_with_galcheat_info(survey, filtr)
             else:
                 psf = psf_func(survey, filtr)
-            btk_filter = Filter(
-                band,
-                psf,
-                filtr.sky_brightness.value,
-                filtr.exposure_time.value,
-                filtr.zeropoint.value,
-            )
-            filters.append(btk_filter)
+            filtr.psf = psf
+            survey.get_filters()[band] = filtr
+        surveys.append(survey)
 
-        btk_survey = Survey(
-            survey.name,
-            survey.pixel_scale.value,
-            survey.effective_area.value,
-            survey.mirror_diameter.value,
-            survey.zeropoint_airmass.value,
-            filters,
-        )
-        btk_surveys.append(btk_survey)
-
-    if len(btk_surveys) == 1:
-        return btk_surveys[0]
-    return btk_surveys
+    if len(surveys) == 1:
+        surveys = surveys[0]
+    return surveys
 
 
 def get_default_psf_with_galcheat_info(
