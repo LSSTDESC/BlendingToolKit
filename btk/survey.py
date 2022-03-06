@@ -39,7 +39,6 @@ def get_surveys(names="LSST", psf_func: Callable = None):
             else:
                 psf = psf_func(survey, filtr)
             filtr.psf = psf
-            survey.get_filters()[band] = filtr
         surveys.append(survey)
 
     if len(surveys) == 1:
@@ -150,7 +149,7 @@ def get_psf_from_file(psf_dir, survey):
         raise RuntimeError(f"No psf files found in '{psf_dir}'.")
     psf_array = fits.getdata(psf_dir + "/" + psf_file)
     psf_model = galsim.InterpolatedImage(
-        galsim.Image(psf_array), scale=survey.pixel_scale
+        galsim.Image(psf_array), scale=survey.pixel_scale.value
     ).withFlux(1.0)
 
     return psf_model

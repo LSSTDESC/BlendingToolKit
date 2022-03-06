@@ -233,11 +233,12 @@ class DrawBlendsGenerator(ABC):
         wcss = {}
 
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale)
+            pix_stamp_size = int(self.stamp_size / s.pixel_scale.value)
 
             # make PSF and WCS
             psf = []
-            for filt in s.filters:
+            for band in s.available_filters:
+                filt = s.get_filter(band)
                 if callable(filt.psf):
                     generated_psf = filt.psf()  # generate the PSF with the provided function
                     if isinstance(generated_psf, galsim.GSObject):
@@ -254,7 +255,7 @@ class DrawBlendsGenerator(ABC):
                         f"The PSF within filter '{filt.name}' is neither a "
                         f"function nor a galsim object"
                     )
-            wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
+            wcs = make_wcs(s.pixel_scale.value, (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
 
@@ -362,19 +363,19 @@ class DrawBlendsGenerator(ABC):
         for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = survey.pixel_scale
+            pixel_scale = survey.pixel_scale.value
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
             blend.add_column(x_peak)
             blend.add_column(y_peak)
 
-            filters = survey.get_filters()
-            n_bands = len(filters)
+            n_bands = len(survey.available_filters)
             iso_image_multi = np.zeros((self.max_number, n_bands, pix_stamp_size, pix_stamp_size))
             blend_image_multi = np.zeros((n_bands, pix_stamp_size, pix_stamp_size))
             seedseq_blend = seedseq_minibatch.spawn(n_bands)
-            for b, filt in filters.items():
+            for b, name in enumerate(survey.available_filters):
+                filt = survey.get_filter(name)
                 single_band_output = self.render_blend(
                     blend, psf[b], filt, survey, seedseq_blend[b], extra_data[i]
                 )
@@ -407,8 +408,8 @@ class DrawBlendsGenerator(ABC):
         Args:
             blend_catalog (astropy.table.Table): Catalog with entries corresponding to one blend.
             psf: Galsim object containing the psf for the given filter
-            filt (btk.survey.Filter): BTK Filter object
-            survey (btk.survey.Survey): BTK Survey object
+            filt (galcheat.filter.Filter): Galcheat Filter object
+            survey (galcheat.survey.Survey): Galcheat Survey object
             seedseq_blend (numpy.random.SeedSequence): Seed sequence for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
@@ -422,7 +423,7 @@ class DrawBlendsGenerator(ABC):
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
@@ -459,8 +460,8 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             entry (astropy.table.Table): Line from astropy describing the galaxy to draw
-            filt (btk.survey.Filter): BTK Filter object corresponding to the band where
-                                the image is drawn `
+            filt (galcheat.filter.Filter): Galcheat Filter object corresponding to the band where
+                the image is drawn.
             psf: Galsim object containing the PSF relative to the chosen filter
             survey (btk.survey.Survey): BTK Survey object
             extra_data: Special field containing extra data for drawing a single galaxy.
@@ -491,10 +492,10 @@ class CatsimGenerator(DrawBlendsGenerator):
                 f"The catalog provided is of the wrong type. The types of "
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
-        for b in survey.get_filters():
-            if b + "_ab" not in self.catalog.table.keys():
+        for band in survey.available_filters:
+            if band + "_ab" not in self.catalog.table.keys():
                 raise ValueError(
-                    f"The {b} filter of the survey {survey.name} "
+                    f"The {band} filter of the survey {survey.name} "
                     f"has no associated magnitude in the given catalog."
                 )
 
@@ -503,13 +504,13 @@ class CatsimGenerator(DrawBlendsGenerator):
         if self.verbose:
             print("Draw isolated object")
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
-                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale
+                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.value
             )
 
         except SourceNotVisible:
@@ -600,10 +601,10 @@ class CosmosGenerator(DrawBlendsGenerator):
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
         if "ref_mag" not in self.catalog.table.keys():
-            for b in survey.get_filters():
-                if f"{survey.name}_{b}" not in self.catalog.table.keys():
+            for band in survey.available_filters:
+                if f"{survey.name}_{band}" not in self.catalog.table.keys():
                     raise ValueError(
-                        f"The {b} filter of the survey {survey.name} "
+                        f"The {band} filter of the survey {survey.name} "
                         f"has no associated magnitude in the given catalog, "
                         f"and the catalog does not contain a 'ref_mag' column"
                     )
@@ -622,11 +623,13 @@ class CosmosGenerator(DrawBlendsGenerator):
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
         # Apply the shift
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
-        return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
+        return gal_conv.drawImage(
+            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.value
+        )
