@@ -8,6 +8,7 @@ from itertools import chain
 
 import galsim
 import numpy as np
+from astropy import units as u
 from astropy.table import Column
 from galcheat.survey import Survey
 from galcheat.utilities import mag2counts
@@ -69,7 +70,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name).value
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name).to(u.ct).value
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -233,7 +234,7 @@ class DrawBlendsGenerator(ABC):
         wcss = {}
 
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale.value)
+            pix_stamp_size = int(self.stamp_size / s.pixel_scale.to(u.arcsec).value)
 
             # make PSF and WCS
             psf = []
@@ -255,7 +256,7 @@ class DrawBlendsGenerator(ABC):
                         f"The PSF within filter '{filt.name}' is neither a "
                         f"function nor a galsim object"
                     )
-            wcs = make_wcs(s.pixel_scale.value, (pix_stamp_size, pix_stamp_size))
+            wcs = make_wcs(s.pixel_scale.to(u.arcsec).value, (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
 
@@ -364,7 +365,7 @@ class DrawBlendsGenerator(ABC):
         for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = survey.pixel_scale.value
+            pixel_scale = survey.pixel_scale.to(u.arcsec).value
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
@@ -420,11 +421,11 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        sky_level = mean_sky_level(survey.name, filt.name).value
+        sky_level = mean_sky_level(survey.name, filt.name).to(u.ct).value
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to(u.arcsec).value)
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
@@ -505,13 +506,13 @@ class CatsimGenerator(DrawBlendsGenerator):
         if self.verbose:
             print("Draw isolated object")
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to(u.arcsec).value)
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
-                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.value
+                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to(u.arcsec).value
             )
 
         except SourceNotVisible:
@@ -616,15 +617,16 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = mag2counts(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name).value
+            mag_name = f"{survey.name}_{filt.name}"
+            gal_flux = mag2counts(entry[mag_name], survey.name, filt.name).to(u.ct).value
         except KeyError:
-            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name).value
+            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name).to(u.ct).value
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to(u.arcsec).value)
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
@@ -632,5 +634,5 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(
-            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.value
+            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to(u.arcsec).value
         )
