@@ -82,7 +82,7 @@ def get_default_psf(
     Args:
         mirror_diameter (float): in meters [m]
         effective_area (float): effective total light collecting area in square meters [m2]
-        filt_wavelength (string): filter wavelength in nanometers [nm]
+        filt_wavelength (string): filter wavelength in Angstroms. [Angstrom]
         fwhm (float): fwhm of the atmospheric component in arcseconds. [arcsec]
         atmospheric_model (string): type of atmospheric model. Current options:
             ['Kolmogorov', 'Moffat'].
