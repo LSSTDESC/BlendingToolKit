@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name)
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name).value
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -279,8 +279,9 @@ class DrawBlendsGenerator(ABC):
             batch_results = list(chain(*mini_batch_results))
 
             # decide image_shape based on channels_last bool.
-            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
-            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
+            n_bands = len(s.available_filters)
+            option1 = (n_bands, pix_stamp_size, pix_stamp_size)
+            option2 = (pix_stamp_size, pix_stamp_size, n_bands)
             image_shape = option1 if not self.channels_last else option2
 
             # organize results.
@@ -419,7 +420,7 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        sky_level = mean_sky_level(survey.name, filt.name)
+        sky_level = mean_sky_level(survey.name, filt.name).value
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
@@ -615,9 +616,9 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = mag2counts(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name)
+            gal_flux = mag2counts(entry[f"{survey.name}_{filt.name}"], survey.name, filt.name).value
         except KeyError:
-            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name)
+            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name).value
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
