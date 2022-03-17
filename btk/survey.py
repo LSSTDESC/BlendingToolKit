@@ -7,7 +7,6 @@ import astropy.wcs as WCS
 import galcheat
 import galsim
 import numpy as np
-from astropy import units as u
 from astropy.io import fits
 
 
@@ -60,10 +59,10 @@ def get_default_psf_with_galcheat_info(
         btk.survey.Survey object or list of such objects.
     """
     return get_default_psf(
-        survey.mirror_diameter.to(u.m).value,
-        survey.effective_area.to(u.m**2).value,
-        filtr.psf_fwhm.to(u.arcsec).value,
-        filt_wavelength=filtr.effective_wavelength.to(u.Angstrom).value,
+        survey.mirror_diameter.to("m").value,
+        survey.effective_area.to("m2").value,
+        filtr.psf_fwhm.to("arcsec").value,
+        filt_wavelength=filtr.effective_wavelength.to("Angstrom").value,
         atmospheric_model="Kolmogorov",
     )
 
