@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = mag2counts(entry[filt.name + "_ab"], survey, filt).to("electron").value
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey, filt).to_value("electron")
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
