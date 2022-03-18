@@ -15,7 +15,7 @@ def main(cfg: OmegaConf):
     surveys = get_surveys(list(cfg.surveys))
 
     # get draw blends generator.
-    draw_blend_generator = instantiate(cfg.draw_blends, surveys=surveys)
+    draw_blend_generator = instantiate(cfg.draw_blends, surveys)
 
     # get measure_functions.
     measure_functions = []

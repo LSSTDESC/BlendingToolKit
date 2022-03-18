@@ -1,7 +1,6 @@
 _target_: btk.draw_blends.CatsimGenerator
 catalog: ${catalog}
 sampling_function: ${sampling}
-surveys: Null
 batch_size: ${batch_size}
 stamp_size: ${stamp_size}
 cpus: ${cpus}
