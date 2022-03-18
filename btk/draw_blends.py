@@ -420,7 +420,7 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        sky_level = mean_sky_level(survey, filt).to("electron").value
+        sky_level = mean_sky_level(survey, filt).to_value("electron")
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
