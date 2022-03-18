@@ -12,10 +12,12 @@ from btk.survey import get_surveys
 
 def main(cfg: OmegaConf):
     """Run BTK from end-to-end using a hydra configuration object."""
+    catalog = instantiate(cfg.catalog)
+    sampling_function = instantiate(cfg.sampling)
     surveys = get_surveys(list(cfg.surveys))
 
     # get draw blends generator.
-    draw_blend_generator = instantiate(cfg.draw_blends, surveys)
+    draw_blend_generator = instantiate(cfg.draw_blends, catalog, sampling_function, surveys)
 
     # get measure_functions.
     measure_functions = []
