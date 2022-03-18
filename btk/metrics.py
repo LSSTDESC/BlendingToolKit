@@ -750,7 +750,7 @@ class MetricsGenerator:
                 for i, surv_name in enumerate(blend_results["isolated_images"].keys()):
                     additional_params = {
                         "psf": blend_results["psf"][surv_name],
-                        "pixel_scale": surveys[i].pixel_scale.to("arcsec").value,
+                        "pixel_scale": surveys[i].pixel_scale.to_value("arcsec"),
                         "meas_band_num": meas_band_num[i],
                         "verbose": self.verbose,
                     }
