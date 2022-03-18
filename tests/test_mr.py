@@ -47,7 +47,7 @@ def test_multiresolution(mock_show):
         24.0 / 0.2
     ), "LSST survey should have a pixel scale of 0.2"
     assert blend_results["blend_images"]["HSC"][0].shape[-1] == int(
-        24.0 / 0.167
+        24.0 / 0.168
     ), "HSC survey should have a pixel scale of 0.167"
     assert (
         "LSST" in measure_results["catalog"]["sep_measure"].keys()

@@ -129,10 +129,8 @@ def test_sampling_too_much_objects():
     assert "Number of objects per blend must be less than max_number" in str(excinfo.value)
 
 
-@pytest.mark.skip(reason="Update mag2counts in galcheat to take in objects not names.")
 def test_source_not_visible():
     survey = get_surveys("LSST")
-    filt = survey.get_filter("u")
     filt = Filter.from_dict(
         dict(
             name="u",
@@ -140,13 +138,13 @@ def test_source_not_visible():
             zeropoint=9.16,
             sky_brightness=22.9,
             exposure_time=1680,
-            wavelength=3592.13,
+            effective_wavelength=3592.13,
         )
     )
     filt.psf = get_default_psf_with_galcheat_info(survey, filt)
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(SourceNotVisible):
-        get_catsim_galaxy(catalog.table[0], filt, get_surveys("LSST"), True, True, True)
+        get_catsim_galaxy(catalog.table[0], filt, survey, True, True, True)
 
 
 def test_survey_not_list():

@@ -10,7 +10,7 @@ TEST_SEED = 0
 
 
 def get_group_sampling_draw_generator(batch_size=3):
-    """Returns draw generator with group sampling function"""
+    """Returns draw generator with group sampling function."""
     wld_catalog_name = data_dir / "sample_group_catalog.fits"
     catalog_name = data_dir / "sample_group_input_catalog.fits"
 
@@ -30,7 +30,7 @@ def get_group_sampling_draw_generator(batch_size=3):
 
 
 def test_group_sampling():
-    """Test blends drawn with group sampling function"""
+    """Test blends drawn with group sampling function."""
     draw_blend_generator = get_group_sampling_draw_generator()
     output = next(draw_blend_generator)
     blend_images = output["blend_images"]
