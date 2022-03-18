@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = mag2counts(entry[filt.name + "_ab"], survey.name, filt.name).to("electron").value
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey, filt).to("electron").value
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -125,7 +125,7 @@ class DrawBlendsGenerator(ABC):
         self,
         catalog,
         sampling_function,
-        surveys,
+        surveys: list,
         batch_size=8,
         stamp_size=24,
         cpus=1,
@@ -144,7 +144,7 @@ class DrawBlendsGenerator(ABC):
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
             surveys (list or galcheat.survey.Survey): List of galcheat Survey objects or
-                single Survey object.
+                single galcheat Survey object.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -420,7 +420,7 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        sky_level = mean_sky_level(survey.name, filt.name).to("electron").value
+        sky_level = mean_sky_level(survey, filt).to("electron").value
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
@@ -617,9 +617,9 @@ class CosmosGenerator(DrawBlendsGenerator):
         # get galaxy flux
         try:
             mag_name = f"{survey.name}_{filt.name}"
-            gal_flux = mag2counts(entry[mag_name], survey.name, filt.name).to("electron").value
+            gal_flux = mag2counts(entry[mag_name], survey, filt).to("electron").value
         except KeyError:
-            gal_flux = mag2counts(entry["ref_mag"], survey.name, filt.name).to("electron").value
+            gal_flux = mag2counts(entry["ref_mag"], survey, filt).to("electron").value
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
