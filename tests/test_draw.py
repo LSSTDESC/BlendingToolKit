@@ -147,6 +147,13 @@ class TestBasicDraw:
             err_msg="Did not get desired mean pixel values of blend images",
         )
 
+    def test_basic_sampling(self):
+        sampling_function = btk.sampling_functions.BasicSampling()
+        draw_generator = get_draw_generator(
+            fixed_parameters=True, sampling_function=sampling_function
+        )
+        next(draw_generator)
+
     @patch("btk.plot_utils.plt.show")
     def test_default(self, mock_show):
         default_draw_generator = get_draw_generator(fixed_parameters=True)
@@ -162,13 +169,6 @@ class TestBasicDraw:
             len(draw_output["blend_list"][3]) < 3
         ), "Default max_number should \
             generate 2 or 1 galaxies per blend."
-        self.match_blend_images_default(draw_output["blend_images"])
-        self.match_isolated_images_default(draw_output["isolated_images"])
         self.match_background_noise(draw_output["blend_images"])
-
-    def test_basic_sampling(self):
-        sampling_function = btk.sampling_functions.BasicSampling()
-        draw_generator = get_draw_generator(
-            fixed_parameters=True, sampling_function=sampling_function
-        )
-        next(draw_generator)
+        self.match_isolated_images_default(draw_output["isolated_images"])
+        self.match_blend_images_default(draw_output["blend_images"])
