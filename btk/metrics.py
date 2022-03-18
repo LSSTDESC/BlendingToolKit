@@ -747,31 +747,33 @@ class MetricsGenerator:
                         f"number of surveys: {len(surveys)}, instead len is {len(meas_band_num)}"
                     )
                 metrics_results_f = {}
-                for i, surv in enumerate(blend_results["isolated_images"].keys()):
+                for i, surv_name in enumerate(blend_results["isolated_images"].keys()):
                     additional_params = {
-                        "psf": blend_results["psf"][surv],
-                        "pixel_scale": surveys[i].pixel_scale,
+                        "psf": blend_results["psf"][surv_name],
+                        "pixel_scale": surveys[i].pixel_scale.to("arcsec").value,
                         "meas_band_num": meas_band_num[i],
                         "verbose": self.verbose,
                     }
+                    band_name = surveys[i].available_filters[meas_band_num[i]]
+                    filtr = surveys[i].get_filter(band_name)
                     noise_threshold = self.noise_threshold_factor * np.sqrt(
-                        mean_sky_level(surveys[i].name, surveys[i].filters[meas_band_num[i]].name)
+                        mean_sky_level(surveys[i], filtr)
                     )
                     target_meas = {}
                     for k in self.target_meas.keys():
                         target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-                    metrics_results_f[surv] = compute_metrics(
-                        blend_results["isolated_images"][surv],
-                        blend_results["blend_list"][surv],
-                        measure_results["catalog"][meas_func][surv],
-                        measure_results["segmentation"][meas_func][surv],
-                        measure_results["deblended_images"][meas_func][surv],
+                    metrics_results_f[surv_name] = compute_metrics(
+                        blend_results["isolated_images"][surv_name],
+                        blend_results["blend_list"][surv_name],
+                        measure_results["catalog"][meas_func][surv_name],
+                        measure_results["segmentation"][meas_func][surv_name],
+                        measure_results["deblended_images"][meas_func][surv_name],
                         noise_threshold,
                         meas_band_num[i],
                         target_meas,
                         channels_last=self.measure_generator.channels_last,
-                        save_path=os.path.join(self.save_path, meas_func, surv)
+                        save_path=os.path.join(self.save_path, meas_func, surv_name)
                         if self.save_path is not None
                         else None,
                         f_distance=self.f_distance,
@@ -782,12 +784,14 @@ class MetricsGenerator:
             else:
                 additional_params = {
                     "psf": blend_results["psf"],
-                    "pixel_scale": surveys[0].pixel_scale,
+                    "pixel_scale": surveys[0].pixel_scale.to("arcsec").value,
                     "meas_band_num": meas_band_num,
                     "verbose": self.verbose,
                 }
+                band_name = surveys[0].available_filters[meas_band_num]
+                filtr = surveys[0].get_filter(band_name)
                 noise_threshold = self.noise_threshold_factor * np.sqrt(
-                    mean_sky_level(surveys[0].name, surveys[0].filters[meas_band_num].name)
+                    mean_sky_level(surveys[0], filtr)
                 )
                 target_meas = {}
                 for k in self.target_meas.keys():
