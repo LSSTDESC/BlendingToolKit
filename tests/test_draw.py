@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pytest
 
 import btk.plot_utils
 from btk.survey import get_surveys
@@ -18,7 +17,7 @@ def get_draw_generator(
     fixed_parameters=False,
     sampling_function=None,
 ):
-    """Returns a btk.draw_blends generator for default parameters"""
+    """Returns a btk.draw_blends generator for default parameters."""
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24.0
     if fixed_parameters:
@@ -57,7 +56,6 @@ def get_draw_generator(
     return draw_generator
 
 
-@pytest.mark.skip(reason="Cannot pickle FList")
 class TestMultiprocessing:
     def test_multiprocessing(self):
         b_size = 16
@@ -173,4 +171,4 @@ class TestBasicDraw:
         draw_generator = get_draw_generator(
             fixed_parameters=True, sampling_function=sampling_function
         )
-        draw_output = next(draw_generator)  # noqa: F841
+        next(draw_generator)

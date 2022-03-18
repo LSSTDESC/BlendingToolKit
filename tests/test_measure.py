@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
@@ -65,7 +64,6 @@ def compare_sep_multiprocessing():
     np.testing.assert_array_less(dist, 1.0)
 
 
-@pytest.mark.skip(reason="Cannot pickle FList for multiprocessing")
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     compare_sep()

@@ -399,7 +399,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "galcheat"
-version = "0.1.3.dev43+g5c98fa8"
+version = "0.1.3.dev53+gbb0c765"
 description = "Tiny library of galaxy surveys most useful parameters with units"
 category = "main"
 optional = false
@@ -416,9 +416,9 @@ scripts = ["speclite (>=0.15)"]
 
 [package.source]
 type = "git"
-url = "https://github.com/aboucaud/galcheat.git"
-reference = "5c98fa8"
-resolved_reference = "5c98fa8fedd994d488ded210fb3e4684824a3fed"
+url = "https://github.com/aboucaud/galcheat"
+reference = "bb0c765ef8a130f9112d99580d93adffb2a8af47"
+resolved_reference = "bb0c765ef8a130f9112d99580d93adffb2a8af47"
 
 [[package]]
 name = "galsim"
@@ -1847,7 +1847,7 @@ scarlet = ["peigen", "autograd", "pybind11", "proxmin"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.7.1, < 3.9.0"
-content-hash = "06cf49fbcd18a9930aed41dc9e4845830f6027f54ffd53e781192c19d3cf2572"
+content-hash = "37f82dc52472f7b546e72eb7b3aa55b7d8ca9d4d5418ce8e6dd78527ff98f0d8"
 
 [metadata.files]
 alabaster = [
