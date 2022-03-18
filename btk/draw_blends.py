@@ -619,7 +619,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             mag_name = f"{survey.name}_{filt.name}"
             gal_flux = mag2counts(entry[mag_name], survey, filt).to_value("electron")
         except KeyError:
-            gal_flux = mag2counts(entry["ref_mag"], survey, filt).to("electron").value
+            gal_flux = mag2counts(entry["ref_mag"], survey, filt).to_value("electron")
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
