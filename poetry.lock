@@ -370,7 +370,7 @@ flake8 = ">=3.7"
 
 [[package]]
 name = "fonttools"
-version = "4.30.0"
+version = "4.31.0"
 description = "Tools to manipulate font files"
 category = "main"
 optional = false
@@ -2178,8 +2178,8 @@ flake8-absolute-import = [
     {file = "flake8_absolute_import-1.0.0.1-py3-none-any.whl", hash = "sha256:d24f189bca52ffc0d13e8046606ea42d22a9ad9d409bf39e52b93493cf2ffd2c"},
 ]
 fonttools = [
-    {file = "fonttools-4.30.0-py3-none-any.whl", hash = "sha256:6985cc5380c06db07fdc73ade15e6adbd4ce6ff850d7561ca00f97090b4b263d"},
-    {file = "fonttools-4.30.0.zip", hash = "sha256:084dd1762f083a1bf49e41da1bfeafb475c9dce46265690a6bdd33290b9a63f4"},
+    {file = "fonttools-4.31.0-py3-none-any.whl", hash = "sha256:058d15bd7aa35f47df70f99a15ac4994787127db42c468e695d1b9ef77c0a6a4"},
+    {file = "fonttools-4.31.0.zip", hash = "sha256:1b008d129c1c0f0174a74f2ea07b949ed4fbf328355cf4c9812506ecaac38b9f"},
 ]
 future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
