@@ -617,7 +617,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         # get galaxy flux
         try:
             mag_name = f"{survey.name}_{filt.name}"
-            gal_flux = mag2counts(entry[mag_name], survey, filt).to("electron").value
+            gal_flux = mag2counts(entry[mag_name], survey, filt).to_value("electron")
         except KeyError:
             gal_flux = mag2counts(entry["ref_mag"], survey, filt).to("electron").value
 
