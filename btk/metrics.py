@@ -784,7 +784,7 @@ class MetricsGenerator:
             else:
                 additional_params = {
                     "psf": blend_results["psf"],
-                    "pixel_scale": surveys[0].pixel_scale.to("arcsec").value,
+                    "pixel_scale": surveys[0].pixel_scale.to_value("arcsec"),
                     "meas_band_num": meas_band_num,
                     "verbose": self.verbose,
                 }
