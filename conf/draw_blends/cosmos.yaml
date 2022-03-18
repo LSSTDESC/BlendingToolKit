@@ -2,7 +2,7 @@ _target_: btk.draw_blends.CosmosGenerator
 _args_:
   - ${catalog}
   - ${sampling}
-  - Null
+  - ${surveys}
 batch_size: ${batch_size}
 stamp_size: ${stamp_size}
 cpus: ${cpus}
