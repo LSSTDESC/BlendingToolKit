@@ -109,7 +109,7 @@ class TestBasicDraw:
         """
         test_batch_max = np.array([172.04, 1375.16, 7880.88, 10823.64, 9120.2, 4836.32])
         test_batch_mean = 6.118185763860468
-        test_batch_std = 403.80063778695086
+        test_batch_std = 403.79788119078427
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
