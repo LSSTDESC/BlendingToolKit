@@ -625,7 +625,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to("arcsec").value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
