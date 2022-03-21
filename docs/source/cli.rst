@@ -68,7 +68,7 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
       .. code-block::
 
-          btk surveys=LSST surveys.LSST.airmass=1.1 (...)
+          btk surveys=LSST surveys.LSST.zeropoint_airmass=1.1 (...)
 
       If you want to modify a large number of parameters of a given survey, it might be easier to
       add your own config file to ``conf/surveys``. See below for instructions on how to do this.
