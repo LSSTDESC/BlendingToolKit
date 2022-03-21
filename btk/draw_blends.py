@@ -233,7 +233,7 @@ class DrawBlendsGenerator(ABC):
         wcss = {}
 
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale.to("arcsec").value)
+            pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
 
             # make PSF and WCS
             psf = []
