@@ -59,10 +59,10 @@ def get_default_psf_with_galcheat_info(
         btk.survey.Survey object or list of such objects.
     """
     return get_default_psf(
-        survey.mirror_diameter.to("m").value,
-        survey.effective_area.to("m2").value,
-        filtr.psf_fwhm.to("arcsec").value,
-        filt_wavelength=filtr.effective_wavelength.to("Angstrom").value,
+        survey.mirror_diameter.to_value("m"),
+        survey.effective_area.to_value("m2"),
+        filtr.psf_fwhm.to_value("arcsec"),
+        filt_wavelength=filtr.effective_wavelength.to_value("angstrom"),
         atmospheric_model="Kolmogorov",
     )
 
