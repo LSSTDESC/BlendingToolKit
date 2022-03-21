@@ -505,7 +505,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         if self.verbose:
             print("Draw isolated object")
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to("arcsec").value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.Convolve(gal, psf)
