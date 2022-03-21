@@ -55,7 +55,7 @@ template: |-
       of changes, you can modify individual parameters of a given survey directly from the
       command line:
 
-      btk surveys=LSST surveys.LSST.airmass=1.1 (...)
+      btk surveys=LSST surveys.LSST.zeropoint_airmass=1.1 (...)
 
       If you want to modify a large number of parameters of a given survey, it might be easier to
       add your own config file to conf/surveys. See the CLI section of the tutorial for
