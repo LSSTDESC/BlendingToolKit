@@ -424,7 +424,7 @@ class DrawBlendsGenerator(ABC):
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to("arcsec").value)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
