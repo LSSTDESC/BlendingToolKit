@@ -511,7 +511,7 @@ class CatsimGenerator(DrawBlendsGenerator):
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
-                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to("arcsec").value
+                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
             )
 
         except SourceNotVisible:
