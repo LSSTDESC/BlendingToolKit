@@ -11,7 +11,7 @@ Assuming that BTK has been pip installed, you can run btk from the command line 
 
 .. code-block::
 
-    btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1 verbose=False surveys=[LSST, COSMOS] surveys.LSST.airmass=1.1
+    btk sampling=default draw_blends=catsim max_number=3 save_path=/directory/to/save/results cpus=1 verbose=False surveys=[LSST, COSMOS] surveys.LSST.zeropoint_airmass=1.1
     sampling=default catalog.name=catsim use_metrics=['detection', 'segmentation'] (...)
 
 You need to create the directory to save results yourself (preferably an empty directory) and specify its absolute path when you run the CLI via the ``save_path`` argument.
