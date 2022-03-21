@@ -255,7 +255,7 @@ class DrawBlendsGenerator(ABC):
                         f"The PSF within filter '{filt.name}' is neither a "
                         f"function nor a galsim object"
                     )
-            wcs = make_wcs(s.pixel_scale.to("arcsec").value, (pix_stamp_size, pix_stamp_size))
+            wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
 
