@@ -364,7 +364,7 @@ class DrawBlendsGenerator(ABC):
         for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = survey.pixel_scale.to("arcsec").value
+            pixel_scale = survey.pixel_scale.to_value("arcsec")
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
