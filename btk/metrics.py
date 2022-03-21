@@ -791,7 +791,7 @@ class MetricsGenerator:
                 band_name = surveys[0].available_filters[meas_band_num]
                 filtr = surveys[0].get_filter(band_name)
                 noise_threshold = self.noise_threshold_factor * np.sqrt(
-                    mean_sky_level(surveys[0], filtr).to("electron").value
+                    mean_sky_level(surveys[0], filtr).to_value("electron")
                 )
                 target_meas = {}
                 for k in self.target_meas.keys():
