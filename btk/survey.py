@@ -1,14 +1,15 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from typing import Callable, Union, List
+from typing import Callable
+from typing import List
+from typing import Union
 
 import astropy.wcs as WCS
 import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
-
 from galcheat.survey import Survey
 
 
