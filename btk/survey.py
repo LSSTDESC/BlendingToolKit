@@ -1,7 +1,7 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from collections.abc import Callable
+from typing import Callable, Union, List
 
 import astropy.wcs as WCS
 import galcheat
@@ -9,9 +9,15 @@ import galsim
 import numpy as np
 from astropy.io import fits
 
+from galcheat.survey import Survey
 
-def get_surveys(names="LSST", psf_func: Callable = None):
+
+def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
     """Return specified surveys from galcheat extended to contain PSF information.
+
+    This function currently returns a list of galcheat instances if `names` is a list with more
+    than one element. If `names` is a str or a singleton list then we return a single galcheat
+    instance.
 
     Args:
         names (str or list): A single str specifying a survey from conf/surveys or a list with
