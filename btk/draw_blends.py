@@ -9,16 +9,16 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
+from galcheat.survey import Survey
+from galcheat.utilities import mag2counts
+from galcheat.utilities import mean_sky_level
 from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
-from btk.survey import get_flux
-from btk.survey import get_mean_sky_level
 from btk.survey import make_wcs
-from btk.survey import Survey
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -69,7 +69,7 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         Galsim galaxy profile
     """
     components = []
-    total_flux = get_flux(entry[filt.name + "_ab"], filt, survey)
+    total_flux = mag2counts(entry[filt.name + "_ab"], survey, filt).to_value("electron")
     # Calculate the flux of each component in detected electrons.
     total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
     disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
@@ -143,7 +143,8 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (list): List of btk Survey objects defining the observing conditions
+            surveys (list or galcheat.survey.Survey): List of galcheat Survey objects or
+                single galcheat Survey object.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -182,7 +183,7 @@ class DrawBlendsGenerator(ABC):
             for s in surveys:
                 if not isinstance(s, Survey):
                     raise TypeError(
-                        f"surveys must be a Survey object or an Iterable of Survey objects, but"
+                        f"surveys must be a Survey object or an Iterable of Survey objects, but "
                         f"Iterable contained object of type {type(s)}"
                     )
                 self.check_compatibility(s)
@@ -232,11 +233,12 @@ class DrawBlendsGenerator(ABC):
         wcss = {}
 
         for s in self.surveys:
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale)
+            pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
 
             # make PSF and WCS
             psf = []
-            for filt in s.filters:
+            for band in s.available_filters:
+                filt = s.get_filter(band)
                 if callable(filt.psf):
                     generated_psf = filt.psf()  # generate the PSF with the provided function
                     if isinstance(generated_psf, galsim.GSObject):
@@ -253,7 +255,7 @@ class DrawBlendsGenerator(ABC):
                         f"The PSF within filter '{filt.name}' is neither a "
                         f"function nor a galsim object"
                     )
-            wcs = make_wcs(s.pixel_scale, (pix_stamp_size, pix_stamp_size))
+            wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
 
@@ -277,8 +279,9 @@ class DrawBlendsGenerator(ABC):
             batch_results = list(chain(*mini_batch_results))
 
             # decide image_shape based on channels_last bool.
-            option1 = (len(s.filters), pix_stamp_size, pix_stamp_size)
-            option2 = (pix_stamp_size, pix_stamp_size, len(s.filters))
+            n_bands = len(s.available_filters)
+            option1 = (n_bands, pix_stamp_size, pix_stamp_size)
+            option2 = (pix_stamp_size, pix_stamp_size, n_bands)
             image_shape = option1 if not self.channels_last else option2
 
             # organize results.
@@ -361,19 +364,19 @@ class DrawBlendsGenerator(ABC):
         for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
 
             # All bands in same survey have same pixel scale, WCS
-            pixel_scale = survey.pixel_scale
+            pixel_scale = survey.pixel_scale.to_value("arcsec")
             pix_stamp_size = int(self.stamp_size / pixel_scale)
 
             x_peak, y_peak = get_center_in_pixels(blend, wcs)
             blend.add_column(x_peak)
             blend.add_column(y_peak)
 
-            iso_image_multi = np.zeros(
-                (self.max_number, len(survey.filters), pix_stamp_size, pix_stamp_size)
-            )
-            blend_image_multi = np.zeros((len(survey.filters), pix_stamp_size, pix_stamp_size))
-            seedseq_blend = seedseq_minibatch.spawn(len(survey.filters))
-            for b, filt in enumerate(survey.filters):
+            n_bands = len(survey.available_filters)
+            iso_image_multi = np.zeros((self.max_number, n_bands, pix_stamp_size, pix_stamp_size))
+            blend_image_multi = np.zeros((n_bands, pix_stamp_size, pix_stamp_size))
+            seedseq_blend = seedseq_minibatch.spawn(n_bands)
+            for b, name in enumerate(survey.available_filters):
+                filt = survey.get_filter(name)
                 single_band_output = self.render_blend(
                     blend, psf[b], filt, survey, seedseq_blend[b], extra_data[i]
                 )
@@ -406,8 +409,8 @@ class DrawBlendsGenerator(ABC):
         Args:
             blend_catalog (astropy.table.Table): Catalog with entries corresponding to one blend.
             psf: Galsim object containing the psf for the given filter
-            filt (btk.survey.Filter): BTK Filter object
-            survey (btk.survey.Survey): BTK Survey object
+            filt (galcheat.filter.Filter): Galcheat Filter object
+            survey (galcheat.survey.Survey): Galcheat Survey object
             seedseq_blend (numpy.random.SeedSequence): Seed sequence for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
@@ -417,11 +420,11 @@ class DrawBlendsGenerator(ABC):
             Images of blend and isolated galaxies as `numpy.ndarray`.
 
         """
-        mean_sky_level = get_mean_sky_level(survey, filt)
+        sky_level = mean_sky_level(survey, filt).to_value("electron")
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
@@ -441,7 +444,7 @@ class DrawBlendsGenerator(ABC):
             if self.verbose:
                 print("Background noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
-            background_noise = galsim.PoissonNoise(rng=generator, sky_level=mean_sky_level)
+            background_noise = galsim.PoissonNoise(rng=generator, sky_level=sky_level)
             noise_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
             noise_image.addNoise(background_noise)
             _blend_image += noise_image
@@ -458,8 +461,8 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             entry (astropy.table.Table): Line from astropy describing the galaxy to draw
-            filt (btk.survey.Filter): BTK Filter object corresponding to the band where
-                                the image is drawn `
+            filt (galcheat.filter.Filter): Galcheat Filter object corresponding to the band where
+                the image is drawn.
             psf: Galsim object containing the PSF relative to the chosen filter
             survey (btk.survey.Survey): BTK Survey object
             extra_data: Special field containing extra data for drawing a single galaxy.
@@ -490,10 +493,10 @@ class CatsimGenerator(DrawBlendsGenerator):
                 f"The catalog provided is of the wrong type. The types of "
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
-        for f in survey.filters:
-            if f.name + "_ab" not in self.catalog.table.keys():
+        for band in survey.available_filters:
+            if band + "_ab" not in self.catalog.table.keys():
                 raise ValueError(
-                    f"The {f.name} filter of the survey {survey.name} "
+                    f"The {band} filter of the survey {survey.name} "
                     f"has no associated magnitude in the given catalog."
                 )
 
@@ -502,13 +505,13 @@ class CatsimGenerator(DrawBlendsGenerator):
         if self.verbose:
             print("Draw isolated object")
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
-                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale
+                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
             )
 
         except SourceNotVisible:
@@ -599,10 +602,10 @@ class CosmosGenerator(DrawBlendsGenerator):
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
         if "ref_mag" not in self.catalog.table.keys():
-            for f in survey.filters:
-                if f"{survey.name}_{f.name}" not in self.catalog.table.keys():
+            for band in survey.available_filters:
+                if f"{survey.name}_{band}" not in self.catalog.table.keys():
                     raise ValueError(
-                        f"The {f.name} filter of the survey {survey.name} "
+                        f"The {band} filter of the survey {survey.name} "
                         f"has no associated magnitude in the given catalog, "
                         f"and the catalog does not contain a 'ref_mag' column"
                     )
@@ -613,19 +616,22 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         # get galaxy flux
         try:
-            gal_flux = get_flux(entry[f"{survey.name}_{filt.name}"], filt, survey)
+            mag_name = f"{survey.name}_{filt.name}"
+            gal_flux = mag2counts(entry[mag_name], survey, filt).to_value("electron")
         except KeyError:
-            gal_flux = get_flux(entry["ref_mag"], filt, survey)
+            gal_flux = mag2counts(entry["ref_mag"], survey, filt).to_value("electron")
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
 
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale)
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
         # Convolve the galaxy with the PSF
         gal_conv = galsim.Convolve(gal, psf)
         # Apply the shift
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
-        return gal_conv.drawImage(nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale)
+        return gal_conv.drawImage(
+            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
+        )

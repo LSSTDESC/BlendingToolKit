@@ -16,7 +16,7 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
 
     catalog_name = data_dir / "sample_input_catalog.fits"
     stamp_size = 24
-    survey = get_surveys("Rubin")
+    survey = get_surveys("LSST")
     shifts = [[-0.3, 1.2]]
     indexes = [[1]]
     catalog = CatsimCatalog.from_file(catalog_name)

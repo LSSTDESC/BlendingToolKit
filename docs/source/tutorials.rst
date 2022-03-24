@@ -148,13 +148,13 @@ You may write more complex sampling functions to have more control over how the 
 Survey
 .......
 
-The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale, effective_area), including a list of Filter objects. The Filter class is also a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time, psf). Numerous surveys are already implemented in BTK; we will import the Rubin one for this tutorial.
+The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale, effective_area), including a list of Filter objects. The Filter class is also a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time, psf). Numerous surveys are already implemented in BTK; we will import the LSST one for this tutorial.
 
 .. jupyter-execute::
 
-  Rubin = btk.survey.get_surveys("Rubin")
+  LSST = btk.survey.get_surveys("LSST")
 
-You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for Rubin:
+You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for LSST:
 
 .. jupyter-execute::
 
@@ -169,8 +169,8 @@ You may want to define your own survey if you wish to modify some parameters or 
       "y": 9674.05,
   }
 
-  Rubin = btk.survey.Survey(
-      "Rubin",
+  LSST = btk.survey.Survey(
+      "LSST",
       pixel_scale=0.2,
       effective_area=32.4,
       mirror_diameter=8.36,
@@ -270,7 +270,7 @@ The `psf` attribute deserves an additionnal explanation: it corresponds to the P
 
 You may want to use a function taking an argument to avoid rewriting the function for each filter; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda: get_custom_psf(u_band_argument)``.
 
-Finally, you can use the default function ``get_psf`` as demonstrated in the Rubin Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided). For more information on these functions take a look at the API.
+Finally, you can use the default function ``get_psf`` as demonstrated in the LSST Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided). For more information on these functions take a look at the API.
 
 Drawing the blends
 ...................
@@ -282,7 +282,7 @@ Now that we have all the objects at our disposal, we can create the DrawBlendsGe
   draw_generator = btk.draw_blends.CatsimGenerator(
       catalog,
       sampling_function,
-      [Rubin],
+      [LSST],
       batch_size=8,
       stamp_size=stamp_size,
       cpus=1,
@@ -448,7 +448,7 @@ Saving the results can be automatically achieved by providing the save_path argu
   draw_generator = btk.draw_blends.CatsimGenerator(
       catalog,
       sampling_function,
-      Rubin,
+      LSST,
       batch_size=100,
       stamp_size=stamp_size,
       cpus=1,
@@ -467,7 +467,7 @@ To load the results, you can use the `load_all_results` function ; you need to p
 
 ::
 
-  blend_results,meas_results,results = btk.utils.load_all_results(save_path,["Rubin"],["sep_measure"],n_batch=100)
+  blend_results,meas_results,results = btk.utils.load_all_results(save_path,["LSST"],["sep_measure"],n_batch=100)
 
 
 
@@ -489,14 +489,14 @@ Let's start with the catalog and sampling function. We use a small sample of the
   catalog = btk.catalog.CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
   sampling_function = btk.sampling_functions.DefaultSampling(stamp_size=stamp_size)
 
-We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here: as in the other tutorial, we use the Rubin survey. However, the COSMOS data set only contains images and magnitudes from the f814w band; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. The section that follows explains how to get around this issue.
+We can now create the corresponding instance of ``DrawBlendsGenerator``. There is an important caveat here: as in the other tutorial, we use the LSST survey. However, the COSMOS data set only contains images and magnitudes from the f814w band; thus, when simulating images, the same magnitude is used to compute the galaxy fluxes across all bands. The section that follows explains how to get around this issue.
 
 .. jupyter-execute::
 
   draw_generator = btk.draw_blends.CosmosGenerator(
           catalog,
           sampling_function,
-          btk.survey.get_surveys("Rubin"),
+          btk.survey.get_surveys("LSST"),
           batch_size=batch_size,
           stamp_size=stamp_size,
           cpus=1,

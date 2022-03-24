@@ -1,5 +1,6 @@
 import pytest
 from conftest import data_dir
+from galcheat.filter import Filter
 
 from btk.catalog import CatsimCatalog
 from btk.catalog import CosmosCatalog
@@ -9,8 +10,8 @@ from btk.draw_blends import get_catsim_galaxy
 from btk.draw_blends import SourceNotVisible
 from btk.sampling_functions import DefaultSampling
 from btk.sampling_functions import SamplingFunction
-from btk.survey import Filter
-from btk.survey import get_psf
+from btk.survey import get_default_psf
+from btk.survey import get_default_psf_with_galcheat_info
 from btk.survey import get_psf_from_file
 from btk.survey import get_surveys
 
@@ -50,7 +51,7 @@ def test_sampling_no_max_number():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -81,7 +82,7 @@ def test_sampling_incompatible_catalog():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -117,7 +118,7 @@ def test_sampling_too_much_objects():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -129,24 +130,21 @@ def test_sampling_too_much_objects():
 
 
 def test_source_not_visible():
-    filt = Filter(
-        name="u",
-        psf=get_psf(
-            mirror_diameter=8.36,
-            effective_area=32.4,
-            filt_wavelength=3592.13,
-            fwhm=0.859,
-        ),
-        sky_brightness=22.9,
-        exp_time=1680,
-        zeropoint=9.16,
-        extinction=0.451,
+    survey = get_surveys("LSST")
+    filt = Filter.from_dict(
+        dict(
+            name="u",
+            psf_fwhm=0.859,
+            zeropoint=9.16,
+            sky_brightness=22.9,
+            exposure_time=1680,
+            effective_wavelength=3592.13,
+        )
     )
+    filt.psf = get_default_psf_with_galcheat_info(survey, filt)
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(SourceNotVisible):
-        gal = get_catsim_galaxy(  # noqa: F841
-            catalog.table[0], filt, get_surveys("Rubin"), True, True, True
-        )
+        get_catsim_galaxy(catalog.table[0], filt, survey, True, True, True)
 
 
 def test_survey_not_list():
@@ -167,18 +165,18 @@ def test_survey_not_list():
             cpus=cpus,
             add_noise=add_noise,
         )
-        draw_output = next(draw_generator)  # noqa: F841
+        next(draw_generator)
 
 
 def test_psf():
-    get_psf(
+    get_default_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
         fwhm=0.748,
         atmospheric_model="Moffat",
     )
-    get_psf(
+    get_default_psf(
         mirror_diameter=8.36,
         effective_area=32.4,
         filt_wavelength=7528.51,
@@ -186,7 +184,7 @@ def test_psf():
         atmospheric_model=None,
     )
     with pytest.raises(NotImplementedError) as excinfo:
-        get_psf(
+        get_default_psf(
             mirror_diameter=8.36,
             effective_area=32.4,
             filt_wavelength=7528.51,
@@ -197,12 +195,12 @@ def test_psf():
     assert "atmospheric model request" in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        get_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
+        get_default_psf(mirror_diameter=1, effective_area=4, filt_wavelength=7528.51, fwhm=0.748)
 
     assert "Incompatible effective-area and mirror-diameter values." in str(excinfo.value)
 
     with pytest.raises(RuntimeError) as excinfo:
-        get_psf(
+        get_default_psf(
             mirror_diameter=0,
             effective_area=0,
             filt_wavelength=7528.51,
@@ -214,10 +212,10 @@ def test_psf():
         excinfo.value
     )
 
-    get_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
+    get_default_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
-    get_psf_from_file("tests/example_psf", get_surveys("Rubin"))
-    get_psf_from_file("tests/multi_psf", get_surveys("Rubin"))
+    get_psf_from_file("tests/example_psf", get_surveys("LSST"))
+    get_psf_from_file("tests/multi_psf", get_surveys("LSST"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git
 
 
@@ -234,7 +232,7 @@ def test_incompatible_catalogs():
         draw_generator = CosmosGenerator(  # noqa: F841
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -242,10 +240,10 @@ def test_incompatible_catalogs():
         )
     with pytest.raises(ValueError):
         # Missing filter
-        draw_generator = CatsimGenerator(  # noqa: F841
+        CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("HST"),
+            get_surveys("COSMOS"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -254,10 +252,10 @@ def test_incompatible_catalogs():
 
     catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS, exclusion_level="none")
     with pytest.raises(ValueError):
-        draw_generator = CatsimGenerator(  # noqa: F841
+        CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("Rubin"),
+            get_surveys("LSST"),
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,

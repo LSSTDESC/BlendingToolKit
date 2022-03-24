@@ -27,7 +27,7 @@ def get_metrics_generator(
     """Returns draw generator with group sampling function"""
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
-    survey = get_surveys("Rubin")
+    survey = get_surveys("LSST")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],
@@ -105,7 +105,7 @@ def test_measure_kwargs(mock_show):
     )
     _, _, results = next(metrics_generator)
     average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.4375
+    assert average_precision == 0.5
 
 
 def test_detection_eff_matrix():

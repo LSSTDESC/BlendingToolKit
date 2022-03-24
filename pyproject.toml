@@ -29,6 +29,7 @@ version = "0.9.3"
 [tool.poetry.dependencies]
 astropy = ">=4.3.1"
 autograd = {version = ">=1.3", optional = true}
+galcheat = {git = "https://github.com/aboucaud/galcheat", rev = "bb0c765ef8a130f9112d99580d93adffb2a8af47"}
 galsim = ">=2.2.4"
 hydra-core = ">=1.0.6"
 ipywidgets = ">=7.6.5"
