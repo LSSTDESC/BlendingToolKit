@@ -27,42 +27,42 @@ repository = "https://github.com/LSSTDESC/BlendingToolKit"
 version = "0.9.3"
 
 [tool.poetry.dependencies]
-astropy = ">=4.3.1"
-autograd = {version = ">=1.3", optional = true}
-galcheat = {git = "https://github.com/aboucaud/galcheat", rev = "bb0c765ef8a130f9112d99580d93adffb2a8af47"}
-galsim = ">=2.2.4"
-hydra-core = ">=1.0.6"
-ipywidgets = ">=7.6.5"
-matplotlib = ">=3.4.3"
+astropy = "^4.3.1"
+autograd = {version = "^1.3", optional = true}
+galcheat = {git = "https://github.com/aboucaud/galcheat.git", branch = 'main'}
+galsim = "^2.2.4"
+hydra-core = "^1.0.6"
+ipywidgets = "^7.6.5"
+matplotlib = "^3.4.3"
 nbstripout = "^0.5.0"
-numpy = ">=1.20.1"
-pandas = ">=1.3.3"
-peigen = {version = ">=0.0.9", optional = true}
-proxmin = {version = ">=0.6.11", optional = true}
-pybind11 = {version = ">=2.7.0", optional = true}
+numpy = "^1.20.1"
+pandas = "^1.3.3"
+peigen = {version = "^0.0.9", optional = true}
+proxmin = {version = "^0.6.11", optional = true}
+pybind11 = {version = "^2.7.0", optional = true}
 python = ">= 3.7.1, < 3.9.0"
-scikit-image = ">=0.18.3"
-scipy = ">=1.6.1"
-seaborn = ">=0.11.2"
-sep = ">=1.2.0"
+scikit-image = "^0.18.3"
+scipy = "^1.6.1"
+seaborn = "^0.11.2"
+sep = "^1.2.0"
 tqdm = "^4.62.3"
 
 [tool.poetry.dev-dependencies]
-Cython = ">=0.29.24"
-black = ">=22.1.0"
-flake8 = ">=3.9.2"
-flake8-absolute-import = ">=1.0"
-jupyter-sphinx = ">=0.3.2"
-mock = ">=3.0.5"
-nbval = ">=0.9.6"
-pre-commit = ">=2.15.0"
-pydocstyle = ">=5.1.1"
-pytest = ">=6.2.5"
-pytest-cov = ">=2.12.1"
-reorder-python-imports = ">=2.6.0"
-sphinx = ">=3.5.4"
-sphinx-rtd-theme = ">=0.4.3"
-wheel = ">=0.37.0"
+Cython = "^0.29.24"
+black = "^22.1.0"
+flake8 = "^3.9.2"
+flake8-absolute-import = "^1.0"
+jupyter-sphinx = "^0.3.2"
+mock = "^3.0.5"
+nbval = "^0.9.6"
+pre-commit = "^2.15.0"
+pydocstyle = "^5.1.1"
+pytest = "^7.1.1"
+pytest-cov = "^2.12.1"
+reorder-python-imports = "^2.6.0"
+sphinx = "^3.5.4"
+sphinx-rtd-theme = "^0.4.3"
+wheel = "^0.37.0"
 
 [tool.poetry.scripts]
 btk = "btk.__main__:run"
