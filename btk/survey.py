@@ -1,56 +1,12 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from typing import Callable
-from typing import List
-from typing import Union
 
 import astropy.wcs as WCS
 import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
-from galcheat.survey import Survey
-
-
-def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
-    """Return specified surveys from galcheat extended to contain PSF information.
-
-    This function currently returns a list of galcheat instances if `names` is a list with more
-    than one element. If `names` is a str or a singleton list then we return a single galcheat
-    instance.
-
-    Args:
-        names (str or list): A single str specifying a survey from conf/surveys or a list with
-            multiple survey names.
-        psf_func (function): Python function which takes in two arguments: `survey` and `filter`
-            that returns a PSF as a galsim object or as a callable with no arguments.
-            If `None`, the default PSF for the specified survey will be used in each band.
-
-    Returns:
-        galcheat.survey.Survey object or list of such objects.
-    """
-    if isinstance(names, str):
-        names = [names]
-    if not isinstance(names, list):
-        raise TypeError("Argument 'names' of `get_surveys` should be a str or list.")
-
-    # add PSF to filters
-    surveys = []
-    for survey_name in names:
-        survey = galcheat.get_survey(survey_name)
-        for band in survey.available_filters:
-            filtr = survey.get_filter(band)
-            if psf_func is None:
-                psf = get_default_psf_with_galcheat_info(survey, filtr)
-            else:
-                psf = psf_func(survey, filtr)
-            filtr.psf = psf
-        surveys.append(survey)
-
-    if len(surveys) == 1:
-        surveys = surveys[0]
-    return surveys
 
 
 def get_default_psf_with_galcheat_info(

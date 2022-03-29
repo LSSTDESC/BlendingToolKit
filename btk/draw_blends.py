@@ -6,10 +6,10 @@ from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import chain
 
+import galcheat
 import galsim
 import numpy as np
 from astropy.table import Column
-from galcheat.survey import Survey
 from galcheat.utilities import mag2counts
 from galcheat.utilities import mean_sky_level
 from tqdm.auto import tqdm
@@ -18,6 +18,7 @@ from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
+from btk.survey import get_default_psf_with_galcheat_info
 from btk.survey import make_wcs
 
 MAX_SEED_INT = 1_000_000_000
@@ -125,7 +126,7 @@ class DrawBlendsGenerator(ABC):
         self,
         catalog,
         sampling_function,
-        surveys: list,
+        surveys,
         batch_size=8,
         stamp_size=24,
         cpus=1,
@@ -136,6 +137,7 @@ class DrawBlendsGenerator(ABC):
         channels_last=False,
         save_path=None,
         seed=DEFAULT_SEED,
+        psf_func=get_default_psf_with_galcheat_info,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -143,8 +145,7 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (list or galcheat.survey.Survey): List of galcheat Survey objects or
-                single galcheat Survey object.
+            surveys (list or list of str): List of galcheat survey names or a single survey name.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -166,6 +167,8 @@ class DrawBlendsGenerator(ABC):
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
+            psf_func (function): Python function which takes in two arguments: a galcheat Survey
+                and a galcheat Filter object that returns a PSF as a galsim object.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -176,23 +179,17 @@ class DrawBlendsGenerator(ABC):
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
 
-        if isinstance(surveys, Survey):
-            self.surveys = [surveys]
-            self.check_compatibility(surveys)
-        elif isinstance(surveys, Iterable):
-            for s in surveys:
-                if not isinstance(s, Survey):
-                    raise TypeError(
-                        f"surveys must be a Survey object or an Iterable of Survey objects, but "
-                        f"Iterable contained object of type {type(s)}"
-                    )
-                self.check_compatibility(s)
-            self.surveys = surveys
-        else:
-            raise TypeError(
-                f"surveys must be a Survey object or an Iterable of Survey objects,"
-                f"but surveys is type {type(surveys)}"
-            )
+        # get surveys from galcheat.
+        if not isinstance(surveys, Iterable):
+            surveys = [surveys]
+
+        self.surveys = []
+        for s in surveys:
+            if not isinstance(s, str):
+                raise TypeError(f"One of the surveys specified is not a string but type {type(s)}")
+            survey = galcheat.get_suvey(s)
+            self.check_compatibility(survey)
+            self.surveys.append(survey)
         self.is_multiresolution = len(self.surveys) > 1
 
         self.stamp_size = stamp_size
@@ -206,12 +203,16 @@ class DrawBlendsGenerator(ABC):
         self.save_path = save_path
         self.seedseq = np.random.SeedSequence(seed)
 
+        if not callable(psf_func):
+            raise TypeError("The `psf_func` argument must be callable.")
+        self.psf_func = psf_func
+
+    @abstractmethod
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
 
         This should be implemented in subclasses.
         """
-        pass
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -235,26 +236,14 @@ class DrawBlendsGenerator(ABC):
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
 
-            # make PSF and WCS
+            # make PSF
             psf = []
             for band in s.available_filters:
                 filt = s.get_filter(band)
-                if callable(filt.psf):
-                    generated_psf = filt.psf()  # generate the PSF with the provided function
-                    if isinstance(generated_psf, galsim.GSObject):
-                        psf.append(generated_psf)
-                    else:
-                        raise TypeError(
-                            f"The generated PSF with the provided function"
-                            f"for filter '{filt.name}' is not a galsim object"
-                        )
-                elif isinstance(filt.psf, galsim.GSObject):
-                    psf.append(filt.psf)  # or directly retrieve the PSF
-                else:
-                    raise TypeError(
-                        f"The PSF within filter '{filt.name}' is neither a "
-                        f"function nor a galsim object"
-                    )
+                generated_psf = self.psf_func(s, filt)
+                if not isinstance(generated_psf, galsim.GSObject):
+                    raise TypeError("PSF generated by `psf_func` is not a galsim object.")
+                psf.append(generated_psf)
             wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
             psfs[s.name] = psf
             wcss[s.name] = wcs
