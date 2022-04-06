@@ -186,7 +186,10 @@ class DrawBlendsGenerator(ABC):
         self.surveys = []
         for s in surveys:
             if not isinstance(s, str):
-                raise TypeError(f"One of the surveys specified is not a string but type {type(s)}")
+                raise TypeError(
+                    f"The arguments `surveys` should be a string or a list of strings,"
+                    f"but one element was of type {type(s)}"
+                )
             survey = galcheat.get_suvey(s)
             self.check_compatibility(survey)
             self.surveys.append(survey)
