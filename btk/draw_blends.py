@@ -145,7 +145,7 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (str or list of str): List of galcheat survey names or a single survey name.
+            surveys: List of galcheat survey names or galcheat instances or single str/instances.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -185,12 +185,16 @@ class DrawBlendsGenerator(ABC):
 
         self.surveys = []
         for s in surveys:
-            if not isinstance(s, str):
+            if not isinstance(s, (str, galcheat.survey.Survey)):
                 raise TypeError(
-                    f"The arguments `surveys` should be a string or a list of strings,"
-                    f"but one element was of type {type(s)}"
+                    "The arguments `surveys` should be a string or galcheat survey instance or a"
+                    "list of strings or galcheat survey instances.but one element was of type"
+                    f"{type(s)}"
                 )
-            survey = galcheat.get_survey(s)
+            if isinstance(s, str):
+                survey = galcheat.get_survey(s)
+            else:
+                survey = s
             self.check_compatibility(survey)
             self.surveys.append(survey)
         self.is_multiresolution = len(self.surveys) > 1
