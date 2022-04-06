@@ -6,7 +6,6 @@ from btk.draw_blends import CatsimGenerator
 from btk.measure import MeasureGenerator
 from btk.measure import sep_measure
 from btk.sampling_functions import DefaultSampling
-from btk.survey import get_surveys
 
 TEST_SEED = 0
 
@@ -16,14 +15,13 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
 
     catalog_name = data_dir / "sample_input_catalog.fits"
     stamp_size = 24
-    survey = get_surveys("LSST")
     shifts = [[-0.3, 1.2]]
     indexes = [[1]]
     catalog = CatsimCatalog.from_file(catalog_name)
     draw_blend_generator = CatsimGenerator(
         catalog,
         DefaultSampling(seed=TEST_SEED),
-        [survey],
+        ["LSST"],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,

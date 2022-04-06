@@ -13,7 +13,6 @@ from btk.metrics import get_detection_eff_matrix
 from btk.metrics import meas_ksb_ellipticity
 from btk.metrics import MetricsGenerator
 from btk.sampling_functions import DefaultSampling
-from btk.survey import get_surveys
 
 
 TEST_SEED = 0
@@ -27,7 +26,6 @@ def get_metrics_generator(
     """Returns draw generator with group sampling function"""
     catalog_name = "data/sample_input_catalog.fits"
     stamp_size = 24
-    survey = get_surveys("LSST")
     shifts = [
         [[-0.3, 1.2], [-1.6, -1.7]],
         [[-1.1, -2.1], [1.4, 1.8]],
@@ -43,7 +41,7 @@ def get_metrics_generator(
     draw_blend_generator = CatsimGenerator(
         catalog,
         DefaultSampling(seed=TEST_SEED),
-        [survey],
+        ["LSST"],
         shifts=shifts,
         indexes=indexes,
         stamp_size=stamp_size,

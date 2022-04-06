@@ -9,7 +9,6 @@ from btk.measure import sep_measure
 from btk.metrics import meas_ksb_ellipticity
 from btk.metrics import MetricsGenerator
 from btk.sampling_functions import DefaultSampling
-from btk.survey import get_surveys
 from btk.utils import load_all_results
 
 
@@ -23,7 +22,7 @@ def test_save():
     draw_blend_generator = CatsimGenerator(
         catalog,
         sampling_function,
-        get_surveys("LSST"),
+        "LSST",
         batch_size=batch_size,
         stamp_size=stamp_size,
         save_path=output_dir,

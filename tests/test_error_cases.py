@@ -1,3 +1,4 @@
+import galcheat
 import pytest
 from conftest import data_dir
 from galcheat.filter import Filter
@@ -11,9 +12,7 @@ from btk.draw_blends import SourceNotVisible
 from btk.sampling_functions import DefaultSampling
 from btk.sampling_functions import SamplingFunction
 from btk.survey import get_default_psf
-from btk.survey import get_default_psf_with_galcheat_info
 from btk.survey import get_psf_from_file
-from btk.survey import get_surveys
 
 CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 
@@ -51,7 +50,7 @@ def test_sampling_no_max_number():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("LSST"),
+            "LSST",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -82,7 +81,7 @@ def test_sampling_incompatible_catalog():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("LSST"),
+            "LSST",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -118,7 +117,7 @@ def test_sampling_too_much_objects():
         draw_generator = CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("LSST"),
+            "LSST",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -130,7 +129,6 @@ def test_sampling_too_much_objects():
 
 
 def test_source_not_visible():
-    survey = get_surveys("LSST")
     filt = Filter.from_dict(
         dict(
             name="u",
@@ -141,7 +139,7 @@ def test_source_not_visible():
             effective_wavelength=3592.13,
         )
     )
-    filt.psf = get_default_psf_with_galcheat_info(survey, filt)
+    survey = galcheat.get_survey("LSST")
     catalog = CatsimCatalog.from_file(CATALOG_PATH)
     with pytest.raises(SourceNotVisible):
         get_catsim_galaxy(catalog.table[0], filt, survey, True, True, True)
@@ -214,8 +212,8 @@ def test_psf():
 
     get_default_psf(mirror_diameter=0, effective_area=0, filt_wavelength=7528.51, fwhm=0.748)
 
-    get_psf_from_file("tests/example_psf", get_surveys("LSST"))
-    get_psf_from_file("tests/multi_psf", get_surveys("LSST"))
+    get_psf_from_file("tests/example_psf", galcheat.get_survey("LSST"))
+    get_psf_from_file("tests/multi_psf", galcheat.get_survey("LSST"))
     # The case where the folder is empty cannot be tested as you cannot add an empty folder to git
 
 
@@ -232,7 +230,7 @@ def test_incompatible_catalogs():
         draw_generator = CosmosGenerator(  # noqa: F841
             catalog,
             sampling_function,
-            get_surveys("LSST"),
+            "LSST",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -243,7 +241,7 @@ def test_incompatible_catalogs():
         CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("COSMOS"),
+            "COSMOS",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,
@@ -255,7 +253,7 @@ def test_incompatible_catalogs():
         CatsimGenerator(
             catalog,
             sampling_function,
-            get_surveys("LSST"),
+            "LSST",
             stamp_size=stamp_size,
             batch_size=batch_size,
             cpus=cpus,

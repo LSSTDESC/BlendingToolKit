@@ -10,7 +10,6 @@ from btk.metrics import meas_ksb_ellipticity
 from btk.metrics import MetricsGenerator
 from btk.plot_utils import plot_metrics_summary
 from btk.sampling_functions import DefaultSampling
-from btk.survey import get_surveys
 
 
 @patch("btk.plot_utils.plt.show")
@@ -21,14 +20,13 @@ def test_multiresolution(mock_show):
     batch_size = 8
     cpus = 1
     add_noise = "all"
-    surveys = get_surveys(["LSST", "HSC"])
 
     catalog = CatsimCatalog.from_file(catalog_name)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
     draw_blend_generator = CatsimGenerator(
         catalog,
         sampling_function,
-        surveys,
+        ["LSST", "HSC"],
         stamp_size=stamp_size,
         batch_size=batch_size,
         cpus=cpus,
