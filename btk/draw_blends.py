@@ -3,8 +3,9 @@ import copy
 import os
 from abc import ABC
 from abc import abstractmethod
-from collections.abc import Iterable
 from itertools import chain
+from typing import List
+from typing import Tuple
 
 import galcheat
 import galsim
@@ -180,7 +181,7 @@ class DrawBlendsGenerator(ABC):
         self.max_number = self.blend_generator.max_number
 
         # get surveys from galcheat.
-        if not isinstance(surveys, Iterable):
+        if not isinstance(surveys, (List, Tuple)):
             surveys = [surveys]
 
         self.surveys = []

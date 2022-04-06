@@ -1,9 +1,10 @@
+import galcheat
 from conftest import data_dir
 
 from btk.catalog import CosmosCatalog
 from btk.draw_blends import CosmosGenerator
 from btk.sampling_functions import DefaultSampling
-from btk.survey import get_surveys
+
 
 COSMOS_CATALOG_PATHS = [
     str(data_dir / "cosmos/real_galaxy_catalog_23.5_example.fits"),
@@ -21,12 +22,11 @@ def test_cosmos_galaxies_real():
     batch_size = 2
     catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
-    COSMOS = get_surveys("COSMOS")
 
     draw_generator = CosmosGenerator(
         catalog,
         sampling_function,
-        COSMOS,
+        "COSMOS",
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,
@@ -43,12 +43,11 @@ def test_cosmos_galaxies_parametric():
     batch_size = 2
     catalog = CosmosCatalog.from_file(COSMOS_CATALOG_PATHS)
     sampling_function = DefaultSampling(stamp_size=stamp_size)
-    COSMOS = get_surveys("COSMOS")
 
     draw_generator = CosmosGenerator(
         catalog,
         sampling_function,
-        COSMOS,
+        "COSMOS",
         batch_size=batch_size,
         stamp_size=stamp_size,
         cpus=1,
@@ -65,7 +64,7 @@ def test_cosmos_ext_galaxies():
     batch_size = 2
     catalog = CosmosCatalog.from_file(COSMOS_EXT_CATALOG_PATHS, exclusion_level="none")
     sampling_function = DefaultSampling(stamp_size=stamp_size)
-    COSMOS = get_surveys("COSMOS")
+    COSMOS = galcheat.get_survey("COSMOS")
 
     draw_generator = CosmosGenerator(
         catalog,
