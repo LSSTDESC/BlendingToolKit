@@ -145,7 +145,7 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (list or list of str): List of galcheat survey names or a single survey name.
+            surveys (str or list of str): List of galcheat survey names or a single survey name.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
