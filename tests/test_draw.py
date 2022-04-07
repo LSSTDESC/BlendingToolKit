@@ -76,9 +76,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a proiri for the default input settings.
         """
-        test_batch_max = np.array([90.276, 1242.4, 7626.081, 10375.342, 8512.592, 4766.38])
+        test_batch_max = np.array([84.405, 1151.363, 7264.221, 9658.402, 7878.188, 4316.912])
         test_batch_mean = 3.1129989295360363
-        test_batch_std = 90.8863095471388
+        test_batch_std = 87.75473356357536
         batch_max = isolated_images.max(axis=(0, 1, 3, 4))
         batch_mean = isolated_images.mean()
         batch_std = isolated_images.std()
@@ -107,9 +107,9 @@ class TestBasicDraw:
         the mean and std values in the batch. This is compared to the values
         measured a priori for the default input settings.
         """
-        test_batch_max = np.array([172.04, 1375.16, 7880.88, 10823.64, 9120.2, 4836.32])
-        test_batch_mean = 6.118185763860468
-        test_batch_std = 403.79788119078427
+        test_batch_max = np.array([217.32, 1316.92, 7756.88, 10434.56, 8382.2, 4928.28])
+        test_batch_mean = 6.094021990717676
+        test_batch_std = 402.6837009646611
         batch_max = blend_images.max(axis=(0, 2, 3))
         batch_mean = blend_images.mean()
         batch_std = blend_images.std()
