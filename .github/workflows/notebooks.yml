@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.8]
 
     steps:
       - name: Checkout github repo (+ download lfs dependencies)
@@ -27,7 +27,7 @@ jobs:
       - name: Install Poetry
         run: |
           pip install --upgrade pip
-          pip install poetry==1.1.11
+          pip install poetry
 
       - name: Create environment variables
         run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
@@ -46,9 +46,7 @@ jobs:
 
       - name: Install poetry dependencies
         run: |
-          poetry run pip install Cython
-          poetry install --extras "scarlet"
-          poetry run pip install git+https://github.com/pmelchior/scarlet
+          poetry install
 
       - name: Run notebooks
         run: |
