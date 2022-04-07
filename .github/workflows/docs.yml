@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
 
     steps:
       - name: Checkout github repo
@@ -28,7 +28,7 @@ jobs:
       - name: Install Poetry
         run: |
           pip install --upgrade pip
-          pip install poetry==1.1.11
+          pip install poetry
 
       - name: Poetry cache
         uses: actions/cache@v2
@@ -44,7 +44,6 @@ jobs:
 
       - name: Install poetry dependencies
         run: |
-          poetry run pip install Cython
           poetry install
 
       - name: build docs
