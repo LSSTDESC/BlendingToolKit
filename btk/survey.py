@@ -10,7 +10,57 @@ import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
-from galcheat.survey import Survey
+
+
+class Survey(galcheat.survey.Survey):
+    """Survey object that extends Galcheat surveys to allow modification."""
+
+    def __setattr__(self, x, val):
+        """Allow attribute modification."""
+        self.__dict__[x] = val
+
+    def get_filter(self, filter_name):
+        """Same as Galcheat getter method for filter except return a view not a copy."""
+        if filter_name not in self.available_filters:
+            raise ValueError(
+                "Please check the filter name. "
+                f"The available filters for {self.name} "
+                f"are {self.available_filters}"
+            )
+
+        return self._filters[filter_name]
+
+
+class Filter(galcheat.filter.Filter):
+    """Survey object that extends Galcheat surveys to allow modification."""
+
+    def __setattr__(self, x, val):
+        """Allow attribute modification."""
+        self.__dict__[x] = val
+
+
+def _get_btk_survey_from_galcheat_survey(survey_name: str):
+    survey = galcheat.get_survey(survey_name)
+
+    # obtain survey dictionary
+    surv_dict = vars(survey)
+
+    # remove keys not required to initialize dataclass.
+    surv_dict.pop("available_filters")
+    surv_dict.pop("effective_area")
+
+    # create btk survey instances
+    btk_survey = Survey(**surv_dict)
+
+    # now do the same for filters
+    btk_filters = {}
+    for band in btk_survey.available_filters:
+        filt = btk_survey.get_filter(band)
+        btk_filt = Filter(**vars(filt))
+        btk_filters[band] = btk_filt
+    btk_survey._filters = btk_filters
+
+    return btk_survey
 
 
 def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
@@ -21,14 +71,13 @@ def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
     instance.
 
     Args:
-        names (str or list): A single str specifying a survey from conf/surveys or a list with
-            multiple survey names.
+        names (str or list): A single str specifying a survey from galcheat.available_surveys().
         psf_func (function): Python function which takes in two arguments: `survey` and `filter`
             that returns a PSF as a galsim object or as a callable with no arguments.
             If `None`, the default PSF for the specified survey will be used in each band.
 
     Returns:
-        galcheat.survey.Survey object or list of such objects.
+        btk.survey.Survey object or list of such objects.
     """
     if isinstance(names, str):
         names = [names]
@@ -38,7 +87,7 @@ def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
     # add PSF to filters
     surveys = []
     for survey_name in names:
-        survey = galcheat.get_survey(survey_name)
+        survey = _get_btk_survey_from_galcheat_survey(survey_name)
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
