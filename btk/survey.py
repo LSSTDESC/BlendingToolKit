@@ -77,9 +77,8 @@ class Filter(galcheat.filter.Filter):
 def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
     """Return specified surveys from galcheat extended to contain PSF information.
 
-    This function currently returns a list of galcheat instances if `names` is a list with more
-    than one element. If `names` is a str or a singleton list then we return a single galcheat
-    instance.
+    This function currently returns a list of `Survey` instances if `names` is a list with more
+    than one element. If `names` is a str or a singleton list then we return a single `Survey`.
 
     Args:
         names (str or list): A single str specifying a survey from galcheat.available_surveys().
@@ -113,17 +112,15 @@ def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
     return surveys
 
 
-def get_default_psf_with_galcheat_info(
-    survey: galcheat.survey.Survey, filtr: galcheat.filter.Filter
-):
+def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
     """Return the default PSF model as a galsim object based on galcheat survey parameters.
 
     Args:
-        survey (galcheat.survey.Survey): Survey object from galcheat.
-        filtr (galcheat.filter.Filter): Filter object from galcheat.
+        survey (Survey): BTK Survey object.
+        filtr (Filter): BTK Filter object.
 
     Returns:
-        btk.survey.Survey object or list of such objects.
+        Galsim object corresponding to simulated PSF.
     """
     return get_default_psf(
         survey.mirror_diameter.to_value("m"),
