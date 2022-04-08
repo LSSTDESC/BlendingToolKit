@@ -30,6 +30,36 @@ class Survey(galcheat.survey.Survey):
 
         return self._filters[filter_name]
 
+    @classmethod
+    def from_galcheat_survey(cls, survey: Union[str, galcheat.survey.Survey]):
+        """Obtain the corresponding BTK survey object from a Galcheat survey object."""
+        if isinstance(survey, str):
+            galcheat_survey = galcheat.get_survey(survey)
+        elif isinstance(survey, galcheat.survey.Survey):
+            galcheat_survey = survey
+        else:
+            raise TypeError(
+                "`survey` must either be the nanme of one of the available galcheat surveys or a"
+                "galcheat survey object."
+            )
+
+        # obtain survey dictionary
+        surv_dict = vars(galcheat_survey)
+        exclude = {"available_filters", "effective_area"}
+
+        # create btk survey instances
+        btk_survey = cls(**{k: v for k, v in surv_dict.items() if k not in exclude})
+
+        # now do the same for filters
+        btk_filters = {}
+        for band in btk_survey.available_filters:
+            galcheat_filter = galcheat_survey.get_filter(band)
+            btk_filt = Filter.from_galcheat_filter(galcheat_filter)
+            btk_filters[band] = btk_filt
+        btk_survey._filters = btk_filters
+
+        return btk_survey
+
 
 class Filter(galcheat.filter.Filter):
     """Survey object that extends Galcheat surveys to allow modification."""
@@ -38,32 +68,13 @@ class Filter(galcheat.filter.Filter):
         """Allow attribute modification."""
         self.__dict__[x] = val
 
-
-def _get_btk_survey_from_galcheat_survey(survey_name: str):
-    survey = galcheat.get_survey(survey_name)
-
-    # obtain survey dictionary
-    surv_dict = vars(survey)
-
-    # remove keys not required to initialize dataclass.
-    surv_dict.pop("available_filters")
-    surv_dict.pop("effective_area")
-
-    # create btk survey instances
-    btk_survey = Survey(**surv_dict)
-
-    # now do the same for filters
-    btk_filters = {}
-    for band in btk_survey.available_filters:
-        filt = btk_survey.get_filter(band)
-        btk_filt = Filter(**vars(filt))
-        btk_filters[band] = btk_filt
-    btk_survey._filters = btk_filters
-
-    return btk_survey
+    @classmethod
+    def from_galcheat_filter(cls, galcheat_filter: galcheat.filter.Filter):
+        """Return the corresponding BTK Filter from the Galcheat Filter."""
+        return cls(**vars(galcheat_filter))
 
 
-def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
+def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
     """Return specified surveys from galcheat extended to contain PSF information.
 
     This function currently returns a list of galcheat instances if `names` is a list with more
@@ -87,7 +98,7 @@ def get_surveys(names: Union[Survey, List[Survey]], psf_func: Callable = None):
     # add PSF to filters
     surveys = []
     for survey_name in names:
-        survey = _get_btk_survey_from_galcheat_survey(survey_name)
+        survey = Survey.from_galcheat_survey(survey_name)
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
