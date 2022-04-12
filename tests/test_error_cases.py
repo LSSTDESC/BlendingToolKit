@@ -1,6 +1,5 @@
 import pytest
 from conftest import data_dir
-from galcheat.filter import Filter
 
 from btk.catalog import CatsimCatalog
 from btk.catalog import CosmosCatalog
@@ -10,6 +9,7 @@ from btk.draw_blends import get_catsim_galaxy
 from btk.draw_blends import SourceNotVisible
 from btk.sampling_functions import DefaultSampling
 from btk.sampling_functions import SamplingFunction
+from btk.survey import Filter
 from btk.survey import get_default_psf
 from btk.survey import get_default_psf_with_galcheat_info
 from btk.survey import get_psf_from_file
@@ -124,7 +124,7 @@ def test_sampling_too_much_objects():
             cpus=cpus,
             add_noise=add_noise,
         )
-        draw_output = next(draw_generator)  # noqa: F841
+        next(draw_generator)  # noqa: F841
 
     assert "Number of objects per blend must be less than max_number" in str(excinfo.value)
 

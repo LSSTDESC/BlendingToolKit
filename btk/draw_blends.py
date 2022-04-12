@@ -9,7 +9,6 @@ from itertools import chain
 import galsim
 import numpy as np
 from astropy.table import Column
-from galcheat.survey import Survey
 from galcheat.utilities import mag2counts
 from galcheat.utilities import mean_sky_level
 from tqdm.auto import tqdm
@@ -19,6 +18,7 @@ from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process
 from btk.multiprocess import multiprocess
 from btk.survey import make_wcs
+from btk.survey import Survey
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -143,8 +143,8 @@ class DrawBlendsGenerator(ABC):
             catalog (btk.catalog.Catalog): BTK catalog object from which galaxies are taken.
             sampling_function (btk.sampling_function.SamplingFunction): BTK sampling
                 function to use.
-            surveys (list or galcheat.survey.Survey): List of galcheat Survey objects or
-                single galcheat Survey object.
+            surveys (list or btk.survey.Survey): List of BTK Survey objects or
+                single BTK Survey object.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
             cpus (int): Number of cpus to use; defines the number of minibatches
@@ -211,7 +211,6 @@ class DrawBlendsGenerator(ABC):
 
         This should be implemented in subclasses.
         """
-        pass
 
     def __iter__(self):
         """Returns iterable which is the object itself."""
@@ -409,8 +408,8 @@ class DrawBlendsGenerator(ABC):
         Args:
             blend_catalog (astropy.table.Table): Catalog with entries corresponding to one blend.
             psf: Galsim object containing the psf for the given filter
-            filt (galcheat.filter.Filter): Galcheat Filter object
-            survey (galcheat.survey.Survey): Galcheat Survey object
+            filt (btk.survey.Filter): BTK Filter object
+            survey (btk.survey.Survey): BTK Survey object
             seedseq_blend (numpy.random.SeedSequence): Seed sequence for the noise generation.
             extra_data: Special field of shape (n_blend,?), containing
                 additional data for drawing the blend. See render_minibatch
@@ -461,7 +460,7 @@ class DrawBlendsGenerator(ABC):
 
         Args:
             entry (astropy.table.Table): Line from astropy describing the galaxy to draw
-            filt (galcheat.filter.Filter): Galcheat Filter object corresponding to the band where
+            filt (btk.survey.Filter): BTK Filter object corresponding to the band where
                 the image is drawn.
             psf: Galsim object containing the PSF relative to the chosen filter
             survey (btk.survey.Survey): BTK Survey object

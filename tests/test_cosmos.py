@@ -35,7 +35,7 @@ def test_cosmos_galaxies_real():
         gal_type="real",
     )
 
-    _ = next(draw_generator)
+    next(draw_generator)
 
 
 def test_cosmos_galaxies_parametric():
@@ -57,7 +57,7 @@ def test_cosmos_galaxies_parametric():
         gal_type="parametric",
     )
 
-    _ = next(draw_generator)
+    next(draw_generator)
 
 
 def test_cosmos_ext_galaxies():
@@ -78,4 +78,4 @@ def test_cosmos_ext_galaxies():
         verbose=True,
     )
 
-    _ = next(draw_generator)
+    next(draw_generator)
