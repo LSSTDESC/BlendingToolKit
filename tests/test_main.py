@@ -21,7 +21,7 @@ def test_main():
     # test survey CLI
     cfg = get_cfg(overrides={"surveys": ["LSST"]})
     main(cfg)
-    cfg = get_cfg(overrides={"surveys": ["LSST", "DES"], "meas_band_num": [0, 0]})
+    cfg = get_cfg(overrides={"surveys": ["LSST", "DES"], "meas_band_name": ["r", "r"]})
     main(cfg)
 
 

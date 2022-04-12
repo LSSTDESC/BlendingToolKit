@@ -685,7 +685,7 @@ class MetricsGenerator:
     def __init__(
         self,
         measure_generator,
-        meas_band_num=0,
+        meas_band_name="r",
         noise_threshold_factor=3,
         target_meas=None,
         save_path=None,
@@ -697,7 +697,7 @@ class MetricsGenerator:
 
         Args:
             measure_generator (btk.measure.MeasureGenerator): Measurement generator object.
-            meas_band_num (int or tuple): Specifies the index of the band in which you want
+            meas_band_name (str or tuple): Specifies the name of the band in which you want
                 measurements to be done (for segmentation and target measures). If
                 multiresolution, should be a tuple containing a band for each survey
                 (in the same order as the surveys were given).
@@ -718,7 +718,7 @@ class MetricsGenerator:
             verbose (bool): Indicates whether errors in the target_meas should be printed or not.
         """
         self.measure_generator: MeasureGenerator = measure_generator
-        self.meas_band_num = meas_band_num
+        self.meas_band_name = meas_band_name
         self.target_meas = target_meas if target_meas is not None else {}
         self.noise_threshold_factor = noise_threshold_factor
         self.save_path = save_path
@@ -731,49 +731,54 @@ class MetricsGenerator:
         """Returns metric results calculated on one batch."""
         blend_results, measure_results = next(self.measure_generator)
         surveys = self.measure_generator.draw_blend_generator.surveys
-        meas_band_num = self.meas_band_num
+        meas_band_name = self.meas_band_name
 
         metrics_results = {}
         for meas_func in measure_results["catalog"].keys():
             if self.is_multiresolution:
-                if not isinstance(meas_band_num, Iterable) and hasattr(meas_band_num, "__len__"):
+                if not isinstance(meas_band_name, Iterable) and hasattr(meas_band_name, "__len__"):
                     raise ValueError(
-                        f"meas_band_num is required to be an finite length iterable,"
-                        f"instead type was {type(meas_band_num)}"
+                        f"meas_band_name is required to be an finite length iterable,"
+                        f"instead type was {type(meas_band_name)}"
                     )
-                if not len(meas_band_num) == len(surveys):
+                if not len(meas_band_name) == len(surveys):
                     raise ValueError(
-                        f"meas_band_num should be an iterable of exactly the same len as the"
-                        f"number of surveys: {len(surveys)}, instead len is {len(meas_band_num)}"
+                        f"meas_band_name should be an iterable of exactly the same len as the"
+                        f"number of surveys: {len(surveys)}, instead len is {len(meas_band_name)}"
                     )
                 metrics_results_f = {}
-                for i, surv_name in enumerate(blend_results["isolated_images"].keys()):
+                for band_name, survey in zip(meas_band_name, surveys):
+                    if band_name not in survey.available_filters:
+                        raise ValueError(
+                            f"Requested measure band {band_name} for survey {survey.name} is "
+                            f"not in available bands for this survey: {survey.available_filters}"
+                        )
+                    band_num = survey.available_filters.index(band_name)
                     additional_params = {
-                        "psf": blend_results["psf"][surv_name],
-                        "pixel_scale": surveys[i].pixel_scale.to_value("arcsec"),
-                        "meas_band_num": meas_band_num[i],
+                        "psf": blend_results["psf"][survey.name],
+                        "pixel_scale": survey.pixel_scale.to_value("arcsec"),
+                        "meas_band_num": band_num,
                         "verbose": self.verbose,
                     }
-                    band_name = surveys[i].available_filters[meas_band_num[i]]
-                    filtr = surveys[i].get_filter(band_name)
+                    filtr = survey.get_filter(band_name)
                     noise_threshold = self.noise_threshold_factor * np.sqrt(
-                        mean_sky_level(surveys[i], filtr).to_value("electron")
+                        mean_sky_level(survey, filtr).to_value("electron")
                     )
                     target_meas = {}
                     for k in self.target_meas.keys():
                         target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
-                    metrics_results_f[surv_name] = compute_metrics(
-                        blend_results["isolated_images"][surv_name],
-                        blend_results["blend_list"][surv_name],
-                        measure_results["catalog"][meas_func][surv_name],
-                        measure_results["segmentation"][meas_func][surv_name],
-                        measure_results["deblended_images"][meas_func][surv_name],
+                    metrics_results_f[survey.name] = compute_metrics(
+                        blend_results["isolated_images"][survey.name],
+                        blend_results["blend_list"][survey.name],
+                        measure_results["catalog"][meas_func][survey.name],
+                        measure_results["segmentation"][meas_func][survey.name],
+                        measure_results["deblended_images"][meas_func][survey.name],
                         noise_threshold,
-                        meas_band_num[i],
+                        band_num,
                         target_meas,
                         channels_last=self.measure_generator.channels_last,
-                        save_path=os.path.join(self.save_path, meas_func, surv_name)
+                        save_path=os.path.join(self.save_path, meas_func, survey.name)
                         if self.save_path is not None
                         else None,
                         f_distance=self.f_distance,
@@ -782,14 +787,21 @@ class MetricsGenerator:
                 metrics_results_f = reverse_dictionary_dictionary(metrics_results_f)
 
             else:
+                band_name = meas_band_name
+                survey = surveys[0]
+                if band_name not in survey.available_filters:
+                    raise ValueError(
+                        f"Requested measure band {band_name} for survey {survey.name} is "
+                        f"not in available bands for this survey: {survey.available_filters}"
+                    )
+                band_num = survey.available_filters.index(band_name)
+                filtr = survey.get_filter(band_name)
                 additional_params = {
                     "psf": blend_results["psf"],
-                    "pixel_scale": surveys[0].pixel_scale.to_value("arcsec"),
-                    "meas_band_num": meas_band_num,
+                    "pixel_scale": survey.pixel_scale.to_value("arcsec"),
+                    "meas_band_num": band_num,
                     "verbose": self.verbose,
                 }
-                band_name = surveys[0].available_filters[meas_band_num]
-                filtr = surveys[0].get_filter(band_name)
                 noise_threshold = self.noise_threshold_factor * np.sqrt(
                     mean_sky_level(surveys[0], filtr).to_value("electron")
                 )
@@ -804,7 +816,7 @@ class MetricsGenerator:
                     measure_results["segmentation"][meas_func],
                     measure_results["deblended_images"][meas_func],
                     noise_threshold,
-                    meas_band_num,
+                    band_num,
                     target_meas,
                     channels_last=self.measure_generator.channels_last,
                     save_path=os.path.join(self.save_path, meas_func, surveys[0].name)

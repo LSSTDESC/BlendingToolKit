@@ -29,7 +29,7 @@ measure_functions:
   - basic
 
 # metrics
-meas_band_num: 0
+meas_band_name: "r"
 noise_threshold_factor: 3
 distance_threshold_match: 5.0
 
@@ -47,7 +47,7 @@ measure:
 
 metrics:
   kwargs:
-    meas_band_num: ${meas_band_num}
+    meas_band_name: ${meas_band_name}
     noise_threshold_factor: ${noise_threshold_factor}
     distance_threshold_match: ${distance_threshold_match}
     save_path: ${save_path}
