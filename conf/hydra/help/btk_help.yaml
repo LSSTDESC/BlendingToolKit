@@ -88,7 +88,7 @@ template: |-
     * use_metrics: List of metrics to return, options are:
       {'detection', 'segmentation', 'reconstruction'}
 
-    * meas_band_num: Band index to perform measurements in.
+    * meas_band_name: Band name to perform measurements in.
 
     * noise_threshold_factor: Factor for determining the threshold which is applied when
       getting segmentations from true images. A value of 3 would correspond to a threshold of

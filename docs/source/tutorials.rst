@@ -458,7 +458,7 @@ Saving the results can be automatically achieved by providing the save_path argu
   meas_generator = btk.measure.MeasureGenerator(btk.measure.sep_measure,draw_generator,save_path=save_path)
   metrics_generator = btk.metrics.MetricsGenerator(meas_generator,
                                                    target_meas={"ellipticity":btk.metrics.meas_ksb_ellipticity},
-                                                   meas_band_num=0,
+                                                   meas_band_name='r',
                                                    save_path=save_path)
   blend_results,meas_results,results = next(metrics_generator)
 
