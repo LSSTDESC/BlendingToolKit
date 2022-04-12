@@ -124,7 +124,7 @@ def test_sampling_too_much_objects():
             cpus=cpus,
             add_noise=add_noise,
         )
-        _ = next(draw_generator)  # noqa: F841
+        next(draw_generator)  # noqa: F841
 
     assert "Number of objects per blend must be less than max_number" in str(excinfo.value)
 

@@ -36,4 +36,4 @@ def main(cfg: OmegaConf):
 
     # get metrics generator
     metrics_generator = MetricsGenerator(measure_generator, **cfg.metrics.kwargs)
-    _ = next(metrics_generator)
+    next(metrics_generator)
