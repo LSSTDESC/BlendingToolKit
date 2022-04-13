@@ -37,7 +37,7 @@ def test_multiresolution(mock_show):
 
     meas_generator = MeasureGenerator(sep_measure, draw_blend_generator, cpus=cpus)
     metrics_generator = MetricsGenerator(
-        meas_generator, target_meas={"ellipticity": meas_ksb_ellipticity}, meas_band_num=(2, 1)
+        meas_generator, target_meas={"ellipticity": meas_ksb_ellipticity}, meas_band_name=("r", "g")
     )
     blend_results, measure_results, metrics_results = next(metrics_generator)
 

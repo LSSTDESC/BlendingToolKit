@@ -103,7 +103,7 @@ Here is a list of all the options of BTK you can customize directly from the CLI
 
     - sep
 
-* ``meas_band_num``: Band index to perform measurements in.
+* ``meas_band_name``: Band name to perform measurements in.
 
 * ``noise_threshold_factor``: Factor for determining the threshold which is applied when getting segmentations from true images. A value of ``3`` would correspond to a threshold of three sigmas (with sigma the standard deviation of the noise)
 
