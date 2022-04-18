@@ -148,129 +148,50 @@ You may write more complex sampling functions to have more control over how the 
 Survey
 .......
 
-The BTK Survey object defines the observing conditions relative to a survey. It is based on the named tuple class, and contains various parameters (eg. pixel scale, effective_area), including a list of Filter objects. The Filter class is also a named tuple, and contains information concerning a specific filter in the survey (eg. exporesure time, psf). Numerous surveys are already implemented in BTK; we will import the LSST one for this tutorial.
+BTK relies on the [galcheat](https://github.com/aboucaud/galcheat) package, which contains several `galcheat.survey.Survey` instances, which store the parameters for different surveys (including LSST, HSC, HST COSMOS...). The parameters represent physical parameters of the survey (mirror size, pixel scale) ; each survey also contains several `galcheat.filter.Filter` objects with the parameters specific to each filter (exposure time, zeropoint).
+Those objects can easily be imported in BTK using the following function and the name of the survey. Internally, we use a `btk.survey.Survey` and a corresponding `btk.filter.Filter`, which can be modified by the user (galcheat objects cannot) and contain an additional PSF attribute.
+For this tutorial, we will import the survey corresponding to LSST.
 
 .. jupyter-execute::
 
   LSST = btk.survey.get_surveys("LSST")
 
-You may want to define your own survey if you wish to modify some parameters or use a survey which is not implemented in BTK. We advise you to take the code of an existing survey and modify it to your convenience. Here is the one for LSST:
+Most attributes should be pretty straightforward to modify; please take a look at the [API](https://lsstdesc.org/BlendingToolKit/src/btk.survey.html) for a more substantial description of the attributes. The [custom tutorial](https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb) also provides descriptions of the attributes and more information on how to customize surveys.
+
+The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It is added via the `get_surveys` function : the user may provide a `psf` argument, which should be a callable taking as argument a survey and a filter and returning a galsim object. For instance :
 
 .. jupyter-execute::
 
-  from btk.survey import get_psf
+  import galsim
 
-  _central_wavelength = {
-      "u": 3592.13,
-      "g": 4789.98,
-      "r": 6199.52,
-      "i": 7528.51,
-      "z": 8689.83,
-      "y": 9674.05,
-  }
+  def custom_psf(survey,filtr):
+      return galsim.Kolmogorov(fwhm=filtr.psf_fwhm.to_value("arcsec"))
 
-  LSST = btk.survey.Survey(
-      "LSST",
-      pixel_scale=0.2,
-      effective_area=32.4,
-      mirror_diameter=8.36,
-      airmass=1.2,
-      zeropoint_airmass=1.2,
-      filters=[
-          btk.survey.Filter(
-              name="u",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["u"],
-                  fwhm=0.859,
-              ),
-              sky_brightness=22.9,
-              exp_time=1680,
-              zeropoint=26.40,
-              extinction=0.451,
-          ),
-          btk.survey.Filter(
-              name="g",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["g"],
-                  fwhm=0.814,
-              ),
-              sky_brightness=22.3,
-              exp_time=2400,
-              zeropoint=28.26,
-              extinction=0.163,
-          ),
-          btk.survey.Filter(
-              name="r",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["r"],
-                  fwhm=0.781,
-              ),
-              sky_brightness=21.2,
-              exp_time=5520,
-              zeropoint=28.10,
-              extinction=0.10,
-          ),
-          btk.survey.Filter(
-              name="i",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["i"],
-                  fwhm=0.748,
-              ),
-              sky_brightness=20.5,
-              exp_time=5520,
-              zeropoint=27.78,
-              extinction=0.07,
-          ),
-          btk.survey.Filter(
-              name="z",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["z"],
-                  fwhm=0.725,
-              ),
-              sky_brightness=19.6,
-              exp_time=4800,
-              zeropoint=27.39,
-              extinction=0.043,
-          ),
-          btk.survey.Filter(
-              name="y",
-              psf=get_psf(
-                  mirror_diameter=8.36,
-                  effective_area=32.4,
-                  filt_wavelength=_central_wavelength["y"],
-                  fwhm=0.703,
-              ),
-              sky_brightness=18.6,
-              exp_time=4800,
-              zeropoint=26.56,
-              extinction=0.138,
-          ),
-      ],
-  )
+  LSST_custom = btk.survey.get_surveys("LSST",custom_psf)
 
-Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
+If no `psf` argument is provided, a default PSF taking into account optical and atmospheric effects will be used.
 
-The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It can be provided either directly as a Galsim model (eg ``galsim.Kolmogorov(fwhm=1.5)``) or as a function returning a Galsim model, for randomization purposes. For example:
+A more advanced possibility is to have your `custom_psf` function return a callable which in turn returns a galsim object. This callable will be called for each batch, allowing the user to randomize the PSF for instance :
 
 .. jupyter-execute::
 
-  def random_psf():
-      fwhm = np.random.uniform(1.5,1.7)
-      return galsim.Kolmogorov(fwhm)
+  def custom_psf(survey,filtr):
+    def random_psf():
+        return galsim.Kolmogorov(fwhm=filtr.psf_fwhm.to_value("arcsec")+np.random.uniform(-0.1,+0.1)) #Randomize the FWHM
+    return random_psf
 
-You may want to use a function taking an argument to avoid rewriting the function for each filter; we advise using lambda functions to achieve this, eg ``get_u_psf = lambda: get_custom_psf(u_band_argument)``.
+  LSST_custom = btk.survey.get_surveys("LSST",custom_psf)
 
-Finally, you can use the default function ``get_psf`` as demonstrated in the LSST Survey, to get a complex (not random) PSF, or use the function ``get_psf_from_file(psf_dir, pixel_scale)`` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided). For more information on these functions take a look at the API.
+Finally, we included the function `get_psf_from_file(psf_dir, pixel_scale)` to import a PSF from a FITS file (randomly if there are more than one file in the directory provided). It can be used as :
+
+.. jupyter-execute::
+
+  def custom_psf(survey,filtr):
+      def random_psf():
+          return get_psf_from_file(psf_dir, survey.pixel_scale) #psf_dir should be replaced by the directory containing the PSF for the given survey and filter
+      return random_psf
+
+  LSST_custom = btk.survey.get_surveys("LSST",custom_psf)
 
 Drawing the blends
 ...................
