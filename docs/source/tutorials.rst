@@ -148,7 +148,7 @@ You may write more complex sampling functions to have more control over how the 
 Survey
 .......
 
-BTK relies on the [galcheat](https://github.com/aboucaud/galcheat) package, which contains several `galcheat.survey.Survey` instances, which store the parameters for different surveys (including LSST, HSC, HST COSMOS...). The parameters represent physical parameters of the survey (mirror size, pixel scale) ; each survey also contains several `galcheat.filter.Filter` objects with the parameters specific to each filter (exposure time, zeropoint).
+BTK relies on the `galcheat <https://github.com/aboucaud/galcheat>`_ package, which contains several `galcheat.survey.Survey` instances, which store the parameters for different surveys (including LSST, HSC, HST COSMOS...). The parameters represent physical parameters of the survey (mirror size, pixel scale) ; each survey also contains several `galcheat.filter.Filter` objects with the parameters specific to each filter (exposure time, zeropoint).
 Those objects can easily be imported in BTK using the following function and the name of the survey. Internally, we use a `btk.survey.Survey` and a corresponding `btk.filter.Filter`, which can be modified by the user (galcheat objects cannot) and contain an additional PSF attribute.
 For this tutorial, we will import the survey corresponding to LSST.
 
@@ -156,7 +156,7 @@ For this tutorial, we will import the survey corresponding to LSST.
 
   LSST = btk.survey.get_surveys("LSST")
 
-Most attributes should be pretty straightforward to modify; please take a look at the [API](https://lsstdesc.org/BlendingToolKit/src/btk.survey.html) for a more substantial description of the attributes. The [custom tutorial](https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb) also provides descriptions of the attributes and more information on how to customize surveys.
+Most attributes should be pretty straightforward to modify; please take a look at the `API <https://lsstdesc.org/BlendingToolKit/src/btk.survey.html>`_ for a more substantial description of the attributes. The `custom tutorial <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/02b-custom-tutorial.ipynb>`_ also provides descriptions of the attributes and more information on how to customize surveys.
 
 The `psf` attribute deserves an additionnal explanation: it corresponds to the PSF for each filter. It is added via the `get_surveys` function : the user may provide a `psf` argument, which should be a callable taking as argument a survey and a filter and returning a galsim object. For instance :
 
