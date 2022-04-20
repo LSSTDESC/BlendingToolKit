@@ -148,8 +148,8 @@ You may write more complex sampling functions to have more control over how the 
 Survey
 .......
 
-BTK relies on the `galcheat <https://github.com/aboucaud/galcheat>`_ package, which contains several `galcheat.survey.Survey` instances, which store the parameters for different surveys (including LSST, HSC, HST COSMOS...). The parameters represent physical parameters of the survey (mirror size, pixel scale) ; each survey also contains several `galcheat.filter.Filter` objects with the parameters specific to each filter (exposure time, zeropoint).
-Those objects can easily be imported in BTK using the following function and the name of the survey. Internally, we use a `btk.survey.Survey` and a corresponding `btk.filter.Filter`, which can be modified by the user (galcheat objects cannot) and contain an additional PSF attribute.
+BTK relies on the `galcheat <https://github.com/aboucaud/galcheat>`_ package, which contains several galcheat :class:`~galcheat.survey.Survey` instances, which store the parameters for different surveys (including LSST, HSC, HST COSMOS...). The parameters represent physical parameters of the survey (mirror size, pixel scale) ; each survey also contains several galcheat :class:`galcheat.filter.Filter` objects with the parameters specific to each filter (exposure time, zeropoint).
+Those objects can easily be imported in BTK using the following function and the name of the survey. Internally, we use a :class:`btk.survey.Survey` and a corresponding :class:`btk.filter.Filter`, which can be modified by the user (galcheat objects cannot) and contain an additional PSF attribute.
 For this tutorial, we will import the survey corresponding to LSST.
 
 .. jupyter-execute::
