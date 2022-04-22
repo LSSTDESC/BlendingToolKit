@@ -137,7 +137,7 @@ def test_source_not_visible():
             psf_fwhm=0.859,
             zeropoint=9.16,
             sky_brightness=22.9,
-            exposure_time=1680,
+            full_exposure_time=1680,
             effective_wavelength=3592.13,
         )
     )

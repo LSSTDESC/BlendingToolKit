@@ -20,7 +20,7 @@ documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
 license = "MIT"
 name = "blending_toolkit"
-packages = [{include = "btk"}, {include = 'conf'}]
+packages = [{include = "btk"}]
 readme = "README.md"
 repository = "https://github.com/LSSTDESC/BlendingToolKit"
 version = "0.9.3"
@@ -29,7 +29,6 @@ version = "0.9.3"
 astropy = ">=5.0.4"
 galcheat = {git = "https://github.com/aboucaud/galcheat", branch = 'main'}
 galsim = ">=2.3.4"
-hydra-core = ">=1.0.6"
 ipywidgets = ">=7.6.5"
 matplotlib = ">=3.5.1"
 numpy = ">=1.22.3"
@@ -55,9 +54,6 @@ pytest-cov = ">=3.0.0"
 reorder-python-imports = ">=2.6.0"
 sphinx = ">=3.5.4"
 sphinx-rtd-theme = ">=0.4.3"
-
-[tool.poetry.scripts]
-btk = "btk.__main__:run"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
