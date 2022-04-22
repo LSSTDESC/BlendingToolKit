@@ -2,14 +2,14 @@
 
 1. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`.
 
-2. It is recommended to create a `conda` virtual environment (using `python3.7`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
+2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
 ```
 # enter to the local repo
 cd BlendingToolKit
 
 # create virtual environment.
-conda create -n btk python=3.7
+conda create -n btk python=3.8
 conda activate btk
 
 # make sure you can import galsim after this step before moving on.
