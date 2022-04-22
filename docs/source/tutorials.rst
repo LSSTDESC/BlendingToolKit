@@ -221,6 +221,8 @@ The results from the ``next`` call are stored in the dictionnary; the keys are:
 
 Please note that several surveys can be provided as a list to the generator. In that case, each of the entry will contain a dictionnary indexed by the surveys, which in turn contains the results described as above (you would access it with ``batch['blend_images']['LSST']`` for instance.
 
+**Note:** Fluxes in BTK for these images are calculated using `galcheat` based on the :function:`~galcheat.utilities.mag2counts` function and corresponding survey and filter parameters. Please see the `galcheat` documentation for more details.
+
 .. jupyter-execute::
 
   batch = next(draw_generator)
