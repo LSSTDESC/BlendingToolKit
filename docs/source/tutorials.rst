@@ -143,7 +143,7 @@ As a reference, here is a (slightly) simplified version of the code for this sam
 
 You can see that this function chooses random galaxies (after applying a magnitude cut), computes random shifts for the galaxies and returns the entries from the table, adding two columns corresponding to the shifts.
 
-You may write more complex sampling functions to have more control over how the galaxies are drawn; more examples canbe found in the ``btk.sampling_functions`` file.
+You may write more complex sampling functions to have more control over how the galaxies are drawn; more examples can be found in the ``btk.sampling_functions`` file.
 
 Survey
 .......
