@@ -3,6 +3,7 @@ from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
+from btk.measure import basic_measure
 from btk.measure import MeasureGenerator
 from btk.measure import sep_measure
 from btk.sampling_functions import DefaultSampling
@@ -68,6 +69,7 @@ def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
     compare_sep()
     compare_sep_multiprocessing()
+    get_meas_results(basic_measure, cpus=4)
 
 
 def test_measure_kwargs():
