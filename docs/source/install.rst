@@ -48,12 +48,6 @@ This should install all other missing dependencies if necessary. You can then im
     import btk
     import btk.catalog
 
-Optional packages
+Scarlet
 ------------------------------
-BTK comes with an optional set of dependencies that can be installed for ``scarlet``. You can install them alongside ``btk`` as follows:
-
-.. code-block::
-
-    # install latest version of scarlet and its dependencies.
-    pip install blending_toolkit[scarlet]
-    pip install git+https://github.com/pmelchior/scarlet
+The Scarlet deblender can be used in BTK via the measure function found in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_. It requires the ``scarlet`` package to be installed. The installation instructions can be found `here <https://pmelchior.github.io/scarlet/install.html>`_.
