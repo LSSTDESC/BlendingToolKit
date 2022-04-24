@@ -20,14 +20,9 @@ Documentation can be found at <https://lsstdesc.org/BlendingToolKit/index.html>
 
 ## Workflow
 
-<img src="docs/source/images/current_flowchart.png" alt="btk workflow" width="450"/>
+<img src="docs/source/images/diagram.png" alt="btk workflow" width="550"/>
 
-Color code for this flowchart:
-
-- Classes in black should be used as is by the user.
-- Classes in red may be reimplemented by the experienced user; we recommend for new users to use the default implementations until they are familiar with them.
-- In blue is the code for instantiating the classes within the code (optional arguments not included).
-- In green are the revelant methods for the classes; please note that the `__call__` method is executed when calling the object (eg `sampling_function(catalog)`) and the `__next__` method is executed when using `next` (eg `next(generator)`).
+- In red are the BTK objects that can be customized in various ways by BTK users.
 
 ## Running BlendingToolKit
 
