@@ -27,7 +27,7 @@ version = "0.9.3"
 
 [tool.poetry.dependencies]
 astropy = ">=5.0.4"
-galcheat = {git = "https://github.com/aboucaud/galcheat", branch = 'main'}
+galcheat = ">=1.0.0"
 galsim = ">=2.3.4"
 ipywidgets = ">=7.6.5"
 matplotlib = ">=3.5.1"
