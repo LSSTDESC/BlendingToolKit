@@ -19,7 +19,7 @@
         <script src="_static/doctools.js"></script>
         <script src="_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,13 +49,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-galsim">Install GalSim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-btk">Install BTK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-packages">Optional packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scarlet">Scarlet</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src/btk.html">BlendingToolKit API</a></li>
@@ -126,14 +125,9 @@ for more details.</p>
 </pre></div>
 </div>
 </section>
-<section id="optional-packages">
-<h2>Optional packages<a class="headerlink" href="#optional-packages" title="Permalink to this headline"></a></h2>
-<p>BTK comes with an optional set of dependencies that can be installed for <code class="docutils literal notranslate"><span class="pre">scarlet</span></code>. You can install them alongside <code class="docutils literal notranslate"><span class="pre">btk</span></code> as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># install latest version of scarlet and its dependencies.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span><span class="p">[</span><span class="n">scarlet</span><span class="p">]</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pmelchior</span><span class="o">/</span><span class="n">scarlet</span>
-</pre></div>
-</div>
+<section id="scarlet">
+<h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this headline"></a></h2>
+<p>The Scarlet deblender can be used in BTK via the measure function found in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">notebook</a>. It requires the <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> package to be installed. The installation instructions can be found <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">here</a>.</p>
 </section>
 </section>
 

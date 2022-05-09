@@ -19,7 +19,7 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -50,7 +50,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="btk.html">BlendingToolKit API</a><ul class="current">
@@ -217,7 +216,8 @@ the mini-batches are run in parallel.</p>
 <li><p><strong>catalog</strong> (<a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><em>btk.catalog.Catalog</em></a>) – BTK catalog object from which galaxies are taken.</p></li>
 <li><p><strong>sampling_function</strong> (<em>btk.sampling_function.SamplingFunction</em>) – BTK sampling
 function to use.</p></li>
-<li><p><strong>surveys</strong> (<em>list</em>) – List of btk Survey objects defining the observing conditions</p></li>
+<li><p><strong>surveys</strong> (<em>list</em><em> or </em><a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – List of BTK Survey objects or
+single BTK Survey object.</p></li>
 <li><p><strong>batch_size</strong> (<em>int</em>) – Number of blends generated per batch</p></li>
 <li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the stamps, in arcseconds</p></li>
 <li><p><strong>cpus</strong> (<em>int</em>) – Number of cpus to use; defines the number of minibatches</p></li>
@@ -331,7 +331,7 @@ must be drawn according to information provided by filter, psf, and survey.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entry</strong> (<em>astropy.table.Table</em>) – Line from astropy describing the galaxy to draw</p></li>
 <li><p><strong>filt</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object corresponding to the band where
-the image is drawn `</p></li>
+the image is drawn.</p></li>
 <li><p><strong>psf</strong> – Galsim object containing the PSF relative to the chosen filter</p></li>
 <li><p><strong>survey</strong> (<a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
 <li><p><strong>extra_data</strong> – Special field containing extra data for drawing a single galaxy.

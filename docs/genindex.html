@@ -18,7 +18,7 @@
         <script src="_static/doctools.js"></script>
         <script src="_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -47,7 +47,6 @@
 <li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src/btk.html">BlendingToolKit API</a></li>
@@ -85,14 +84,17 @@
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="_">_</h2>
@@ -157,6 +159,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/btk.metrics.html#btk.metrics.auc">auc() (in module btk.metrics)</a>
+</li>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.available_filters">available_filters (btk.survey.Survey attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -289,13 +293,23 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/btk.sampling_functions.html#btk.sampling_functions.DefaultSampling">DefaultSampling (class in btk.sampling_functions)</a>
 </li>
-      <li><a href="src/btk.metrics.html#btk.metrics.detection_metrics">detection_metrics() (in module btk.metrics)</a>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.description">description (btk.survey.Survey attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.metrics.html#btk.metrics.detection_metrics">detection_metrics() (in module btk.metrics)</a>
+</li>
       <li><a href="src/btk.metrics.html#btk.metrics.distance_center">distance_center() (in module btk.metrics)</a>
 </li>
       <li><a href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator">DrawBlendsGenerator (class in btk.draw_blends)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.effective_area">effective_area (btk.survey.Survey attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -314,30 +328,40 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Filter.from_galcheat_filter">from_galcheat_filter() (btk.survey.Filter class method)</a>
+</li>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.from_galcheat_survey">from_galcheat_survey() (btk.survey.Survey class method)</a>
+</li>
+      <li><a href="src/btk.survey.html#btk.survey.Filter.full_exposure_time">full_exposure_time (btk.survey.Filter attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.gain">gain (btk.survey.Survey attribute)</a>
+</li>
       <li><a href="src/btk.metrics.html#btk.metrics.get_blendedness">get_blendedness() (in module btk.metrics)</a>
 </li>
       <li><a href="src/btk.draw_blends.html#btk.draw_blends.get_catsim_galaxy">get_catsim_galaxy() (in module btk.draw_blends)</a>
 </li>
       <li><a href="src/btk.draw_blends.html#btk.draw_blends.get_center_in_pixels">get_center_in_pixels() (in module btk.draw_blends)</a>
 </li>
+      <li><a href="src/btk.survey.html#btk.survey.get_default_psf">get_default_psf() (in module btk.survey)</a>
+</li>
+      <li><a href="src/btk.survey.html#btk.survey.get_default_psf_with_galcheat_info">get_default_psf_with_galcheat_info() (in module btk.survey)</a>
+</li>
       <li><a href="src/btk.metrics.html#btk.metrics.get_detection_eff_matrix">get_detection_eff_matrix() (in module btk.metrics)</a>
 </li>
       <li><a href="src/btk.metrics.html#btk.metrics.get_detection_match">get_detection_match() (in module btk.metrics)</a>
 </li>
-      <li><a href="src/btk.survey.html#btk.survey.get_flux">get_flux() (in module btk.survey)</a>
-</li>
-      <li><a href="src/btk.catalog.html#btk.catalog.CosmosCatalog.get_galsim_catalog">get_galsim_catalog() (btk.catalog.CosmosCatalog method)</a>
-</li>
-      <li><a href="src/btk.survey.html#btk.survey.get_mean_sky_level">get_mean_sky_level() (in module btk.survey)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/btk.survey.html#btk.survey.get_psf">get_psf() (in module btk.survey)</a>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.get_filter">get_filter() (btk.survey.Survey method)</a>
+</li>
+      <li><a href="src/btk.catalog.html#btk.catalog.CosmosCatalog.get_galsim_catalog">get_galsim_catalog() (btk.catalog.CosmosCatalog method)</a>
 </li>
       <li><a href="src/btk.survey.html#btk.survey.get_psf_from_file">get_psf_from_file() (in module btk.survey)</a>
 </li>
@@ -346,8 +370,6 @@
       <li><a href="src/btk.plot_utils.html#btk.plot_utils.get_rgb">get_rgb() (in module btk.plot_utils)</a>
 </li>
       <li><a href="src/btk.plot_utils.html#btk.plot_utils.get_rgb_image">get_rgb_image() (in module btk.plot_utils)</a>
-</li>
-      <li><a href="src/btk.survey.html#btk.survey.get_survey_from_cfg">get_survey_from_cfg() (in module btk.survey)</a>
 </li>
       <li><a href="src/btk.survey.html#btk.survey.get_surveys">get_surveys() (in module btk.survey)</a>
 </li>
@@ -368,6 +390,8 @@
       <li><a href="src/btk.measure.html#btk.measure.MeasureGenerator">MeasureGenerator (class in btk.measure)</a>
 </li>
       <li><a href="src/btk.metrics.html#btk.metrics.MetricsGenerator">MetricsGenerator (class in btk.metrics)</a>
+</li>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.mirror_diameter">mirror_diameter (btk.survey.Survey attribute)</a>
 </li>
       <li>
     module
@@ -399,6 +423,20 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/btk.catalog.html#btk.catalog.Catalog.name">name (btk.catalog.Catalog property)</a>
+
+      <ul>
+        <li><a href="src/btk.survey.html#btk.survey.Filter.name">(btk.survey.Filter attribute)</a>
+</li>
+        <li><a href="src/btk.survey.html#btk.survey.Survey.name">(btk.survey.Survey attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.obscuration">obscuration (btk.survey.Survey attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -406,6 +444,8 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.pixel_scale">pixel_scale (btk.survey.Survey attribute)</a>
+</li>
       <li><a href="src/btk.plot_utils.html#btk.plot_utils.plot_blends">plot_blends() (in module btk.plot_utils)</a>
 </li>
       <li><a href="src/btk.plot_utils.html#btk.plot_utils.plot_efficiency_matrix">plot_efficiency_matrix() (in module btk.plot_utils)</a>
@@ -424,6 +464,8 @@
 </li>
       <li><a href="src/btk.plot_utils.html#btk.plot_utils.plot_with_isolated">plot_with_isolated() (in module btk.plot_utils)</a>
 </li>
+      <li><a href="src/btk.survey.html#btk.survey.Filter.psf_fwhm">psf_fwhm (btk.survey.Filter attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -434,12 +476,14 @@
 </li>
       <li><a href="src/btk.metrics.html#btk.metrics.reconstruction_metrics_blend">reconstruction_metrics_blend() (in module btk.metrics)</a>
 </li>
-      <li><a href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_blend">render_blend() (btk.draw_blends.DrawBlendsGenerator method)</a>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.references">references (btk.survey.Survey attribute)</a>
 </li>
-      <li><a href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_mini_batch">render_mini_batch() (btk.draw_blends.DrawBlendsGenerator method)</a>
+      <li><a href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_blend">render_blend() (btk.draw_blends.DrawBlendsGenerator method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_mini_batch">render_mini_batch() (btk.draw_blends.DrawBlendsGenerator method)</a>
+</li>
       <li><a href="src/btk.draw_blends.html#btk.draw_blends.CatsimGenerator.render_single">render_single() (btk.draw_blends.CatsimGenerator method)</a>
 
       <ul>
@@ -466,6 +510,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/btk.measure.html#btk.measure.sep_measure">sep_measure() (in module btk.measure)</a>
 </li>
+      <li><a href="src/btk.survey.html#btk.survey.Filter.sky_brightness">sky_brightness (btk.survey.Filter attribute)</a>
+</li>
       <li><a href="src/btk.draw_blends.html#btk.draw_blends.SourceNotVisible">SourceNotVisible</a>
 </li>
       <li><a href="src/btk.survey.html#btk.survey.Survey">Survey (class in btk.survey)</a>
@@ -477,6 +523,18 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/btk.catalog.html#btk.catalog.Catalog.self.table">table (btk.catalog.Catalog.self attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Filter.zeropoint">zeropoint (btk.survey.Filter attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/btk.survey.html#btk.survey.Survey.zeropoint_airmass">zeropoint_airmass (btk.survey.Survey attribute)</a>
 </li>
   </ul></td>
 </tr></table>

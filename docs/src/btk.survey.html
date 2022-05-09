@@ -19,7 +19,7 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -49,7 +49,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Input Catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="btk.html">BlendingToolKit API</a><ul class="current">
@@ -96,88 +95,133 @@
              
   <section id="btk-survey-module">
 <h1>btk.survey module<a class="headerlink" href="#btk-survey-module" title="Permalink to this headline"></a></h1>
-<p>The survey module defines the <a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code></a> class as a namedtuple, which contains the information relevant to observing conditions for a given survey. A Survey contains several instances of <a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a>, which are also namedtuples containing information specific to each filter.</p>
+<p>The survey module interfaces with the <a class="reference external" href="https://github.com/aboucaud/galcheat">galcheat</a> package ; this package contains various informations about different surveys, including LSST, HSC (wide-field survey), HST COSMOS… Those informations are stored in a galcheat <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, containing several galcheat <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which is retrieved in BTK to compute fluxes and noise levels (using functions which are available in galcheat). The main modifications made by BTK to the galcheat objects are adding the PSF to the Filter object, and making them editable. This is achieved by defining a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> and a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which directly inherit from the corresponding galcheat objects.</p>
 <span class="target" id="module-btk.survey"></span><p>Contains information for surveys available in BTK.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="btk.survey.Survey">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">Survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airmass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint_airmass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<p>Class containing the informations relative to a survey.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the survey</p></li>
-<li><p><strong>pixel_scale</strong> (<em>float</em>) – Pixel scale of the survey, in arcseconds per pixel</p></li>
-<li><p><strong>effective_area</strong> (<em>float</em>) – Effective total light collecting area, in square meters</p></li>
-<li><p><strong>mirror_diameter</strong> (<em>float</em>) – Diameter of the primary mirror, in meters</p></li>
-<li><p><strong>airmass</strong> (<em>float</em>) – Optical path length through atmosphere relative to zenith path length</p></li>
-<li><p><strong>filters</strong> (<em>list</em>) – List of Filter objects corresponding to the filters of this survey</p></li>
-<li><p><strong>zeropoint_airmass</strong> (<em>float</em>) – </p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="btk.survey.Filter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">Filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf_fwhm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sky_brightness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_exposure_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_wavelength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">astropy.units.quantity.Quantity</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galcheat.filter.Filter</span></code></p>
+<p>Survey object that extends Galcheat surveys to allow modification.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.survey.Filter.from_galcheat_filter">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_galcheat_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">galcheat_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">galcheat.filter.Filter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter.from_galcheat_filter" title="Permalink to this definition"></a></dt>
+<dd><p>Return the corresponding BTK Filter from the Galcheat Filter.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Filter.full_exposure_time">
+<span class="sig-name descname"><span class="pre">full_exposure_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Filter.full_exposure_time" title="Permalink to this definition"></a></dt>
+<dd><p>Mean time spent on the sky on a random survey location</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Filter.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#btk.survey.Filter.name" title="Permalink to this definition"></a></dt>
+<dd><p>The filter name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Filter.psf_fwhm">
+<span class="sig-name descname"><span class="pre">psf_fwhm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Filter.psf_fwhm" title="Permalink to this definition"></a></dt>
+<dd><p>The full-width at half maximum of the PSF</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Filter.sky_brightness">
+<span class="sig-name descname"><span class="pre">sky_brightness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Filter.sky_brightness" title="Permalink to this definition"></a></dt>
+<dd><p>Mean sky brightness</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Filter.zeropoint">
+<span class="sig-name descname"><span class="pre">zeropoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Filter.zeropoint" title="Permalink to this definition"></a></dt>
+<dd><p>The zeropoint magnitude computed with the speclite library</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="btk.survey.Filter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">Filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sky_brightness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extinction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<p>Class containing the informations relative to a filter (for a specific survey).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the filter</p></li>
-<li><p><strong>psf</strong> – Contains the PSF information, either as a Galsim object,
-or as a function returning a Galsim object</p></li>
-<li><p><strong>sky_brightness</strong> (<em>float</em>) – Sky brightness, in mags/sq.arcsec</p></li>
-<li><p><strong>exp_time</strong> (<em>int</em>) – Total exposition time, in seconds</p></li>
-<li><p><strong>zeropoint</strong> (<em>float</em>) – Magnitude of an object with a measured flux of 1 electron per second</p></li>
-<li><p><strong>extinction</strong> (<em>float</em>) – Exponential extinction coefficient for atmospheric absorption</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="btk.survey.Survey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">Survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">galcheat.filter.Filter</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obscuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropoint_airmass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galcheat.survey.Survey</span></code></p>
+<p>Survey object that extends Galcheat surveys to allow modification.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.available_filters">
+<span class="sig-name descname"><span class="pre">available_filters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#btk.survey.Survey.available_filters" title="Permalink to this definition"></a></dt>
+<dd><p>The list of survey filters</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#btk.survey.Survey.description" title="Permalink to this definition"></a></dt>
+<dd><p>The survey description with telescope/instrument information</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.effective_area">
+<span class="sig-name descname"><span class="pre">effective_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.effective_area" title="Permalink to this definition"></a></dt>
+<dd><p>The survey instrument effective area on the sky computed from the obscuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.survey.Survey.from_galcheat_survey">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_galcheat_survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">galcheat.survey.Survey</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey.from_galcheat_survey" title="Permalink to this definition"></a></dt>
+<dd><p>Obtain the corresponding BTK survey object from a Galcheat survey object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.gain">
+<span class="sig-name descname"><span class="pre">gain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.gain" title="Permalink to this definition"></a></dt>
+<dd><p>The gain in electron/ADU</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.survey.Survey.get_filter">
+<span class="sig-name descname"><span class="pre">get_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey.get_filter" title="Permalink to this definition"></a></dt>
+<dd><p>Same as Galcheat getter method for filter except return a view not a copy.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.mirror_diameter">
+<span class="sig-name descname"><span class="pre">mirror_diameter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.mirror_diameter" title="Permalink to this definition"></a></dt>
+<dd><p>The mirror diameter</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#btk.survey.Survey.name" title="Permalink to this definition"></a></dt>
+<dd><p>The survey name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.obscuration">
+<span class="sig-name descname"><span class="pre">obscuration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.obscuration" title="Permalink to this definition"></a></dt>
+<dd><p>The total obscuration created by the instrument pieces</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.pixel_scale">
+<span class="sig-name descname"><span class="pre">pixel_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.pixel_scale" title="Permalink to this definition"></a></dt>
+<dd><p>The pixel scale of the survey</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.references">
+<span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#btk.survey.Survey.references" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary of references for each parameter specified in galcheat</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="btk.survey.Survey.zeropoint_airmass">
+<span class="sig-name descname"><span class="pre">zeropoint_airmass</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">astropy.units.quantity.Quantity</span></em><a class="headerlink" href="#btk.survey.Survey.zeropoint_airmass" title="Permalink to this definition"></a></dt>
+<dd><p>The zeropoint airmass</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="btk.survey.get_flux">
-<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ab_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_flux" title="Permalink to this definition"></a></dt>
-<dd><p>Convert source magnitude to flux.</p>
-<p>The calculation includes the effects of atmospheric extinction.
-Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ab_magnitude</strong> (<em>float</em>) – AB magnitude of source.</p></li>
-<li><p><strong>filt</strong> (<a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
-<li><p><strong>survey</strong> (<a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Flux in detected electrons.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="btk.survey.get_mean_sky_level">
-<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_mean_sky_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_mean_sky_level" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the mean sky level given to Galsim for noise generation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>survey</strong> (<a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><em>btk.survey.Survey</em></a>) – BTK Survey object</p></li>
-<li><p><strong>filt</strong> (<a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><em>btk.survey.Filter</em></a>) – BTK Filter object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Corresponding mean sky level</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="btk.survey.get_psf">
-<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_psf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmospheric_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Kolmogorov'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_psf" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="btk.survey.get_default_psf">
+<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_default_psf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mirror_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmospheric_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Kolmogorov'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_default_psf" title="Permalink to this definition"></a></dt>
 <dd><p>Defines a synthetic galsim PSF model.</p>
 <p>Credit: WeakLensingDeblending (<a class="reference external" href="https://github.com/LSSTDESC/WeakLensingDeblending">https://github.com/LSSTDESC/WeakLensingDeblending</a>)</p>
 <dl class="field-list simple">
@@ -185,9 +229,10 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mirror_diameter</strong> (<em>float</em>) – in meters [m]</p></li>
 <li><p><strong>effective_area</strong> (<em>float</em>) – effective total light collecting area in square meters [m2]</p></li>
-<li><p><strong>filt_wavelength</strong> (<em>string</em>) – filter wavelength</p></li>
-<li><p><strong>fwhm</strong> (<em>float</em>) – fwhm of the atmospheric component</p></li>
-<li><p><strong>atmospheric_model</strong> (<em>string</em>) – type of atmospheric model</p></li>
+<li><p><strong>filt_wavelength</strong> (<em>string</em>) – filter wavelength in Angstroms. [Angstrom]</p></li>
+<li><p><strong>fwhm</strong> (<em>float</em>) – fwhm of the atmospheric component in arcseconds. [arcsec]</p></li>
+<li><p><strong>atmospheric_model</strong> (<em>string</em>) – type of atmospheric model. Current options:
+[‘Kolmogorov’, ‘Moffat’].</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -195,6 +240,23 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>psf_model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="btk.survey.get_default_psf_with_galcheat_info">
+<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_default_psf_with_galcheat_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><span class="pre">btk.survey.Survey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><span class="pre">btk.survey.Filter</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_default_psf_with_galcheat_info" title="Permalink to this definition"></a></dt>
+<dd><p>Return the default PSF model as a galsim object based on galcheat survey parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>survey</strong> (<a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><em>Survey</em></a>) – BTK Survey object.</p></li>
+<li><p><strong>filtr</strong> (<a class="reference internal" href="#btk.survey.Filter" title="btk.survey.Filter"><em>Filter</em></a>) – BTK Filter object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Galsim object corresponding to simulated PSF.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -217,33 +279,18 @@ Credit: WeakLensingDeblending (<a class="reference external" href="https://githu
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="btk.survey.get_survey_from_cfg">
-<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_survey_from_cfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey_conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.omegaconf.OmegaConf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_survey_from_cfg" title="Permalink to this definition"></a></dt>
-<dd><p>Creates the corresponding <cite>btk.survey.Survey</cite> object using the information from config file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cfg</strong> (<em>OmegaConf</em>) – Hydra configuration object corresponding to a single survey.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>btk.survey.Survey object.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="btk.survey.get_surveys">
-<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rubin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_surveys" title="Permalink to this definition"></a></dt>
-<dd><p>Return specified surveys as <cite>btk.survey.Survey</cite> objects.</p>
-<p>NOTE: The surveys currently implemented correspond to config files inside <cite>conf/surveys</cite>. See
-the documentation for how to add your own surveys via custom config files.</p>
+<span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.get_surveys" title="Permalink to this definition"></a></dt>
+<dd><p>Return specified surveys from galcheat extended to contain PSF information.</p>
+<p>This function currently returns a list of <cite>Survey</cite> instances if <cite>names</cite> is a list with more
+than one element. If <cite>names</cite> is a str or a singleton list then we return a single <cite>Survey</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>names</strong> (<em>str</em><em> or </em><em>list</em>) – A single str specifying a survey from conf/surveys or a list with
-multiple survey names.</p></li>
-<li><p><strong>overrides</strong> (<em>Iterable</em>) – List or tuple containg overrides for the survey config files. An
-example element of overrides could be ‘surveys.Rubin.airmass=1.1’, i.e. what you would
-pass into the CLI in order to customize the surveys used (here specified by <cite>names</cite>).</p></li>
+<li><p><strong>names</strong> (<em>str</em><em> or </em><em>list</em>) – A single str specifying a survey from galcheat.available_surveys().</p></li>
+<li><p><strong>psf_func</strong> (<em>function</em>) – Python function which takes in two arguments: <cite>survey</cite> and <cite>filter</cite>
+that returns a PSF as a galsim object or as a callable with no arguments.
+If <cite>None</cite>, the default PSF for the specified survey will be used in each band.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
