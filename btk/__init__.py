@@ -4,9 +4,11 @@ The code generates on the fly images of overlapping parametric galaxies, while
 providing a framework to test user defined detection/deblending/measurement
 algorithms.
 """
+import importlib.metadata
+
 __author__ = "btk developers"
 __email__ = "imendoza@umich.edu"
-__version__ = "0.9.3"
+__version__ = "1.0.0a1"
 
 DEFAULT_SEED = 0
 
