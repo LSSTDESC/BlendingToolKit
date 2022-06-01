@@ -12,6 +12,7 @@ authors = [
 ]
 classifiers = [
   "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
@@ -33,7 +34,7 @@ ipywidgets = ">=7.6.5"
 matplotlib = ">=3.5.1"
 numpy = ">=1.22.3"
 pandas = ">=1.4.2"
-python = ">= 3.8, < 3.9.0"
+python = ">= 3.8, < 3.10.0"
 scikit-image = ">=0.19.2"
 scipy = ">=1.8.0"
 seaborn = ">=0.11.2"
@@ -60,7 +61,7 @@ sphinx-rtd-theme = ">=0.4.3"
 
 [tool.black]
 line-length = 100
-target-version = ['py38']
+target-version = ['py38', 'py39']
 
 [tool.pytest.ini_options]
 addopts = "-ra"
@@ -69,8 +70,9 @@ filterwarnings = [
   "ignore:`np.int` is a deprecated alias:DeprecationWarning",
   "ignore:numpy.ufunc size changed:RuntimeWarning",
   "ignore:Creating an ndarray from ragged:numpy.VisibleDeprecationWarning",
-  "ignore:numpy.ndarray size changed, may indicate binary incompatibility. Expected 80 from C header, got 88 from PyObject:RuntimeWarning:",
+  "ignore:numpy.ndarray size changed, may indicate binary incompatibility. Expected 80 from C header:RuntimeWarning:",
   "ignore:.*argument to IPyNbFile is deprecated.*:pytest.PytestRemovedIn8Warning",
+  "ignore:.*",
 ]
 minversion = "6.0"
 testpaths = [
