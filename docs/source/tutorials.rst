@@ -445,10 +445,11 @@ More information about the COSMOS catalog
 
 To go a little bit deeper about providing custom COSMOS data to BTK, let's review in more details in what the COSMOS data set and its BTK implementation consists of.
 
-As seen above, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
+As seen above, the BTK ``CosmosCatalog`` is instantiated from two COSMOS catalogs. The first one contains all the necessary information to draw a real galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the README coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
 
-Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way: the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. In BTK, we use only the 'real' drawing mode, so that the information of the second catalog is not necessary, even if the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects.
-However, BTK still retrieves the ``flux_radius`` information from this catalog, in order to compute an estimate of the size of each source and to measure deblending performance depending on the source sizes. Thus, the following conditions must be satisfied when providing custom COSMOS data to BTK:
+Internally, BTK uses galsim to draw the galaxies. In particular, it instantiates a ``galsim.COSMOSCatalog``, that requires both catalogs. Yet, this object enables galsim to draw galaxies in two different modes that do not use the two catalogs in the same way: the parametric mode uses information of the second catalog while the 'real' mode uses information of the first catalog (and the actual galaxy and PSF stamps). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details.
+When using 'real' galaxies, most of the information of the second catalog is not necessary, but the file must exist to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects (and in practice, BTK uses the ``flux_radius`` column to compute an estimate of the size of each source used for performance evaluation measures, so the second catalog should contain at least this column).
+Custom COSMOS catalogs to draw 'real' galaxies should thus satisfy the following conditions:
 
 1. The second catalog should contain at least the ``flux_radius`` column,
 
@@ -456,7 +457,7 @@ However, BTK still retrieves the ``flux_radius`` information from this catalog, 
 
 3. The galaxy and PSF stamps should be provided and accessible.
 
-4. (optional) One of the two catalogs can contain multiband magnitudes using the format just described.
+4. (optional) One of the two catalogs can contain multiband magnitudes using the format described above.
 
 SCARLET implementation
 -----------------------
