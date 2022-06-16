@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from astropy.visualization import make_lupton_rgb
 from IPython.display import clear_output
 from IPython.display import display
 
@@ -17,9 +18,9 @@ def get_rgb(image, min_val=None, max_val=None):
     Args:
         image (array_like): Image array to convert to RGB image with dtype
                 uint8 [bands, height, width].
-        min_val (float32 or 3-d float array, default=`None`): Pixel values in
+        min_val (array_like): Pixel values in
         image less than or equal to this are set to zero in the RGB output.
-        max_val (float32, default=`None`): Pixel values in image greater than
+        max_val (array_like): Pixel values in image greater than
             or equal to this are set to zero in the RGB output.
 
     Returns:
@@ -38,47 +39,43 @@ def get_rgb(image, min_val=None, max_val=None):
     return new_image.astype(np.uint8)
 
 
-def get_rgb_image(image, normalize_with_image=None):
+def get_rgb_image(image, norm="linear", Q=0.1):
     """Returns RGB (0-255) image corresponding to the input 3 band image.
 
     If scarlet.display is imported then the normalization is performed by
     scarlet Asinh function. If not, a basic normalization is performed.
 
     Args:
-        image (float32): Image array to convert to RGB [bands, height, width].
-        normalize_with_image (float32): Image array to normalize input image
-            with [bands, height, width].
+        image (array_like): Image array to convert to RGB [bands, height, width].
+        norm (str): Stretch to apply to the images. Must be one of "linear" or "asinh".
+        Q (float): Smoothing parameter for the "asinh" norm.
 
     Returns:
         uint8 array [height, width, bands] of the input image.
     """
-    try:
-        import scarlet
-
-        if normalize_with_image is not None:
-            Q = 0.1
-            minimum = np.ma.min(normalize_with_image)
-            maximum = np.ma.max(normalize_with_image)
-            stretch = maximum - minimum
-            norm = scarlet.display.AsinhMapping(minimum=minimum, stretch=stretch, Q=Q)
-        else:
-            norm = None
-        img_rgb = scarlet.display.img_to_rgb(image, norm=norm)
-
-    except ImportError:
-        scarlet = None
-        # scarlet not installed, basic normalize image to 0-255
-        if normalize_with_image is None:
-            min_val = None
-            max_val = None
-        else:
-            min_val = np.min(normalize_with_image, axis=1).min(axis=-1)
-            max_val = np.max(normalize_with_image, axis=1).max(axis=-1)
-        img_rgb = get_rgb(image, min_val=min_val, max_val=max_val)
+    if norm == "asinh":
+        img_rgb = make_lupton_rgb(
+            image[0],
+            image[1],
+            image[2],
+            stretch=np.max(image) - np.min(image),
+            Q=Q,
+            minimum=np.min(image),
+        )
+    else:
+        img_rgb = get_rgb(image)
     return img_rgb
 
 
-def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, band_indices=None):
+def plot_blends(
+    blend_images,
+    blend_list,
+    detected_centers=None,
+    limits=None,
+    band_indices=None,
+    norm="linear",
+    Q=0.1,
+):
     """Plots blend images as RGB image, sum in all bands, and RGB image with centers of objects.
 
     Outputs of btk draw are plotted here. Blend_list must contain true  centers
@@ -99,10 +96,12 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
             width dimensions.
         band_indices (list, default=None): list of length 3 with indices of
             bands that are to be plotted in the RGB image. If pass in None,
-            then default value of [1, 2, 3] is used.
+            then default value of [3, 2, 1] is used.
+        norm (str): Stretch to apply to the images. Must be one of "linear" or "asinh".
+        Q (float): Smoothing parameter for the "asinh" norm.
     """
     if band_indices is None:
-        band_indices = [1, 2, 3]
+        band_indices = [3, 2, 1]
     batch_size = len(blend_list)
     if len(band_indices) != 3:
         raise ValueError(f"band_indices must be a list with 3 entries, not {band_indices}")
@@ -117,7 +116,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
     for i in range(batch_size):
         num = len(blend_list[i])
         images = blend_images[i]
-        blend_img_rgb = get_rgb_image(images[band_indices])
+        blend_img_rgb = get_rgb_image(images[band_indices], norm=norm, Q=Q)
         _, ax = plt.subplots(1, 3, figsize=(20, 10))
         ax[0].imshow(blend_img_rgb)
         if limits:
@@ -145,11 +144,7 @@ def plot_blends(blend_images, blend_list, detected_centers=None, limits=None, ba
 
 
 def plot_with_isolated(
-    blend_images,
-    isolated_images,
-    blend_list,
-    limits=None,
-    band_indices=None,
+    blend_images, isolated_images, blend_list, limits=None, band_indices=None, norm="linear"
 ):
     """Plots blend images and isolated images of all objects in the blend as RGB images.
 
@@ -168,10 +163,11 @@ def plot_with_isolated(
             width dimensions.
         band_indices (list, default=None): list of length 3 with indices of
             bands that are to be plotted in the RGB image. If pass in None,
-            then default value of [1, 2, 3] is used.
+            then default value of [3, 2, 1] is used.
+        norm (str): Stretch to apply to the images. Must be one of "linear" or "asinh".
     """
     if band_indices is None:
-        band_indices = [1, 2, 3]
+        band_indices = [3, 2, 1]
     if len(band_indices) not in [1, 3]:
         raise ValueError(
             f"band_indices must be a list with 1 or 3 entries, not \
@@ -180,11 +176,7 @@ def plot_with_isolated(
     rgb = len(band_indices) == 3
     for i in range(len(blend_list)):
         images = blend_images[i]
-        blend_img = (
-            get_rgb_image(images[band_indices], normalize_with_image=images[band_indices])
-            if rgb
-            else images[band_indices]
-        )
+        blend_img = get_rgb_image(images[band_indices], norm=norm) if rgb else images[band_indices]
         plt.figure(figsize=(2, 2))
         plt.imshow(blend_img)
         plt.title(f"{len(blend_list[i])} objects")
@@ -199,7 +191,7 @@ def plot_with_isolated(
         for j in range(num):
             iso_images = iso_blend[j]
             iso_img = (
-                get_rgb_image(iso_images[band_indices], normalize_with_image=images[band_indices])
+                get_rgb_image(iso_images[band_indices], norm=norm)
                 if rgb
                 else iso_images[band_indices]
             )
@@ -220,7 +212,8 @@ def plot_with_deblended(
     deblended_images,
     matches,
     indexes=[0],
-    band_indices=[1, 2, 3],
+    band_indices=[3, 2, 1],
+    norm="linear",
 ):
     """Plots blend images, along with isolated, deblended and residual images of all objects in a blend.
 
@@ -246,6 +239,7 @@ def plot_with_deblended(
         indexes (list): List of the indexes of the blends you want to plot.
         band_indices (list): List of the bands to plot. Should have either 3 elements
             for RGB images, or one for monochromes images.
+        norm (str): Stretch to apply to the images. Must be one of "linear" or "asinh".
 
     """
     if len(band_indices) not in [1, 3]:
@@ -261,9 +255,7 @@ def plot_with_deblended(
         ax = []
         ax.append(fig.add_subplot(spec[:, 0]))
         ax[0].imshow(
-            get_rgb_image(
-                blend_images[i][band_indices], normalize_with_image=blend_images[i][band_indices]
-            )
+            get_rgb_image(blend_images[i][band_indices], norm=norm)
             if rgb
             else blend_images[i][band_indices[0]]
         )
@@ -293,7 +285,7 @@ def plot_with_deblended(
             isol_im = (
                 get_rgb_image(
                     isolated_images[i][k][band_indices],
-                    normalize_with_image=isolated_images[i][k][band_indices],
+                    norm=norm,
                 )
                 if rgb
                 else isolated_images[i][k][band_indices[0]]
@@ -306,7 +298,7 @@ def plot_with_deblended(
                 ax[-1].imshow(
                     get_rgb_image(
                         deblended_images[i][match][band_indices],
-                        normalize_with_image=deblended_images[i][match][band_indices],
+                        norm=norm,
                     )
                     if rgb
                     else deblended_images[i][match][band_indices[0]]
@@ -318,7 +310,7 @@ def plot_with_deblended(
                     get_rgb_image(
                         isolated_images[i][k][band_indices]
                         - deblended_images[i][match][band_indices],
-                        normalize_with_image=isolated_images[i][k][band_indices],
+                        norm=norm,
                     )
                     if rgb
                     else isolated_images[i][k][band_indices[0]]
