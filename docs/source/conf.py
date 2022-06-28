@@ -20,7 +20,6 @@ from unittest.mock import Mock as MagicMock
 
 import sphinx_rtd_theme  # noqa: F401
 
-
 # import mock.Mock as MagicMock
 
 # from unittest.mock import MagicMock
