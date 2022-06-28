@@ -1,7 +1,6 @@
 """Tools for multiprocessing in BTK."""
 import multiprocessing as mp
-from itertools import repeat
-from itertools import starmap
+from itertools import repeat, starmap
 
 
 def _apply_args_and_kwargs(fn, args, kwargs):

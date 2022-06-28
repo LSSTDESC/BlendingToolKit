@@ -4,10 +4,8 @@ from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator
-from btk.measure import sep_measure
-from btk.metrics import meas_ksb_ellipticity
-from btk.metrics import MetricsGenerator
+from btk.measure import MeasureGenerator, sep_measure
+from btk.metrics import MetricsGenerator, meas_ksb_ellipticity
 from btk.plot_utils import plot_metrics_summary
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
