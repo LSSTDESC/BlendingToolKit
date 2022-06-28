@@ -1,7 +1,6 @@
 """Contains abstract base class `Catalog` that standarizes catalog usage across BTK."""
 import os
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import astropy.table
