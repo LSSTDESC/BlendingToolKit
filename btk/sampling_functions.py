@@ -6,7 +6,6 @@ import astropy.table
 import numpy as np
 
 from btk import DEFAULT_SEED
-from btk.catalog import CatsimCatalog
 
 
 def _get_random_center_shift(num_objects, maxshift, rng):
