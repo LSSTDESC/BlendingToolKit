@@ -1,7 +1,6 @@
 from conftest import data_dir
 
-from btk.catalog import CatsimCatalog
-from btk.catalog import CosmosCatalog
+from btk.catalog import CatsimCatalog, CosmosCatalog
 
 CATALOG_PATH = str(data_dir / "sample_input_catalog.fits")
 COSMOS_CATALOG_PATHS = [
