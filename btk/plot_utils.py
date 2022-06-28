@@ -8,9 +8,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from astropy.visualization import make_lupton_rgb
-from IPython.display import clear_output
-from IPython.display import display
-
+from IPython.display import clear_output, display
 
 def get_rgb(image, min_val=None, max_val=None):
     """Function to normalize 3 band input image to RGB 0-255 image.

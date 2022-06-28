@@ -6,15 +6,15 @@ import numpy as np
 import btk.plot_utils as plot_utils
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator
-from btk.measure import sep_measure
-from btk.metrics import auc
-from btk.metrics import get_detection_eff_matrix
-from btk.metrics import meas_ksb_ellipticity
-from btk.metrics import MetricsGenerator
+from btk.measure import MeasureGenerator, sep_measure
+from btk.metrics import (
+    MetricsGenerator,
+    auc,
+    get_detection_eff_matrix,
+    meas_ksb_ellipticity,
+)
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
-
 
 TEST_SEED = 0
 

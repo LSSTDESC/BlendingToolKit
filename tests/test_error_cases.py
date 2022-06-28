@@ -1,19 +1,21 @@
 import pytest
 from conftest import data_dir
 
-from btk.catalog import CatsimCatalog
-from btk.catalog import CosmosCatalog
-from btk.draw_blends import CatsimGenerator
-from btk.draw_blends import CosmosGenerator
-from btk.draw_blends import get_catsim_galaxy
-from btk.draw_blends import SourceNotVisible
-from btk.sampling_functions import DefaultSampling
-from btk.sampling_functions import SamplingFunction
-from btk.survey import Filter
-from btk.survey import get_default_psf
-from btk.survey import get_default_psf_with_galcheat_info
-from btk.survey import get_psf_from_file
-from btk.survey import get_surveys
+from btk.catalog import CatsimCatalog, CosmosCatalog
+from btk.draw_blends import (
+    CatsimGenerator,
+    CosmosGenerator,
+    SourceNotVisible,
+    get_catsim_galaxy,
+)
+from btk.sampling_functions import DefaultSampling, SamplingFunction
+from btk.survey import (
+    Filter,
+    get_default_psf,
+    get_default_psf_with_galcheat_info,
+    get_psf_from_file,
+    get_surveys,
+)
 
 CATALOG_PATH = data_dir / "sample_input_catalog.fits"
 
