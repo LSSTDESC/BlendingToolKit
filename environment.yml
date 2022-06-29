@@ -18,8 +18,8 @@ dependencies:
   - python=3.8.13=h12debd9_0
   - readline=8.1.2=h7f8727e_1
   - setuptools=61.2.0=py38h06a4308_0
-  - sqlite=3.38.5=hc218d9a_0
-  - tk=8.6.12=h1ccaba5_0
+  - sqlite
+  - tk
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7f8727e_1
   - pip:
