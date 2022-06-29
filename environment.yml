@@ -1,6 +1,7 @@
 name: btk38_2
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
@@ -17,10 +18,11 @@ dependencies:
   - python=3.8.13=h12debd9_0
   - readline=8.1.2=h7f8727e_1
   - setuptools=61.2.0=py38h06a4308_0
-  - sqlite
-  - tk
+  - sqlite=3.38.5=hc218d9a_0
+  - tk=8.6.12=h1ccaba5_0
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7f8727e_1
+  - zlib=1.2.12=h7f8727e_2
   - pip:
       - astropy==5.1
       - asttokens==2.0.5
