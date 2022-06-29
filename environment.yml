@@ -1,4 +1,4 @@
-name: btk38_2
+name: btk38
 channels:
   - defaults
   - conda-forge
