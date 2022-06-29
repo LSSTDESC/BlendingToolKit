@@ -457,7 +457,7 @@ Custom COSMOS catalogs to draw 'real' galaxies should thus satisfy the following
 
 3. The galaxy and PSF stamps should be provided and accessible.
 
-4. (optional) One of the two catalogs can contain multiband magnitudes using the format described above.
+4. (optional) One of the two catalogs can contain multiband magnitudes using the format described :ref:`above <Using different magnitudes for each band>`.
 
 SCARLET implementation
 -----------------------
