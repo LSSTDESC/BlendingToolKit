@@ -50,4 +50,4 @@ jobs:
 
       - name: Run notebooks
         run: |
-          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb,notebooks/tutorial.ipynb"
+          poetry run pytest --nbval notebooks --sanitize-with tests/sanitize.cfg --ignore "notebooks/01b-scarlet-measure.ipynb" --ignore "notebooks/tutorial.ipynb"
