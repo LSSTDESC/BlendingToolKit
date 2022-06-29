@@ -18,10 +18,9 @@ dependencies:
   - readline=8.1.2=h7f8727e_1
   - setuptools=61.2.0=py38h06a4308_0
   - sqlite=3.38.5=hc218d9a_0
-  - tk=8.6.12=h1ccaba5_0
+  - tk
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7f8727e_1
-  - zlib
   - pip:
       - astropy==5.1
       - asttokens==2.0.5
