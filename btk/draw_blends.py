@@ -1,24 +1,20 @@
 """Module for generating batches of drawn blended images."""
 import copy
 import os
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
 
 import galsim
 import numpy as np
 from astropy.table import Column
-from galcheat.utilities import mag2counts
-from galcheat.utilities import mean_sky_level
+from galcheat.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
-from btk.multiprocess import get_current_process
-from btk.multiprocess import multiprocess
-from btk.survey import make_wcs
-from btk.survey import Survey
+from btk.multiprocess import get_current_process, multiprocess
+from btk.survey import Survey, make_wcs
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -616,9 +612,10 @@ class CosmosGenerator(DrawBlendsGenerator):
         # get galaxy flux
         try:
             mag_name = f"{survey.name}_{filt.name}"
-            gal_flux = mag2counts(entry[mag_name], survey, filt).to_value("electron")
+            gal_mag = entry[mag_name]
         except KeyError:
-            gal_flux = mag2counts(entry["ref_mag"], survey, filt).to_value("electron")
+            gal_mag = entry["ref_mag"]
+        gal_flux = mag2counts(gal_mag, survey, filt).to_value("electron")
 
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0

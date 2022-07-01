@@ -45,6 +45,7 @@ tqdm = ">=4.64.0"
 black = ">=22.3.0"
 flake8 = ">=4.0.1"
 flake8-absolute-import = ">=1.0"
+isort = ">=5.10.1"
 jupyter-sphinx = ">=0.3.2"
 nbstripout = ">=0.5.0"
 nbval = ">=0.9.6"
@@ -52,7 +53,6 @@ pre-commit = ">=2.18.1"
 pydocstyle = ">=5.1.1"
 pytest = ">=7.1.1"
 pytest-cov = ">=3.0.0"
-reorder-python-imports = ">=2.6.0"
 sphinx = ">=3.5.4"
 sphinx-rtd-theme = ">=0.4.3"
 
@@ -62,6 +62,9 @@ sphinx-rtd-theme = ">=0.4.3"
 [tool.black]
 line-length = 100
 target-version = ['py38', 'py39']
+
+[tool.isort]
+profile = "black"
 
 [tool.pytest.ini_options]
 addopts = "-ra"
