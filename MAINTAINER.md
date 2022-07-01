@@ -1,10 +1,12 @@
-# Setup environment
+# Maintainer
+
+## Setup environment
 
 1. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`.
 
 2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
 
-```
+```bash
 # enter to the local repo
 cd BlendingToolKit
 
@@ -28,7 +30,7 @@ pre-commit install
 
 In Ubuntu/Linux, you might getaway with simply running (and avoid having to use conda):
 
-```
+```bash
 # inside your favorite python virtual environment...
 sudo apt-get install libfftw3-dev libeigen3-dev
 pip install --upgrade pip
@@ -39,21 +41,21 @@ pre-commit install
 
 But I find the first method is more robust (works on a MAC too).
 
-# Updating packages
+## Updating packages
 
 1. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on.
 
 2. You might also want to update the `requirements.txt` file every now and then:
 
-```
+```bash
 poetry export -o requirements.txt --without-hashes --dev
 ```
 
 ideally everytime you run `poetry update`.
 
-# Making new Releases
+## Making new Releases
 
-```
+```bash
 # 1. Checked out into develop branch
 git checkout develop
 
@@ -69,7 +71,7 @@ git checkout -b release/0.1.0 origin/develop
 # 5. Pushed release branch to remote repository
 git push origin release/0.1.0
 
-# 6. Opened a "pull request" in GitHub for team to verify the release
+# 6. Open a "pull request" in GitHub for team to verify the release
 
 # 7. Checkout into main branch
 git checkout main
