@@ -33,7 +33,7 @@ copyright = f"{current_year}, btk developers"
 author = "btk developers"
 
 # The short X.Y version
-version = full_version[:2]
+version = full_version[:3]
 # The full version, including alpha/beta/rc tags
 release = full_version
 
