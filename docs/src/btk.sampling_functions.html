@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.sampling_functions module &mdash; btk 0.9.3 documentation</title>
+  <title>btk.sampling_functions module &mdash; btk 1.0.0a2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +36,7 @@
             <a href="../index.html" class="icon icon-home"> btk
           </a>
               <div class="version">
-                0.9
+                1.
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -95,13 +96,13 @@
            <div itemprop="articleBody">
              
   <section id="btk-sampling-functions-module">
-<h1>btk.sampling_functions module<a class="headerlink" href="#btk-sampling-functions-module" title="Permalink to this headline"></a></h1>
+<h1>btk.sampling_functions module<a class="headerlink" href="#btk-sampling-functions-module" title="Permalink to this heading"></a></h1>
 <p>The sampling_functions modules contains everything related to the <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a> class.</p>
 <span class="target" id="module-btk.sampling_functions"></span><p>Contains classes of function for extracing information from catalog in blend batches.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.BasicSampling">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">BasicSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></p>
 <p>Example of basic sampling function features.</p>
 <p>Includes magnitude cut, restriction on the shape, shift randomization.</p>
 <dl class="py method">
@@ -153,7 +154,7 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.DefaultSampling">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">DefaultSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></p>
 <p>Default sampling function used for producing blend tables.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.sampling_functions.DefaultSampling.__call__">
@@ -211,100 +212,9 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSampling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">GroupSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSampling" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
-<p>Uses a pre-analyzed WLD catalog to draw blends.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSampling.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSampling.__call__" title="Permalink to this definition"></a></dt>
-<dd><p>Retrun blend info based on self.wld_catalog.</p>
-<p>We use self.wld_catalog created above to sample groups, but ultimately returns
-rows from the input <code class="docutils literal notranslate"><span class="pre">table</span></code> (by matching the corresponding galaxy ids). The group is
-centered on the middle of the postage stamp. Function only draws galaxies that lie within
-the postage stamp size.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSampling.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSampling.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Blends are defined from <em>groups</em> of galaxies from a CatSim-like catalog.</p>
-<p>Note: the pre-run WLD images are not used here. We only use the pre-run
-catalog (in i band) to identify galaxies that belong to a group.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>max_number</strong> (<em>int</em>) – Same as in SamplingFunction</p></li>
-<li><p><strong>wld_catalog_name</strong> – File path to a pre-analyzed WLD Catsim catalog</p></li>
-<li><p><strong>stamp_size</strong> (<em>int</em>) – Size of the generated stamps</p></li>
-<li><p><strong>pixel_scale</strong> (<em>float</em>) – pixel scale of the survey, in arcseconds per pixel</p></li>
-<li><p><strong>shift</strong> (<em>list</em>) – List containing shifts to apply (useful to avoid randomization)</p></li>
-<li><p><strong>group_id</strong> (<em>list</em>) – List containing which group_ids to analyze (avoid randomization)</p></li>
-<li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSampling.compatible_catalogs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compatible_catalogs</span></span><a class="headerlink" href="#btk.sampling_functions.GroupSampling.compatible_catalogs" title="Permalink to this definition"></a></dt>
-<dd><p>Tuple of compatible catalogs for this sampling function.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSamplingNumbered">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">GroupSamplingNumbered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingNumbered" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
-<p>Defines blends based on previously analyzed WLD catalog &amp; exits once all groups are used.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSamplingNumbered.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingNumbered.__call__" title="Permalink to this definition"></a></dt>
-<dd><p>Return info for one blend from a given astropy table based on groups from wld_catalog.</p>
-<p>The group is centered on the middle of the postage stamp. This function only returns
-galaxies whose centers lie within 1 arcsec the postage stamp edge, which may cause the
-number of galaxies in the blend to be smaller than the group size.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSamplingNumbered.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wld_catalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingNumbered.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Blends defined from <em>groups</em> of galaxies from a catalog previously analyzed with WLD.</p>
-<p>This function has an extra attribute group_id_count which tracks the
-group id returned. Each time the generator is called, 1 gets added to the
-count. If the count is larger than the number of groups input,
-the generator is forced to exit.</p>
-<p>NOTE: the pre-run WLD images are not used here. We only use the pre-run
-catalog to identify galaxies that belong to a group.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>max_number</strong> – Same as SamplingFunction</p></li>
-<li><p><strong>wld_catalog_name</strong> – Same as GroupSamplingFunction</p></li>
-<li><p><strong>stamp_size</strong> (<em>int</em>) – Size of the generated stamps</p></li>
-<li><p><strong>pixel_scale</strong> (<em>float</em>) – pixel scale of the survey, in arcseconds per pixel</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Format of input wld_catalog used to define groups.</p></li>
-<li><p><strong>shift</strong> (<em>list</em>) – List of shifts to apply (usefult to avoid randomization)</p></li>
-<li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="btk.sampling_functions.GroupSamplingNumbered.compatible_catalogs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compatible_catalogs</span></span><a class="headerlink" href="#btk.sampling_functions.GroupSamplingNumbered.compatible_catalogs" title="Permalink to this definition"></a></dt>
-<dd><p>Tuple of compatible catalogs for this sampling function.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.SamplingFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">SamplingFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Class representing sampling functions to sample input catalog from which to draw blends.</p>
 <p>The object can be called to return an astropy table with entries corresponding to the
 galaxies chosen for the blend.</p>
@@ -350,7 +260,7 @@ galaxies chosen for the blend.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, btk developers.</p>
+    <p>&#169; Copyright 2022, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

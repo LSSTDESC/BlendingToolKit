@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.plot_utils module &mdash; btk 0.9.3 documentation</title>
+  <title>btk.plot_utils module &mdash; btk 1.0.0a2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +36,7 @@
             <a href="../index.html" class="icon icon-home"> btk
           </a>
               <div class="version">
-                0.9
+                1.
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -95,7 +96,7 @@
            <div itemprop="articleBody">
              
   <section id="btk-plot-utils-module">
-<h1>btk.plot_utils module<a class="headerlink" href="#btk-plot-utils-module" title="Permalink to this headline"></a></h1>
+<h1>btk.plot_utils module<a class="headerlink" href="#btk-plot-utils-module" title="Permalink to this heading"></a></h1>
 <p>The plot_utils module contains useful plotting functions.</p>
 <span class="target" id="module-btk.plot_utils"></span><p>Utility functions for plotting and displaying images in BTK.</p>
 <dl class="py function">
@@ -107,9 +108,9 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>array_like</em>) – Image array to convert to RGB image with dtype
 uint8 [bands, height, width].</p></li>
-<li><p><strong>min_val</strong> (<em>float32</em><em> or </em><em>3-d float array</em><em>, </em><em>default=`None`</em>) – Pixel values in</p></li>
+<li><p><strong>min_val</strong> (<em>array_like</em>) – Pixel values in</p></li>
 <li><p><strong>output.</strong> (<em>image less than</em><em> or </em><em>equal to this are set to zero in the RGB</em>) – </p></li>
-<li><p><strong>max_val</strong> (<em>float32</em><em>, </em><em>default=`None`</em>) – Pixel values in image greater than
+<li><p><strong>max_val</strong> (<em>array_like</em>) – Pixel values in image greater than
 or equal to this are set to zero in the RGB output.</p></li>
 </ul>
 </dd>
@@ -121,16 +122,16 @@ or equal to this are set to zero in the RGB output.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.plot_utils.get_rgb_image">
-<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">get_rgb_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_with_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb_image" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">get_rgb_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.get_rgb_image" title="Permalink to this definition"></a></dt>
 <dd><p>Returns RGB (0-255) image corresponding to the input 3 band image.</p>
 <p>If scarlet.display is imported then the normalization is performed by
 scarlet Asinh function. If not, a basic normalization is performed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>float32</em>) – Image array to convert to RGB [bands, height, width].</p></li>
-<li><p><strong>normalize_with_image</strong> (<em>float32</em>) – Image array to normalize input image
-with [bands, height, width].</p></li>
+<li><p><strong>image</strong> (<em>array_like</em>) – Image array to convert to RGB [bands, height, width].</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – Stretch to apply to the images. Must be one of “linear” or “asinh”.</p></li>
+<li><p><strong>Q</strong> (<em>float</em>) – Smoothing parameter for the “asinh” norm.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -141,7 +142,7 @@ with [bands, height, width].</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.plot_utils.plot_blends">
-<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_blends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_blends" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_blends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_blends" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images as RGB image, sum in all bands, and RGB image with centers of objects.</p>
 <p>Outputs of btk draw are plotted here. Blend_list must contain true  centers
 of the objects. If detected_centers are input, then the centers are also
@@ -162,7 +163,9 @@ display image within. Note: limits are applied to both height and
 width dimensions.</p></li>
 <li><p><strong>band_indices</strong> (<em>list</em><em>, </em><em>default=None</em>) – list of length 3 with indices of
 bands that are to be plotted in the RGB image. If pass in None,
-then default value of [1, 2, 3] is used.</p></li>
+then default value of [3, 2, 1] is used.</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – Stretch to apply to the images. Must be one of “linear” or “asinh”.</p></li>
+<li><p><strong>Q</strong> (<em>float</em>) – Smoothing parameter for the “asinh” norm.</p></li>
 </ul>
 </dd>
 </dl>
@@ -262,7 +265,7 @@ Can be one of “paper”, “notebook”, “talk”, and “poster”.</p></li
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.plot_utils.plot_with_deblended">
-<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_deblended</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_deblended" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_deblended</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_deblended" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images, along with isolated, deblended and residual images of all objects in a blend.</p>
 <p>Outputs of btk draw are plotted here. blend_images, isolated_images and blend_list
 are expected to be the corresponding entries from the output of a DrawBlendsGenerator,
@@ -287,6 +290,7 @@ matching true galaxy.</p></li>
 <li><p><strong>indexes</strong> (<em>list</em>) – List of the indexes of the blends you want to plot.</p></li>
 <li><p><strong>band_indices</strong> (<em>list</em>) – List of the bands to plot. Should have either 3 elements
 for RGB images, or one for monochromes images.</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – Stretch to apply to the images. Must be one of “linear” or “asinh”.</p></li>
 </ul>
 </dd>
 </dl>
@@ -294,7 +298,7 @@ for RGB images, or one for monochromes images.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.plot_utils.plot_with_isolated">
-<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_isolated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.plot_utils.</span></span><span class="sig-name descname"><span class="pre">plot_with_isolated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.plot_utils.plot_with_isolated" title="Permalink to this definition"></a></dt>
 <dd><p>Plots blend images and isolated images of all objects in the blend as RGB images.</p>
 <p>Outputs of btk draw are plotted here. Blend_list must contain true  centers
 of the objects.</p>
@@ -312,7 +316,8 @@ display image within. Note: limits are applied to both height and
 width dimensions.</p></li>
 <li><p><strong>band_indices</strong> (<em>list</em><em>, </em><em>default=None</em>) – list of length 3 with indices of
 bands that are to be plotted in the RGB image. If pass in None,
-then default value of [1, 2, 3] is used.</p></li>
+then default value of [3, 2, 1] is used.</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – Stretch to apply to the images. Must be one of “linear” or “asinh”.</p></li>
 </ul>
 </dd>
 </dl>
@@ -331,7 +336,7 @@ then default value of [1, 2, 3] is used.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, btk developers.</p>
+    <p>&#169; Copyright 2022, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
