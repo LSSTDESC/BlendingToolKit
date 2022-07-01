@@ -14,30 +14,17 @@ jobs:
         python-version: [3.8, 3.9]
 
     steps:
-      - name: Checkout github repo (+ download lfs dependencies)
+      - name: Checkout github repo
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+
+      - name: Install poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        run: |
-          pip install --upgrade pip
-          pip install poetry
-
-      - name: Create environment variables
-        run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
-      - name: Poetry cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('./poetry.lock') }}
+          cache: "poetry"
 
       # galsim needs this.
       - name: Instal FFTW
