@@ -1,17 +1,15 @@
-name: pytest
+name: publish
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+  release:
+    types: [created]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.8]
 
     steps:
       - name: Checkout github repo
@@ -35,16 +33,8 @@ jobs:
         run: |
           poetry install
 
-      - name: Run Tests
+      - name: Build and publish
         run: |
-          poetry run pytest --cov=./btk --cov-report=xml --durations=0
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
-          env_vars: OS,PYTHON
-          name: codecov-umbrella
-          fail_ci_if_error: true
+          poetry version $(git describe --tags --abbrev=0)
+          poetry build
+          poetry publish --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}

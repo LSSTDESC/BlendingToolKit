@@ -16,25 +16,26 @@
 # -- Project information -----------------------------------------------------
 import os
 import sys
+from datetime import date
+from importlib import metadata
 from unittest.mock import Mock as MagicMock
 
 import sphinx_rtd_theme  # noqa: F401
 
-# import mock.Mock as MagicMock
-
 # from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath(".."))
-
+current_year = date.today().year
+full_version = metadata.version("blending_toolkit")
 
 project = "btk"
-copyright = "2020, btk developers"
+copyright = f"{current_year}, btk developers"
 author = "btk developers"
 
 # The short X.Y version
-version = "0.9"
+version = full_version[:2]
 # The full version, including alpha/beta/rc tags
-release = "0.9.3"
+release = full_version
 
 
 class Mock(MagicMock):
