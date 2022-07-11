@@ -29,7 +29,7 @@ version = "1.0.0a2"
 [tool.poetry.dependencies]
 astropy = ">=5.0.4"
 galcheat = ">=1.0.0"
-galsim = ">=2.3.4"
+galsim = ">=2.3.5"
 ipywidgets = ">=7.6.5"
 matplotlib = ">=3.5.1"
 numpy = ">=1.22.3"
