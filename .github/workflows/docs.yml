@@ -25,13 +25,23 @@ jobs:
           cache: "poetry"
 
       # galsim needs this.
-      - name: Instal FFTW
+      - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
       - name: Install poetry dependencies
         run: |
           poetry install
+
+      - name: Convert notebooks
+        run: |
+          cd docs/source
+          cat tutorials1.rst > tutorials.rst
+          echo "" >> tutorials.rst
+          jupyter nbconvert --to rst ../../notebooks/00-intro.ipynb --FilesWriter.build_directory="./"
+          cat 00-intro.rst >> tutorials.rst
+          echo "" >> tutorials.rst
+          cat tutorials2.rst >> tutorials.rst
 
       - name: build docs
         shell: bash -l {0}
