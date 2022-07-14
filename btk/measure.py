@@ -62,6 +62,8 @@ from typing import List
 import astropy.table
 import numpy as np
 import sep
+from astropy import units
+from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
 from btk.multiprocess import multiprocess
@@ -135,18 +137,92 @@ def basic_measure(
     return {"catalog": catalog}
 
 
-def sep_measure(
+def sep_multiband_measure(
     batch,
     idx,
+    channels_last=False,
+    surveys=None,
+    matching_threshold=1.0,
+    sigma_noise=1.5,
+    is_multiresolution=False,
+    **kwargs,
+):
+    """Returns centers detected with source extractor by combining predictions in different bands.
+
+    NOTE: If this function is used with the multiresolution feature,
+    measurements will be carried on the first survey.
+
+    Args:
+        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
+        idx (int): Index number of blend scene in the batch to preform
+            measurement on.
+        sigma_noise (float): Sigma threshold for detection against noise.
+        matching_threshold (float): Match centers of objects that are closer than
+            this threshold to a single prediction.
+
+    Returns:
+            dict containing catalog with entries corresponding to measured peaks.
+    """
+    channel_indx = 0 if not channels_last else -1
+
+    # multiresolution
+    if is_multiresolution:
+        if surveys is None:
+            raise ValueError("surveys are required in order to use the MR feature.")
+        survey_name = surveys[0].name
+        image = batch["blend_images"][survey_name][idx]
+        wcs = batch["wcs"][survey_name]
+
+    # single-survey
+    else:
+        image = batch["blend_images"][idx]
+        wcs = batch["wcs"]
+
+    # iterate over channels for Source Extractor
+    ra_coordinates, dec_coordinates = [], []
+    for channel in range(image.shape[channel_indx]):
+        band_image = image[channel] if channel_indx == 0 else image[:, :, channel]
+        bkg = sep.Background(band_image)
+        catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
+
+        # convert predictions to arcseconds
+        ra_detections, dec_detections = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        ra_detections *= 3600
+        dec_detections *= 3600
+
+        # prune predictions from repeats
+        for ra1, dec1 in zip(ra_detections, dec_detections):
+            found_match = False
+            c1 = SkyCoord(ra=ra1 * units.arcsec, dec=dec1 * units.arcsec, frame="icrs")
+            for ra2, dec2 in zip(ra_coordinates, dec_coordinates):
+                c2 = SkyCoord(ra=ra2 * units.arcsec, dec=dec2 * units.arcsec, frame="icrs")
+                if c1.separation(c2).arcsec < matching_threshold:
+                    found_match = True
+                    break
+            if not found_match:
+                ra_coordinates.append(ra1)
+                dec_coordinates.append(dec1)
+
+                # Wrap in the astropy table
+    t = astropy.table.Table()
+    t["ra"] = ra_coordinates
+    t["dec"] = dec_coordinates
+
+    return {"catalog": t}
+
+
+def sep_singleband_measure(
+    batch,
+    idx,
+    measure_band=3,
     channels_last=False,
     surveys=None,
     sigma_noise=1.5,
     is_multiresolution=False,
     **kwargs,
 ):
-    """Return detection, segmentation and deblending information with SEP.
+    """Return detection, segmentation and deblending information running SEP on a single band.
 
-    For each potentially multi-band image, an average over the bands is taken before measurement.
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey, and deblended images
     or segmentations will not be returned.
@@ -155,6 +231,8 @@ def sep_measure(
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
             measurement on.
+        measure_band (int): Index number of a band in the image to perform the
+            measurement on — default is i-band, which usually has index 3.
         sigma_noise (float): Sigma threshold for detection against noise.
 
     Returns:
@@ -168,19 +246,18 @@ def sep_measure(
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
         image = batch["blend_images"][survey_name][idx]
-        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"][survey_name]
 
     # single-survey
     else:
         image = batch["blend_images"][idx]
-        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"]
 
-    stamp_size = avg_image.shape[0]
-    bkg = sep.Background(avg_image)
+    band_image = image[measure_band] if channel_indx == 0 else image[:, :, measure_band]
+    stamp_size = band_image.shape[0]
+    bkg = sep.Background(band_image)
     catalog, segmentation = sep.extract(
-        avg_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
+        band_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
 
     n_objects = len(catalog)
@@ -430,4 +507,8 @@ class MeasureGenerator:
         return blend_output, measure_results
 
 
-available_measure_functions = {"basic": basic_measure, "sep": sep_measure}
+available_measure_functions = {
+    "basic": basic_measure,
+    "sep_singleband_measure": sep_singleband_measure,
+    "sep_multiband_measure": sep_multiband_measure,
+}
