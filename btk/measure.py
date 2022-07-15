@@ -164,7 +164,6 @@ def sep_multiband_measure(
             dict containing catalog with entries corresponding to measured peaks.
     """
     channel_indx = 0 if not channels_last else -1
-
     # multiresolution
     if is_multiresolution:
         if surveys is None:
@@ -178,10 +177,20 @@ def sep_multiband_measure(
         image = batch["blend_images"][idx]
         wcs = batch["wcs"]
 
-    # iterate over channels for Source Extractor
-    ra_coordinates, dec_coordinates = [], []
-    for channel in range(image.shape[channel_indx]):
-        band_image = image[channel] if channel_indx == 0 else image[:, :, channel]
+    # run source extractor on the first channel
+    band_image = image[0] if channel_indx == 0 else image[:, :, 0]
+    bkg = sep.Background(band_image)
+    catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
+
+    # convert predictions to arcseconds
+    ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+    ra_coordinates *= 3600
+    dec_coordinates *= 3600
+
+    # iterate over remaining channels and match using KdTree
+    for ch in range(1, image[channel_indx].shape):
+        # "run" source extractor
+        band_image = image[ch] if channel_indx == 0 else image[:, :, ch]
         bkg = sep.Background(band_image)
         catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
 
@@ -190,20 +199,21 @@ def sep_multiband_measure(
         ra_detections *= 3600
         dec_detections *= 3600
 
-        # prune predictions from repeats
-        for ra1, dec1 in zip(ra_detections, dec_detections):
-            found_match = False
-            c1 = SkyCoord(ra=ra1 * units.arcsec, dec=dec1 * units.arcsec, frame="icrs")
-            for ra2, dec2 in zip(ra_coordinates, dec_coordinates):
-                c2 = SkyCoord(ra=ra2 * units.arcsec, dec=dec2 * units.arcsec, frame="icrs")
-                if c1.separation(c2).arcsec < matching_threshold:
-                    found_match = True
-                    break
-            if not found_match:
-                ra_coordinates.append(ra1)
-                dec_coordinates.append(dec1)
+        # convert to sky coordinates
+        c1 = SkyCoord(ra=ra_detections * units.arcsec, dec=dec_detections * units.arcsec)
+        c2 = SkyCoord(ra=ra_coordinates * units.arcsec, dec=dec_coordinates * units.arcsec)
 
-                # Wrap in the astropy table
+        # measure distances
+        idx, d2d, d3d = c1.match_to_catalog_sky(c2)
+        d2d = d2d.arcsec
+
+        # extend the list
+        ra_coordinates = np.concatenate([ra_coordinates, ra_detections[d2d > matching_threshold]])
+        dec_coordinates = np.concatenate(
+            [dec_coordinates, dec_detections[d2d > matching_threshold]]
+        )
+
+    # Wrap in the astropy table
     t = astropy.table.Table()
     t["ra"] = ra_coordinates
     t["dec"] = dec_coordinates
