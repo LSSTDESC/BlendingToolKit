@@ -88,7 +88,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "jupyter_sphinx",
     "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
 ]
@@ -128,7 +127,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["tutorials_header.rst", "tutorials_footer.rst", "00-intro.rst"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
