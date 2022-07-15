@@ -177,7 +177,7 @@ def sep_multiband_measure(
         image = batch["blend_images"][idx]
         wcs = batch["wcs"]
 
-    # run source extractor on the first channel
+    # run source extractor on the first band
     band_image = image[0] if channel_indx == 0 else image[:, :, 0]
     bkg = sep.Background(band_image)
     catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
@@ -187,10 +187,10 @@ def sep_multiband_measure(
     ra_coordinates *= 3600
     dec_coordinates *= 3600
 
-    # iterate over remaining channels and match using KdTree
-    for ch in range(1, image[channel_indx].shape):
-        # "run" source extractor
-        band_image = image[ch] if channel_indx == 0 else image[:, :, ch]
+    # iterate over remaining bands and match predictions using KdTree
+    for band in range(1, image.shape[channel_indx]):
+        # run source extractor
+        band_image = image[band] if channel_indx == 0 else image[:, :, band]
         bkg = sep.Background(band_image)
         catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
 
@@ -203,15 +203,20 @@ def sep_multiband_measure(
         c1 = SkyCoord(ra=ra_detections * units.arcsec, dec=dec_detections * units.arcsec)
         c2 = SkyCoord(ra=ra_coordinates * units.arcsec, dec=dec_coordinates * units.arcsec)
 
-        # measure distances
-        idx, d2d, d3d = c1.match_to_catalog_sky(c2)
-        d2d = d2d.arcsec
+        # add new coordinates
+        if len(c1) > 0 and len(c2) > 0:
+            idx, d2d, d3d = c1.match_to_catalog_sky(c2)
+            d2d = d2d.arcsec
 
-        # extend the list
-        ra_coordinates = np.concatenate([ra_coordinates, ra_detections[d2d > matching_threshold]])
-        dec_coordinates = np.concatenate(
-            [dec_coordinates, dec_detections[d2d > matching_threshold]]
-        )
+            ra_coordinates = np.concatenate(
+                [ra_coordinates, ra_detections[d2d > matching_threshold]]
+            )
+            dec_coordinates = np.concatenate(
+                [dec_coordinates, dec_detections[d2d > matching_threshold]]
+            )
+        else:
+            ra_coordinates = np.concatenate([ra_coordinates, ra_detections])
+            dec_coordinates = np.concatenate([dec_coordinates, dec_detections])
 
     # Wrap in the astropy table
     t = astropy.table.Table()
@@ -224,7 +229,7 @@ def sep_multiband_measure(
 def sep_singleband_measure(
     batch,
     idx,
-    measure_band=3,
+    meas_band_num=3,
     channels_last=False,
     surveys=None,
     sigma_noise=1.5,
@@ -241,8 +246,7 @@ def sep_singleband_measure(
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
             measurement on.
-        measure_band (int): Index number of a band in the image to perform the
-            measurement on — default is i-band, which usually has index 3.
+        meas_band_num (int) – Indicates the index of band to use fo the measurement
         sigma_noise (float): Sigma threshold for detection against noise.
 
     Returns:
@@ -263,13 +267,15 @@ def sep_singleband_measure(
         image = batch["blend_images"][idx]
         wcs = batch["wcs"]
 
-    band_image = image[measure_band] if channel_indx == 0 else image[:, :, measure_band]
+    # run source extractor
+    band_image = image[meas_band_num] if channel_indx == 0 else image[:, :, meas_band_num]
     stamp_size = band_image.shape[0]
     bkg = sep.Background(band_image)
     catalog, segmentation = sep.extract(
         band_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
 
+    # reshape segmentation map
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
@@ -282,6 +288,7 @@ def sep_singleband_measure(
         seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
         deblended_images[i] = image * seg_i_reshaped
 
+    # wrap results in astropy table
     t = astropy.table.Table()
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
     t["ra"] *= 3600
