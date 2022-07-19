@@ -2,11 +2,12 @@ from unittest.mock import patch
 
 import matplotlib.pyplot as plt
 import numpy as np
+from conftest import data_dir
 
 import btk.plot_utils as plot_utils
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator, sep_measure
+from btk.measure import MeasureGenerator, sep_singleband_measure
 from btk.metrics import (
     MetricsGenerator,
     auc,
@@ -25,7 +26,7 @@ def get_metrics_generator(
     measure_kwargs=None,
 ):
     """Returns draw generator with group sampling function"""
-    catalog_name = "data/sample_input_catalog.fits"
+    catalog_name = data_dir / "sample_input_catalog.fits"
     stamp_size = 24
     survey = get_surveys("LSST")
     shifts = [
@@ -61,9 +62,9 @@ def get_metrics_generator(
 
 @patch("btk.plot_utils.plt.show")
 def test_sep_metrics(mock_show):
-    metrics_generator = get_metrics_generator(sep_measure)
+    metrics_generator = get_metrics_generator(sep_singleband_measure)
     blend_results, meas_results, metrics_results = next(metrics_generator)
-    gal_summary = metrics_results["galaxy_summary"]["sep_measure"]
+    gal_summary = metrics_results["galaxy_summary"]["sep_singleband_measure"]
     gal_summary = gal_summary[gal_summary["detected"] == True]  # noqa: E712
     msr = gal_summary["msr"]
     dist = gal_summary["distance_closest_galaxy"]
@@ -88,9 +89,9 @@ def test_sep_metrics(mock_show):
         blend_results["blend_images"],
         blend_results["isolated_images"],
         blend_results["blend_list"],
-        meas_results["catalog"]["sep_measure"],
-        meas_results["deblended_images"]["sep_measure"],
-        metrics_results["matches"]["sep_measure"],
+        meas_results["catalog"]["sep_singleband_measure"],
+        meas_results["deblended_images"]["sep_singleband_measure"],
+        metrics_results["matches"]["sep_singleband_measure"],
         indexes=list(range(5)),
         band_indices=[1, 2, 3],
     )
@@ -101,11 +102,11 @@ def test_sep_metrics(mock_show):
 def test_measure_kwargs(mock_show):
     """Test detection with sep"""
     metrics_generator = get_metrics_generator(
-        sep_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
+        sep_singleband_measure, measure_kwargs=[{"sigma_noise": 2.0}, {"sigma_noise": 3.0}]
     )
     _, _, results = next(metrics_generator)
-    average_precision = auc(results, "sep_measure", 2, plot=True)
-    assert average_precision == 0.3125
+    average_precision = auc(results, "sep_singleband_measure", 2, plot=True)
+    assert average_precision == 0.25
 
 
 def test_detection_eff_matrix():

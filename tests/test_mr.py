@@ -4,7 +4,7 @@ from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator, sep_measure
+from btk.measure import MeasureGenerator, sep_multiband_measure, sep_singleband_measure
 from btk.metrics import MetricsGenerator, meas_ksb_ellipticity
 from btk.plot_utils import plot_metrics_summary
 from btk.sampling_functions import DefaultSampling
@@ -33,7 +33,9 @@ def test_multiresolution(mock_show):
         add_noise=add_noise,
     )
 
-    meas_generator = MeasureGenerator(sep_measure, draw_blend_generator, cpus=cpus)
+    meas_generator = MeasureGenerator(
+        [sep_singleband_measure, sep_multiband_measure], draw_blend_generator, cpus=cpus
+    )
     metrics_generator = MetricsGenerator(
         meas_generator, target_meas={"ellipticity": meas_ksb_ellipticity}, meas_band_name=("r", "g")
     )
@@ -48,16 +50,16 @@ def test_multiresolution(mock_show):
         24.0 / 0.168
     ), "HSC survey should have a pixel scale of 0.167"
     assert (
-        "LSST" in measure_results["catalog"]["sep_measure"].keys()
+        "LSST" in measure_results["catalog"]["sep_singleband_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
-        "HSC" in measure_results["catalog"]["sep_measure"].keys()
+        "HSC" in measure_results["catalog"]["sep_singleband_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
-        "LSST" in metrics_results["galaxy_summary"]["sep_measure"].keys()
+        "LSST" in metrics_results["galaxy_summary"]["sep_singleband_measure"].keys()
     ), "Both surveys get well defined outputs"
     assert (
-        "HSC" in metrics_results["galaxy_summary"]["sep_measure"].keys()
+        "HSC" in metrics_results["galaxy_summary"]["sep_singleband_measure"].keys()
     ), "Both surveys get well defined outputs"
 
     plot_metrics_summary(
