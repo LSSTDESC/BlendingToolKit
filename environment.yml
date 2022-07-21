@@ -27,7 +27,7 @@ dependencies:
       - asttokens==2.0.5
       - attrs==21.4.0
       - backcall==0.2.0
-      - blending-toolkit==1.0.0a1
+      - blending-toolkit==1.0.0a2
       - cffi==1.15.0
       - cycler==0.11.0
       - debugpy==1.6.0
