@@ -59,36 +59,28 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
     return target, results
 
 
-def compare_sep():
-    """Test sep detection using single band and multiband"""
+def compare_sep(cpus=1):
+    """
+    Test sep detection using single band and multiband
+
+    Runs sep_singleband_measure and sep_multiband_measure on a batch of images, verifying
+    that detections are close to the ground truth and number of detections for sep_multiband_measure
+    is bigger than sep_singleband_measure.
+    """
+
     target, results = get_meas_results(
-        [sep_singleband_measure, sep_multiband_measure], measure_kwargs=[{"sigma_noise": 1.5}]
+        [sep_singleband_measure, sep_multiband_measure],
+        measure_kwargs=[{"sigma_noise": 1.5}],
+        cpus=cpus,
     )
+    # count the number of detected sources for both algroitms
     detected_sources = {"sep_singleband_measure": 0, "sep_multiband_measure": 0}
     for meas_function in detected_sources.keys():
         for i, blend in enumerate(results["catalog"][meas_function]):
             if len(blend) > 0:
                 detected_centers = np.array([blend[0]["x_peak"].item(), blend[0]["y_peak"].item()])
                 dist = np.max(np.abs(detected_centers - target[i]))
-                np.testing.assert_array_less(dist, 1.5)
-                detected_sources[meas_function] += 1
-
-    assert detected_sources["sep_multiband_measure"] >= 0.5 * len(target)
-    assert detected_sources["sep_singleband_measure"] >= 0.5 * len(target)
-    assert detected_sources["sep_multiband_measure"] >= detected_sources["sep_singleband_measure"]
-
-
-def compare_sep_multiprocessing():
-    """Test sep dettection using single band and multiband with multiprocessing"""
-    target, results = get_meas_results(
-        [sep_singleband_measure, sep_multiband_measure], measure_kwargs=[{"sigma_noise": 1.5}]
-    )
-    detected_sources = {"sep_singleband_measure": 0, "sep_multiband_measure": 0}
-    for meas_function in detected_sources.keys():
-        for i, blend in enumerate(results["catalog"][meas_function]):
-            if len(blend) > 0:
-                detected_centers = np.array([blend[0]["x_peak"].item(), blend[0]["y_peak"].item()])
-                dist = np.max(np.abs(detected_centers - target[i]))
+                # make sure that detections are within 1.5 arcsec from truth
                 np.testing.assert_array_less(dist, 1.5)
                 detected_sources[meas_function] += 1
 
@@ -99,8 +91,8 @@ def compare_sep_multiprocessing():
 
 def test_algorithms():
     """Test detection/deblending/measurement algorithms if installed"""
-    compare_sep()
-    compare_sep_multiprocessing()
+    compare_sep(cpus=1)
+    compare_sep(cpus=4)  # check multiprocessing
     get_meas_results(basic_measure, cpus=4)
 
 

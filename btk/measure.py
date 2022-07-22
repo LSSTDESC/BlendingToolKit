@@ -149,6 +149,12 @@ def sep_multiband_measure(
 ):
     """Returns centers detected with source extractor by combining predictions in different bands.
 
+    For each band in the input image we run sep for detection and append new detections to a running
+    list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algroithm
+    to calculate the angular distance between each new coordinate and its closest neighbour. Then we
+    discard those new coordinates that were closer than matching_threshold to one of already
+    detected coordinates.
+
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey.
 
@@ -203,16 +209,18 @@ def sep_multiband_measure(
         c1 = SkyCoord(ra=ra_detections * units.arcsec, dec=dec_detections * units.arcsec)
         c2 = SkyCoord(ra=ra_coordinates * units.arcsec, dec=dec_coordinates * units.arcsec)
 
-        # add new coordinates
+        # merge new detections with the running list of coordinates
         if len(c1) > 0 and len(c2) > 0:
-            idx, d2d, d3d = c1.match_to_catalog_sky(c2)
-            d2d = d2d.arcsec
+            # runs KD-tree to get distances to the closest neighbours
+            idx, distance2d, _ = c1.match_to_catalog_sky(c2)
+            distance2d = distance2d.arcsec
 
+            # add new predictions, masking those that are closer than threshold
             ra_coordinates = np.concatenate(
-                [ra_coordinates, ra_detections[d2d > matching_threshold]]
+                [ra_coordinates, ra_detections[distance2d > matching_threshold]]
             )
             dec_coordinates = np.concatenate(
-                [dec_coordinates, dec_detections[d2d > matching_threshold]]
+                [dec_coordinates, dec_detections[distance2d > matching_threshold]]
             )
         else:
             ra_coordinates = np.concatenate([ra_coordinates, ra_detections])
