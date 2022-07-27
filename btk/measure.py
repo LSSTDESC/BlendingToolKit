@@ -511,12 +511,12 @@ class MeasureGenerator:
                     if segmentation[key_name] is not None:
                         np.save(
                             os.path.join(self.save_path, key_name, "segmentation"),
-                            segmentation[key_name],
+                            np.array(segmentation[key_name], dtype=object),
                         )
                     if deblended_images[key_name] is not None:
                         np.save(
                             os.path.join(self.save_path, key_name, "deblended_images"),
-                            deblended_images[key_name],
+                            np.array(deblended_images[key_name], dtype=object),
                         )
                     for j, cat in enumerate(catalog[key_name]):
                         cat.write(
