@@ -150,9 +150,9 @@ def sep_multiband_measure(
     """Returns centers detected with source extractor by combining predictions in different bands.
 
     For each band in the input image we run sep for detection and append new detections to a running
-    list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algroithm
+    list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
     to calculate the angular distance between each new coordinate and its closest neighbour. Then we
-    discard those new coordinates that were closer than matching_threshold to one of already
+    discard those new coordinates that were closer than matching_threshold to any one of already
     detected coordinates.
 
     NOTE: If this function is used with the multiresolution feature,
@@ -238,6 +238,7 @@ def sep_singleband_measure(
     batch,
     idx,
     meas_band_num=3,
+    use_mean=False,
     channels_last=False,
     surveys=None,
     sigma_noise=1.5,
@@ -245,6 +246,10 @@ def sep_singleband_measure(
     **kwargs,
 ):
     """Return detection, segmentation and deblending information running SEP on a single band.
+
+    The function performs detection and deblending of the sources based on the provided
+    band index. If use_mean feature is used, then the measurement function is using
+    the average of all the bands.
 
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey, and deblended images
@@ -254,7 +259,8 @@ def sep_singleband_measure(
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
             measurement on.
-        meas_band_num (int) – Indicates the index of band to use fo the measurement
+        meas_band_num (int): Indicates the index of band to use fo the measurement
+        use_mean (bool): If True, then algorithm uses the average of all the bands
         sigma_noise (float): Sigma threshold for detection against noise.
 
     Returns:
@@ -269,14 +275,18 @@ def sep_singleband_measure(
         survey_name = surveys[0].name
         image = batch["blend_images"][survey_name][idx]
         wcs = batch["wcs"][survey_name]
-
     # single-survey
     else:
         image = batch["blend_images"][idx]
         wcs = batch["wcs"]
 
+    # get a 1-channel input for sep
+    if use_mean:
+        band_image = np.mean(image, axis=channel_indx)
+    else:
+        band_image = image[meas_band_num] if channel_indx == 0 else image[:, :, meas_band_num]
+
     # run source extractor
-    band_image = image[meas_band_num] if channel_indx == 0 else image[:, :, meas_band_num]
     stamp_size = band_image.shape[0]
     bkg = sep.Background(band_image)
     catalog, segmentation = sep.extract(
