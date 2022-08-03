@@ -164,7 +164,7 @@ def sep_multiband_measure(
             measurement on.
         sigma_noise (float): Sigma threshold for detection against noise.
         matching_threshold (float): Match centers of objects that are closer than
-            this threshold to a single prediction.
+            this threshold to a single prediction (in arseconds).
 
     Returns:
             dict containing catalog with entries corresponding to measured peaks.
