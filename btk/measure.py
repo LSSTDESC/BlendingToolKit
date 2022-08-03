@@ -62,6 +62,8 @@ from typing import List
 import astropy.table
 import numpy as np
 import sep
+from astropy import units
+from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
 from btk.multiprocess import multiprocess
@@ -135,18 +137,120 @@ def basic_measure(
     return {"catalog": catalog}
 
 
-def sep_measure(
+def sep_multiband_measure(
     batch,
     idx,
+    channels_last=False,
+    surveys=None,
+    matching_threshold=1.0,
+    sigma_noise=1.5,
+    is_multiresolution=False,
+    **kwargs,
+):
+    """Returns centers detected with source extractor by combining predictions in different bands.
+
+    For each band in the input image we run sep for detection and append new detections to a running
+    list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
+    to calculate the angular distance between each new coordinate and its closest neighbour. Then we
+    discard those new coordinates that were closer than matching_threshold to any one of already
+    detected coordinates.
+
+    NOTE: If this function is used with the multiresolution feature,
+    measurements will be carried on the first survey.
+
+    Args:
+        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
+        idx (int): Index number of blend scene in the batch to preform
+            measurement on.
+        sigma_noise (float): Sigma threshold for detection against noise.
+        matching_threshold (float): Match centers of objects that are closer than
+            this threshold to a single prediction (in arseconds).
+
+    Returns:
+            dict containing catalog with entries corresponding to measured peaks.
+    """
+    channel_indx = 0 if not channels_last else -1
+    # multiresolution
+    if is_multiresolution:
+        if surveys is None:
+            raise ValueError("surveys are required in order to use the MR feature.")
+        survey_name = surveys[0].name
+        image = batch["blend_images"][survey_name][idx]
+        wcs = batch["wcs"][survey_name]
+
+    # single-survey
+    else:
+        image = batch["blend_images"][idx]
+        wcs = batch["wcs"]
+
+    # run source extractor on the first band
+    band_image = image[0] if channel_indx == 0 else image[:, :, 0]
+    bkg = sep.Background(band_image)
+    catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
+
+    # convert predictions to arcseconds
+    ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+    ra_coordinates *= 3600
+    dec_coordinates *= 3600
+
+    # iterate over remaining bands and match predictions using KdTree
+    for band in range(1, image.shape[channel_indx]):
+        # run source extractor
+        band_image = image[band] if channel_indx == 0 else image[:, :, band]
+        bkg = sep.Background(band_image)
+        catalog = sep.extract(band_image, sigma_noise, err=bkg.globalrms, segmentation_map=False)
+
+        # convert predictions to arcseconds
+        ra_detections, dec_detections = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        ra_detections *= 3600
+        dec_detections *= 3600
+
+        # convert to sky coordinates
+        c1 = SkyCoord(ra=ra_detections * units.arcsec, dec=dec_detections * units.arcsec)
+        c2 = SkyCoord(ra=ra_coordinates * units.arcsec, dec=dec_coordinates * units.arcsec)
+
+        # merge new detections with the running list of coordinates
+        if len(c1) > 0 and len(c2) > 0:
+            # runs KD-tree to get distances to the closest neighbours
+            idx, distance2d, _ = c1.match_to_catalog_sky(c2)
+            distance2d = distance2d.arcsec
+
+            # add new predictions, masking those that are closer than threshold
+            ra_coordinates = np.concatenate(
+                [ra_coordinates, ra_detections[distance2d > matching_threshold]]
+            )
+            dec_coordinates = np.concatenate(
+                [dec_coordinates, dec_detections[distance2d > matching_threshold]]
+            )
+        else:
+            ra_coordinates = np.concatenate([ra_coordinates, ra_detections])
+            dec_coordinates = np.concatenate([dec_coordinates, dec_detections])
+
+    # Wrap in the astropy table
+    t = astropy.table.Table()
+    t["ra"] = ra_coordinates
+    t["dec"] = dec_coordinates
+
+    return {"catalog": t}
+
+
+def sep_singleband_measure(
+    batch,
+    idx,
+    meas_band_num=3,
+    use_mean=False,
     channels_last=False,
     surveys=None,
     sigma_noise=1.5,
     is_multiresolution=False,
     **kwargs,
 ):
-    """Return detection, segmentation and deblending information with SEP.
+    """Return detection, segmentation and deblending information running SEP on a single band.
 
-    For each potentially multi-band image, an average over the bands is taken before measurement.
+    The function performs detection and deblending of the sources based on the provided
+    band index. If use_mean feature is used, then the measurement function is using
+    the average of all the bands.
+
     NOTE: If this function is used with the multiresolution feature,
     measurements will be carried on the first survey, and deblended images
     or segmentations will not be returned.
@@ -155,6 +259,8 @@ def sep_measure(
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
         idx (int): Index number of blend scene in the batch to preform
             measurement on.
+        meas_band_num (int): Indicates the index of band to use fo the measurement
+        use_mean (bool): If True, then algorithm uses the average of all the bands
         sigma_noise (float): Sigma threshold for detection against noise.
 
     Returns:
@@ -168,21 +274,26 @@ def sep_measure(
             raise ValueError("surveys are required in order to use the MR feature.")
         survey_name = surveys[0].name
         image = batch["blend_images"][survey_name][idx]
-        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"][survey_name]
-
     # single-survey
     else:
         image = batch["blend_images"][idx]
-        avg_image = np.mean(image, axis=channel_indx)
         wcs = batch["wcs"]
 
-    stamp_size = avg_image.shape[0]
-    bkg = sep.Background(avg_image)
+    # get a 1-channel input for sep
+    if use_mean:
+        band_image = np.mean(image, axis=channel_indx)
+    else:
+        band_image = image[meas_band_num] if channel_indx == 0 else image[:, :, meas_band_num]
+
+    # run source extractor
+    stamp_size = band_image.shape[0]
+    bkg = sep.Background(band_image)
     catalog, segmentation = sep.extract(
-        avg_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
+        band_image, sigma_noise, err=bkg.globalrms, segmentation_map=True
     )
 
+    # reshape segmentation map
     n_objects = len(catalog)
     segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
     deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
@@ -195,6 +306,7 @@ def sep_measure(
         seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
         deblended_images[i] = image * seg_i_reshaped
 
+    # wrap results in astropy table
     t = astropy.table.Table()
     t["ra"], t["dec"] = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
     t["ra"] *= 3600
@@ -409,12 +521,12 @@ class MeasureGenerator:
                     if segmentation[key_name] is not None:
                         np.save(
                             os.path.join(self.save_path, key_name, "segmentation"),
-                            segmentation[key_name],
+                            np.array(segmentation[key_name], dtype=object),
                         )
                     if deblended_images[key_name] is not None:
                         np.save(
                             os.path.join(self.save_path, key_name, "deblended_images"),
-                            deblended_images[key_name],
+                            np.array(deblended_images[key_name], dtype=object),
                         )
                     for j, cat in enumerate(catalog[key_name]):
                         cat.write(
@@ -430,4 +542,8 @@ class MeasureGenerator:
         return blend_output, measure_results
 
 
-available_measure_functions = {"basic": basic_measure, "sep": sep_measure}
+available_measure_functions = {
+    "basic": basic_measure,
+    "sep_singleband_measure": sep_singleband_measure,
+    "sep_multiband_measure": sep_multiband_measure,
+}
