@@ -1,3 +1,4 @@
+# TODO Change file description
 """File containing measurement infrastructure for the BlendingToolKit.
 
 Contains examples of functions that can be used to apply a measurement algorithm to the blends
@@ -88,7 +89,7 @@ class Measure(ABC):
 
         By default, the measure function is performed on the first survey.
         """
-        self.__call__(image_list[0], wcs_list[0])
+        return self.__call__(image_list[0], wcs_list[0])
 
     @staticmethod
     def pixel_coordinates_to_arcsec(x, y, wcs):
@@ -178,18 +179,18 @@ class SepSingleband(Measure):
         self.use_mean = use_mean
         self.meas_band_num = meas_band_num
         self.sigma_noise = sigma_noise
-        self.channel_last = channels_last
+        self.channels_last = channels_last
         self.channels_index = 0 if not channels_last else -1
 
     def __call__(self, image, wcs):
         """TODO: Docstring."""
         # get a 1-channel input for sep
         if self.use_mean:
-            band_image = np.mean(image, axis=self.channel_indx)
+            band_image = np.mean(image, axis=self.channels_index)
         else:
             band_image = (
                 image[self.meas_band_num]
-                if self.channel_indx == 0
+                if self.channels_index == 0
                 else image[:, :, self.meas_band_num]
             )
 
@@ -215,7 +216,7 @@ class SepSingleband(Measure):
 
         # wrap results in astropy table
         t = astropy.table.Table()
-        t["ra"], t["dec"] = self.pixel_coordinates_to_arcsec(catalog["x"], catalog["y"])
+        t["ra"], t["dec"] = self.pixel_coordinates_to_arcsec(catalog["x"], catalog["y"], wcs)
         return {
             "catalog": t,
             "segmentation": segmentation_exp,
@@ -268,9 +269,9 @@ class SepMultiband(Measure):
         )
 
         # iterate over remaining bands and match predictions using KdTree
-        for band in range(1, image.shape[self.channel_indx]):
+        for band in range(1, image.shape[self.channels_index]):
             # run source extractor
-            band_image = image[band] if self.channel_indx == 0 else image[:, :, band]
+            band_image = image[band] if self.channels_index == 0 else image[:, :, band]
             bkg = sep.Background(band_image)
             catalog = sep.extract(
                 band_image, self.sigma_noise, err=bkg.globalrms, segmentation_map=False
@@ -339,13 +340,15 @@ class MeasureGenerator:
         for meas in measures:
             if inspect.isclass(meas):
                 if not issubclass(meas, Measure):
-                    print(f"'{meas.__name__}' must subclass from Measure")
+                    raise TypeError(f"'{meas.__name__}' must subclass from Measure")
                 else:
-                    print(
+                    raise TypeError(
                         f"'{meas.__name__}' must be instantiated. Use '{meas.__name__}()' instead"
                     )
             elif not isinstance(meas, Measure):
-                print(f"Got type'{type(meas)}', but expected an object of a Measure class")
+                raise TypeError(
+                    f"Got type'{type(meas)}', but expected an object of a Measure class"
+                )
         self.measures = measures
 
         # create a list of measure names (avoiding duplication)
@@ -377,7 +380,7 @@ class MeasureGenerator:
             if self.is_multiresolution:
                 image_list = [batch["blend_images"][s.name][index] for s in self.surveys]
                 wcs_list = [batch["wcs"][s.name][index] for s in self.surveys]
-                out = meas(image_list, wcs_list)
+                out = meas.multiresolution_call(image_list, wcs_list)
             else:
                 out = meas(batch["blend_images"][index], batch["wcs"][index])
 
@@ -410,6 +413,7 @@ class MeasureGenerator:
                                     f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
                                 )
                     else:
+                        # TODO fix this
                         for survey in self.surveys:
                             if not isinstance(out[key][survey.name], np.ndarray):
                                 raise TypeError(
@@ -467,50 +471,49 @@ class MeasureGenerator:
                 deblended_images[meas_name].append(
                     measure_output[j][i].get("deblended_images", None)
                 )
-                # TODO Figure out multiresolution (???)
-                # If multiresolution, we reverse the order between the survey name and
-                # the index of the blend
-                if self.is_multiresolution:
-                    survey_keys = list(blend_output["blend_list"].keys())
-                    # We duplicate the catalog for each survey to get the pixel coordinates
-                    catalogs_temp = {}
-                    for surv in self.measures_names:
-                        catalogs_temp[surv] = add_pixel_columns(
-                            catalog[meas_name], blend_output["wcs"][surv]
-                        )
-                    catalog[meas_name] = catalogs_temp
-
-                    segmentation[meas_name] = reverse_list_dictionary(
-                        segmentation[meas_name], survey_keys
+            # If multiresolution, we reverse the order between the survey name and
+            # the index of the blend
+            if self.is_multiresolution:
+                survey_keys = list(blend_output["blend_list"].keys())
+                # We duplicate the catalog for each survey to get the pixel coordinates
+                catalogs_temp = {}
+                for surv in self.measures_names:
+                    catalogs_temp[surv] = add_pixel_columns(
+                        catalog[meas_name], blend_output["wcs"][surv]
                     )
-                    deblended_images[meas_name] = reverse_list_dictionary(
-                        deblended_images[meas_name], survey_keys
+                catalog[meas_name] = catalogs_temp
+
+                segmentation[meas_name] = reverse_list_dictionary(
+                    segmentation[meas_name], survey_keys
+                )
+                deblended_images[meas_name] = reverse_list_dictionary(
+                    deblended_images[meas_name], survey_keys
+                )
+
+            else:
+                catalog[meas_name] = add_pixel_columns(catalog[meas_name], blend_output["wcs"])
+
+            # save results if requested.
+            if self.save_path is not None:
+                if not os.path.exists(os.path.join(self.save_path, meas_name)):
+                    os.mkdir(os.path.join(self.save_path, meas_name))
+
+                if segmentation[meas_name] is not None:
+                    np.save(
+                        os.path.join(self.save_path, meas_name, "segmentation"),
+                        np.array(segmentation[meas_name], dtype=object),
                     )
-
-                else:
-                    catalog[meas_name] = add_pixel_columns(catalog[meas_name], blend_output["wcs"])
-
-                # save results if requested.
-                if self.save_path is not None:
-                    if not os.path.exists(os.path.join(self.save_path, meas_name)):
-                        os.mkdir(os.path.join(self.save_path, meas_name))
-
-                    if segmentation[meas_name] is not None:
-                        np.save(
-                            os.path.join(self.save_path, meas_name, "segmentation"),
-                            np.array(segmentation[meas_name], dtype=object),
-                        )
-                    if deblended_images[meas_name] is not None:
-                        np.save(
-                            os.path.join(self.save_path, meas_name, "deblended_images"),
-                            np.array(deblended_images[meas_name], dtype=object),
-                        )
-                    for j, cat in enumerate(catalog[meas_name]):
-                        cat.write(
-                            os.path.join(self.save_path, meas_name, f"detection_catalog_{j}"),
-                            format="ascii",
-                            overwrite=True,
-                        )
+                if deblended_images[meas_name] is not None:
+                    np.save(
+                        os.path.join(self.save_path, meas_name, "deblended_images"),
+                        np.array(deblended_images[meas_name], dtype=object),
+                    )
+                for j, cat in enumerate(catalog[meas_name]):
+                    cat.write(
+                        os.path.join(self.save_path, meas_name, f"detection_catalog_{j}"),
+                        format="ascii",
+                        overwrite=True,
+                    )
         measure_results = {
             "catalog": catalog,
             "segmentation": segmentation,
