@@ -80,6 +80,15 @@ class Measure(ABC):
     def __call__(self, image, wcs):
         """Implements the call of a measure function.
 
+        You need to implement this function for your measurement
+
+        Args:
+            image (np.array): image to make measurememnt on
+            wcs (astropy.wcs) wcs object to convert between pixel coordinates and ra, dec
+
+        Returns:
+            dict containing measurements
+
         TODO: Explain return
         """
         raise NotImplementedError("Each measure class must implement its own __call__ function")
@@ -87,7 +96,16 @@ class Measure(ABC):
     def multiresolution_call(self, image_list, wcs_list):
         """Implements the call of a measure function on a multiresolution image.
 
-        By default, the measure function is performed on the first survey.
+        By default, the measure function is performed on the first survey. Overwrite
+        this function to implement a more complex behaviour.
+
+        Args:
+            image_list (list): images corresponding to different surveys
+            wcs_list (list): wcs coordinates to convert between pixel coordinates
+                and sky coordinates
+
+        Returns:
+            dict containing measurements
         """
         return self.__call__(image_list[0], wcs_list[0])
 
@@ -100,7 +118,7 @@ class Measure(ABC):
         return ra, dec
 
     @classmethod
-    def __str__(cls):
+    def __repr__(cls):
         """Returns the name of the class for bookkeeping."""
         return cls.__name__
 
@@ -396,42 +414,41 @@ class MeasureGenerator:
                     "The output catalog of at least one of your measurement functions does not"
                     "contain the mandatory 'ra' and 'dec' columns"
                 )
-
-            for key in ["deblended_images", "segmentation"]:
-                if key in out and out[key] is not None:
-                    if len(self.surveys) == 1:
-                        if not isinstance(out[key], np.ndarray):
-                            raise TypeError(
-                                f"The output '{key}' of at least one of your measurement"
-                                f"functions is not a numpy array."
-                            )
-                        if key == "deblended_images":
-                            if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
-                                raise ValueError(
-                                    f"The shapes of the blended images in your {key} don't "
-                                    f"match for at least one your measurement functions."
-                                    f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
-                                )
-                    else:
-                        # TODO fix this
-                        for survey in self.surveys:
-                            if not isinstance(out[key][survey.name], np.ndarray):
-                                raise TypeError(
-                                    f"The output '{key}' for survey '{survey.name}' of at least"
-                                    f"one of your measurement functions is not a numpy array, but"
-                                    f"a {type(out[key][survey.name])}"
-                                )
-                            if key == "deblended_images":
-                                if (
-                                    not out[key][survey.name].shape[-3:]
-                                    == batch["blend_images"][survey.name].shape[-3:]
-                                ):
-                                    raise ValueError(
-                                        f"The shapes of the blended images in your {key} for"
-                                        f"survey '{survey.name}' do not match for at least one of"
-                                        f"your measurement functions."
-                                        f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
-                                    )
+            # TODO somehow fix this type check
+            # for key in ["deblended_images", "segmentation"]:
+            #     if key in out and out[key] is not None:
+            #         if len(self.surveys) == 1:
+            #             if not isinstance(out[key], np.ndarray):
+            #                 raise TypeError(
+            #                     f"The output '{key}' of at least one of your measurement"
+            #                     f"functions is not a numpy array."
+            #                 )
+            #             if key == "deblended_images":
+            #                 if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
+            #                     raise ValueError(
+            #                         f"The shapes of the blended images in your {key} don't "
+            #                         f"match for at least one your measurement functions."
+            #                         f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
+            #                     )
+            #         else:
+            #             for survey in self.surveys:
+            #                 if not isinstance(out[key][survey.name], np.ndarray):
+            #                     raise TypeError(
+            #                         f"The output '{key}' for survey '{survey.name}' of at least"
+            #                         f"one of your measurement functions is not a numpy array, but"
+            #                         f"a {type(out[key][survey.name])}"
+            #                     )
+            #                 if key == "deblended_images":
+            #                     if (
+            #                         not out[key][survey.name].shape[-3:]
+            #                         == batch["blend_images"][survey.name].shape[-3:]
+            #                     ):
+            #                         raise ValueError(
+            #                             f"The shapes of the blended images in your {key} for"
+            #                             f"survey '{survey.name}' do not match for at least one of"
+            #                             f"your measurement functions."
+            #                             f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
+            #                         )
             out = {k: out.get(k, None) for k in ["deblended_images", "catalog", "segmentation"]}
             output.append(out)
         return output
@@ -475,9 +492,10 @@ class MeasureGenerator:
             # the index of the blend
             if self.is_multiresolution:
                 survey_keys = list(blend_output["blend_list"].keys())
+                # TODO Fix this -- this seems very weird and broken...
                 # We duplicate the catalog for each survey to get the pixel coordinates
                 catalogs_temp = {}
-                for surv in self.measures_names:
+                for surv in survey_keys:
                     catalogs_temp[surv] = add_pixel_columns(
                         catalog[meas_name], blend_output["wcs"][surv]
                     )
