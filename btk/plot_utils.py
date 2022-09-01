@@ -214,7 +214,7 @@ def plot_with_deblended(
     band_indices=[3, 2, 1],
     norm="linear",
 ):
-    """Plots blend images, along with isolated, deblended and residual images of all objects in a blend.
+    """Plots blend images, along with isolated, deblended and residual images of objects in a blend.
 
     Outputs of btk draw are plotted here. blend_images, isolated_images and blend_list
     are expected to be the corresponding entries from the output of a DrawBlendsGenerator,
