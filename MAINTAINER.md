@@ -56,6 +56,9 @@ ideally everytime you run `poetry update`.
 ## Making new Releases
 
 ```bash
+# 0. Create release tag
+export RELEASE=XX.YY.ZZ
+
 # 1. Checked out into develop branch
 git checkout develop
 
@@ -66,45 +69,50 @@ git remote update
 git pull origin develop
 
 # 4. Created a release branch that tracks origin/develop
-git checkout -b release/0.1.0 origin/develop
+git checkout -b release/$RELEASE origin/develop
 
-# 5. Pushed release branch to remote repository
-git push origin release/0.1.0
+# 5. Bump version with poetry in release branch
+poetry version $RELEASE
+git add pyproject.toml
+git commit -m "Bump version"
 
-# 6. Open a "pull request" in GitHub for team to verify the release
+# 6. Pushed release branch to remote repository
+git push origin release/$RELEASE
 
-# 7. Checkout into main branch
+# 7. Open a "pull request" in GitHub for team to verify the release
+
+# 8. Checkout into main branch
 git checkout main
 
-# 8. Updated local main branch with remote copy
+# 9. Updated local main branch with remote copy
 git pull origin main
 
-# 9. Merged release branch into main branch
-git merge release/0.1.0
+# 10. Merged release branch into main branch
+git merge release/$RELEASE
 
-# 10. Tagged the release point by creating a new tag
-git tag -a 0.1.0 -m 'Create release tag 0.1.0'
+# 11. Tagged the release point by creating a new tag
+git tag -a $RELEASE -m \'Create release tag $RELEASE\'
 
-# 11. Pushed main branch to remote repository
+# 12. Pushed main branch to remote repository
 git push origin main
 
-# 12. Pushed the tags to remote repository
+# 13. Pushed the tags to remote repository
 git push origin --tags
 
-# 13. Checkout into develop branch
+# 14. Checkout into develop branch
 git checkout develop
 
-# 14. Merged release branch into develop branch
-git merge release/0.1.0
+# 15. Merged release branch into develop branch
+git merge release/$RELEASE
 
-# 15. Pushed develop branch to remote repository
+# 16. Pushed develop branch to remote repository
 git push origin develop
 
-# 16. Removed release branch from the local repository
-git branch -D release/0.1.0
+# 17. Removed release branch from the local repository
+git branch -D release/$RELEASE
 
-# 17. Removed release branch from the remote repository
-git push origin :release/0.1.0
+# 18. Removed release branch from the remote repository
+git push origin :release/$RELEASE
 
 
 CREDIT: http://www.inanzzz.com
