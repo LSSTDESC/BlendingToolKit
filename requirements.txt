@@ -1,0 +1,11 @@
+astropy
+galcheat
+galsim
+ipywidgets
+matplotlib
+scipy
+scikit-learn
+pandas
+seaborn
+sep
+tqdm
