@@ -59,6 +59,7 @@ pytest = ">=7.1.1"
 pytest-cov = ">=3.0.0"
 sphinx = ">=3.5.4"
 sphinx-rtd-theme = ">=0.4.3"
+jupyter-contrib-nbextensions = "^0.5.1"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
