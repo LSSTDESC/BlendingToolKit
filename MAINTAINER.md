@@ -102,16 +102,16 @@ git push origin --tags
 # 14. Checkout into develop branch
 git checkout develop
 
-# 16. Merged release branch into develop branch
+# 15. Merged release branch into develop branch
 git merge release/$RELEASE
 
-# 17. Pushed develop branch to remote repository
+# 16. Pushed develop branch to remote repository
 git push origin develop
 
-# 18. Removed release branch from the local repository
+# 17. Removed release branch from the local repository
 git branch -D release/$RELEASE
 
-# 19. Removed release branch from the remote repository
+# 18. Removed release branch from the remote repository
 git push origin :release/$RELEASE
 
 
