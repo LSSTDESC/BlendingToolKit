@@ -7,6 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![PyPI][pypi-badge]][pypi]
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/LSSTDESC/BlendingToolKit/main?labpath=notebooks%2F00-intro.ipynb)
 
 [pypi-badge]: <https://img.shields.io/pypi/pyversions/blending-toolkit?color=yellow&logo=pypi>
 [pypi]: <https://pypi.org/project/blending-toolkit/>
@@ -42,6 +43,10 @@ pip install blending_toolkit
 Although you might run into problems installing `galsim`. In case of any issues, please see the more detailed installation instructions [here](https://lsstdesc.org/BlendingToolKit/install.html).
 
 For required packages, see [pyproject.toml](https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml) under the `[tool.poetry.dependencies]` block. For developers, you will also need the packages under the `[tool.poetry.dev-dependencies]` block.
+
+## Tutorial
+
+You can check out our introduction tutorial and get acquainted with BTK in a binder instance (no installation required) by simply clicking [here](https://mybinder.org/v2/gh/LSSTDESC/BlendingToolKit/main?labpath=notebooks%2F00-intro.ipynb).
 
 ## Contributing
 
