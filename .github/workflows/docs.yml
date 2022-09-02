@@ -15,6 +15,9 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v2
 
+      - name: Install pandoc
+        run: sudo apt-get install pandoc
+
       - name: Install poetry
         run: pipx install poetry
 
