@@ -77,7 +77,7 @@ git add pyproject.toml
 git commit -m "Bump version"
 
 # 6. Pushed release branch to remote repository
-git push origin release/$RELEASE
+git push --set-upstream origin release/$RELEASE
 
 # 7. Open a "pull request" in GitHub for team to verify the release
 
@@ -91,7 +91,7 @@ git pull origin main
 git merge release/$RELEASE
 
 # 11. Tagged the release point by creating a new tag
-git tag -a $RELEASE -m \'Create release tag $RELEASE\'
+git tag -a $RELEASE -m "Create release tag $RELEASE"
 
 # 12. Pushed main branch to remote repository
 git push origin main
