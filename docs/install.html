@@ -4,11 +4,9 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; btk 1.0.0a2 documentation</title>
+  <title>Installation &mdash; btk 1.0.0a5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
-      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,11 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/thebelab-helper.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +30,7 @@
             <a href="index.html" class="icon icon-home"> btk
           </a>
               <div class="version">
-                1.
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -86,7 +80,7 @@
            <div itemprop="articleBody">
              
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
 <p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.7</span></code>.
 The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
 <ul class="simple">
@@ -104,7 +98,7 @@ The required packages for <code class="docutils literal notranslate"><span class
 </ul>
 <p>And their specific versions are listed in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> block.</p>
 <section id="install-galsim">
-<h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this heading"></a></h2>
+<h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this headline"></a></h2>
 <p>GalSim is a python module that has much of its implementation in C++ for
 improved computational efficiency. It can be installed with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">galsim</span>
@@ -115,7 +109,7 @@ improved computational efficiency. It can be installed with:</p>
 for more details.</p>
 </section>
 <section id="install-btk">
-<h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this heading"></a></h2>
+<h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this headline"></a></h2>
 <p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest released version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span>
 </pre></div>
@@ -127,7 +121,7 @@ for more details.</p>
 </div>
 </section>
 <section id="scarlet">
-<h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this heading"></a></h2>
+<h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this headline"></a></h2>
 <p>The Scarlet deblender can be used in BTK via the measure function found in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">notebook</a>. It requires the <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> package to be installed. The installation instructions can be found <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">here</a>.</p>
 </section>
 </section>

@@ -4,11 +4,9 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.measure module &mdash; btk 1.0.0a2 documentation</title>
+  <title>btk.measure module &mdash; btk 1.0.0a5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,11 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/thebelab-helper.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,7 +30,7 @@
             <a href="../index.html" class="icon icon-home"> btk
           </a>
               <div class="version">
-                1.
+                1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -96,7 +90,7 @@
            <div itemprop="articleBody">
              
   <section id="module-btk.measure">
-<span id="btk-measure-module"></span><h1>btk.measure module<a class="headerlink" href="#module-btk.measure" title="Permalink to this heading"></a></h1>
+<span id="btk-measure-module"></span><h1>btk.measure module<a class="headerlink" href="#module-btk.measure" title="Permalink to this headline"></a></h1>
 <p>File containing measurement infrastructure for the BlendingToolKit.</p>
 <p>Contains examples of functions that can be used to apply a measurement algorithm to the blends
 simulated by BTK. Every measurement function should have the following skeleton:</p>
@@ -222,11 +216,41 @@ measurement on.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="btk.measure.sep_measure">
-<span class="sig-prename descclassname"><span class="pre">btk.measure.</span></span><span class="sig-name descname"><span class="pre">sep_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_multiresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_measure" title="Permalink to this definition"></a></dt>
-<dd><p>Return detection, segmentation and deblending information with SEP.</p>
-<p>For each potentially multi-band image, an average over the bands is taken before measurement.
-NOTE: If this function is used with the multiresolution feature,
+<dt class="sig sig-object py" id="btk.measure.sep_multiband_measure">
+<span class="sig-prename descclassname"><span class="pre">btk.measure.</span></span><span class="sig-name descname"><span class="pre">sep_multiband_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_multiresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_multiband_measure" title="Permalink to this definition"></a></dt>
+<dd><p>Returns centers detected with source extractor by combining predictions in different bands.</p>
+<p>For each band in the input image we run sep for detection and append new detections to a running
+list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
+to calculate the angular distance between each new coordinate and its closest neighbour. Then we
+discard those new coordinates that were closer than matching_threshold to any one of already
+detected coordinates.</p>
+<p>NOTE: If this function is used with the multiresolution feature,
+measurements will be carried on the first survey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> (<em>dict</em>) – Output of DrawBlendsGenerator object’s <cite>__next__</cite> method.</p></li>
+<li><p><strong>idx</strong> (<em>int</em>) – Index number of blend scene in the batch to preform
+measurement on.</p></li>
+<li><p><strong>sigma_noise</strong> (<em>float</em>) – Sigma threshold for detection against noise.</p></li>
+<li><p><strong>matching_threshold</strong> (<em>float</em>) – Match centers of objects that are closer than
+this threshold to a single prediction (in arseconds).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict containing catalog with entries corresponding to measured peaks.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="btk.measure.sep_singleband_measure">
+<span class="sig-prename descclassname"><span class="pre">btk.measure.</span></span><span class="sig-name descname"><span class="pre">sep_singleband_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_multiresolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.measure.sep_singleband_measure" title="Permalink to this definition"></a></dt>
+<dd><p>Return detection, segmentation and deblending information running SEP on a single band.</p>
+<p>The function performs detection and deblending of the sources based on the provided
+band index. If use_mean feature is used, then the measurement function is using
+the average of all the bands.</p>
+<p>NOTE: If this function is used with the multiresolution feature,
 measurements will be carried on the first survey, and deblended images
 or segmentations will not be returned.</p>
 <dl class="field-list simple">
@@ -235,6 +259,8 @@ or segmentations will not be returned.</p>
 <li><p><strong>batch</strong> (<em>dict</em>) – Output of DrawBlendsGenerator object’s <cite>__next__</cite> method.</p></li>
 <li><p><strong>idx</strong> (<em>int</em>) – Index number of blend scene in the batch to preform
 measurement on.</p></li>
+<li><p><strong>meas_band_num</strong> (<em>int</em>) – Indicates the index of band to use fo the measurement</p></li>
+<li><p><strong>use_mean</strong> (<em>bool</em>) – If True, then algorithm uses the average of all the bands</p></li>
 <li><p><strong>sigma_noise</strong> (<em>float</em>) – Sigma threshold for detection against noise.</p></li>
 </ul>
 </dd>
