@@ -15,6 +15,9 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v2
 
+      - name: Install pandoc
+        run: sudo apt-get install pandoc
+
       - name: Install poetry
         run: pipx install poetry
 
@@ -38,7 +41,7 @@ jobs:
           cd docs/source
           cat tutorials_header.rst > tutorials.rst
           echo "" >> tutorials.rst
-          jupyter nbconvert --to rst ../../notebooks/00-intro.ipynb --FilesWriter.build_directory="./"
+          poetry run jupyter nbconvert --to rst ../../notebooks/00-intro.ipynb --FilesWriter.build_directory="./"
           cat 00-intro.rst >> tutorials.rst
           echo "" >> tutorials.rst
           cat tutorials_footer.rst >> tutorials.rst

@@ -1,0 +1,12 @@
+astropy
+galcheat
+galsim
+ipywidgets
+matplotlib
+scipy
+scikit-learn
+pandas
+seaborn
+sep
+tqdm
+blending_toolkit>=1.0.0a6
