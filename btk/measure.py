@@ -83,7 +83,8 @@ class Measure(ABC):
         You need to implement this function for your measurement
 
         Args:
-            image (np.array): image to make measurememnt on
+            image (np.array): image to make measurememnt on with shape (B,C,S,S)
+                where B is the batch size, C is the number of bands, and S is the side-length.
             wcs (astropy.wcs) wcs object to convert between pixel coordinates and ra, dec
 
         Returns:
@@ -124,12 +125,10 @@ class Measure(ABC):
 
 
 class PeakLocalMax(Measure):
-    """TODO: Docstring.
+    """This measure function returns centroids detected with `skimage.feature.peak_local_max`.
 
-    Return centers detected with skimage.feature.peak_local_max.
     For each potentially multi-band image, an average over the bands is taken before measurement.
-    NOTE: If this function is used with the multiresolution feature,
-    measurements will be carried on the first survey.
+
 
     Args:
         batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
@@ -137,7 +136,7 @@ class PeakLocalMax(Measure):
             measurement on.
 
     Returns:
-            dict containing catalog with entries corresponding to measured peaks.
+        dict containing catalog with entries corresponding to measured peaks.
     """
 
     def __init__(self, threshold_scale=5, min_distance=2, channels_last=False):
@@ -243,7 +242,7 @@ class SepSingleband(Measure):
 
 
 class SepMultiband(Measure):
-    """TODO: Docstring.
+    """This class.
 
     Returns centers detected with source extractor by combining predictions in different bands.
     For each band in the input image we run sep for detection and append new detections to a running
@@ -268,7 +267,7 @@ class SepMultiband(Measure):
     """
 
     def __init__(self, matching_threshold=1.0, sigma_noise=1.5, channels_last=False):
-        """TODO: Docstring."""
+        """Initialize the SepMultiband measurement function."""
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
         self.channels_last = channels_last
@@ -307,7 +306,7 @@ class SepMultiband(Measure):
             # merge new detections with the running list of coordinates
             if len(c1) > 0 and len(c2) > 0:
                 # runs KD-tree to get distances to the closest neighbours
-                idx, distance2d, _ = c1.match_to_catalog_sky(c2)
+                _, distance2d, _ = c1.match_to_catalog_sky(c2)
                 distance2d = distance2d.arcsec
 
                 # add new predictions, masking those that are closer than threshold
