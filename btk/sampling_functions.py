@@ -8,7 +8,7 @@ import numpy as np
 from btk import DEFAULT_SEED
 
 
-def _get_random_center_shift(num_objects, maxshift, rng):
+def _get_random_center_shift(num_objects, max_shift, rng):
     """Returns random shifts in x and y coordinates between + and - max-shift in arcseconds.
 
     Args:
@@ -18,8 +18,8 @@ def _get_random_center_shift(num_objects, maxshift, rng):
         x_peak (float): random shift along the x axis
         y_peak (float): random shift along the x axis
     """
-    x_peak = rng.uniform(-maxshift, maxshift, size=num_objects)
-    y_peak = rng.uniform(-maxshift, maxshift, size=num_objects)
+    x_peak = rng.uniform(-max_shift, max_shift, size=num_objects)
+    y_peak = rng.uniform(-max_shift, max_shift, size=num_objects)
     return x_peak, y_peak
 
 
@@ -60,19 +60,19 @@ class SamplingFunction(ABC):
 class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
+    def __init__(self, max_number=2, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED):
         """Initializes default sampling function.
 
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
-            maxshift (float): Magnitude of maximum value of shift. If None then it
+            max_shift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
         """
         super().__init__(max_number, seed)
         self.stamp_size = stamp_size
-        self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
     @property
     def compatible_catalogs(self):
@@ -114,7 +114,7 @@ class DefaultSampling(SamplingFunction):
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         if shifts is None:
-            x_peak, y_peak = _get_random_center_shift(number_of_objects, self.maxshift, self.rng)
+            x_peak, y_peak = _get_random_center_shift(number_of_objects, self.max_shift, self.rng)
         else:
             x_peak, y_peak = shifts
         blend_table["ra"] += x_peak
@@ -133,19 +133,19 @@ class BasicSampling(SamplingFunction):
     Includes magnitude cut, restriction on the shape, shift randomization.
     """
 
-    def __init__(self, max_number=4, stamp_size=24.0, maxshift=None, seed=DEFAULT_SEED):
+    def __init__(self, max_number=4, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED):
         """Initializes the basic sampling function.
 
         Args:
             max_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
-            maxshift (float): Magnitude of maximum value of shift. If None then it
+            max_shift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
         """
         super().__init__(max_number, seed)
         self.stamp_size = stamp_size
-        self.maxshift = maxshift if maxshift else self.stamp_size / 10.0
+        self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
     @property
     def compatible_catalogs(self):
@@ -186,8 +186,8 @@ class BasicSampling(SamplingFunction):
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
         # keep number density of objects constant
-        maxshift = self.stamp_size / 30.0 * number_of_objects**0.5
-        x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, maxshift, self.rng)
+        max_shift = self.stamp_size / 30.0 * number_of_objects**0.5
+        x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, max_shift, self.rng)
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
         return blend_table
