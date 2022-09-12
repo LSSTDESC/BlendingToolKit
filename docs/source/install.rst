@@ -50,4 +50,4 @@ This should install all other missing dependencies if necessary. You can then im
 
 Scarlet
 ------------------------------
-The Scarlet deblender can be used in BTK via the measure function found in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_. It requires the ``scarlet`` package to be installed. The installation instructions can be found `here <https://pmelchior.github.io/scarlet/install.html>`_.
+The Scarlet deblender can be used in BTK via the measure function found in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_. It requires the ``scarlet`` package to be installed. The installation instructions can be found `here <https://pmelchior.github.io/scarlet/install.html>`_. This notebook was tested with the version of scarlet corresponding to the tag `btkv1 <https://github.com/pmelchior/scarlet/releases/tag/btk-v1>`_ found in the scarlet repo.
