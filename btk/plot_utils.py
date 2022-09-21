@@ -639,7 +639,6 @@ def plot_metrics_summary(  # noqa: C901
                 [dataframes[f_name].assign(measure_function=f_name) for f_name in meas_func_names],
                 ignore_index=True,
             )
-        # df[df.index.duplicated()]
 
         # Filter the data for the different parameters
         concatenated = concatenated.loc[
