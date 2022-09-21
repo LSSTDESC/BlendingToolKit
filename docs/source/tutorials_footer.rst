@@ -66,16 +66,8 @@ Custom COSMOS catalogs to draw 'real' galaxies should thus satisfy the following
 SCARLET implementation
 =======================
 
-We provide an implementation of the measure function for `SCARLET <https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301>`_ , a deblending algorithm based on matrix factorization. The code for SCARLET can be found in this `repo <https://github.com/pmelchior/scarlet>`_. You can install scarlet and its dependencies directly along BTK by running
+The Scarlet deblender can be used in BTK via the measure function found in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_. It requires the ``scarlet`` package to be installed. The installation instructions can be found `here <https://pmelchior.github.io/scarlet/install.html>`_. This notebook was tested with the version of scarlet corresponding to the tag `btkv1 <https://github.com/pmelchior/scarlet/releases/tag/btk-v1>`_ found in the scarlet repo.
 
-::
-
-  pip install btk[scarlet]
-  pip install git+https://github.com/pmelchior/scarlet
-
-This will install the latest version of SCARLET in github and NOT in pip (which is outdated).
-
-You can find the SCARLET measure function implementation `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_.
 
 Advanced features
 ==================

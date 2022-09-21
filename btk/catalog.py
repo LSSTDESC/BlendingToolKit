@@ -91,7 +91,7 @@ class CatsimCatalog(Catalog):
             raw_catalog["a_d"] * (1 - f) ** 0.5 * 4.66,
             raw_catalog["a_b"] * f**0.5 * 1.46,
         )
-        # BTK now requires ref_mags, but Catsim still wants magnitudes
+        # BTK now requires ref_mag, but Catsim still wants magnitudes
         table["ref_mag"] = raw_catalog["i_ab"]
         table["btk_size"] = r_sec
 
