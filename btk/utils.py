@@ -180,8 +180,7 @@ def reverse_list_dictionary(to_reverse, keys):
     """Transforms a list of dictionaries into a dictionary of lists.
 
     Additionally, if the initial list contains None instead of dictionaries,
-    the dictionnary will contain lists of None.
-    Mainly used in the measure.py file.
+    the dictionnary will contain lists of None. Mainly used in the measure.py file.
 
     Args:
         to_reverse (list): List to reverse, should contain dictionaries (or None)
