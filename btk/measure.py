@@ -20,9 +20,9 @@ It should return a dictionary containing a subset of the following keys/values (
 catalog` is mandatory):
 
 * catalog (astropy.table.Table): An astropy table containing measurement information. The
-`len` of the table should be `n_objects`. If your
-DrawBlendsGenerator uses a single survey, the following
-column names are required:
+    `len` of the table should be `n_objects`. If your
+    DrawBlendsGenerator uses a single survey, the following
+    column names are required:
 
 * x_peak: horizontal centroid position in pixels.
 * y_peak: vertical centroid position in pixels.
@@ -37,20 +37,20 @@ For multiple surveys (multi-resolution), we instead require:
     the input batch.
 
 * deblended_image (np.ndarray): Array of deblended isolated images with shape:
-`(n_objects, n_bands, stamp_size, stamp_size)` or
-`(n_objects, stamp_size, stamp_size, n_bands)` depending on
-convention. The order of this array should correspond to the
-order in the returned `catalog`. Where `n_objects` is the
-number of detected objects by the algorithm. If you are using the multiresolution feature,
-you should instead return a dictionary with a key for each survey containing the
-aforementioned array.
+    `(n_objects, n_bands, stamp_size, stamp_size)` or
+    `(n_objects, stamp_size, stamp_size, n_bands)` depending on
+    convention. The order of this array should correspond to the
+    order in the returned `catalog`. Where `n_objects` is the
+    number of detected objects by the algorithm. If you are using the multiresolution feature,
+    you should instead return a dictionary with a key for each survey containing the
+    aforementioned array.
 
 * segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
-The pixels set to True in the i-th channel correspond to the i-th
-object. The order should correspond to the order in the returned
-`catalog`. If you are using the multiresolution feature,
-you should instead return a dictionary with a key for each survey containing the
-aforementioned array.
+    The pixels set to True in the i-th channel correspond to the i-th
+    object. The order should correspond to the order in the returned
+    `catalog`. If you are using the multiresolution feature,
+    you should instead return a dictionary with a key for each survey containing the
+    aforementioned array.
 
 Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
 `catalog` which is a mandatory entry).
