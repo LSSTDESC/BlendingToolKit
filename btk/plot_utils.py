@@ -628,13 +628,16 @@ def plot_metrics_summary(  # noqa: C901
                     dataframes[f_name + "_" + s_name] = metrics_results["galaxy_summary"][f_name][
                         s_name
                     ].to_pandas()
-            concatenated = pd.concat([dataframes[c].assign(measure_function=c) for c in couples])
+            concatenated = pd.concat(
+                [dataframes[c].assign(measure_function=c) for c in couples], ignore_index=True
+            )
         else:
             dataframes = {}
             for f_name in meas_func_names:
                 dataframes[f_name] = metrics_results["galaxy_summary"][f_name].to_pandas()
             concatenated = pd.concat(
-                [dataframes[f_name].assign(measure_function=f_name) for f_name in meas_func_names]
+                [dataframes[f_name].assign(measure_function=f_name) for f_name in meas_func_names],
+                ignore_index=True,
             )
 
         # Filter the data for the different parameters
