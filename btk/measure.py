@@ -514,6 +514,7 @@ class MeasureGenerator:
             verbose=self.verbose,
         )
 
+        # organize outputs from multiprocessing
         for ii in range(len(measure_output)):
             for jj, meas_name in enumerate(self.measures):
                 catalog[meas_name].append(measure_output[ii][jj].get("catalog", None))
