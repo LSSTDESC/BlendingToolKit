@@ -503,7 +503,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
-            if "g1" in entry.keys():
+            if "g1" in entry.keys() and "g2" in entry.keys():
                 gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
