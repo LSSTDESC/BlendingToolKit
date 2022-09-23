@@ -410,7 +410,6 @@ def reconstruction_metrics_blend(
                                           true and deblended images).
     """
     if matches is None:
-
         matches = {}
         matches["match_detected_id"] = list(np.arange(0, len(isolated_images)))
         matches["dist"] = [0.0] * len(isolated_images)
