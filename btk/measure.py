@@ -462,7 +462,7 @@ class MeasureGenerator:
                 )
         return measures
 
-    def _get_unique_measure_names(self) -> list(str):
+    def _get_unique_measure_names(self) -> List[str]:
         """Get list of unique indexed names of each measure function passed in (as necessary)."""
         measures_names = [str(meas) for meas in self.measures]
         names_counts = {name: 0 for name in set(measures_names) if measures_names.count(name) > 1}
