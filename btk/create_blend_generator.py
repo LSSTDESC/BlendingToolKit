@@ -77,6 +77,11 @@ class BlendGenerator:
                         f"Number of objects per blend must be "
                         f"less than max_number: {len(blend_table)} <= {self.max_number}"
                     )
+                if len(blend_table) < self.min_number:
+                    raise ValueError(
+                        f"Number of objects per blend must be "
+                        f"greater than min_number: {len(blend_table)} >= {self.min_number}"
+                    )
                 blend_tables.append(blend_table)
             return blend_tables
 
