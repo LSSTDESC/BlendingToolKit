@@ -47,6 +47,7 @@ class BlendGenerator:
             )
 
         self.max_number = self.sampling_function.max_number
+        self.min_number = self.sampling_function.min_number
 
     def __iter__(self):
         """Returns an iterable which is the object itself."""
@@ -55,7 +56,7 @@ class BlendGenerator:
     def __next__(self):
         """Generates a list of blend tables of len batch_size.
 
-        Each blend table has entries numbered between 1 and max_number, corresponding
+        Each blend table has entries numbered between min_number and max_number, corresponding
         to overlapping objects in the blend.
 
         Returns:
