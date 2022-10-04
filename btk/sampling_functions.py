@@ -109,7 +109,7 @@ class DefaultSampling(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number)
         (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
@@ -177,7 +177,7 @@ class BasicSampling(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
         (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
