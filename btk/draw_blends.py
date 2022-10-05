@@ -4,10 +4,11 @@ import os
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
+from typing import List
 
 import galsim
 import numpy as np
-from astropy.table import Column
+from astropy.table import Column, Table
 from galcheat.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
@@ -173,12 +174,27 @@ class DrawBlendsGenerator(ABC):
         )
         self.catalog = self.blend_generator.catalog
         self.cpus = cpus
-
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
         self.apply_shear = apply_shear
         self.augment_data = augment_data
+        self.is_multiresolution = len(self.surveys) > 1
+        self.stamp_size = stamp_size
+        self._set_surveys(surveys)
 
+        noise_options = {"none", "all", "background", "galaxy"}
+        if add_noise not in noise_options:
+            raise ValueError(
+                f"The options for add_noise are {noise_options}, but you provided {add_noise}"
+            )
+        self.add_noise = add_noise
+        self.verbose = verbose
+        self.channels_last = channels_last
+        self.save_path = save_path
+        self.seedseq = np.random.SeedSequence(seed)
+
+    def _set_surveys(self, surveys):
+        """Check if passed in argument `surveys` has correct format."""
         if isinstance(surveys, Survey):
             self.surveys = [surveys]
             self.check_compatibility(surveys)
@@ -196,18 +212,6 @@ class DrawBlendsGenerator(ABC):
                 f"surveys must be a Survey object or an Iterable of Survey objects,"
                 f"but surveys is type {type(surveys)}"
             )
-        self.is_multiresolution = len(self.surveys) > 1
-
-        self.stamp_size = stamp_size
-
-        noise_options = ("none", "all", "background", "galaxy")
-        if add_noise not in noise_options:
-            raise ValueError(f"The options for add_noise are {noise_options}")
-        self.add_noise = add_noise
-        self.verbose = verbose
-        self.channels_last = channels_last
-        self.save_path = save_path
-        self.seedseq = np.random.SeedSequence(seed)
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -219,6 +223,29 @@ class DrawBlendsGenerator(ABC):
         """Returns iterable which is the object itself."""
         return self
 
+    def _get_psf_from_survey(survey: Survey):
+        # make PSF and WCS
+        psf = []
+        for band in survey.available_filters:
+            filt = survey.get_filter(band)
+            if callable(filt.psf):
+                generated_psf = filt.psf()  # generate the PSF with the provided function
+                if isinstance(generated_psf, galsim.GSObject):
+                    psf.append(generated_psf)
+                else:
+                    raise TypeError(
+                        f"The generated PSF with the provided function"
+                        f"for filter '{filt.name}' is not a galsim object"
+                    )
+            elif isinstance(filt.psf, galsim.GSObject):
+                psf.append(filt.psf)  # or directly retrieve the PSF
+            else:
+                raise TypeError(
+                    f"The PSF within filter '{filt.name}' is neither a "
+                    f"function nor a galsim object"
+                )
+        return psf
+
     def __next__(self):
         """Outputs dictionary containing blend output (images and catalogs) in batches.
 
@@ -226,40 +253,13 @@ class DrawBlendsGenerator(ABC):
             output: Dictionary with blend images, isolated object images, blend catalog,
             PSF images and WCS.
         """
-        blend_list = {}
-        blend_images = {}
-        isolated_images = {}
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        psfs = {}
-        wcss = {}
-
+        results = BlendResults(self.batch_size, self.max_number, self.stamp_size, self.surveys)
         for s in self.surveys:
             pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
-
-            # make PSF and WCS
-            psf = []
-            for band in s.available_filters:
-                filt = s.get_filter(band)
-                if callable(filt.psf):
-                    generated_psf = filt.psf()  # generate the PSF with the provided function
-                    if isinstance(generated_psf, galsim.GSObject):
-                        psf.append(generated_psf)
-                    else:
-                        raise TypeError(
-                            f"The generated PSF with the provided function"
-                            f"for filter '{filt.name}' is not a galsim object"
-                        )
-                elif isinstance(filt.psf, galsim.GSObject):
-                    psf.append(filt.psf)  # or directly retrieve the PSF
-                else:
-                    raise TypeError(
-                        f"The PSF within filter '{filt.name}' is neither a "
-                        f"function nor a galsim object"
-                    )
+            psf = self._get_psf_from_survey(s)
             wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
-            psfs[s.name] = psf
-            wcss[s.name] = wcs
 
             input_args = []
             seedseq_minibatch = self.seedseq.spawn(self.batch_size // mini_batch_size + 1)
@@ -287,45 +287,17 @@ class DrawBlendsGenerator(ABC):
             image_shape = option1 if not self.channels_last else option2
 
             # organize results.
-            blend_images[s.name] = np.zeros((self.batch_size, *image_shape))
-            isolated_images[s.name] = np.zeros((self.batch_size, self.max_number, *image_shape))
-            blend_list[s.name] = []
-            for i in range(self.batch_size):
-                blend_images[s.name][i] = batch_results[i][0]
-                isolated_images[s.name][i] = batch_results[i][1]
-                blend_list[s.name].append(batch_results[i][2])
+            blend_images = np.zeros((self.batch_size, *image_shape))
+            isolated_images = np.zeros((self.batch_size, self.max_number, *image_shape))
+            blend_list = []
+            for ii in range(self.batch_size):
+                blend_images[ii] = batch_results[ii][0]
+                isolated_images[ii] = batch_results[ii][1]
+                blend_list.append(batch_results[ii][2])
 
-            # save results if requested.
-            if self.save_path is not None:
-                if not os.path.exists(os.path.join(self.save_path, s.name)):
-                    os.mkdir(os.path.join(self.save_path, s.name))
+            results.add_results(s.name, blend_images, isolated_images, blend_list, psf)
 
-                np.save(os.path.join(self.save_path, s.name, "blended"), blend_images[s.name])
-                np.save(os.path.join(self.save_path, s.name, "isolated"), isolated_images[s.name])
-                for i in range(len(batch_results)):
-                    blend_list[s.name][i].write(
-                        os.path.join(self.save_path, s.name, f"blend_info_{i}"),
-                        format="ascii",
-                        overwrite=True,
-                    )
-        if self.is_multiresolution:
-            output = {
-                "blend_images": blend_images,
-                "isolated_images": isolated_images,
-                "blend_list": blend_list,
-                "psf": psfs,
-                "wcs": wcss,
-            }
-        else:
-            survey_name = self.surveys[0].name
-            output = {
-                "blend_images": blend_images[survey_name],
-                "isolated_images": isolated_images[survey_name],
-                "blend_list": blend_list[survey_name],
-                "psf": psfs[survey_name],
-                "wcs": wcss[survey_name],
-            }
-        return output
+        return results
 
     def render_mini_batch(self, blend_list, psf, wcs, survey, seedseq_minibatch, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
@@ -660,3 +632,76 @@ class CosmosGenerator(DrawBlendsGenerator):
         return gal_conv.drawImage(
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
         )
+
+
+class BlendResults(dict):
+    """Class which stores the output of DrawBlendGenerator."""
+
+    def __init__(self, batch_size: int, max_n_sources: int, stamp_size: int, surveys: List[Survey]):
+        """Initialize BlendResults class."""
+        self.batch_size = batch_size
+        self.max_n_sources = max_n_sources
+        self.surveys = {s.name: s for s in surveys}
+        self.results = {s.name: {} for s in surveys}
+        self.stamp_size = stamp_size  # arcseconds
+
+    def _get_pix_stamp_size(self, survey_name: str) -> int:
+        return int(self.stamp_size / self.surveys[survey_name].pixel_scale.to_value("arcsec"))
+
+    def _get_wcs(self, survey_name: str):
+        pix_stamp_size = self._get_pix_stamp_size(survey_name)
+        pixel_scale = self.surveys[survey_name].pixel_scale.to_value("arcsec")
+        return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
+
+    def add_results(
+        self,
+        survey_name: str,
+        blend_images: np.ndarray,
+        isolated_images: np.ndarray,
+        blend_list: List[Table],
+        psfs: List[galsim.GSObject],
+    ):
+        """Add output of results for a given survey."""
+        pix_stamp_size = self._get_pix_stamp_size(survey_name)
+        survey = self.surveys[survey_name]
+        n_bands = len(survey.available_filters)
+        b1, c1, ps11, ps12 = blend_images.shape
+        b2, n, c2, ps21, ps22 = isolated_images.shape
+        assert b1 == b2 == self.batch_size
+        assert c1 == c2 == n_bands
+        assert n == self.max_n_sources
+        assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
+        self.results[survey_name]["blend_images"] = blend_images
+        self.results[survey_name]["isolated_images"] = isolated_images
+        self.results[survey_name]["blend_list"] = blend_list
+        self.results[survey_name]["psfs"] = psfs
+        self.results[survey_name]["wcs"] = self._get_wcs(survey_name)
+        setattr(self, survey_name, self.results[survey_name])
+
+    def __getitem__(self, key: str):
+        """Return key in results dictionary."""
+        return self.results[key]
+
+    def save_results(self, path: str):
+        """Save blend results into path."""
+        for s in self.surveys:
+            survey_name = s.name
+            blend_images = self[survey_name]["blend_images"]
+            isolated_images = self[survey_name]["isolated_images"]
+            blend_list = self[survey_name]["blend_list"]
+
+            if not os.path.exists(os.path.join(path, survey_name)):
+                os.mkdir(os.path.join(path, survey_name))
+
+            np.save(os.path.join(path, survey_name, "blended"), blend_images[survey_name])
+            np.save(os.path.join(path, survey_name, "isolated"), isolated_images[survey_name])
+            for ii in range(len(blend_list)):
+                blend_list[ii].write(
+                    os.path.join(path, survey_name, f"blend_info_{ii}"),
+                    format="ascii",
+                    overwrite=True,
+                )
+
+    def load_results(self, path: str):
+        """Return BlendResults object after loading data from path."""
+        pass
