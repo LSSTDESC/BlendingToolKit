@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
-from typing import List
+from typing import Dict, List
 
 import galsim
 import numpy as np
@@ -212,6 +212,7 @@ class DrawBlendsGenerator(ABC):
                 f"surveys must be a Survey object or an Iterable of Survey objects,"
                 f"but surveys is type {type(surveys)}"
             )
+        self.surveys = {s.name: s for s in self.surveys}
 
     def check_compatibility(self, survey):
         """Checks that the compatibility between the survey, the catalog and the generator.
@@ -637,11 +638,13 @@ class CosmosGenerator(DrawBlendsGenerator):
 class BlendResults(dict):
     """Class which stores the output of DrawBlendGenerator."""
 
-    def __init__(self, batch_size: int, max_n_sources: int, stamp_size: int, surveys: List[Survey]):
+    def __init__(
+        self, batch_size: int, max_n_sources: int, stamp_size: int, surveys: Dict[str, Survey]
+    ):
         """Initialize BlendResults class."""
         self.batch_size = batch_size
         self.max_n_sources = max_n_sources
-        self.surveys = {s.name: s for s in surveys}
+        self.surveys = surveys
         self.results = {s.name: {} for s in surveys}
         self.stamp_size = stamp_size  # arcseconds
 
