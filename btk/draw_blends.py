@@ -4,6 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
+from math import pi
 
 import galsim
 import numpy as np
@@ -503,6 +504,11 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
+            if self.blend_generator.sampling_function.add_rotation:
+                if "theta" not in entry.keys():
+                    raise ValueError(f"rotation angle theta not found")
+                else:
+                    gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
@@ -620,6 +626,12 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
+
+        if self.blend_generator.sampling_function.add_rotation:
+            if "theta" not in entry.keys():
+                raise ValueError(f"rotation angle theta not found")
+            else:
+                gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
