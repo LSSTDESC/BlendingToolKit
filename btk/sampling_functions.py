@@ -152,7 +152,9 @@ class DefaultSampling(SamplingFunction):
         blend_table["btk_rotation"] = 0.0
 
         if self.add_rotation:
-            blend_table["btk_rotation"] = _get_random_rotation(num_objects=number_of_objects, rng=self.rng)
+            blend_table["btk_rotation"] = _get_random_rotation(
+                num_objects=number_of_objects, rng=self.rng
+            )
 
         if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
             blend_table["dec"] > self.stamp_size / 2.0
@@ -238,5 +240,7 @@ class BasicSampling(SamplingFunction):
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
         if self.add_rotation:
-            blend_table["btk_rotation"] = _get_random_rotation(num_objects=number_of_objects, rng=self.rng)
+            blend_table["btk_rotation"] = _get_random_rotation(
+                num_objects=number_of_objects, rng=self.rng
+            )
         return blend_table
