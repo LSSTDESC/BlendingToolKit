@@ -506,7 +506,7 @@ class CatsimGenerator(DrawBlendsGenerator):
             gal = get_catsim_galaxy(entry, filt, survey)
             if self.blend_generator.sampling_function.add_rotation:
                 if "theta" not in entry.keys():
-                    raise ValueError(f"rotation angle theta not found")
+                    raise ValueError("rotation angle theta not found")
                 else:
                     gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
             gal_conv = galsim.Convolve(gal, psf)
@@ -629,7 +629,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
         if self.blend_generator.sampling_function.add_rotation:
             if "theta" not in entry.keys():
-                raise ValueError(f"rotation angle theta not found")
+                raise ValueError("rotation angle theta not found")
             else:
                 gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
 

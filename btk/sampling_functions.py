@@ -30,7 +30,6 @@ def _get_random_rotation(num_objects, rng):
         num_objects (int): Number of ranndom rotation angles to return
         rng (np.random.default_rng): random number generator
     """
-
     theta = rng.uniform(0, 360, size=num_objects)
     return theta
 
@@ -49,7 +48,8 @@ class SamplingFunction(ABC):
             max_number (int): maximum number of catalog entries returned from sample.
             min_number (int): minimum number of catalog entries returned from sample.
             seed (int): Seed to initialize randomness for reproducibility.
-            add_rotation (bool): To chose whether to add random rotations to objects or not
+            add_rotation (bool): To chose whether to add random rotations to objects or not.
+                If set to True, the sampling fucntion should return a column "theta"
         """
         self.max_number = max_number
         self.min_number = min_number
@@ -77,7 +77,13 @@ class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
     def __init__(
-        self, max_number=2, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED, add_rotation=False
+        self,
+        max_number=2,
+        min_number=1,
+        stamp_size=24.0,
+        max_shift=None,
+        seed=DEFAULT_SEED,
+        add_rotation=False,
     ):
         """Initializes default sampling function.
 
@@ -90,7 +96,9 @@ class DefaultSampling(SamplingFunction):
             seed (int): Seed to initialize randomness for reproducibility.
             add_rotation (bool): Defined in parent class
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed, add_rotation=add_rotation)
+        super().__init__(
+            max_number=max_number, min_number=min_number, seed=seed, add_rotation=add_rotation
+        )
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
@@ -159,7 +167,13 @@ class BasicSampling(SamplingFunction):
     """
 
     def __init__(
-        self, max_number=4, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED, add_rotation=False,
+        self,
+        max_number=4,
+        min_number=1,
+        stamp_size=24.0,
+        max_shift=None,
+        seed=DEFAULT_SEED,
+        add_rotation=False,
     ):
         """Initializes the basic sampling function.
 
@@ -172,7 +186,9 @@ class BasicSampling(SamplingFunction):
             seed (int): Seed to initialize randomness for reproducibility.
             add_rotation (bool): Defined in parent class
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed, add_rotation=add_rotation)
+        super().__init__(
+            max_number=max_number, min_number=min_number, seed=seed, add_rotation=add_rotation
+        )
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
