@@ -27,6 +27,7 @@ def _get_random_rotation(num_objects, rng):
     """Returns angle in degrees for random rotation of galaxies.
 
     Args:
+        num_objects (int): Number of ranndom rotation angles to return
         rng (np.random.default_rng): random number generator
     """
 
