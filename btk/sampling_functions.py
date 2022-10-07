@@ -241,6 +241,6 @@ class BasicSampling(SamplingFunction):
         blend_table["dec"] += y_peak
         if self.add_rotation:
             blend_table["btk_rotation"] = _get_random_rotation(
-                num_objects=number_of_objects, rng=self.rng
+                num_objects=number_of_objects + 1, rng=self.rng
             )
         return blend_table

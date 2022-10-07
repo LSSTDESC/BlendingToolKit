@@ -150,11 +150,9 @@ class TestBasicDraw:
         )
 
     def test_basic_sampling(self):
-        sampling_function = btk.sampling_functions.BasicSampling()
+        sampling_function = btk.sampling_functions.BasicSampling(add_rotation=True)
         draw_generator = get_draw_generator(
-            fixed_parameters=True,
-            sampling_function=sampling_function,
-            add_rotation=True,
+            fixed_parameters=True, sampling_function=sampling_function
         )
         next(draw_generator)
 
