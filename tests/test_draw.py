@@ -38,7 +38,7 @@ def get_draw_generator(
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     if sampling_function is None:
         sampling_function = btk.sampling_functions.DefaultSampling(
-            stamp_size=stamp_size, seed=TEST_SEED
+            stamp_size=stamp_size, seed=TEST_SEED, add_rotation=True,
         )
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
