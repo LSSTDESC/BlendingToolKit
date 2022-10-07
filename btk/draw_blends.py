@@ -505,10 +505,10 @@ class CatsimGenerator(DrawBlendsGenerator):
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
             if self.blend_generator.sampling_function.add_rotation:
-                if "theta" not in entry.keys():
-                    raise ValueError("rotation angle theta not found")
+                if "btk_rotation" not in entry.keys():
+                    raise ValueError("Sampling function did not return btk_rotation")
                 else:
-                    gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
+                    gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.AngleUnit(pi / 180)))
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
@@ -628,10 +628,10 @@ class CosmosGenerator(DrawBlendsGenerator):
         ).withFlux(gal_flux)
 
         if self.blend_generator.sampling_function.add_rotation:
-            if "theta" not in entry.keys():
-                raise ValueError("rotation angle theta not found")
+            if "btk_rotation" not in entry.keys():
+                raise ValueError("Sampling function did not return btk_rotation")
             else:
-                gal.rotate(galsim.Angle(entry["theta"], unit=galsim.AngleUnit(pi / 180)))
+                gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.AngleUnit(pi / 180)))
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
