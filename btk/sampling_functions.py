@@ -23,6 +23,17 @@ def _get_random_center_shift(num_objects, max_shift, rng):
     return x_peak, y_peak
 
 
+def _get_random_rotation(num_objects, rng):
+    """Returns angle theta for random rotation of galaxies.
+
+    Args:
+        rng (np.random.default_rng): 
+    """
+
+    theta = rng.uniform(0, 360, size=num_objects)
+    return theta
+
+
 class SamplingFunction(ABC):
     """Class representing sampling functions to sample input catalog from which to draw blends.
 
@@ -30,7 +41,7 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number, min_number=1, seed=DEFAULT_SEED):
+    def __init__(self, max_number, min_number=1, seed=DEFAULT_SEED, add_rotation=False):
         """Initializes the SamplingFunction.
 
         Args:
@@ -40,6 +51,7 @@ class SamplingFunction(ABC):
         """
         self.max_number = max_number
         self.min_number = min_number
+        self.add_rotation = add_rotation
 
         if isinstance(seed, int):
             self.rng = np.random.default_rng(seed)
@@ -63,7 +75,7 @@ class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
     def __init__(
-        self, max_number=2, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED
+        self, max_number=2, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED, add_rotation=False
     ):
         """Initializes default sampling function.
 
@@ -75,7 +87,7 @@ class DefaultSampling(SamplingFunction):
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
+        super().__init__(max_number=max_number, min_number=min_number, seed=seed, add_rotation=add_rotation)
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
@@ -124,6 +136,11 @@ class DefaultSampling(SamplingFunction):
             x_peak, y_peak = shifts
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
+
+        blend_table["theta"] = 0.0
+
+        if self.add_rotation:
+            blend_table["theta"] = _get_random_rotation(num_objects=number_of_objects, rng=self.rng)
 
         if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
             blend_table["dec"] > self.stamp_size / 2.0
@@ -193,9 +210,12 @@ class BasicSampling(SamplingFunction):
         )
         blend_table["ra"] = 0.0
         blend_table["dec"] = 0.0
+
         # keep number density of objects constant
         max_shift = self.stamp_size / 30.0 * number_of_objects**0.5
         x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, max_shift, self.rng)
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
+        if self.add_rotation:
+            blend_table["theta"] = _get_random_rotation(num_objects=number_of_objects, rng=self.rng)
         return blend_table
