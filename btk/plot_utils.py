@@ -2,6 +2,7 @@
 import os
 
 import ipywidgets as widgets
+import matplotlib.cm as cm
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +10,8 @@ import pandas as pd
 import seaborn as sns
 from astropy.visualization import make_lupton_rgb
 from IPython.display import clear_output, display
+from matplotlib.colors import Normalize
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def get_rgb(image, min_val=None, max_val=None):
@@ -64,6 +67,26 @@ def get_rgb_image(image, norm="linear", Q=0.1):
     else:
         img_rgb = get_rgb(image)
     return img_rgb
+
+
+def get_image(image, bands, rgb=False, norm="linear"):
+    """Returns the rgb image if rgb is true, or a monochromatic image if it is false.
+
+    Args:
+        image (numpy Array): Contains the image [bands,height,width]
+        bands (list) : list of the bands to be used. Should be of length 3
+            for RGB images and 1 for monochromatic images.
+        rgb (bool) : indicates if the returned image should be RGB or
+            monochromatic.
+        norm (str): Stretch to apply to the RGB images. Must be one of "linear" or "asinh".
+
+    Returns:
+        The requested image.
+    """
+    if rgb:
+        return get_rgb_image(image[bands], norm=norm)
+    else:
+        return image[bands[0]]
 
 
 def plot_blends(
@@ -213,6 +236,7 @@ def plot_with_deblended(
     indexes=[0],
     band_indices=[3, 2, 1],
     norm="linear",
+    noise_level=1.0,
 ):
     """Plots blend images, along with isolated, deblended and residual images of objects in a blend.
 
@@ -237,10 +261,13 @@ def plot_with_deblended(
             matching true galaxy.
         indexes (list): List of the indexes of the blends you want to plot.
         band_indices (list): List of the bands to plot. Should have either 3 elements
-            for RGB images, or one for monochromes images.
-        norm (str): Stretch to apply to the images. Must be one of "linear" or "asinh".
+            for RGB images, or 1 for monochromatic images.
+        norm (str): Stretch to apply to the RGB images. Must be one of "linear" or "asinh".
+        noise_level (float) : Normalization to apply to monochromatic images. Should be the
+            standard deviation of the noise.
 
     """
+    sns.set_context("notebook")
     if len(band_indices) not in [1, 3]:
         raise ValueError(
             f"band_indices must be a list with 1 or 3 entries, not \
@@ -248,17 +275,19 @@ def plot_with_deblended(
         )
     rgb = len(band_indices) == 3
     for i in indexes:
-        ncol = len(matches[i])
-        fig = plt.figure(constrained_layout=True, figsize=(10 + 5 * ncol, 10))
-        spec = fig.add_gridspec(3, ncol + 1, width_ratios=[ncol] + [1] * ncol)
-        ax = []
-        ax.append(fig.add_subplot(spec[:, 0]))
-        ax[0].imshow(
+        nrow = len(matches[i])
+        fig = plt.figure(constrained_layout=True, figsize=(10, 10 + 5 * nrow))
+        spec = fig.add_gridspec(
+            nrow + 1, 3, height_ratios=[nrow] + [1] * nrow, width_ratios=[1, 1, 1]
+        )
+        ax = [[] for j in range(nrow + 1)]
+        ax[0].append(fig.add_subplot(spec[0, :]))
+        ax[0][0].imshow(
             get_rgb_image(blend_images[i][band_indices], norm=norm)
             if rgb
             else blend_images[i][band_indices[0]]
         )
-        ax[0].scatter(
+        ax[0][0].scatter(
             blend_list[i]["x_peak"],
             blend_list[i]["y_peak"],
             color="red",
@@ -267,7 +296,7 @@ def plot_with_deblended(
             s=150,
             linewidth=3,
         )
-        ax[0].scatter(
+        ax[0][0].scatter(
             detection_catalogs[i]["x_peak"],
             detection_catalogs[i]["y_peak"],
             color="blue",
@@ -276,47 +305,69 @@ def plot_with_deblended(
             s=150,
             linewidth=3,
         )
-        ax[0].set_title("Blended image", fontsize=18)
-        ax[0].legend(fontsize=16)
-        for k in range(ncol):
+        ax[0][0].set_title("Blended image", fontsize=18)
+        ax[0][0].legend(fontsize=16)
+        for k in range(nrow):
             match = matches[i]["match_detected_id"][k]
-            ax.append(fig.add_subplot(spec[0, k + 1]))
-            isol_im = (
-                get_rgb_image(
-                    isolated_images[i][k][band_indices],
-                    norm=norm,
+            if not rgb:
+                vmin = np.min(
+                    np.minimum.reduce(
+                        [
+                            isolated_images[i][k],
+                            deblended_images[i][match],
+                            isolated_images[i][k] - deblended_images[i][match],
+                        ]
+                    )
                 )
-                if rgb
-                else isolated_images[i][k][band_indices[0]]
+                vmax = np.max(
+                    np.maximum.reduce(
+                        [
+                            isolated_images[i][k],
+                            deblended_images[i][match],
+                            isolated_images[i][k] - deblended_images[i][match],
+                        ]
+                    )
+                )
+            else:
+                vmin, vmax = None, None
+            ax[k].append(fig.add_subplot(spec[k + 1, 0]))
+            ax[k][-1].imshow(
+                get_image(isolated_images[i][k], band_indices, rgb, norm=norm), vmin=vmin, vmax=vmax
             )
-            ax[-1].imshow(isol_im)
             if k == 0:
-                ax[-1].set_ylabel("True galaxies")
+                ax[k][-1].set_title("True galaxies")
             if match != -1:
-                ax.append(fig.add_subplot(spec[1, k + 1]))
-                ax[-1].imshow(
-                    get_rgb_image(
-                        deblended_images[i][match][band_indices],
-                        norm=norm,
-                    )
-                    if rgb
-                    else deblended_images[i][match][band_indices[0]]
+                ax[k].append(fig.add_subplot(spec[k + 1, 1], sharey=ax[k][0]))
+                ax[k][-1].imshow(
+                    get_image(deblended_images[i][match], band_indices, rgb, norm=norm),
+                    vmin=vmin,
+                    vmax=vmax,
                 )
                 if k == 0:
-                    ax[-1].set_ylabel("Detected galaxies")
-                ax.append(fig.add_subplot(spec[2, k + 1]))
-                ax[-1].imshow(
-                    get_rgb_image(
-                        isolated_images[i][k][band_indices]
-                        - deblended_images[i][match][band_indices],
+                    ax[k][-1].set_title("Detected galaxies")
+                if not rgb:
+                    ax[k][-1].set_yticks([])
+                ax[k].append(fig.add_subplot(spec[k + 1, 2], sharey=ax[k][0]))
+                ax[k][-1].imshow(
+                    get_image(
+                        isolated_images[i][k] - deblended_images[i][match],
+                        band_indices,
+                        rgb,
                         norm=norm,
-                    )
-                    if rgb
-                    else isolated_images[i][k][band_indices[0]]
-                    - deblended_images[i][match][band_indices[0]]
+                    ),
+                    vmin=vmin,
+                    vmax=vmax,
                 )
                 if k == 0:
-                    ax[-1].set_ylabel("Residuals")
+                    ax[k][-1].set_title("Residuals")
+                if not rgb:
+                    ax[k][-1].set_yticks([])
+                    divider = make_axes_locatable(ax[k][-1])
+                    ax[k].append(divider.append_axes("right", size="5%", pad=0.05))
+                    normalize = Normalize(vmin=vmin / noise_level, vmax=vmax / noise_level)
+                    cbar = fig.colorbar(cm.ScalarMappable(normalize), cax=ax[k][-1])
+                    cbar.set_label("SNR")
+        spec.tight_layout(fig)
         plt.show()
 
 
