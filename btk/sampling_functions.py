@@ -35,11 +35,14 @@ class SamplingFunction(ABC):
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
-            min_number (int): minimum number of catalog entries returned from sample.
+            min_number (int): minimum number of catalog entries returned from sample. (Default: 1)
             seed (int): Seed to initialize randomness for reproducibility.
         """
         self.min_number = min_number
         self.max_number = max_number
+
+        if self.min_number > self.max_number:
+            raise ValueError("Need to satisfy: min_number <= max_number")
 
         if isinstance(seed, int):
             self.rng = np.random.default_rng(seed)
@@ -109,7 +112,7 @@ class DefaultSampling(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
         (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
@@ -177,7 +180,7 @@ class BasicSampling(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
         (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
