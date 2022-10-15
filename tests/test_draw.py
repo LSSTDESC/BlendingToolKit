@@ -187,7 +187,7 @@ def test_shear_draw():
         catalog,
         sampling_function_shear,
         survey,
-        batch_size=100,
+        batch_size=10,
         stamp_size=stamp_size,
         cpus=1,
         add_noise="all",
