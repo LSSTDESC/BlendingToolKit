@@ -195,3 +195,28 @@ def test_shear_draw():
         apply_shear=True,
     )
     next(draw_generator)
+
+
+def test_rotation():
+    stamp_size = 24.0
+    seed = 0
+    catalog_name = "data/sample_input_catalog.fits"
+    catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
+    sampling_function_shear = btk.sampling_functions.DefaultSampling(
+        stamp_size=stamp_size, seed=seed, max_number=3, min_number=1
+    )
+    survey = btk.survey.get_surveys("LSST")
+    draw_generator = btk.draw_blends.CatsimGenerator(
+        catalog,
+        sampling_function_shear,
+        survey,
+        batch_size=10,
+        stamp_size=stamp_size,
+        cpus=1,
+        add_noise="all",
+        seed=seed,
+        augment_data=True,
+    )
+    blend_results = next(draw_generator)
+    rotation = blend_results["blend_list"][0]["btk_rotation"]
+    assert np.all(0 <= rotation) and np.all(rotation <= 360)
