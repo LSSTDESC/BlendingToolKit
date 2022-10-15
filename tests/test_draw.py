@@ -180,14 +180,14 @@ def test_shear_draw():
     catalog_name = "data/sample_input_catalog.fits"
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     sampling_function_shear = btk.sampling_functions.DefaultSamplingShear(
-        stamp_size=stamp_size, shear=(0.5, 0), seed=seed, max_number=5, min_number=3
+        stamp_size=stamp_size, shear=(0.5, 0), seed=seed, max_number=3, min_number=3
     )
     survey = btk.survey.get_surveys("LSST")
     draw_generator = btk.draw_blends.CatsimGenerator(
         catalog,
         sampling_function_shear,
         survey,
-        batch_size=100,
+        batch_size=10,
         stamp_size=stamp_size,
         cpus=1,
         add_noise="all",

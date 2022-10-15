@@ -35,11 +35,14 @@ class SamplingFunction(ABC):
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
-            min_number (int): minimum number of catalog entries returned from sample.
+            min_number (int): minimum number of catalog entries returned from sample. (Default: 1)
             seed (int): Seed to initialize randomness for reproducibility.
         """
         self.min_number = min_number
         self.max_number = max_number
+
+        if self.min_number > self.max_number:
+            raise ValueError("Need to satisfy: min_number <= max_number")
 
         if isinstance(seed, int):
             self.rng = np.random.default_rng(seed)
@@ -109,7 +112,7 @@ class DefaultSampling(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
         (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
@@ -155,6 +158,9 @@ class BasicSampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
+        if min_number < 1:
+            raise ValueError("At least 1 bright galaxy will be added, so need min_number >=1.")
+
     @property
     def compatible_catalogs(self):
         """Tuple of compatible catalogs for this sampling function."""
@@ -177,7 +183,7 @@ class BasicSampling(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(self.min_number, self.max_number)
+        number_of_objects = self.rng.integers(self.min_number - 1, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
         (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
