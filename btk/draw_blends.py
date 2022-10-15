@@ -132,6 +132,7 @@ class DrawBlendsGenerator(ABC):
         channels_last=False,
         save_path=None,
         seed=DEFAULT_SEED,
+        apply_shear=False,
     ):
         """Initializes the DrawBlendsGenerator class.
 
@@ -162,6 +163,7 @@ class DrawBlendsGenerator(ABC):
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
+            apply_shear (float): Whether to apply the shear specified in catalogs to galaxies.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -171,6 +173,7 @@ class DrawBlendsGenerator(ABC):
 
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
+        self.apply_shear = apply_shear
 
         if isinstance(surveys, Survey):
             self.surveys = [surveys]
@@ -503,6 +506,11 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
+            if self.apply_shear:
+                if "g1" in entry.keys() and "g2" in entry.keys():
+                    gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
+                else:
+                    raise KeyError("g1 and g2 not found in blend list.")
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
@@ -620,6 +628,11 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
+        if self.apply_shear:
+            if "g1" in entry.keys() and "g2" in entry.keys():
+                gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
+            else:
+                raise KeyError("g1 and g2 not found in blend list.")
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
