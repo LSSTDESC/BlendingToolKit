@@ -503,6 +503,8 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             gal = get_catsim_galaxy(entry, filt, survey)
+            if "g1" in entry.keys() and "g2" in entry.keys():
+                gal.shear(g1=entry["g1"], g2=entry["g2"])
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
@@ -620,6 +622,8 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal = galsim_catalog.makeGalaxy(
             entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
         ).withFlux(gal_flux)
+        if "g1" in entry.keys() and "g2" in entry.keys():
+            gal.shear(g1=entry["g1"], g2=entry["g2"])
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
 
