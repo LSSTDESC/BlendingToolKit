@@ -38,8 +38,8 @@ class SamplingFunction(ABC):
             min_number (int): minimum number of catalog entries returned from sample.
             seed (int): Seed to initialize randomness for reproducibility.
         """
-        self.max_number = max_number
         self.min_number = min_number
+        self.max_number = max_number
 
         if isinstance(seed, int):
             self.rng = np.random.default_rng(seed)
@@ -204,18 +204,27 @@ class BasicSampling(SamplingFunction):
 class DefaultSamplingShear(DefaultSampling):
     """Default sampling function used for producing blend tables, including constant shear."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, maxshift=None, shear=None, seed=DEFAULT_SEED):
+    def __init__(
+        self,
+        max_number=2,
+        min_number=1,
+        stamp_size=24.0,
+        maxshift=None,
+        shear=None,
+        seed=DEFAULT_SEED,
+    ):
         """Initializes default sampling function with shear.
 
         Args:
             max_number (int): Defined in parent class
+            min_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
             maxshift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             shear (tuple or None): Constant (g1,g2) shear to apply to every galaxy.
             seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number, stamp_size, maxshift, seed)
+        super().__init__(max_number, min_number, stamp_size, maxshift, seed)
         self.shear = shear
 
     @property
