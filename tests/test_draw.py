@@ -177,7 +177,7 @@ class TestBasicDraw:
 def test_shear_draw():
     stamp_size = 24.0
     seed = 0
-    catalog_name = "../data/sample_input_catalog.fits"
+    catalog_name = "data/sample_input_catalog.fits"
     catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
     sampling_function_shear = btk.sampling_functions.DefaultSamplingShear(
         stamp_size=stamp_size, shear=(0.5, 0), seed=seed, max_number=5, min_number=3
