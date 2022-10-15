@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutorials &mdash; btk 1.0.0a7 documentation</title>
+  <title>Tutorials &mdash; btk 1.0.0a8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -175,7 +175,7 @@ function, which can be instantiated like this:</p>
 <span class="n">max_number</span> <span class="o">=</span> <span class="mi">3</span>     <span class="c1"># Maximum number of galaxies in a blend</span>
 <span class="n">max_shift</span> <span class="o">=</span> <span class="mf">3.0</span>    <span class="c1"># Maximum shift of the galaxies, in arcseconds</span>
 <span class="n">sampling_function</span> <span class="o">=</span> <span class="n">btk</span><span class="o">.</span><span class="n">sampling_functions</span><span class="o">.</span><span class="n">DefaultSampling</span><span class="p">(</span><span class="n">max_number</span><span class="o">=</span><span class="n">max_number</span><span class="p">,</span> <span class="n">stamp_size</span><span class="o">=</span><span class="n">stamp_size</span><span class="p">,</span>
-                                                           <span class="n">maxshift</span><span class="o">=</span><span class="n">max_shift</span><span class="p">,</span>
+                                                           <span class="n">max_shift</span><span class="o">=</span><span class="n">max_shift</span><span class="p">,</span>
                                                            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># random seed is used here!</span>
 </pre></div>
 </div>
@@ -184,17 +184,17 @@ this sampling function.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DefaultSampling</span><span class="p">(</span><span class="n">btk</span><span class="o">.</span><span class="n">sampling_functions</span><span class="o">.</span><span class="n">SamplingFunction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Default sampling function used for producing blend tables.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stamp_size</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span> <span class="n">maxshift</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stamp_size</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span> <span class="n">max_shift</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            max_number (int): Defined in parent class</span>
 <span class="sd">            stamp_size (float): Size of the desired stamp.</span>
-<span class="sd">            maxshift (float): Magnitude of maximum value of shift. If None then it</span>
+<span class="sd">            max_shift (float): Magnitude of maximum value of shift. If None then it</span>
 <span class="sd">                             is set as one-tenth the stamp size. (in arcseconds)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">max_number</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stamp_size</span> <span class="o">=</span> <span class="n">stamp_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maxshift</span> <span class="o">=</span> <span class="n">maxshift</span> <span class="k">if</span> <span class="n">maxshift</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">stamp_size</span> <span class="o">/</span> <span class="mf">10.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_shift</span> <span class="o">=</span> <span class="n">max_shift</span> <span class="k">if</span> <span class="n">max_shift</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">stamp_size</span> <span class="o">/</span> <span class="mf">10.0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">compatible_catalogs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -226,7 +226,7 @@ this sampling function.</p>
         <span class="n">blend_table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">number_of_objects</span><span class="p">)]</span>
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span> <span class="o">=</span> <span class="n">_get_random_center_shift</span><span class="p">(</span><span class="n">number_of_objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxshift</span><span class="p">)</span>
+        <span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span> <span class="o">=</span> <span class="n">_get_random_center_shift</span><span class="p">(</span><span class="n">number_of_objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_shift</span><span class="p">)</span>
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x_peak</span>
         <span class="n">blend_table</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y_peak</span>
 
@@ -333,9 +333,9 @@ additionnal parameters here.</p>
 <p>The results from the <code class="docutils literal notranslate"><span class="pre">next</span></code> call are stored in the dictionnary; the
 keys are: - <code class="docutils literal notranslate"><span class="pre">blend_images</span></code> for the actual images (as a
 (batch_size,stamp_size,stamp_size,len(survey.filters))-sized numpy array
-) - <code class="docutils literal notranslate"><span class="pre">isolated_images</span></code> for the isolated images (as a
+) - <code class="docutils literal notranslate"><span class="pre">isolated_images</span></code> for the isolated noiseless galaxy images (as a
 (batch_size,sampling_function.max_number,stamp_size,stamp_size,len(survey.filters))-sized
-numpy array ) - <code class="docutils literal notranslate"><span class="pre">blend_list</span></code> for the blend information (as a list of
+numpy array ). - <code class="docutils literal notranslate"><span class="pre">blend_list</span></code> for the blend information (as a list of
 astropy tables corresponding to the output of the sampling function for
 each blend) - <code class="docutils literal notranslate"><span class="pre">psf</span></code> for the PSF (as a list of Galsim objects) -
 <code class="docutils literal notranslate"><span class="pre">wcs</span></code> for the World Coordinate System corresponding to the images (as
@@ -622,13 +622,7 @@ batch.</p>
 </section>
 <section id="scarlet-implementation">
 <h2>SCARLET implementation<a class="headerlink" href="#scarlet-implementation" title="Permalink to this headline"></a></h2>
-<p>We provide an implementation of the measure function for <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S2213133718300301">SCARLET</a> , a deblending algorithm based on matrix factorization. The code for SCARLET can be found in this <a class="reference external" href="https://github.com/pmelchior/scarlet">repo</a>. You can install scarlet and its dependencies directly along BTK by running</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">btk</span><span class="p">[</span><span class="n">scarlet</span><span class="p">]</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pmelchior</span><span class="o">/</span><span class="n">scarlet</span>
-</pre></div>
-</div>
-<p>This will install the latest version of SCARLET in github and NOT in pip (which is outdated).</p>
-<p>You can find the SCARLET measure function implementation <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">here</a>.</p>
+<p>The Scarlet deblender can be used in BTK via the measure function found in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">notebook</a>. It requires the <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> package to be installed. The installation instructions can be found <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">here</a>. This notebook was tested with the version of scarlet corresponding to the tag <a class="reference external" href="https://github.com/pmelchior/scarlet/releases/tag/btk-v1">btkv1</a> found in the scarlet repo.</p>
 </section>
 <section id="advanced-features">
 <h2>Advanced features<a class="headerlink" href="#advanced-features" title="Permalink to this headline"></a></h2>

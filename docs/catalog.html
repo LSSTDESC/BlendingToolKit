@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Catalog &mdash; btk 1.0.0a7 documentation</title>
+  <title>Input Catalog &mdash; btk 1.0.0a8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -85,6 +85,22 @@
 <h2>CatSim<a class="headerlink" href="#catsim" title="Permalink to this headline"></a></h2>
 <p>The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim <a class="reference external" href="https://www.lsst.org/scientists/simulations/catsim">page</a> for more details.</p>
 <p>BTK includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from <a class="reference external" href="https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk">this page</a>.</p>
+<p>A valid catsim catalog should at least contain the following columns:</p>
+<ul class="simple">
+<li><p><cite>ra</cite>: Right Ascension (degrees)</p></li>
+<li><p><cite>dec</cite>: Declination (degrees)</p></li>
+<li><p><cite>fluxnorm_bulge</cite>: Proportion of flux in the bulge (fraction)</p></li>
+<li><p><cite>fluxnorm_disk</cite>: Proportion of flux in the disk (fraction)</p></li>
+<li><p><cite>fluxnorm_agn</cite>: Proportion of flux in the agn (fraction)</p></li>
+<li><p><cite>a_b</cite> : Bulge half-light semi-major axis  (arcsec)</p></li>
+<li><p><cite>a_d</cite> : Disk half-light semi-major axis  (arcsec)</p></li>
+<li><p><cite>b_b</cite> : Bulge half-light semi-minor axis  (arcsec)</p></li>
+<li><p><cite>b_d</cite> : Disk half-light semi-minor axis  (arcsec)</p></li>
+<li><p><cite>theta_b</cite> : Bulge position angle (degrees)</p></li>
+<li><p><cite>pa_disk</cite> : Disk position angle (degrees)</p></li>
+<li><p><cite>pa_bulge</cite> : Bulge position angle (degrees), should be equivalent to <cite>pa_disk</cite>.</p></li>
+</ul>
+<p>Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in galcheat we require <cite>i_ab</cite>, <cite>r_ab</cite>, <cite>u_ab</cite>, <cite>y_ab</cite>, <cite>z_ab</cite>, and <cite>g_ab</cite> as found <a class="reference external" href="https://github.com/aboucaud/galcheat/blob/main/galcheat/data/LSST.yaml">here</a>. Please see the <a class="reference external" href="tutorials.html">tutorial</a> and <a class="reference external" href="user_guide.html">user guide</a> for more information about surveys.</p>
 </section>
 <section id="cosmos">
 <h2>COSMOS<a class="headerlink" href="#cosmos" title="Permalink to this headline"></a></h2>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.sampling_functions module &mdash; btk 1.0.0a7 documentation</title>
+  <title>btk.sampling_functions module &mdash; btk 1.0.0a8 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -95,7 +95,7 @@
 <span class="target" id="module-btk.sampling_functions"></span><p>Contains classes of function for extracing information from catalog in blend batches.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.BasicSampling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">BasicSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">BasicSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
 <p>Example of basic sampling function features.</p>
 <p>Includes magnitude cut, restriction on the shape, shift randomization.</p>
@@ -122,14 +122,15 @@ stamp size, where N is the number of objects in the blend.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.sampling_functions.BasicSampling.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.BasicSampling.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the basic sampling function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
+<li><p><strong>min_number</strong> (<em>int</em>) – Defined in parent class</p></li>
 <li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the desired stamp.</p></li>
-<li><p><strong>maxshift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
+<li><p><strong>max_shift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
 is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
 </ul>
@@ -147,7 +148,7 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.DefaultSampling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">DefaultSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">DefaultSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.SamplingFunction</span></code></a></p>
 <p>Default sampling function used for producing blend tables.</p>
 <dl class="py method">
@@ -182,14 +183,15 @@ containing the x and y shifts.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.sampling_functions.DefaultSampling.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSampling.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes default sampling function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
+<li><p><strong>min_number</strong> (<em>int</em>) – Defined in parent class</p></li>
 <li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the desired stamp.</p></li>
-<li><p><strong>maxshift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
+<li><p><strong>max_shift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
 is set as one-tenth the stamp size. (in arcseconds)</p></li>
 <li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
 </ul>
@@ -206,8 +208,46 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="btk.sampling_functions.DefaultSamplingShear">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">DefaultSamplingShear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingShear" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.DefaultSampling" title="btk.sampling_functions.DefaultSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">btk.sampling_functions.DefaultSampling</span></code></a></p>
+<p>Default sampling function used for producing blend tables, including constant shear.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.DefaultSamplingShear.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingShear.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Same as corresponding function for <cite>DefaultSampling</cite> but adds shear to output tables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.DefaultSamplingShear.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingShear.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes default sampling function with shear.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_number</strong> (<em>int</em>) – Defined in parent class</p></li>
+<li><p><strong>min_number</strong> (<em>int</em>) – Defined in parent class</p></li>
+<li><p><strong>stamp_size</strong> (<em>float</em>) – Size of the desired stamp.</p></li>
+<li><p><strong>maxshift</strong> (<em>float</em>) – Magnitude of maximum value of shift. If None then it
+is set as one-tenth the stamp size. (in arcseconds)</p></li>
+<li><p><strong>shear</strong> (<em>tuple</em><em> or </em><em>None</em>) – Constant (g1,g2) shear to apply to every galaxy.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="btk.sampling_functions.DefaultSamplingShear.compatible_catalogs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compatible_catalogs</span></span><a class="headerlink" href="#btk.sampling_functions.DefaultSamplingShear.compatible_catalogs" title="Permalink to this definition"></a></dt>
+<dd><p>Tuple of compatible catalogs for this sampling function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.SamplingFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">SamplingFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">SamplingFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Class representing sampling functions to sample input catalog from which to draw blends.</p>
 <p>The object can be called to return an astropy table with entries corresponding to the
@@ -221,12 +261,13 @@ galaxies chosen for the blend.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.sampling_functions.SamplingFunction.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.SamplingFunction.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the SamplingFunction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_number</strong> (<em>int</em>) – maximum number of catalog entries returned from sample.</p></li>
+<li><p><strong>min_number</strong> (<em>int</em>) – minimum number of catalog entries returned from sample. (Default: 1)</p></li>
 <li><p><strong>seed</strong> (<em>int</em>) – Seed to initialize randomness for reproducibility.</p></li>
 </ul>
 </dd>
