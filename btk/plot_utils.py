@@ -556,6 +556,7 @@ def plot_metrics_summary(  # noqa: C901
     target_meas_keys=[],
     target_meas_limits=[],
     n_bins_target=30,
+    aliases={},
     save_path=None,
     context="talk",
     interactive=False,
@@ -568,6 +569,9 @@ def plot_metrics_summary(  # noqa: C901
         target_meas_limits (list): List of tuples indicating the limits for the plots
                                    of the target measures
         n_bins_target (int): Number of bins for the target measure plots
+        aliases (dict) : Replaces the names contained in the keys by their
+                                associated values. Used to get proper names in the
+                                figures.
         save_path (str): Path to the folder where the figures should be saved.
         context (str): Context for seaborn; see seaborn documentation for details.
                         Can be one of "paper", "notebook", "talk", and "poster".
@@ -738,7 +742,8 @@ def plot_metrics_summary(  # noqa: C901
                 [dataframes[f_name].assign(measure_function=f_name) for f_name in meas_func_names],
                 ignore_index=True,
             )
-
+        concatenated.replace(aliases, inplace=True)
+        concatenated.rename(columns={"measure_function": "Measure function"}, inplace=True)
         # Filter the data for the different parameters
         concatenated = concatenated.loc[
             (concatenated["blendedness"] >= blendedness_limits[0])
@@ -758,7 +763,7 @@ def plot_metrics_summary(  # noqa: C901
         if plot_selections["custom"]:
             fig, ax = plt.subplots(figsize=(15, 15))
             sns.scatterplot(
-                data=concatenated, x=custom_x, y=custom_y, hue="measure_function", ax=ax
+                data=concatenated, x=custom_x, y=custom_y, hue="Measure function", ax=ax
             )
             if custom_x_log:
                 ax.set_xscale("log")
@@ -771,12 +776,12 @@ def plot_metrics_summary(  # noqa: C901
             fig, ax = plt.subplots(3, 1, figsize=(20, 30))
             fig.suptitle("Distribution of reconstruction metrics", fontsize=48)
             sns.histplot(
-                concatenated, x="msr", hue="measure_function", bins=30, ax=ax[0], log_scale=True
+                concatenated, x="msr", hue="Measure function", bins=30, ax=ax[0], log_scale=True
             )
             ax[0].set_xlabel("Mean square residual")
-            sns.histplot(concatenated, x="psnr", hue="measure_function", bins=30, ax=ax[1])
+            sns.histplot(concatenated, x="psnr", hue="Measure function", bins=30, ax=ax[1])
             ax[1].set_xlabel("Peak Signal-to-Noise Ratio")
-            sns.histplot(concatenated, x="ssim", hue="measure_function", bins=30, ax=ax[2])
+            sns.histplot(concatenated, x="ssim", hue="Measure function", bins=30, ax=ax[2])
             ax[2].set_xlabel("Structure Similarity Index")
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "distributions_reconstruction.png"))
@@ -786,7 +791,7 @@ def plot_metrics_summary(  # noqa: C901
         if "iou" in concatenated and plot_selections["segmentation"]:
             fig, ax = plt.subplots(figsize=(20, 10))
             fig.suptitle("Distribution of segmentation metrics", fontsize=48)
-            sns.histplot(concatenated, x="iou", hue="measure_function", ax=ax, bins=30)
+            sns.histplot(concatenated, x="iou", hue="Measure function", ax=ax, bins=30)
             ax.set_xlabel("Intersection-over-Union")
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "distributions_segmentation.png"))
@@ -810,7 +815,7 @@ def plot_metrics_summary(  # noqa: C901
                     data=concatenated,
                     x=k,
                     y=k + "_true",
-                    hue="measure_function",
+                    hue="Measure function",
                     ax=ax[2 * i],
                     marker="o",
                     alpha=0.7,
@@ -836,7 +841,7 @@ def plot_metrics_summary(  # noqa: C901
                     for j in range(1, n_bins_target):
                         mean = np.mean(
                             concatenated["delta_" + k][
-                                (labels == j) & (concatenated["measure_function"] == meas_func)
+                                (labels == j) & (concatenated["Measure function"] == meas_func)
                             ]
                         )
                         if not np.isnan(mean):
@@ -845,7 +850,7 @@ def plot_metrics_summary(  # noqa: C901
                                 np.std(
                                     concatenated["delta_" + k][
                                         (labels == j)
-                                        & (concatenated["measure_function"] == meas_func)
+                                        & (concatenated["Measure function"] == meas_func)
                                     ]
                                 )
                             )
