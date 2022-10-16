@@ -14,6 +14,26 @@ from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
+def get_quadrant(center, image_size):
+    """Get the correct quadrant coordinates for plotting an inset plot.
+
+    Args:
+        center (tuple) : Coordinates the inset plot is centered on.
+        image_size (int): Size of the image.
+
+    Returns:
+        The coordinates to pass to matplotlib.
+    """
+    if center[0] >= image_size // 2 and center[1] >= image_size // 2:
+        return [0.03, 0.6, 0.37, 0.37]
+    elif center[0] >= image_size // 2 and center[1] <= image_size // 2:
+        return [0.03, 0.03, 0.37, 0.37]
+    elif center[0] <= image_size // 2 and center[1] >= image_size // 2:
+        return [0.6, 0.6, 0.37, 0.37]
+    else:
+        return [0.6, 0.03, 0.37, 0.37]
+
+
 def get_rgb(image, min_val=None, max_val=None):
     """Function to normalize 3 band input image to RGB 0-255 image.
 
@@ -337,7 +357,7 @@ def plot_with_deblended(
             if k == 0:
                 ax[k][-1].set_title("True galaxies")
             if match != -1:
-                ax[k].append(fig.add_subplot(spec[k + 1, 1], sharey=ax[k][0]))
+                ax[k].append(fig.add_subplot(spec[k + 1, 1]))
                 ax[k][-1].imshow(
                     get_image(deblended_images[i][match], band_indices, rgb, norm=norm),
                     vmin=vmin,
@@ -347,7 +367,7 @@ def plot_with_deblended(
                     ax[k][-1].set_title("Detected galaxies")
                 if not rgb:
                     ax[k][-1].set_yticks([])
-                ax[k].append(fig.add_subplot(spec[k + 1, 2], sharey=ax[k][0]))
+                ax[k].append(fig.add_subplot(spec[k + 1, 2]))
                 ax[k][-1].imshow(
                     get_image(
                         isolated_images[i][k] - deblended_images[i][match],
@@ -367,6 +387,34 @@ def plot_with_deblended(
                     normalize = Normalize(vmin=vmin / noise_level, vmax=vmax / noise_level)
                     cbar = fig.colorbar(cm.ScalarMappable(normalize), cax=ax[k][-1])
                     cbar.set_label("SNR")
+                # inset axes....
+                axins = ax[k][-2].inset_axes(
+                    get_quadrant(
+                        [blend_list[i]["x_peak"][k], blend_list[i]["y_peak"][k]],
+                        isolated_images[i][k].shape[-1],
+                    )
+                )
+                axins.imshow(
+                    get_image(
+                        isolated_images[i][k] - deblended_images[i][match],
+                        band_indices,
+                        rgb,
+                        norm=norm,
+                    ),
+                    origin="lower",
+                )
+                x1, x2, y1, y2 = (
+                    blend_list[i]["x_peak"][k] - 12,
+                    blend_list[i]["x_peak"][k] + 12,
+                    blend_list[i]["y_peak"][k] - 12,
+                    blend_list[i]["y_peak"][k] + 12,
+                )
+                axins.set_xlim(x1, x2)
+                axins.set_ylim(y1, y2)
+                axins.set_xticks([])
+                axins.set_yticks([])
+
+                ax[k][-2].indicate_inset_zoom(axins, edgecolor="black")
         spec.tight_layout(fig)
         plt.show()
 
