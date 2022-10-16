@@ -409,6 +409,12 @@ def reconstruction_metrics_blend(
                                           measurement function for each galaxy (both
                                           true and deblended images).
     """
+    if matches is None:
+        matches = {}
+        matches["match_detected_id"] = list(np.arange(0, len(isolated_images)))
+        matches["dist"] = [0.0] * len(isolated_images)
+        matches = astropy.table.Table(matches)
+
     msr_blend_results = []
     psnr_blend_results = []
     ssim_blend_results = []
@@ -483,6 +489,11 @@ def reconstruction_metrics(
         matches (list): Contains one astropy Table for each blend, with a
                          column `match_detected_id` containing the index of the
                          matched detected galaxy for each true galaxy.
+                         If passed as None, the function assumes that in each
+                         blend of the batch the i'th deblended_image
+                         corresponds to i'th isolated_image.
+                         Otherwise, refer to btk.metrics.get_detection_match
+                         for more details.
         target_meas (dict): Contains the target measurement functions provided
                              by the user.
 
@@ -495,6 +506,9 @@ def reconstruction_metrics(
        function has several outputs, a number is added
        after target_name for each output)).
     """
+    if matches is None:
+        matches = [None] * len(isolated_images)
+
     results_reconstruction = {}
     msr_results = []
     psnr_results = []
