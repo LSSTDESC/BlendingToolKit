@@ -437,8 +437,11 @@ class DrawBlendsGenerator(ABC):
 
         for k, entry in enumerate(blend_catalog):
             single_image = self.render_single(entry, filt, psf, survey, extra_data[k])
-            iso_image[k] = single_image.array
-            _blend_image += single_image
+            if single_image is None:
+                iso_image[k] = np.zeros(single_image)
+            else:
+                iso_image[k] = single_image.array
+                _blend_image += single_image
 
         # add noise.
         if self.add_noise in ("galaxy", "all"):
