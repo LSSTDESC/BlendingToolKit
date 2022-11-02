@@ -29,6 +29,7 @@ class Catalog(ABC):
         """
         self.verbose = verbose
         self.table = self._prepare_table(raw_catalog)
+        self._raw_catalog = raw_catalog
 
         if self.verbose:
             print("Catalog loaded")
