@@ -515,8 +515,8 @@ class CatsimGenerator(DrawBlendsGenerator):
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
             if self.augment_data:
-                entry["pa_bulge"] = entry["pa_bulge"] + entry["btk_rotation"]
-                entry["pa_disk"] = entry["pa_disk"] + entry["btk_rotation"]
+                entry["pa_bulge"] = (entry["pa_bulge"] + entry["btk_rotation"]) % 360
+                entry["pa_disk"] = (entry["pa_disk"] + entry["btk_rotation"]) % 360
             gal = get_catsim_galaxy(entry, filt, survey)
             if self.apply_shear:
                 if "g1" in entry.keys() and "g2" in entry.keys():
