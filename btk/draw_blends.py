@@ -516,6 +516,7 @@ class CatsimGenerator(DrawBlendsGenerator):
         try:
             if self.augment_data:
                 entry["pa_bulge"] = entry["pa_bulge"] + entry["btk_rotation"]
+                entry["pa_disk"] = entry["pa_disk"] + entry["btk_rotation"]
             gal = get_catsim_galaxy(entry, filt, survey)
             if self.apply_shear:
                 if "g1" in entry.keys() and "g2" in entry.keys():
