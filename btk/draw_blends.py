@@ -1,6 +1,8 @@
 """Module for generating batches of drawn blended images."""
 import copy
+import json
 import os
+import pickle
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
@@ -15,7 +17,7 @@ from tqdm.auto import tqdm
 from btk import DEFAULT_SEED
 from btk.create_blend_generator import BlendGenerator
 from btk.multiprocess import get_current_process, multiprocess
-from btk.survey import Survey, make_wcs
+from btk.survey import Survey, get_surveys, make_wcs
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -181,6 +183,7 @@ class DrawBlendsGenerator(ABC):
         self.is_multiresolution = len(self.surveys) > 1
         self.stamp_size = stamp_size
         self._set_surveys(surveys)
+        self.is_multiresolution = len(self.surveys) > 1
 
         noise_options = {"none", "all", "background", "galaxy"}
         if add_noise not in noise_options:
@@ -224,7 +227,7 @@ class DrawBlendsGenerator(ABC):
         """Returns iterable which is the object itself."""
         return self
 
-    def _get_psf_from_survey(survey: Survey):
+    def _get_psf_from_survey(self, survey: Survey):
         # make PSF and WCS
         psf = []
         for band in survey.available_filters:
@@ -256,8 +259,8 @@ class DrawBlendsGenerator(ABC):
         """
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        results = BlendResults(self.batch_size, self.max_number, self.stamp_size, self.surveys)
-        for s in self.surveys:
+        results = BlendResults(self.batch_size, self.max_number, self.stamp_size)
+        for s in self.surveys.values():
             pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
             psf = self._get_psf_from_survey(s)
             wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
@@ -638,22 +641,19 @@ class CosmosGenerator(DrawBlendsGenerator):
 class BlendResults(dict):
     """Class which stores the output of DrawBlendGenerator."""
 
-    def __init__(
-        self, batch_size: int, max_n_sources: int, stamp_size: int, surveys: Dict[str, Survey]
-    ):
+    def __init__(self, batch_size: int, max_n_sources: int, stamp_size: int):
         """Initialize BlendResults class."""
         self.batch_size = batch_size
         self.max_n_sources = max_n_sources
-        self.surveys = surveys
-        self.results = {s.name: {} for s in surveys}
         self.stamp_size = stamp_size  # arcseconds
+        self.results = {}
 
     def _get_pix_stamp_size(self, survey_name: str) -> int:
-        return int(self.stamp_size / self.surveys[survey_name].pixel_scale.to_value("arcsec"))
+        return int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
 
     def _get_wcs(self, survey_name: str):
         pix_stamp_size = self._get_pix_stamp_size(survey_name)
-        pixel_scale = self.surveys[survey_name].pixel_scale.to_value("arcsec")
+        pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
         return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
 
     def add_results(
@@ -666,7 +666,7 @@ class BlendResults(dict):
     ):
         """Add output of results for a given survey."""
         pix_stamp_size = self._get_pix_stamp_size(survey_name)
-        survey = self.surveys[survey_name]
+        survey = get_surveys(survey_name)
         n_bands = len(survey.available_filters)
         b1, c1, ps11, ps12 = blend_images.shape
         b2, n, c2, ps21, ps22 = isolated_images.shape
@@ -674,6 +674,7 @@ class BlendResults(dict):
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
+        self.results[survey_name] = {}
         self.results[survey_name]["blend_images"] = blend_images
         self.results[survey_name]["isolated_images"] = isolated_images
         self.results[survey_name]["blend_list"] = blend_list
@@ -685,26 +686,69 @@ class BlendResults(dict):
         """Return key in results dictionary."""
         return self.results[key]
 
+    def __repr__(self):
+        string = (
+            f"BlendResults(batch_size = {self.batch_size}, "
+            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size})"
+            + ", containing: \n"
+        )
+        for survey_name in self.results.keys():
+            string += survey_name + ": {"
+            for key, value in self.results[survey_name].items():
+                if isinstance(value, np.ndarray):
+                    string += "\n\t" + key + ": np.ndarray, shape " + str(list(value.shape))
+                elif isinstance(value, list):
+                    item_type = None
+                    if len(value) != 0:
+                        item_type = value[0].__class__
+                    string += (
+                        "\n\t" + key + ": list of " + str(item_type) + ", size " + str(len(value))
+                    )
+                else:
+                    string += "\n\t" + key + ": " + str(type(value))
+            string += "\n} "
+        return string
+
     def save_results(self, path: str):
         """Save blend results into path."""
-        for s in self.surveys:
-            survey_name = s.name
+        for survey_name in self.results.keys():
             blend_images = self[survey_name]["blend_images"]
             isolated_images = self[survey_name]["isolated_images"]
             blend_list = self[survey_name]["blend_list"]
+            psfs = self.results[survey_name]["psfs"]
 
             if not os.path.exists(os.path.join(path, survey_name)):
-                os.mkdir(os.path.join(path, survey_name))
+                os.makedirs(os.path.join(path, survey_name))
 
-            np.save(os.path.join(path, survey_name, "blended"), blend_images[survey_name])
-            np.save(os.path.join(path, survey_name, "isolated"), isolated_images[survey_name])
-            for ii in range(len(blend_list)):
-                blend_list[ii].write(
-                    os.path.join(path, survey_name, f"blend_info_{ii}"),
-                    format="ascii",
-                    overwrite=True,
-                )
+            np.save(os.path.join(path, survey_name, "blend_images.npy"), blend_images)
+            np.save(os.path.join(path, survey_name, "isolated_images.npy"), isolated_images)
+            with open(os.path.join(path, survey_name, "blend_list.pickle"), "wb") as f:
+                pickle.dump(blend_list, f)
+            with open(os.path.join(path, survey_name, "psfs.pickle"), "wb") as f:
+                pickle.dump(psfs, f)
 
-    def load_results(self, path: str):
-        """Return BlendResults object after loading data from path."""
-        pass
+        # save general info about blend
+        with open(os.path.join(path, "blend.json"), "w") as f:
+            json.dump(
+                {
+                    "batch_size": self.batch_size,
+                    "max_n_sources": self.max_n_sources,
+                    "stamp_size": self.stamp_size,
+                },
+                f,
+            )
+
+    @classmethod
+    def load_results(cls, path: str):
+        blend_config = json.load(open(os.path.join(path, "blend.json")))
+        blend = cls(**blend_config)
+        # get folders within the path
+        for survey_name in next(os.walk(path))[1]:
+            blend_images = np.load(os.path.join(path, survey_name, "blend_images.npy"))
+            isolated_images = np.load(os.path.join(path, survey_name, "isolated_images.npy"))
+            with open(os.path.join(path, survey_name, "blend_list.pickle"), "rb") as f:
+                blend_list = pickle.load(f)
+            with open(os.path.join(path, survey_name, "psfs.pickle"), "rb") as f:
+                psfs = pickle.load(f)
+            blend.add_results(survey_name, blend_images, isolated_images, blend_list, psfs)
+        return blend
