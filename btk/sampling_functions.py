@@ -30,14 +30,19 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number, seed=DEFAULT_SEED):
+    def __init__(self, max_number, min_number=1, seed=DEFAULT_SEED):
         """Initializes the SamplingFunction.
 
         Args:
             max_number (int): maximum number of catalog entries returned from sample.
+            min_number (int): minimum number of catalog entries returned from sample. (Default: 1)
             seed (int): Seed to initialize randomness for reproducibility.
         """
+        self.min_number = min_number
         self.max_number = max_number
+
+        if self.min_number > self.max_number:
+            raise ValueError("Need to satisfy: min_number <= max_number")
 
         if isinstance(seed, int):
             self.rng = np.random.default_rng(seed)
@@ -60,17 +65,20 @@ class SamplingFunction(ABC):
 class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
-    def __init__(self, max_number=2, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED):
+    def __init__(
+        self, max_number=2, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED
+    ):
         """Initializes default sampling function.
 
         Args:
             max_number (int): Defined in parent class
+            min_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
             max_shift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number, seed)
+        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
 
@@ -104,7 +112,7 @@ class DefaultSampling(SamplingFunction):
         Returns:
             Astropy.table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(1, self.max_number + 1)
+        number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
         (q,) = np.where(table["ref_mag"] <= 25.3)
 
         if indexes is None:
@@ -133,19 +141,25 @@ class BasicSampling(SamplingFunction):
     Includes magnitude cut, restriction on the shape, shift randomization.
     """
 
-    def __init__(self, max_number=4, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED):
+    def __init__(
+        self, max_number=4, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED
+    ):
         """Initializes the basic sampling function.
 
         Args:
             max_number (int): Defined in parent class
+            min_number (int): Defined in parent class
             stamp_size (float): Size of the desired stamp.
             max_shift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
         """
-        super().__init__(max_number, seed)
+        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
+
+        if min_number < 1:
+            raise ValueError("At least 1 bright galaxy will be added, so need min_number >=1.")
 
     @property
     def compatible_catalogs(self):
@@ -169,7 +183,7 @@ class BasicSampling(SamplingFunction):
         Returns:
             Table with entries corresponding to one blend.
         """
-        number_of_objects = self.rng.integers(0, self.max_number)
+        number_of_objects = self.rng.integers(self.min_number - 1, self.max_number)
         a = np.hypot(table["a_d"], table["a_b"])
         cond = (a <= 2) & (a > 0.2)
         (q_bright,) = np.where(cond & (table["ref_mag"] <= 24))
@@ -190,4 +204,46 @@ class BasicSampling(SamplingFunction):
         x_peak, y_peak = _get_random_center_shift(number_of_objects + 1, max_shift, self.rng)
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
+        return blend_table
+
+
+class DefaultSamplingShear(DefaultSampling):
+    """Default sampling function used for producing blend tables, including constant shear."""
+
+    def __init__(
+        self,
+        max_number=2,
+        min_number=1,
+        stamp_size=24.0,
+        maxshift=None,
+        shear=None,
+        seed=DEFAULT_SEED,
+    ):
+        """Initializes default sampling function with shear.
+
+        Args:
+            max_number (int): Defined in parent class
+            min_number (int): Defined in parent class
+            stamp_size (float): Size of the desired stamp.
+            maxshift (float): Magnitude of maximum value of shift. If None then it
+                             is set as one-tenth the stamp size. (in arcseconds)
+            shear (tuple or None): Constant (g1,g2) shear to apply to every galaxy.
+            seed (int): Seed to initialize randomness for reproducibility.
+        """
+        super().__init__(max_number, min_number, stamp_size, maxshift, seed)
+        self.shear = shear
+
+    @property
+    def compatible_catalogs(self):
+        """Tuple of compatible catalogs for this sampling function."""
+        return "CatsimCatalog", "CosmosCatalog"
+
+    def __call__(self, table, shifts=None, indexes=None):
+        """Same as corresponding function for `DefaultSampling` but adds shear to output tables."""
+        blend_table = super().__call__(table, shifts, indexes)
+        if isinstance(self.shear, tuple):
+            blend_table["g1"] = self.shear[0]
+            blend_table["g2"] = self.shear[1]
+        else:
+            raise TypeError("shear should be a tuple (g1,g2)")
         return blend_table
