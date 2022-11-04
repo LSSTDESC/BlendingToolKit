@@ -76,24 +76,22 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
         raise SourceNotVisible
 
     if disk_flux > 0:
-        beta_radians = np.radians(entry["pa_disk"])
         if bulge_flux > 0:
             assert entry["pa_disk"] == entry["pa_bulge"], "Sersic components have different beta."
         a_d, b_d = entry["a_d"], entry["b_d"]
         disk_hlr_arcsecs = np.sqrt(a_d * b_d)
         disk_q = b_d / a_d
         disk = galsim.Exponential(flux=disk_flux, half_light_radius=disk_hlr_arcsecs).shear(
-            q=disk_q, beta=beta_radians * galsim.radians
+            q=disk_q, beta=entry["pa_disk"] * galsim.degrees
         )
         components.append(disk)
 
     if bulge_flux > 0:
-        beta_radians = np.radians(entry["pa_bulge"])
         a_b, b_b = entry["a_b"], entry["b_b"]
         bulge_hlr_arcsecs = np.sqrt(a_b * b_b)
         bulge_q = b_b / a_b
         bulge = galsim.DeVaucouleurs(flux=bulge_flux, half_light_radius=bulge_hlr_arcsecs).shear(
-            q=bulge_q, beta=beta_radians * galsim.radians
+            q=bulge_q, beta=entry["pa_bulge"] * galsim.degrees
         )
         components.append(bulge)
 
@@ -112,7 +110,6 @@ class DrawBlendsGenerator(ABC):
     each mini-batch analyzed separately. The results are then combined to output a
     dict with results of entire batch. If the number of cpus is greater than one, then each of
     the mini-batches are run in parallel.
-
     """
 
     compatible_catalogs = ("Catalog",)
@@ -167,8 +164,9 @@ class DrawBlendsGenerator(ABC):
             apply_shear (float): Whether to apply the shear specified in catalogs to galaxies.
                                 If set to True, sampling function must add 'g1', 'g2' columns.
             augment_data (float): If set to True, augment data by adding a random rotation to every
-                                galaxy drawn. Rotation added is recorded via `btk_rotation` column
-                                output.
+                                galaxy drawn. Rotation added is proapaged to the `pa_bulge`
+                                and `pa_disk` columns if using the `CatsimGenerator`. It is also
+                                stored in the `btk_rotation` column.
         """
         self.blend_generator = BlendGenerator(
             catalog, sampling_function, batch_size, shifts, indexes, verbose
@@ -428,7 +426,6 @@ class DrawBlendsGenerator(ABC):
 
         Returns:
             Images of blend and isolated galaxies as `numpy.ndarray`.
-
         """
         sky_level = mean_sky_level(survey, filt).to_value("electron")
         blend_catalog.add_column(
@@ -440,8 +437,11 @@ class DrawBlendsGenerator(ABC):
 
         for k, entry in enumerate(blend_catalog):
             single_image = self.render_single(entry, filt, psf, survey, extra_data[k])
-            iso_image[k] = single_image.array
-            _blend_image += single_image
+            if single_image is None:
+                iso_image[k] = np.zeros(single_image)
+            else:
+                iso_image[k] = single_image.array
+                _blend_image += single_image
 
         # add noise.
         if self.add_noise in ("galaxy", "all"):
@@ -517,9 +517,10 @@ class CatsimGenerator(DrawBlendsGenerator):
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
-            gal = get_catsim_galaxy(entry, filt, survey)
             if self.augment_data:
-                gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
+                entry["pa_bulge"] = (entry["pa_bulge"] + entry["btk_rotation"]) % 360
+                entry["pa_disk"] = (entry["pa_disk"] + entry["btk_rotation"]) % 360
+            gal = get_catsim_galaxy(entry, filt, survey)
             if self.apply_shear:
                 if "g1" in entry.keys() and "g2" in entry.keys():
                     gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
