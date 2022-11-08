@@ -58,18 +58,18 @@ Omitted keys in the returned dictionary are automatically assigned a `None` valu
 import inspect
 import os
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Union
 
 import astropy.table
 import numpy as np
 import sep
 from astropy import units
 from astropy.coordinates import SkyCoord
-from astropy.table.table import Table
-from astropy.wcs import WCS
 from skimage.feature import peak_local_max
 
+from btk.draw_blends import BlendResults
 from btk.multiprocess import multiprocess
+from btk.survey import get_surveys
 from btk.utils import add_pixel_columns, reverse_list_dictionary
 
 # TODO somehow fix this type check
@@ -108,41 +108,54 @@ class MeasureResults:
 
     def __init__(
         self,
-        catalog: Table,
-        segmentation: Optional[np.ndarray] = None,
-        deblended_images: Optional[np.ndarray] = None,
+        batch_size: int,
+        max_n_sources: int,
+        stamp_size: int,
     ) -> None:
         """Initializes MeasureResults class."""
-        self.catalog = catalog
-        self.segmentation = {}
-        self.deblended_images = {}
+        self.batch_size = batch_size
+        self.max_n_sources = max_n_sources
+        self.stamp_size = stamp_size
 
+        self.results = {}
+
+    def add_results(
+        self,
+        survey_name: str,
+        catalog: astropy.table.Table,
+        segmentation: np.ndarray = None,
+        deblended_images: np.ndarray = None,
+    ):
+        """Adds the results of a measurement function to the MeasureResults object."""
         self._validate_catalog(catalog)
+        self._validate_segmentation(survey_name, segmentation)
+        self._validate_deblended_images(survey_name, deblended_images)
+        self.results[survey_name] = {}
+        self.results[survey_name]["catalog"] = catalog
+        self.results[survey_name]["segmentation"] = segmentation
+        self.results[survey_name]["deblended_images"] = deblended_images
 
-    def _validate_catalog(self):
-        if not isinstance(self.catalog, astropy.table.Table):
-            raise TypeError(
-                "The output dictionary of at least one of your measurement functions"
-                "does not contain an astropy table as the value of the key 'catalog'."
-            )
+    def _validate_catalog(self, catalog: astropy.table.Table):
 
-        if not ("ra" in self.catalog.colnames and "dec" in self.catalog.colnames):
+        if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
             raise ValueError(
                 "The output catalog of at least one of your measurement functions does"
                 "not contain the mandatory 'ra' and 'dec' columns"
             )
 
-        # for key in ["deblended_images", "segmentation"]:
-        #     if key in out and out[key] is not None:
-        #         if len(self.surveys) == 1:
-        #             if not isinstance(out[key], np.ndarray):
-        #                 raise TypeError(
-        #                     f"The output '{key}' of at least one of your measurement"
-        #                     f"functions is not a numpy array."
-        #                 )
+    def _validate_segmentation(self, survey_name, segmentation):
+        image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
+        assert segmentation.shape == (self.batch_size, self.max_n_sources, image_size, image_size)
+        assert segmentation.min() >= 0 and segmentation.max() <= 1
 
-    def _add_segmentation_results(self, survey_name: str, segmentation: np.ndarray):
-        self.segmentation[survey_name] = segmentation
+    def _validate_deblended_images(self, survey_name, deblended_images):
+        image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
+        assert deblended_images.shape == (
+            self.batch_size,
+            self.max_n_sources,
+            image_size,
+            image_size,
+        )
 
 
 class Measure(ABC):
@@ -152,48 +165,22 @@ class Measure(ABC):
     """
 
     @abstractmethod
-    def __call__(self, image: np.ndarray, wcs: WCS):
+    def __call__(
+        self, blend_results: BlendResults, survey_names: Union[str, List[str]]
+    ) -> MeasureResults:
         """Implements the call of a measure function.
 
         You need to implement this function for your measurement
 
         Args:
-            image: image to make measurememnt on with shape (B,C,S,S)
-                where B is the batch size, C is the number of bands, and S is
-                the side-length.
-            wcs: wcs object to convert between pixel coordinates
-                and ra, dec.
+            blend_results: Instance of `BlendResults` class
+            survey_names: Name of the surveys to measure on.
 
         Returns:
-            dict containing measurements
+            Instance of `MeasureResults` class.
 
-        TODO: Explain return
         """
         raise NotImplementedError("Each measure class must implement its own `__call__` function")
-
-    def multiresolution_call(self, image_list: List[np.ndarray], wcs_list: List[WCS]):
-        """Implements the call of a measure function on a multiresolution image.
-
-        By default, the measure function is performed on the first survey. Overwrite
-        this function to implement a more complex behaviour.
-
-        Args:
-            image_list (list): images corresponding to different surveys
-            wcs_list (list): wcs coordinates to convert between pixel coordinates
-                and sky coordinates
-
-        Returns:
-            dict containing measurements
-        """
-        return self.__call__(image_list[0], wcs_list[0])
-
-    @staticmethod
-    def pixel_coordinates_to_arcsec(x, y, wcs):
-        """Helper function to convert x and y coordinate values to ra and dec."""
-        ra, dec = wcs.pixel_to_world_values(x, y)
-        ra *= 3600
-        dec *= 3600
-        return ra, dec
 
     @classmethod
     def __repr__(cls):
@@ -340,7 +327,7 @@ class SepMultiband(Measure):
             this threshold to a single prediction (in arseconds).
 
     Returns:
-            dict containing catalog with entries corresponding to measured peaks.
+        dict containing catalog with entries corresponding to measured peaks.
     """
 
     def __init__(self, matching_threshold=1.0, sigma_noise=1.5, channels_last=False):
