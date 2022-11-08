@@ -709,22 +709,23 @@ class BlendResults(dict):
             string += "\n} "
         return string
 
-    def save_results(self, path: str):
+    def save_results(self, path: str, batch_number: int = 0):
         """Save blend results into path."""
         for survey_name in self.results.keys():
+            survey_directory = os.path.join(path, str(batch_number), survey_name)
             blend_images = self[survey_name]["blend_images"]
             isolated_images = self[survey_name]["isolated_images"]
             blend_list = self[survey_name]["blend_list"]
             psfs = self.results[survey_name]["psfs"]
 
-            if not os.path.exists(os.path.join(path, survey_name)):
-                os.makedirs(os.path.join(path, survey_name))
+            if not os.path.exists(survey_directory):
+                os.makedirs(survey_directory)
 
-            np.save(os.path.join(path, survey_name, "blend_images.npy"), blend_images)
-            np.save(os.path.join(path, survey_name, "isolated_images.npy"), isolated_images)
-            with open(os.path.join(path, survey_name, "blend_list.pickle"), "wb") as f:
+            np.save(os.path.join(survey_directory, "blend_images.npy"), blend_images)
+            np.save(os.path.join(survey_directory, "isolated_images.npy"), isolated_images)
+            with open(os.path.join(survey_directory, "blend_list.pickle"), "wb") as f:
                 pickle.dump(blend_list, f)
-            with open(os.path.join(path, survey_name, "psfs.pickle"), "wb") as f:
+            with open(os.path.join(survey_directory, "psfs.pickle"), "wb") as f:
                 pickle.dump(psfs, f)
 
         # save general info about blend
@@ -739,16 +740,17 @@ class BlendResults(dict):
             )
 
     @classmethod
-    def load_results(cls, path: str):
+    def load_results(cls, path: str, batch_number: int = 0):
         blend_config = json.load(open(os.path.join(path, "blend.json")))
         blend = cls(**blend_config)
         # get folders within the path
-        for survey_name in next(os.walk(path))[1]:
-            blend_images = np.load(os.path.join(path, survey_name, "blend_images.npy"))
-            isolated_images = np.load(os.path.join(path, survey_name, "isolated_images.npy"))
-            with open(os.path.join(path, survey_name, "blend_list.pickle"), "rb") as f:
+        batch_path = os.path.join(path, str(batch_number))
+        for survey_name in next(os.walk(batch_path))[1]:
+            blend_images = np.load(os.path.join(batch_path, survey_name, "blend_images.npy"))
+            isolated_images = np.load(os.path.join(batch_path, survey_name, "isolated_images.npy"))
+            with open(os.path.join(batch_path, survey_name, "blend_list.pickle"), "rb") as f:
                 blend_list = pickle.load(f)
-            with open(os.path.join(path, survey_name, "psfs.pickle"), "rb") as f:
+            with open(os.path.join(batch_path, survey_name, "psfs.pickle"), "rb") as f:
                 psfs = pickle.load(f)
             blend.add_results(survey_name, blend_images, isolated_images, blend_list, psfs)
         return blend
