@@ -6,7 +6,7 @@ import pickle
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
-from typing import Dict, List
+from typing import List
 
 import galsim
 import numpy as np
@@ -687,6 +687,7 @@ class BlendResults(dict):
         return self.results[key]
 
     def __repr__(self):
+        """Return string representation of class."""
         string = (
             f"BlendResults(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size})"
@@ -741,6 +742,7 @@ class BlendResults(dict):
 
     @classmethod
     def load_results(cls, path: str, batch_number: int = 0):
+        """Load blend results from path."""
         blend_config = json.load(open(os.path.join(path, "blend.json")))
         blend = cls(**blend_config)
         # get folders within the path
