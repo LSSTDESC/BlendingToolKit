@@ -54,11 +54,13 @@ Currently, we support the following metrics:
 """
 import os
 from collections.abc import Iterable
+from functools import partial
 
 import astropy.table
 import galsim
 import matplotlib.pyplot as plt
 import numpy as np
+import sep
 import skimage.metrics
 from galcheat.utilities import mean_sky_level
 from scipy.optimize import linear_sum_assignment
@@ -87,15 +89,15 @@ def meas_ksb_ellipticity(image, additional_params):
 
     Args:
         image (np.array): Image of a single, isolated galaxy with shape (H, W).
-        additional_params (dict): Containing keys 'psf', 'pixel_scale' and 'meas_band_num'.
-                                  The psf should be a Galsim PSF model, and meas_band_num
-                                  an integer indicating the band in which the measurement
-                                  is done.
+        additional_params (dict): Containing keys 'psf', 'survey' and 'meas_band_num'.
+                                  The psf should be a Galsim PSF model, the survey a btk Survey
+                                  and meas_band_num an integer indicating the band in which the
+                                  measurement is done.
     """
     meas_band_num = additional_params["meas_band_num"]
     psf_image = galsim.Image(image.shape[1], image.shape[2])
     psf_image = additional_params["psf"][meas_band_num].drawImage(psf_image)
-    pixel_scale = additional_params["pixel_scale"]
+    pixel_scale = additional_params["survey"].pixel_scale.to_value("arcsec")
     verbose = additional_params["verbose"]
     gal_image = galsim.Image(image[meas_band_num, :, :])
     gal_image.scale = pixel_scale
@@ -109,6 +111,37 @@ def meas_ksb_ellipticity(image, additional_params):
             This error may happen for faint galaxies or inaccurate detections."
         )
         result = [np.nan, np.nan, np.nan]
+    return result
+
+
+def meas_fixed_aperture(image, additional_params):
+    """Utility function to measure flux using fixed circular aperture with sep.
+
+    Args:
+        image (np.array): Image of a single, isolated galaxy with shape (H, W).
+        additional_params (dict): Containing keys 'psf', 'survey' and 'meas_band_num'.
+                                  The psf should be a Galsim PSF model, the survey a btk Survey
+                                  and meas_band_num an integer indicating the band in which the
+                                  measurement is done.
+    """
+    meas_band_num = additional_params["meas_band_num"]
+    band = additional_params["survey"].available_filters[meas_band_num]
+    filt = additional_params["survey"].get_filter(band)
+    sky_level = np.sqrt(mean_sky_level(additional_params["survey"], filt).to_value("electron"))
+    pixel_scale = additional_params["survey"].pixel_scale.to_value("arcsec")
+    verbose = additional_params["verbose"]
+    catalog = sep.extract(image[meas_band_num], 1.5, err=sky_level)
+    if len(catalog) != 1 and verbose:
+        print(f"{len(catalog)} where detected when measuring flux.")
+
+    flux, fluxerr, flag = sep.sum_circle(
+        image[meas_band_num],
+        catalog["x"],
+        catalog["y"],
+        filt.psf_fwhm.to_value("arcsec") / pixel_scale,
+        err=sky_level,
+    )
+    result = [flux[0], fluxerr[0]]
     return result
 
 
@@ -378,7 +411,7 @@ def segmentation_metrics(
 
 
 def reconstruction_metrics_blend(
-    isolated_images, deblended_images, matches, target_meas, target_meas_keys
+    blended_image, isolated_images, deblended_images, matches, target_meas, target_meas_keys
 ):
     """Calculates reconstruction metrics given information from a single blend.
 
@@ -445,8 +478,20 @@ def reconstruction_metrics_blend(
                 )
             )
             for k in target_meas.keys():
-                res_deblended = target_meas[k](deblended_images[match_detected])
-                res_isolated = target_meas[k](isolated_images[j])
+                res_deblended = target_meas[k](
+                    blended_image
+                    - sum(
+                        [
+                            deblended_images[deb]
+                            for deb in range(len(deblended_images))
+                            if deb != match_detected
+                        ]
+                    )
+                )
+                res_isolated = target_meas[k](
+                    blended_image
+                    - sum([isolated_images[iso] for iso in range(len(isolated_images)) if iso != j])
+                )
                 if isinstance(res_isolated, list):
                     for res in range(len(res_isolated)):
                         target_meas_blend_results[k + str(res)].append(res_deblended[res])
@@ -465,6 +510,7 @@ def reconstruction_metrics_blend(
 
 
 def reconstruction_metrics(
+    blended_images,
     isolated_images,
     deblended_images,
     matches,
@@ -530,7 +576,12 @@ def reconstruction_metrics(
             ssim_blend_results,
             target_meas_blend_results,
         ) = reconstruction_metrics_blend(
-            isolated_images[i], deblended_images[i], matches[i], target_meas, target_meas_keys
+            blended_images[i],
+            isolated_images[i],
+            deblended_images[i],
+            matches[i],
+            target_meas,
+            target_meas_keys,
         )
 
         msr_results.append(msr_blend_results)
@@ -549,6 +600,7 @@ def reconstruction_metrics(
 
 
 def compute_metrics(  # noqa: C901
+    blended_images,
     isolated_images,
     blend_list,
     detection_catalogs,
@@ -649,6 +701,7 @@ def compute_metrics(  # noqa: C901
     if deblended_images is not None:
         to_save_keys.append("reconstruction")
         results["reconstruction"] = reconstruction_metrics(
+            blended_images,
             isolated_images,
             deblended_images,
             matches,
@@ -769,8 +822,8 @@ class MetricsGenerator:
                         )
                     band_num = survey.available_filters.index(band_name)
                     additional_params = {
+                        "survey": survey,
                         "psf": blend_results["psf"][survey.name],
-                        "pixel_scale": survey.pixel_scale.to_value("arcsec"),
                         "meas_band_num": band_num,
                         "verbose": self.verbose,
                     }
@@ -783,6 +836,7 @@ class MetricsGenerator:
                         target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
 
                     metrics_results_f[survey.name] = compute_metrics(
+                        blend_results["blend_images"][survey.name],
                         blend_results["isolated_images"][survey.name],
                         blend_results["blend_list"][survey.name],
                         measure_results["catalog"][meas_func][survey.name],
@@ -811,8 +865,8 @@ class MetricsGenerator:
                 band_num = survey.available_filters.index(band_name)
                 filtr = survey.get_filter(band_name)
                 additional_params = {
+                    "survey": survey,
                     "psf": blend_results["psf"],
-                    "pixel_scale": survey.pixel_scale.to_value("arcsec"),
                     "meas_band_num": band_num,
                     "verbose": self.verbose,
                 }
@@ -821,9 +875,12 @@ class MetricsGenerator:
                 )
                 target_meas = {}
                 for k in self.target_meas.keys():
-                    target_meas[k] = lambda x: self.target_meas[k](x, additional_params)
+                    target_meas[k] = partial(
+                        self.target_meas[k], additional_params=additional_params
+                    )
 
                 metrics_results_f = compute_metrics(
+                    blend_results["blend_images"],
                     blend_results["isolated_images"],
                     blend_results["blend_list"],
                     measure_results["catalog"][meas_func],
