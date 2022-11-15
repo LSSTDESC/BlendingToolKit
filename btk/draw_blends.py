@@ -180,7 +180,6 @@ class DrawBlendsGenerator(ABC):
         self.max_number = self.blend_generator.max_number
         self.apply_shear = apply_shear
         self.augment_data = augment_data
-        self.is_multiresolution = len(self.surveys) > 1
         self.stamp_size = stamp_size
         self._set_surveys(surveys)
         self.is_multiresolution = len(self.surveys) > 1
