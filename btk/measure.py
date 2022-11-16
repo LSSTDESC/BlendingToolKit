@@ -1,60 +1,3 @@
-# TODO Change file description
-"""File containing measurement infrastructure for the BlendingToolKit.
-
-Contains examples of functions that can be used to apply a measurement algorithm to the blends
-simulated by BTK. Every measurement function should have the following skeleton:
-
-::
-
-    def measure_function(batch, idx, **kwargs):
-        # do some measurements on the images contained in batch.
-        return output
-
-
-where `batch` is the output from the `DrawBlendsGenerator` object (see its `__next__` method) and
-`idx` is the index corresponding to which image in the batch to measure. The additional keyword
-arguments `**kwargs` can be passed via the `measure_kwargs` dictionary argument in the
-`MeasureGenerator` initialize which are shared among all the measurement functions.
-
-It should return a dictionary containing a subset of the following keys/values (note the key
-catalog` is mandatory):
-
-* catalog (astropy.table.Table): An astropy table containing measurement information. The
-    `len` of the table should be `n_objects`. If your
-    DrawBlendsGenerator uses a single survey, the following
-    column names are required:
-
-* x_peak: horizontal centroid position in pixels.
-* y_peak: vertical centroid position in pixels.
-
-For multiple surveys (multi-resolution), we instead require:
-
-* ra: object centroid right ascension in arcseconds,
-    following the convention from the `wcs` object included in
-    the input batch.
-* dec: vertical centroid position in arcseconds,
-    following the convention from the `wcs` object included in
-    the input batch.
-
-* deblended_image (np.ndarray): Array of deblended isolated images with shape:
-    `(n_objects, n_bands, stamp_size, stamp_size)` or
-    `(n_objects, stamp_size, stamp_size, n_bands)` depending on
-    convention. The order of this array should correspond to the
-    order in the returned `catalog`. Where `n_objects` is the
-    number of detected objects by the algorithm. If you are using the multiresolution feature,
-    you should instead return a dictionary with a key for each survey containing the
-    aforementioned array.
-
-* segmentation (np.ndarray): Array of booleans with shape `(n_objects,stamp_size,stamp_size)`
-    The pixels set to True in the i-th channel correspond to the i-th
-    object. The order should correspond to the order in the returned
-    `catalog`. If you are using the multiresolution feature,
-    you should instead return a dictionary with a key for each survey containing the
-    aforementioned array.
-
-Omitted keys in the returned dictionary are automatically assigned a `None` value (except for
-`catalog` which is a mandatory entry).
-"""
 import inspect
 import os
 from abc import ABC, abstractmethod
@@ -67,73 +10,33 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
-from btk.draw_blends import BlendResults
+from btk.draw_blends import BlendBatch
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
 from btk.utils import add_pixel_columns, reverse_list_dictionary
 
-# TODO somehow fix this type check
-#             if key == "deblended_images":
-#                 if not out[key].shape[-3:] == batch["blend_images"].shape[-3:]:
-#                     raise ValueError(
-#                         f"The shapes of the blended images in your {key} don't "
-#                         f"match for at least one your measurement functions."
-#                         f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"
-#                     )
-#         else:
-#             for survey in self.surveys:
-#                 if not isinstance(out[key][survey.name], np.ndarray):
-#                     raise TypeError(
-#                         f"The output '{key}' for survey '{survey.name}' of at least"
-#                         f"one of your measurement functions is not a numpy array, but"
-#                         f"a {type(out[key][survey.name])}"
-#                     )
-#                 if key == "deblended_images":
-#                     if (
-#                         not out[key][survey.name].shape[-3:]
-#                         == batch["blend_images"][survey.name].shape[-3:]
-#                     ):
-#                         raise ValueError(
-#                             f"The shapes of the blended images in your {key} for"
-#                             f"survey '{survey.name}' do not match for at least one of"
-#                             f"your measurement functions."
-#                             f"{out[key].shape[-3:]} vs {batch['blend_images'].shape[-3:]}"  # noqa: E501
-#
-# NOTE: I'm having trouble deciding whether MeasureResults should be across all
-# batches
-
-
-class MeasureResults:
-    """Class containing the results of measurement across measure functions, surveys."""
+class MeasuredExample:
+    """Class that validates the results of the measurement for a single image"""
 
     def __init__(
         self,
-        batch_size: int,
         max_n_sources: int,
         stamp_size: int,
-    ) -> None:
-        """Initializes MeasureResults class."""
-        self.batch_size = batch_size
-        self.max_n_sources = max_n_sources
-        self.stamp_size = stamp_size
-
-        self.results = {}
-
-    def add_results(
-        self,
         survey_name: str,
         catalog: astropy.table.Table,
         segmentation: np.ndarray = None,
         deblended_images: np.ndarray = None,
-    ):
-        """Adds the results of a measurement function to the MeasureResults object."""
-        self._validate_catalog(catalog)
-        self._validate_segmentation(survey_name, segmentation)
-        self._validate_deblended_images(survey_name, deblended_images)
-        self.results[survey_name] = {}
-        self.results[survey_name]["catalog"] = catalog
-        self.results[survey_name]["segmentation"] = segmentation
-        self.results[survey_name]["deblended_images"] = deblended_images
+    ) -> None:
+        """Initializes the measured example"""
+
+        self.max_n_sources = max_n_sources
+        self.stamp_size = stamp_size
+        self.survey_name = survey_name
+        self.image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
+
+        self.catalog = self._validate_catalog(catalog)
+        self.segmentation = self._validate_segmentation(segmentation) 
+        self.deblended_images = self._validate_deblended_images(deblended_images) 
 
     def _validate_catalog(self, catalog: astropy.table.Table):
 
@@ -142,20 +45,98 @@ class MeasureResults:
                 "The output catalog of at least one of your measurement functions does"
                 "not contain the mandatory 'ra' and 'dec' columns"
             )
+        
+        if (catalog["ra"] < 0).any() or (catalog["ra"] > self.stamp_size).any():
+            raise ValueError(
+                f"All 'ra' detections must be in range [0, {self.stamp_size}]"
+            )
+        
+        if (catalog["dec"] < 0).any() or (catalog["dec"] > self.stamp_size).any():
+            raise ValueError(
+                f"All 'dec' detections must be in range [0, {self.stamp_size}]"
+            )
+        return catalog
 
-    def _validate_segmentation(self, survey_name, segmentation):
-        image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
-        assert segmentation.shape == (self.batch_size, self.max_n_sources, image_size, image_size)
-        assert segmentation.min() >= 0 and segmentation.max() <= 1
+    def _validate_segmentation(self, segmentation):
+        if segmentation is not None:
+            assert segmentation.shape == (self.max_n_sources, self.image_size, self.image_size)
+            assert segmentation.min() >= 0 and segmentation.max() <= 1
+        return segmentation
 
-    def _validate_deblended_images(self, survey_name, deblended_images):
-        image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
-        assert deblended_images.shape == (
-            self.batch_size,
-            self.max_n_sources,
-            image_size,
-            image_size,
-        )
+    def _validate_deblended_images(self, deblended_images):
+        if deblended_images is not None:
+            assert deblended_images.shape == (
+                self.max_n_sources,
+                self.image_size,
+                self.image_size,
+            )
+        return deblended_images
+
+class MeasuredBatch:
+    """Class that validates the results of the measurement for a batch of image"""
+
+    def __init__(
+        self,
+        max_n_sources: int,
+        stamp_size: int,
+        batch_size: int,
+        survey_name: str,
+        catalog_list: List[astropy.table.Table],
+        segmentation: np.ndarray = None,
+        deblended_images: np.ndarray = None,
+    ) -> None:
+        """Initializes the measured example"""
+
+        self.max_n_sources = max_n_sources
+        self.stamp_size = stamp_size
+        self.batch_size = batch_size
+        self.survey_name = survey_name
+        self.image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
+
+        self.catalog = self._validate_catalog(catalog_list)
+        self.segmentation = self._validate_segmentation(segmentation) 
+        self.deblended_images = self._validate_deblended_images(deblended_images) 
+
+    def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
+
+        if not isinstance(catalog_list, list):
+            raise TypeError(
+                "Catalog must be a list of 'astropy.table.Table' for each image in the batch"
+            )
+        assert len(catalog_list) == self.batch_size
+        for catalog in catalog_list:
+            if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
+                raise ValueError(
+                    "The output catalog of at least one of your measurement functions does"
+                    "not contain the mandatory 'ra' and 'dec' columns"
+                )
+            
+            if (catalog["ra"] < 0).any() or (catalog["ra"] > self.stamp_size).any():
+                raise ValueError(
+                    f"All 'ra' detections must be in range [0, {self.stamp_size}]"
+                )
+            
+            if (catalog["dec"] < 0).any() or (catalog["dec"] > self.stamp_size).any():
+                raise ValueError(
+                    f"All 'dec' detections must be in range [0, {self.stamp_size}]"
+                )
+        return catalog_list
+
+    def _validate_segmentation(self, segmentation):
+        if segmentation is not None:
+            assert segmentation.shape == (self.batch_size, self.max_n_sources, self.image_size, self.image_size)
+            assert segmentation.min() >= 0 and segmentation.max() <= 1
+        return segmentation
+
+    def _validate_deblended_images(self, deblended_images):
+        if deblended_images is not None:
+            assert deblended_images.shape == (
+                self.batch_size, 
+                self.max_n_sources,
+                self.image_size,
+                self.image_size,
+            )
+        return deblended_images
 
 
 class Measure(ABC):
@@ -164,23 +145,42 @@ class Measure(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    @abstractmethod
-    def __call__(
-        self, blend_results: BlendResults, survey_names: Union[str, List[str]]
-    ) -> MeasureResults:
-        """Implements the call of a measure function.
+    def __call__(self, i,  blend_results: BlendBatch) -> MeasuredExample:
+        """Implements the call of a measure function on the i-th example.
 
-        You need to implement this function for your measurement
+        Overwrite this function if you perform measurment one image at a time.
 
         Args:
             blend_results: Instance of `BlendResults` class
-            survey_names: Name of the surveys to measure on.
 
         Returns:
-            Instance of `MeasureResults` class.
-
+            Instance of `MeasuredExample` class
         """
         raise NotImplementedError("Each measure class must implement its own `__call__` function")
+    
+    def __batch_call__(self, blend_results: BlendBatch) -> MeasuredBatch:
+        """Implements the call of a measure function on the entire batch.
+        
+        Overwrite this function if you perform measurments on the batch.
+        The default fucntionality is to use multiprocessing to speed up
+        the iteration over all examples in the batch.
+
+        Args:
+            blend_results: Instance of `BlendResults` class
+
+        Returns:
+            Instance of `MeasuredBatch` class
+        """
+        args_iter = ((i, blend_results) for i in range(blend_results.batch_size))
+        output = multiprocess(
+            self.__call__,
+            args_iter,
+            cpus=self.cpus,
+        )
+        # TODO convert output to MeasuredBatch
+        mb = MeasuredBatch()
+        return MeasuredBatch
+        
 
     @classmethod
     def __repr__(cls):
@@ -203,32 +203,43 @@ class PeakLocalMax(Measure):
         dict containing catalog with entries corresponding to measured peaks.
     """
 
-    def __init__(self, threshold_scale=5, min_distance=2, channels_last=False):
-        """TODO: Docstring."""
+    def __init__(self, threshold_scale=5, min_distance=2):
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
-        self.channels_last = channels_last
-        self.channels_index = 0 if not channels_last else -1
 
-    def __call__(self, image, wcs):
-        """TODO: Docstring."""
-        # take a band average
-        avg_image = np.mean(image, axis=self.channels_index)
-        # compute threshold value
-        threshold = self.threshold_scale * np.std(avg_image)
+    def __call__(self, i, blend_results, survey_names):
 
-        # calculate coordinates
-        coordinates = peak_local_max(
-            avg_image, min_distance=self.min_distance, threshold_abs=threshold
-        )
-        x, y = coordinates[:, 1], coordinates[:, 0]
-        ra, dec = self.pixel_coordinates_to_arcsec(x, y, wcs)
+        if not isinstance(survey_names, list):
+            survey_names = [survey_names]
 
-        # wrap in catalog
-        catalog = astropy.table.Table()
-        catalog["ra"] = ra
-        catalog["dec"] = dec
-        return {"catalog": catalog}
+        for survey_name in survey_names:
+            for image in blend_results[survey_name]["blend_images"]:
+                # take a band average
+                avg_image = np.mean(image, axis=1)
+
+                # compute threshold value
+                threshold = self.threshold_scale * np.std(avg_image)
+
+                # calculate coordinates
+                coordinates = peak_local_max(
+                    avg_image, min_distance=self.min_distance, threshold_abs=threshold
+                )
+                x, y = coordinates[:, 1], coordinates[:, 0]
+                # convert coordinates to ra, dec
+                wcs = blend_results[survey_name]["wcs"]
+                ra, dec = wcs.pixel_to_world_values(x, y)
+                ra *= 3600
+                dec *= 3600
+
+                # wrap in catalog
+                catalog = astropy.table.Table()
+                catalog["ra"] = ra
+                catalog["dec"] = dec
+                measure_results.add_results(survey_name, catalog)
+
+        return measure_results     
+
+       
 
 
 class SepSingleband(Measure):
@@ -420,10 +431,6 @@ class MeasureGenerator:
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
-        self.channels_last = self.draw_blend_generator.channels_last
-        self.surveys = self.draw_blend_generator.surveys
-        self.survey_names = [s.name for s in self.surveys]
-        self.is_multiresolution = self.draw_blend_generator.is_multiresolution
         self.verbose = verbose
         self.save_path = save_path
 
@@ -463,13 +470,7 @@ class MeasureGenerator:
         """Perform measurements on a single blend."""
         output = []
         for meas in self.measures:
-            if self.is_multiresolution:
-                image_list = [batch["blend_images"][s.name][index] for s in self.surveys]
-                wcs_list = [batch["wcs"][s.name][index] for s in self.surveys]
-                out = meas.multiresolution_call(image_list, wcs_list)
-            else:
-                out = meas(batch["blend_images"][index], batch["wcs"][index])
-
+            out = meas(batch["blend_images"][index], batch["wcs"][index])
             out = {k: out.get(k, None) for k in ["deblended_images", "catalog", "segmentation"]}
             output.append(out)
         return output

@@ -258,7 +258,7 @@ class DrawBlendsGenerator(ABC):
         """
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        results = BlendResults(self.batch_size, self.max_number, self.stamp_size)
+        results = BlendBatch(self.batch_size, self.max_number, self.stamp_size)
         for s in self.surveys.values():
             pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
             psf = self._get_psf_from_survey(s)
@@ -637,11 +637,11 @@ class CosmosGenerator(DrawBlendsGenerator):
         )
 
 
-class BlendResults(dict):
+class BlendBatch(dict):
     """Class which stores the output of DrawBlendGenerator."""
 
     def __init__(self, batch_size: int, max_n_sources: int, stamp_size: int):
-        """Initialize BlendResults class."""
+        """Initialize BlendBatch class."""
         self.batch_size = batch_size
         self.max_n_sources = max_n_sources
         self.stamp_size = stamp_size  # arcseconds
@@ -669,7 +669,7 @@ class BlendResults(dict):
         n_bands = len(survey.available_filters)
         b1, c1, ps11, ps12 = blend_images.shape
         b2, n, c2, ps21, ps22 = isolated_images.shape
-        assert b1 == b2 == self.batch_size
+        assert b1 == b2 == len(blend_list) == self.batch_size
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
@@ -688,7 +688,7 @@ class BlendResults(dict):
     def __repr__(self):
         """Return string representation of class."""
         string = (
-            f"BlendResults(batch_size = {self.batch_size}, "
+            f"BlendBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size})"
             + ", containing: \n"
         )
