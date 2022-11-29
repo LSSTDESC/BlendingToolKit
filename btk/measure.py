@@ -23,6 +23,7 @@ class MeasuredExample:
         max_n_sources: int,
         stamp_size: int,
         survey_name: str,
+
         catalog: astropy.table.Table,
         segmentation: np.ndarray = None,
         deblended_images: np.ndarray = None,
@@ -145,7 +146,7 @@ class Measure(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    def __call__(self, i,  blend_results: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int,  blend_results: BlendBatch) -> MeasuredExample:
         """Implements the call of a measure function on the i-th example.
 
         Overwrite this function if you perform measurment one image at a time.
@@ -177,10 +178,21 @@ class Measure(ABC):
             args_iter,
             cpus=self.cpus,
         )
-        # TODO convert output to MeasuredBatch
-        mb = MeasuredBatch()
-        return MeasuredBatch
-        
+        catalog_list = [measured_example.catalog for measured_example in output]
+        segmentation, deblended = None, None
+        if output[0].segmentation is not None:
+            segmentation = np.array([measured_example.segmentation for measured_example in output])
+        if output[0].deblended_images is not None:
+            deblended = np.array([measured_example.deblended_images for measured_example in output])
+        return MeasuredBatch(
+            max_n_sources=blend_results.max_n_sources, 
+            stamp_size=blend_results.stamp_size, 
+            batch_size=blend_results.batch_size, 
+            survey_name=output[0].survey_name,
+            catalog_list=catalog_list,
+            segmentation=segmentation,
+            deblended_images=deblended
+        )
 
     @classmethod
     def __repr__(cls):
@@ -203,43 +215,52 @@ class PeakLocalMax(Measure):
         dict containing catalog with entries corresponding to measured peaks.
     """
 
-    def __init__(self, threshold_scale=5, min_distance=2):
+    def __init__(self, threshold_scale:int=5, min_distance:int=2, survey_name:str=None, use_band:int=None, use_mean:bool=False):
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
+        if survey_name is None:
+            raise ValueError("'survey_name' must be specified for this measurement")
+        self.survey_name = survey_name
+        if use_band is None and not use_mean:
+            raise ValueError(f"Either set 'use_mean=True' OR indicate a 'use_band' index")
+        if use_band is not None and use_mean:
+            raise ValueError(f"Only one of the parameters 'use_band' and 'use_mean' has to be set")
+        self.use_mean = use_mean
+        self.use_band = use_band
 
-    def __call__(self, i, blend_results, survey_names):
+    def __call__(self, i, blend_results):
+        blend_image = blend_results[self.survey_name]["blend_images"][i]
+        if self.use_mean:
+            image = np.mean(blend_image, axis=0)
+        else:
+            image = blend_image[self.use_band]
 
-        if not isinstance(survey_names, list):
-            survey_names = [survey_names]
+        # compute threshold value
+        threshold = self.threshold_scale * np.std(image)
 
-        for survey_name in survey_names:
-            for image in blend_results[survey_name]["blend_images"]:
-                # take a band average
-                avg_image = np.mean(image, axis=1)
+        # calculate coordinates
+        coordinates = peak_local_max(
+            image, min_distance=self.min_distance, threshold_abs=threshold
+        )
+        x, y = coordinates[:, 1], coordinates[:, 0]
 
-                # compute threshold value
-                threshold = self.threshold_scale * np.std(avg_image)
+        # convert coordinates to ra, dec
+        wcs = blend_results[self.survey_name]["wcs"]
+        ra, dec = wcs.pixel_to_world_values(x, y)
+        ra *= 3600
+        dec *= 3600
 
-                # calculate coordinates
-                coordinates = peak_local_max(
-                    avg_image, min_distance=self.min_distance, threshold_abs=threshold
-                )
-                x, y = coordinates[:, 1], coordinates[:, 0]
-                # convert coordinates to ra, dec
-                wcs = blend_results[survey_name]["wcs"]
-                ra, dec = wcs.pixel_to_world_values(x, y)
-                ra *= 3600
-                dec *= 3600
+        # wrap in catalog
+        catalog = astropy.table.Table()
+        catalog["ra"] = ra
+        catalog["dec"] = dec
 
-                # wrap in catalog
-                catalog = astropy.table.Table()
-                catalog["ra"] = ra
-                catalog["dec"] = dec
-                measure_results.add_results(survey_name, catalog)
-
-        return measure_results     
-
-       
+        return MeasuredExample( 
+            max_n_sources=blend_results.max_n_sources,
+            stamp_size=blend_results.stamp_size,
+            survey_name=self.survey_name,
+            catalog = catalog
+        )
 
 
 class SepSingleband(Measure):
