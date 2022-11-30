@@ -15,6 +15,7 @@ from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
 from btk.utils import add_pixel_columns, reverse_list_dictionary
 
+# TODO move validation to MeasureGenerator(?)
 class MeasuredExample:
     """Class that validates the results of the measurement for a single image."""
 
@@ -61,6 +62,7 @@ class MeasuredExample:
             )
         return deblended_images
 
+# TODO move validation to MeasureGenerator(?)
 class MeasuredBatch:
     """Class that validates the results of the measurement for a batch of image"""
 
@@ -285,6 +287,8 @@ class SepSingleband(Measure):
         catalog, segmentation = sep.extract(
             image, self.sigma_noise, err=bkg.globalrms, segmentation_map=True
         )
+
+        # TODO fix shape mismatch!
         # reshape segmentation map
         n_objects = len(catalog)
         segmentation_exp = np.zeros((blend_batch.max_n_sources, *image.shape), dtype=bool)
@@ -293,7 +297,6 @@ class SepSingleband(Measure):
             seg_i = segmentation == i + 1
             segmentation_exp[i] = seg_i
             seg_i_reshaped = np.zeros((np.min(image.shape), stamp_size, stamp_size))
-            print(seg_i_reshaped)
             for j in range(np.min(image.shape)):
                 seg_i_reshaped[j] = seg_i
             seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
@@ -402,7 +405,7 @@ class SepMultiband(Measure):
             catalog = catalog
         )
 
-
+# TODO A lot of work needed here
 class MeasureGenerator:
     """Generates output of deblender and measurement algorithm."""
 
