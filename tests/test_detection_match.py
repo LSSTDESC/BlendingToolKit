@@ -17,9 +17,10 @@ def test_true_detected_catalog():
         target_num_detections,
         err_msg="Incorrect match",
     )
-    np.testing.assert_array_equal(
+    np.testing.assert_almost_equal(
         matches["dist"],
         [0.14142135623730953, 0.0],
+        decimal=6,
         err_msg="Incorrect distance between true centers",
     )
 
