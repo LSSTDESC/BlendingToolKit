@@ -48,6 +48,7 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
         indexes=indexes,
         stamp_size=stamp_size,
         seed=TEST_SEED,
+        batch_size=8,
     )
     meas_generator = MeasureGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
@@ -86,7 +87,7 @@ def compare_sep(cpus=1):
 
     assert detected_sources["sep_multiband_measure"] >= 0.5 * len(target)
     assert detected_sources["sep_singleband_measure"] >= 0.5 * len(target)
-    assert detected_sources["sep_multiband_measure"] >= detected_sources["sep_singleband_measure"]
+    assert detected_sources["sep_multiband_measure"] > detected_sources["sep_singleband_measure"]
 
 
 def test_algorithms():
@@ -122,3 +123,64 @@ def test_measure_kwargs():
 
     assert detected_sources["sep_multiband_measure0"] >= detected_sources["sep_singleband_measure0"]
     assert detected_sources["sep_multiband_measure1"] >= detected_sources["sep_singleband_measure1"]
+
+
+def test_locations():
+    # for 3 separate batches, test locations of drawn sources are correct.
+
+    catalog_name = data_dir / "sample_input_catalog.fits"
+    stamp_size = 24
+    survey = get_surveys("LSST")
+    catalog = CatsimCatalog.from_file(catalog_name)
+    # make all catalog colulmns equally bright and detectable
+    catalog.table["i_ab"] = 21
+    catalog.table["r_ab"] = 21
+    catalog.table["g_ab"] = 21
+    catalog.table["z_ab"] = 21
+    catalog.table["y_ab"] = 21
+    catalog.table["u_ab"] = 21
+
+    for _ in range(3):
+        shifts = [
+            np.random.uniform(-2.5, 2.5, 2),
+            np.random.uniform(-2.5, 2.5, 2),
+            np.random.uniform(-2.5, 2.5, 2),
+            np.random.uniform(-2.5, 2.5, 2),
+        ]
+        indexes = [[0], [1], [2], [3]]
+        draw_blend_generator = CatsimGenerator(
+            catalog,
+            DefaultSampling(seed=TEST_SEED),
+            [survey],
+            shifts=shifts,
+            indexes=indexes,
+            stamp_size=stamp_size,
+            seed=TEST_SEED,
+            batch_size=4,
+        )
+        meas_generator = MeasureGenerator(
+            sep_singleband_measure, draw_blend_generator, measure_kwargs=[{"sigma_noise": 1.5}]
+        )
+
+        for _ in range(3):
+            blend_results, results = next(meas_generator)
+            target = np.array(
+                [
+                    [blend["x_peak"].item(), blend["y_peak"].item()]
+                    for blend in blend_results["blend_list"]
+                ]
+            )
+            # count the number of detected sources for both algroitms
+            detected_sources = 0
+            detected_cat = results["catalog"]["sep_singleband_measure"]
+            for i, blend in enumerate(detected_cat):
+                if len(blend) > 0:
+                    detected_centers = np.array(
+                        [blend[0]["x_peak"].item(), blend[0]["y_peak"].item()]
+                    )
+                    dist = np.max(np.abs(detected_centers - target[i]))
+                    # make sure that detections are within 1.5 arcsec from truth
+                    np.testing.assert_array_less(dist, 1.5)
+                    detected_sources += 1
+
+            assert detected_sources == len(target)
