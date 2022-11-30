@@ -55,6 +55,8 @@ ideally everytime you run `poetry update`.
 
 ## Making new Releases
 
+**Note:** Remember to update the latest package version in the `requirements.txt` file.
+
 ```bash
 # 0. Create release tag
 export RELEASE=XX.YY.ZZ
