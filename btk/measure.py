@@ -16,7 +16,7 @@ from btk.survey import get_surveys
 from btk.utils import add_pixel_columns, reverse_list_dictionary
 
 class MeasuredExample:
-    """Class that validates the results of the measurement for a single image"""
+    """Class that validates the results of the measurement for a single image."""
 
     def __init__(
         self,
@@ -29,7 +29,6 @@ class MeasuredExample:
         deblended_images: np.ndarray = None,
     ) -> None:
         """Initializes the measured example"""
-
         self.max_n_sources = max_n_sources
         self.stamp_size = stamp_size
         self.survey_name = survey_name
@@ -40,21 +39,10 @@ class MeasuredExample:
         self.deblended_images = self._validate_deblended_images(deblended_images) 
 
     def _validate_catalog(self, catalog: astropy.table.Table):
-
         if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
             raise ValueError(
                 "The output catalog of at least one of your measurement functions does"
                 "not contain the mandatory 'ra' and 'dec' columns"
-            )
-        
-        if (catalog["ra"] < 0).any() or (catalog["ra"] > self.stamp_size).any():
-            raise ValueError(
-                f"All 'ra' detections must be in range [0, {self.stamp_size}]"
-            )
-        
-        if (catalog["dec"] < 0).any() or (catalog["dec"] > self.stamp_size).any():
-            raise ValueError(
-                f"All 'dec' detections must be in range [0, {self.stamp_size}]"
             )
         return catalog
 
@@ -87,7 +75,6 @@ class MeasuredBatch:
         deblended_images: np.ndarray = None,
     ) -> None:
         """Initializes the measured example"""
-
         self.max_n_sources = max_n_sources
         self.stamp_size = stamp_size
         self.batch_size = batch_size
@@ -99,7 +86,6 @@ class MeasuredBatch:
         self.deblended_images = self._validate_deblended_images(deblended_images) 
 
     def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
-
         if not isinstance(catalog_list, list):
             raise TypeError(
                 "Catalog must be a list of 'astropy.table.Table' for each image in the batch"
@@ -110,16 +96,6 @@ class MeasuredBatch:
                 raise ValueError(
                     "The output catalog of at least one of your measurement functions does"
                     "not contain the mandatory 'ra' and 'dec' columns"
-                )
-            
-            if (catalog["ra"] < 0).any() or (catalog["ra"] > self.stamp_size).any():
-                raise ValueError(
-                    f"All 'ra' detections must be in range [0, {self.stamp_size}]"
-                )
-            
-            if (catalog["dec"] < 0).any() or (catalog["dec"] > self.stamp_size).any():
-                raise ValueError(
-                    f"All 'dec' detections must be in range [0, {self.stamp_size}]"
                 )
         return catalog_list
 
@@ -146,20 +122,20 @@ class Measure(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    def __call__(self, i: int,  blend_results: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int,  blend_batch: BlendBatch) -> MeasuredExample:
         """Implements the call of a measure function on the i-th example.
 
         Overwrite this function if you perform measurment one image at a time.
 
         Args:
-            blend_results: Instance of `BlendResults` class
+            blend_batch: Instance of `BlendBatch` class
 
         Returns:
             Instance of `MeasuredExample` class
         """
         raise NotImplementedError("Each measure class must implement its own `__call__` function")
     
-    def __batch_call__(self, blend_results: BlendBatch) -> MeasuredBatch:
+    def __batch_call__(self, blend_batch: BlendBatch, cpus:int=1) -> MeasuredBatch:
         """Implements the call of a measure function on the entire batch.
         
         Overwrite this function if you perform measurments on the batch.
@@ -167,16 +143,17 @@ class Measure(ABC):
         the iteration over all examples in the batch.
 
         Args:
-            blend_results: Instance of `BlendResults` class
+            blend_batch: Instance of `BlendBatch` class
+            cpus: Number of cpus to paralelize across
 
         Returns:
             Instance of `MeasuredBatch` class
         """
-        args_iter = ((i, blend_results) for i in range(blend_results.batch_size))
+        args_iter = ((i, blend_batch) for i in range(blend_batch.batch_size))
         output = multiprocess(
             self.__call__,
             args_iter,
-            cpus=self.cpus,
+            cpus=cpus,
         )
         catalog_list = [measured_example.catalog for measured_example in output]
         segmentation, deblended = None, None
@@ -185,9 +162,9 @@ class Measure(ABC):
         if output[0].deblended_images is not None:
             deblended = np.array([measured_example.deblended_images for measured_example in output])
         return MeasuredBatch(
-            max_n_sources=blend_results.max_n_sources, 
-            stamp_size=blend_results.stamp_size, 
-            batch_size=blend_results.batch_size, 
+            max_n_sources=blend_batch.max_n_sources, 
+            stamp_size=blend_batch.stamp_size, 
+            batch_size=blend_batch.batch_size, 
             survey_name=output[0].survey_name,
             catalog_list=catalog_list,
             segmentation=segmentation,
@@ -201,21 +178,23 @@ class Measure(ABC):
 
 
 class PeakLocalMax(Measure):
-    """This measure function returns centroids detected with `skimage.feature.peak_local_max`.
+    """This class detects centroids with `skimage.feature.peak_local_max`.
 
-    For each potentially multi-band image, an average over the bands is taken before measurement.
-
-
-    Args:
-        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
-        idx (int): Index number of blend scene in the batch to preform
-            measurement on.
-
-    Returns:
-        dict containing catalog with entries corresponding to measured peaks.
+    The function performs detection and deblending of the sources based on the provided
+    band index. If use_mean feature is used, then the measurement function is using
+    the average of all the bands.
     """
 
     def __init__(self, threshold_scale:int=5, min_distance:int=2, survey_name:str=None, use_band:int=None, use_mean:bool=False):
+        """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
+
+        Args:
+            threshold_scale: Minimum intensity of peaks.
+            min_distance: Mimum distance in pixels between two peaks
+            survey_name: Name of the survey to measure on
+            use_mean: Flag to use the band average for the measurement
+            use_band: Integer index of the band to use for the measurement
+        """
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
         if survey_name is None:
@@ -228,8 +207,9 @@ class PeakLocalMax(Measure):
         self.use_mean = use_mean
         self.use_band = use_band
 
-    def __call__(self, i, blend_results):
-        blend_image = blend_results[self.survey_name]["blend_images"][i]
+    def __call__(self, i, blend_batch):
+        """Performs measurement on the i-th example from the batch"""
+        blend_image = blend_batch[self.survey_name]["blend_images"][i]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -245,155 +225,150 @@ class PeakLocalMax(Measure):
         x, y = coordinates[:, 1], coordinates[:, 0]
 
         # convert coordinates to ra, dec
-        wcs = blend_results[self.survey_name]["wcs"]
+        wcs = blend_batch[self.survey_name]["wcs"]
         ra, dec = wcs.pixel_to_world_values(x, y)
         ra *= 3600
         dec *= 3600
 
         # wrap in catalog
         catalog = astropy.table.Table()
-        catalog["ra"] = ra
-        catalog["dec"] = dec
+        catalog["ra"], catalog["dec"] = ra, dec
 
         return MeasuredExample( 
-            max_n_sources=blend_results.max_n_sources,
-            stamp_size=blend_results.stamp_size,
+            max_n_sources=blend_batch.max_n_sources,
+            stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
             catalog = catalog
         )
 
 
 class SepSingleband(Measure):
-    """TODO: Docstring.
+    """Return detection, segmentation and deblending information running SEP on a single band.
 
-    Return detection, segmentation and deblending information running SEP on a single band.
     The function performs detection and deblending of the sources based on the provided
     band index. If use_mean feature is used, then the measurement function is using
     the average of all the bands.
-
-    NOTE: If this function is used with the multiresolution feature,
-    measurements will be carried on the first survey, and deblended images
-    or segmentations will not be returned.
-
-    Args:
-        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
-        idx (int): Index number of blend scene in the batch to preform
-            measurement on.
-        meas_band_num (int): Indicates the index of band to use fo the measurement
-        use_mean (bool): If True, then algorithm uses the average of all the bands
-        sigma_noise (float): Sigma threshold for detection against noise.
-
-    Returns:
-        dict with the centers of sources detected by SEP detection algorithm.
     """
 
-    def __init__(self, use_mean=False, meas_band_num=3, sigma_noise=1.5, channels_last=False):
-        """TODO: Docstring."""
-        self.use_mean = use_mean
-        self.meas_band_num = meas_band_num
-        self.sigma_noise = sigma_noise
-        self.channels_last = channels_last
-        self.channels_index = 0 if not channels_last else -1
+    def __init__(self, sigma_noise=1.5, use_mean=False, use_band=None, survey_name=None):
+        """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
-    def __call__(self, image, wcs):
-        """TODO: Docstring."""
+        Args:
+            survey_name: Name of the survey to measure on
+            use_mean: Flag to use the band average for the measurement
+            use_band: Integer index of the band to use for the measurement
+            sigma_noise: Noise level for sep.
+        """
+        if survey_name is None:
+            raise ValueError("'survey_name' must be specified for this measurement")
+        self.survey_name = survey_name
+        if use_band is None and not use_mean:
+            raise ValueError(f"Either set 'use_mean=True' OR indicate a 'use_band' index")
+        if use_band is not None and use_mean:
+            raise ValueError(f"Only one of the parameters 'use_band' and 'use_mean' has to be set")
+        self.use_mean = use_mean
+        self.use_band = use_band
+        self.sigma_noise = sigma_noise
+
+    def __call__(self, i, blend_batch):
+        """Performs measurement on the i-th example from the batch"""
         # get a 1-channel input for sep
+        blend_image = blend_batch[self.survey_name]["blend_images"][i]
         if self.use_mean:
-            band_image = np.mean(image, axis=self.channels_index)
+            image = np.mean(blend_image, axis=0)
         else:
-            band_image = (
-                image[self.meas_band_num]
-                if self.channels_index == 0
-                else image[:, :, self.meas_band_num]
-            )
+            image = blend_image[self.use_band]
 
         # run source extractor
-        stamp_size = band_image.shape[0]
-        bkg = sep.Background(band_image)
+        stamp_size = image.shape[0]
+        bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            band_image, self.sigma_noise, err=bkg.globalrms, segmentation_map=True
+            image, self.sigma_noise, err=bkg.globalrms, segmentation_map=True
         )
-
         # reshape segmentation map
         n_objects = len(catalog)
-        segmentation_exp = np.zeros((n_objects, stamp_size, stamp_size), dtype=bool)
-        deblended_images = np.zeros((n_objects, *image.shape), dtype=image.dtype)
+        segmentation_exp = np.zeros((blend_batch.max_n_sources, *image.shape), dtype=bool)
+        deblended_images = np.zeros((blend_batch.max_n_sources, *image.shape), dtype=image.dtype)
         for i in range(n_objects):
             seg_i = segmentation == i + 1
             segmentation_exp[i] = seg_i
             seg_i_reshaped = np.zeros((np.min(image.shape), stamp_size, stamp_size))
+            print(seg_i_reshaped)
             for j in range(np.min(image.shape)):
                 seg_i_reshaped[j] = seg_i
             seg_i_reshaped = np.moveaxis(seg_i_reshaped, 0, np.argmin(image.shape))
             deblended_images[i] = image * seg_i_reshaped
 
+        # convert to ra, dec
+        wcs = blend_batch[self.survey_name]["wcs"]
+        ra, dec = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        ra *= 3600
+        dec *= 3600
+
         # wrap results in astropy table
         t = astropy.table.Table()
-        t["ra"], t["dec"] = self.pixel_coordinates_to_arcsec(catalog["x"], catalog["y"], wcs)
-        return {
-            "catalog": t,
-            "segmentation": segmentation_exp,
-            "deblended_images": deblended_images,
-        }
+        t["ra"], t["dec"] = ra, dec
+
+        return MeasuredExample( 
+            max_n_sources=blend_batch.max_n_sources,
+            stamp_size=blend_batch.stamp_size,
+            survey_name=self.survey_name,
+            catalog = t,
+            segmentation = segmentation,
+            deblended_images = deblended_images
+        )
 
 
 class SepMultiband(Measure):
-    """This class.
+    """This class returns centers detected with source extractor by combining predictions in different bands.
 
-    Returns centers detected with source extractor by combining predictions in different bands.
     For each band in the input image we run sep for detection and append new detections to a running
     list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
     to calculate the angular distance between each new coordinate and its closest neighbour. Then we
     discard those new coordinates that were closer than matching_threshold to any one of already
     detected coordinates.
-
-    NOTE: If this function is used with the multiresolution feature,
-    measurements will be carried on the first survey.
-
-    Args:
-        batch (dict): Output of DrawBlendsGenerator object's `__next__` method.
-        idx (int): Index number of blend scene in the batch to preform
-            measurement on.
-        sigma_noise (float): Sigma threshold for detection against noise.
-        matching_threshold (float): Match centers of objects that are closer than
-            this threshold to a single prediction (in arseconds).
-
-    Returns:
-        dict containing catalog with entries corresponding to measured peaks.
     """
 
-    def __init__(self, matching_threshold=1.0, sigma_noise=1.5, channels_last=False):
-        """Initialize the SepMultiband measurement function."""
+    def __init__(self, matching_threshold=1.0, sigma_noise=1.5, survey_name=None):
+        """Initialize the SepMultiband measurement function.
+        
+        Args:
+            survey_name: Name of the survey to measure on.
+            sigma_noise: Noise level for sep.
+            matching_threshold: Threshold value for match detections that are close 
+        """
+        if survey_name is None:
+            raise ValueError("'survey_name' must be specified for this measurement")
+        self.survey_name = survey_name
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
-        self.channels_last = channels_last
-        self.channels_index = 0 if not channels_last else -1
 
-    def __call__(self, image: np.ndarray, wcs):
-        """TODO: Docstring."""
+    def __call__(self, i, blend_batch):
+        """Performs measurement on the i-th example from the batch"""
         # run source extractor on the first band
-        band_image = image[:, :, 0] if self.channels_last else image[0]
-        bkg = sep.Background(band_image)
+        wcs = blend_batch[self.survey_name]["wcs"]
+        image = blend_batch[self.survey_name]["blend_images"][i]
+        bkg = sep.Background(image[0])
         catalog = sep.extract(
             band_image, self.sigma_noise, err=bkg.globalrms, segmentation_map=False
         )
-        ra_coordinates, dec_coordinates = self.pixel_coordinates_to_arcsec(
-            catalog["x"], catalog["y"], wcs
-        )
+        ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        ra_coordinates *= 3600
+        dec_coordinates *= 3600
 
         # iterate over remaining bands and match predictions using KdTree
-        for band in range(1, image.shape[self.channels_index]):
+        for band in range(1, image.shape[0]):
             # run source extractor
-            band_image = image[band] if self.channels_index == 0 else image[:, :, band]
+            band_image = image[band]
             bkg = sep.Background(band_image)
             catalog = sep.extract(
                 band_image, self.sigma_noise, err=bkg.globalrms, segmentation_map=False
             )
 
             # convert predictions to arcseconds
-            ra_detections, dec_detections = self.pixel_coordinates_to_arcsec(
-                catalog["x"], catalog["y"], wcs
-            )
+            ra_detections, dec_detections = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+            ra_detections *= 3600
+            dec_detections *= 3600
 
             # convert to sky coordinates
             c1 = SkyCoord(ra=ra_detections * units.arcsec, dec=dec_detections * units.arcsec)
@@ -417,10 +392,15 @@ class SepMultiband(Measure):
                 dec_coordinates = np.concatenate([dec_coordinates, dec_detections])
 
         # Wrap in the astropy table
-        t = astropy.table.Table()
-        t["ra"] = ra_coordinates
-        t["dec"] = dec_coordinates
-        return {"catalog": t}
+        catalog = astropy.table.Table()
+        catalog["ra"] = ra_coordinates
+        catalog["dec"] = dec_coordinates
+        return MeasuredExample( 
+            max_n_sources=blend_batch.max_n_sources,
+            stamp_size=blend_batch.stamp_size,
+            survey_name=self.survey_name,
+            catalog = catalog
+        )
 
 
 class MeasureGenerator:
