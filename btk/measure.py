@@ -1,6 +1,8 @@
 """Contains the Measure and MeasureExample classes and its subclasses."""
 import inspect
+import json
 import os
+import pickle
 from abc import ABC, abstractmethod
 from typing import List, Union
 
@@ -14,7 +16,6 @@ from skimage.feature import peak_local_max
 from btk.draw_blends import BlendBatch
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
-from btk.utils import add_pixel_columns, reverse_list_dictionary
 
 
 class MeasuredExample:
@@ -126,6 +127,47 @@ class MeasuredBatch:
                 self.image_size,
             )
         return deblended_images
+
+    def save_batch(self, path: str, batch_number: int) -> None:
+        """Save batch of measure results to disk."""
+        save_dir = os.path.join(path, str(batch_number), self.survey_name)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+            np.save(os.path.join(save_dir, "segmentation"), self.segmentation)
+            np.save(os.path.join(save_dir, "deblended_images"), self.deblended_images)
+            with open(os.path.join(save_dir, "catalog.pickle"), "wb") as f:
+                pickle.dump(self.catalog, f)
+
+        # save general info about class
+        with open(os.path.join(path, "meas.json"), "w") as f:
+            json.dump(
+                {
+                    "batch_size": self.batch_size,
+                    "max_n_sources": self.max_n_sources,
+                    "stamp_size": self.stamp_size,
+                    "survey_name": self.survey_name,
+                },
+                f,
+            )
+
+    @classmethod
+    def load_batch(cls, path: str, survey_name: str, batch_number: int):
+        """Load batch of measure results from disk."""
+        load_dir = os.path.join(path, str(batch_number), survey_name)
+        with open(os.path.join(path, "meas.json"), "r") as f:
+            meas_config = json.load(f)
+        assert meas_config["survey_name"] == survey_name
+
+        with open(os.path.join(load_dir, "catalog.pickle"), "rb") as f:
+            catalog = pickle.load(f)
+        segmentation = np.load(os.path.join(load_dir, "segmentation.npy"))
+        deblended_images = np.load(os.path.join(load_dir, "deblended_images.npy"))
+        return cls(
+            catalog=catalog,
+            segmentation=segmentation,
+            deblended_images=deblended_images,
+            **meas_config,
+        )
 
 
 class Measure(ABC):
@@ -287,7 +329,7 @@ class SepSingleband(Measure):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i, blend_batch):
+    def __call__(self, i: int, blend_batch: BlendBatch):
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch[self.survey_name]["blend_images"][i]
@@ -413,7 +455,6 @@ class SepMultiband(Measure):
         )
 
 
-# TODO A lot of work needed here
 class MeasureGenerator:
     """Generates output of deblender and measurement algorithm."""
 
@@ -478,15 +519,6 @@ class MeasureGenerator:
                 names_counts[name] += 1
         return measures_names
 
-    def _run_batch(self, batch, index):
-        """Perform measurements on a single blend."""
-        output = []
-        for meas in self.measures:
-            out = meas(batch["blend_images"][index], batch["wcs"][index])
-            out = {k: out.get(k, None) for k in ["deblended_images", "catalog", "segmentation"]}
-            output.append(out)
-        return output
-
     def __next__(self):
         """Return measurement results on a single batch from the draw_blend_generator.
 
@@ -498,95 +530,11 @@ class MeasureGenerator:
                 the corresponding measure_function` for one batch.
         """
         blend_output = next(self.draw_blend_generator)
-        catalog = {}
-        segmentation = {}
-        deblended_images = {}
-        for name in self.measures_names:
-            catalog[name] = []
-            segmentation[name] = []
-            deblended_images[name] = []
-
-        args_iter = ((blend_output, i) for i in range(self.batch_size))
-        measure_output = multiprocess(
-            self._run_batch,
-            args_iter,
-            cpus=self.cpus,
-            verbose=self.verbose,
-        )
-
-        # organize outputs from multiprocessing
-        for ii in range(len(measure_output)):
-            for jj, meas_name in enumerate(self.measures):
-                catalog[meas_name].append(measure_output[ii][jj].get("catalog", None))
-                segmentation[meas_name].append(measure_output[ii][jj].get("segmentation", None))
-                deblended_images[meas_name].append(
-                    measure_output[ii][jj].get("deblended_images", None)
-                )
-
-                if self.is_multiresolution:
-                    self._cleanup_multiresolution_output(
-                        catalog, segmentation, deblended_images, blend_output, meas_name
-                    )
-
-                else:
-                    catalog[meas_name] = add_pixel_columns(catalog[meas_name], blend_output["wcs"])
-
-                self._save_batch(catalog, segmentation, deblended_images, meas_name)
-
-        measure_results = {
-            "catalog": catalog,
-            "segmentation": segmentation,
-            "deblended_images": deblended_images,
+        meas_output = {
+            meas_name: meas.batch_call(blend_output)
+            for meas_name, meas in zip(self.measures_names, self.measures)
         }
-        return blend_output, measure_results
-
-    def _cleanup_multiresolution_output(
-        self,
-        catalog: dict,
-        segmentation: dict,
-        deblended_images: dict,
-        blend_output: dict,
-        meas_name: str,
-    ):
-        # If multiresolution, we reverse the order between the survey name and
-        # the index of the blend
-        # TODO Fix this -- this seems very weird and broken...
-        # We duplicate the catalog for each survey to get the pixel coordinates
-        catalogs_temp = {}
-        for surv in self.survey_names:
-            catalogs_temp[surv] = add_pixel_columns(catalog[meas_name], blend_output["wcs"][surv])
-        catalog[meas_name] = catalogs_temp
-
-        segmentation[meas_name] = reverse_list_dictionary(
-            segmentation[meas_name], self.survey_names
-        )
-        deblended_images[meas_name] = reverse_list_dictionary(
-            deblended_images[meas_name], self.survey_names
-        )
-
-    def _save_batch(
-        self, catalog: dict, segmentation: dict, deblended_images: dict, meas_name: str
-    ):
-        if self.save_path is not None:
-            if not os.path.exists(os.path.join(self.save_path, meas_name)):
-                os.mkdir(os.path.join(self.save_path, meas_name))
-
-            if segmentation[meas_name] is not None:
-                np.save(
-                    os.path.join(self.save_path, meas_name, "segmentation"),
-                    np.array(segmentation[meas_name], dtype=object),
-                )
-            if deblended_images[meas_name] is not None:
-                np.save(
-                    os.path.join(self.save_path, meas_name, "deblended_images"),
-                    np.array(deblended_images[meas_name], dtype=object),
-                )
-            for j, cat in enumerate(catalog[meas_name]):
-                cat.write(
-                    os.path.join(self.save_path, meas_name, f"detection_catalog_{j}"),
-                    format="ascii",
-                    overwrite=True,
-                )
+        return blend_output, meas_output
 
 
 available_measure_functions = {
