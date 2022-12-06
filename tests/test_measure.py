@@ -140,6 +140,7 @@ def test_locations():
     catalog.table["y_ab"] = 21
     catalog.table["u_ab"] = 21
 
+    # with fixed centers
     for _ in range(3):
         shifts = [
             np.random.uniform(-2.5, 2.5, 2),
@@ -162,9 +163,47 @@ def test_locations():
             sep_singleband_measure, draw_blend_generator, measure_kwargs=[{"sigma_noise": 1.5}]
         )
 
+        blend_results, results = next(meas_generator)
+        target_centers = np.array(
+            [
+                [blend["x_peak"].item(), blend["y_peak"].item()]
+                for blend in blend_results["blend_list"]
+            ]
+        )
+        # count the number of detected sources for both algroitms
+        detected_sources = 0
+        detected_cat = results["catalog"]["sep_singleband_measure"]
+        for i, blend in enumerate(detected_cat):
+            if len(blend) > 0:
+                detected_centers = np.array([blend[0]["x_peak"].item(), blend[0]["y_peak"].item()])
+                dist = np.max(np.abs(detected_centers - target_centers[i]))
+                # make sure that detections are within 1.5 arcsec from truth
+                np.testing.assert_array_less(dist, 1.5)
+
+                # make sure returned true centers agree with input.
+                np.testing.assert_array_almost_equal(
+                    target_centers[i], shifts[i] / 0.2 + 60 - 0.5, decimal=6
+                )
+                detected_sources += 1
+
+        assert detected_sources == len(target_centers)
+
+    # with random centers, multiple batches
+    for _ in range(3):
+        draw_blend_generator = CatsimGenerator(
+            catalog,
+            DefaultSampling(seed=TEST_SEED, max_number=1),
+            [survey],
+            stamp_size=stamp_size,
+            seed=TEST_SEED,
+            batch_size=4,
+        )
+        meas_generator = MeasureGenerator(
+            sep_singleband_measure, draw_blend_generator, measure_kwargs=[{"sigma_noise": 1.5}]
+        )
         for _ in range(3):
             blend_results, results = next(meas_generator)
-            target = np.array(
+            target_centers = np.array(
                 [
                     [blend["x_peak"].item(), blend["y_peak"].item()]
                     for blend in blend_results["blend_list"]
@@ -178,9 +217,7 @@ def test_locations():
                     detected_centers = np.array(
                         [blend[0]["x_peak"].item(), blend[0]["y_peak"].item()]
                     )
-                    dist = np.max(np.abs(detected_centers - target[i]))
-                    # make sure that detections are within 1.5 arcsec from truth
+                    dist = np.max(np.abs(detected_centers - target_centers[i]))
                     np.testing.assert_array_less(dist, 1.5)
                     detected_sources += 1
-
-            assert detected_sources == len(target)
+            assert detected_sources == len(target_centers)
