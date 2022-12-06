@@ -742,7 +742,8 @@ class BlendBatch(dict):
     @classmethod
     def load_results(cls, path: str, batch_number: int = 0):
         """Load blend results from path."""
-        blend_config = json.load(open(os.path.join(path, "blend.json")))
+        with open(os.path.join(path, "blend.json"), "r") as f:
+            blend_config = json.load(f)
         blend = cls(**blend_config)
         # get folders within the path
         batch_path = os.path.join(path, str(batch_number))
