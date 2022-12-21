@@ -68,6 +68,25 @@ class MeasuredExample:
             )
         return deblended_images
 
+    def __repr__(self):
+        """Return string representation of class."""
+        string = (
+            f"MeasuredExample(max_n_sources = {self.max_n_sources}, "
+            f"stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
+            + ", containing: \n"
+        )
+        string += "\tcatalog: " + str(type(self.catalog[0]))
+
+        if self.segmentation is not None:
+            string += "\n\tsegmentation: np.ndarray, shape " + str(list(self.segmentation.shape))
+        else:
+            string += "\n\tsegmentation: None"
+
+        if self.deblended_images is not None:
+            string += "\n\tdeblended_images: np.ndarray, shape " + str(list(self.deblended_images.shape))
+        else:
+            string += "\n\tdeblended_images: None"
+        return string
 
 class MeasuredBatch:
     """Class that validates the results of the measurement for a batch of image."""
@@ -127,6 +146,26 @@ class MeasuredBatch:
                 self.image_size,
             )
         return deblended_images
+
+    def __repr__(self):
+        """Return string representation of class."""
+        string = (
+            f"MeasuredBatch(batch_size = {self.batch_size}, "
+            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
+            + ", containing: \n"
+        )
+        string += "\tcatalog: list of " + str(type(self.catalog[0])) + ", size " + str(len(self.catalog))
+
+        if self.segmentation is not None:
+            string += "\n\tsegmentation: np.ndarray, shape " + str(list(self.segmentation.shape))
+        else:
+            string += "\n\tsegmentation: None"
+
+        if self.deblended_images is not None:
+            string += "\n\tdeblended_images: np.ndarray, shape " + str(list(self.deblended_images.shape))
+        else:
+            string += "\n\tdeblended_images: None"
+        return string
 
     def save_batch(self, path: str, batch_number: int) -> None:
         """Save batch of measure results to disk."""
@@ -368,7 +407,7 @@ class SepSingleband(Measure):
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
             catalog=t,
-            segmentation=segmentation,
+            segmentation=segmentation_exp,
             deblended_images=deblended_images,
         )
 
