@@ -80,7 +80,7 @@ class DefaultSampling(SamplingFunction):
         """
         super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
-        self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
+        self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
 
     @property
     def compatible_catalogs(self):
@@ -156,7 +156,7 @@ class BasicSampling(SamplingFunction):
         """
         super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
-        self.max_shift = max_shift if max_shift else self.stamp_size / 10.0
+        self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
 
         if min_number < 1:
             raise ValueError("At least 1 bright galaxy will be added, so need min_number >=1.")

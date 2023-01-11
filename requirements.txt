@@ -1,6 +1,6 @@
 astropy
 galcheat
-galsim
+galsim>=2.3.5
 ipywidgets
 matplotlib
 scipy
@@ -9,4 +9,4 @@ pandas
 seaborn
 sep
 tqdm
-blending_toolkit>=1.0.0a6
+blending_toolkit==1.0.0a8
