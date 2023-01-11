@@ -889,7 +889,7 @@ def plot_metrics_summary(  # noqa: C901
                     )
                 else:
                     plot_efficiency_matrix(metrics_results["detection"][k]["eff_matrix"], ax=ax[i])
-                ax[i].set_title(k)
+                ax[i].set_title(aliases.get(k, k))
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
             plt.show()
