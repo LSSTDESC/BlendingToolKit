@@ -301,7 +301,6 @@ class PeakLocalMax(Measure):
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
-        super().__init__(survey_name)
         self.survey_name = survey_name
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
@@ -369,7 +368,6 @@ class SepSingleband(Measure):
             use_band: Integer index of the band to use for the measurement
             sigma_noise: Noise level for sep.
         """
-        super().__init__(survey_name)
         self.survey_name = survey_name
         if use_band is None and not use_mean:
             raise ValueError("Either set 'use_mean=True' OR indicate a 'use_band' index")
