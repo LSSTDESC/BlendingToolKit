@@ -4,7 +4,7 @@ import json
 import os
 import pickle
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import astropy.table
 import numpy as np
@@ -13,7 +13,7 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
-from btk.draw_blends import BlendBatch
+from btk.draw_blends import BlendBatch, DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
 
@@ -83,10 +83,12 @@ class MeasuredExample:
             string += "\n\tsegmentation: None"
 
         if self.deblended_images is not None:
-            string += "\n\tdeblended_images: np.ndarray, shape " + str(list(self.deblended_images.shape))
+            string += "\n\tdeblended_images: np.ndarray, shape "
+            string += str(list(self.deblended_images.shape))
         else:
             string += "\n\tdeblended_images: None"
         return string
+
 
 class MeasuredBatch:
     """Class that validates the results of the measurement for a batch of image."""
@@ -151,10 +153,12 @@ class MeasuredBatch:
         """Return string representation of class."""
         string = (
             f"MeasuredBatch(batch_size = {self.batch_size}, "
-            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
-            + ", containing: \n"
+            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}, "
+            f"survey_name = {self.survey_name})" + ", containing: \n"
         )
-        string += "\tcatalog: list of " + str(type(self.catalog[0])) + ", size " + str(len(self.catalog))
+        string += (
+            "\tcatalog: list of " + str(type(self.catalog[0])) + ", size " + str(len(self.catalog))
+        )
 
         if self.segmentation is not None:
             string += "\n\tsegmentation: np.ndarray, shape " + str(list(self.segmentation.shape))
@@ -162,7 +166,9 @@ class MeasuredBatch:
             string += "\n\tsegmentation: None"
 
         if self.deblended_images is not None:
-            string += "\n\tdeblended_images: np.ndarray, shape " + str(list(self.deblended_images.shape))
+            string += "\n\tdeblended_images: np.ndarray, shape " + str(
+                list(self.deblended_images.shape)
+            )
         else:
             string += "\n\tdeblended_images: None"
         return string
@@ -280,11 +286,11 @@ class PeakLocalMax(Measure):
 
     def __init__(
         self,
+        survey_name: str,
         threshold_scale: int = 5,
         min_distance: int = 2,
-        survey_name: str = None,
-        use_band: int = None,
         use_mean: bool = False,
+        use_band: Optional[int] = None,
     ):
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
@@ -295,11 +301,11 @@ class PeakLocalMax(Measure):
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
+        super().__init__(survey_name)
+        self.survey_name = survey_name
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
-        if survey_name is None:
-            raise ValueError("'survey_name' must be specified for this measurement")
-        self.survey_name = survey_name
+
         if use_band is None and not use_mean:
             raise ValueError("Either set 'use_mean=True' OR indicate a 'use_band' index")
         if use_band is not None and use_mean:
@@ -348,7 +354,13 @@ class SepSingleband(Measure):
     the average of all the bands.
     """
 
-    def __init__(self, sigma_noise=1.5, use_mean=False, use_band=None, survey_name=None):
+    def __init__(
+        self,
+        survey_name: str,
+        sigma_noise: float = 1.5,
+        use_mean: bool = False,
+        use_band: Optional[int] = None,
+    ):
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
         Args:
@@ -357,8 +369,7 @@ class SepSingleband(Measure):
             use_band: Integer index of the band to use for the measurement
             sigma_noise: Noise level for sep.
         """
-        if survey_name is None:
-            raise ValueError("'survey_name' must be specified for this measurement")
+        super().__init__(survey_name)
         self.survey_name = survey_name
         if use_band is None and not use_mean:
             raise ValueError("Either set 'use_mean=True' OR indicate a 'use_band' index")
@@ -422,7 +433,7 @@ class SepMultiband(Measure):
     detected coordinates.
     """
 
-    def __init__(self, matching_threshold=1.0, sigma_noise=1.5, survey_name=None):
+    def __init__(self, survey_name: str, matching_threshold: float = 1.0, sigma_noise: float = 1.5):
         """Initialize the SepMultiband measurement function.
 
         Args:
@@ -430,8 +441,6 @@ class SepMultiband(Measure):
             sigma_noise: Noise level for sep.
             matching_threshold: Threshold value for match detections that are close
         """
-        if survey_name is None:
-            raise ValueError("'survey_name' must be specified for this measurement")
         self.survey_name = survey_name
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
@@ -500,10 +509,10 @@ class MeasureGenerator:
     def __init__(
         self,
         measures: Union[List[Measure], Measure],
-        draw_blend_generator,
-        cpus=1,
-        verbose=False,
-        save_path=None,
+        draw_blend_generator: DrawBlendsGenerator,
+        cpus: int = 1,
+        verbose: bool = False,
+        save_path: Optional[str] = None,
     ):
         """Initialize measurement generator.
 
@@ -513,9 +522,10 @@ class MeasureGenerator:
             draw_blend_generator: Generator that outputs dict with blended images,
                                 isolated images, blend catalog, wcs info, and psf.
             cpus: The number of parallel processes to run [Default: 1].
-            verbose (bool): Whether to print information about measurement.
-            save_path (str): Path to a directory where results will be saved. If left
-                            as None, results will not be saved.
+            verbose: Whether to print information about measurement.
+            save_path: Path to a directory where results will be saved.
+                    If None, results will not be saved.
+
         """
         self.measures = self._validate_measure_functions(measures)
         self.measures_names = self._get_unique_measure_names()
@@ -558,7 +568,7 @@ class MeasureGenerator:
                 names_counts[name] += 1
         return measures_names
 
-    def __next__(self):
+    def __next__(self) -> Tuple[BlendBatch, Dict[str, MeasuredBatch]]:
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
