@@ -39,8 +39,7 @@ class MeasuredExample:
         self.max_n_sources = max_n_sources
         self.stamp_size = stamp_size
         self.survey_name = survey_name
-        self.image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
-
+        self.image_size = int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
         self.catalog = self._validate_catalog(catalog)
         self.segmentation = self._validate_segmentation(segmentation)
         self.deblended_images = self._validate_deblended_images(deblended_images)
@@ -108,8 +107,7 @@ class MeasuredBatch:
         self.stamp_size = stamp_size
         self.batch_size = batch_size
         self.survey_name = survey_name
-        self.image_size = self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
-
+        self.image_size = int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
         self.catalog = self._validate_catalog(catalog_list)
         self.segmentation = self._validate_segmentation(segmentation)
         self.deblended_images = self._validate_deblended_images(deblended_images)
@@ -412,14 +410,13 @@ class SepSingleband(Measure):
         # wrap results in astropy table
         t = astropy.table.Table()
         t["ra"], t["dec"] = ra, dec
-
         return MeasuredExample(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
             catalog=t,
             segmentation=segmentation_exp,
-            deblended_images=deblended_images,
+            deblended_images=deblended_images
         )
 
 
