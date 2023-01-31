@@ -128,7 +128,7 @@ class MeasuredBatch:
                 )
         return catalog_list
 
-    def _validate_segmentation(self, segmentation):
+    def _validate_segmentation(self, segmentation: Optional[np.ndarray] = None) -> np.ndarray:
         if segmentation is not None:
             assert segmentation.shape == (
                 self.batch_size,
@@ -139,7 +139,9 @@ class MeasuredBatch:
             assert segmentation.min() >= 0 and segmentation.max() <= 1
         return segmentation
 
-    def _validate_deblended_images(self, deblended_images):
+    def _validate_deblended_images(
+        self, deblended_images: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         if deblended_images is not None:
             assert deblended_images.shape == (
                 self.batch_size,
@@ -149,7 +151,7 @@ class MeasuredBatch:
             )
         return deblended_images
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
             f"MeasuredBatch(batch_size = {self.batch_size}, "
@@ -291,7 +293,7 @@ class PeakLocalMax(Measure):
         min_distance: int = 2,
         use_mean: bool = False,
         use_band: Optional[int] = None,
-    ):
+    ) -> None:
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
         Args:
@@ -359,14 +361,14 @@ class SepSingleband(Measure):
         sigma_noise: float = 1.5,
         use_mean: bool = False,
         use_band: Optional[int] = None,
-    ):
+    ) -> None:
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
         Args:
             survey_name: Name of the survey to measure on
+            sigma_noise: Noise level for sep.
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
-            sigma_noise: Noise level for sep.
         """
         self.survey_name = survey_name
         if use_band is None and not use_mean:
@@ -377,7 +379,7 @@ class SepSingleband(Measure):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i: int, blend_batch: BlendBatch):
+    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch[self.survey_name]["blend_images"][i]
@@ -436,14 +438,14 @@ class SepMultiband(Measure):
 
         Args:
             survey_name: Name of the survey to measure on.
-            sigma_noise: Noise level for sep.
             matching_threshold: Threshold value for match detections that are close
+            sigma_noise: Noise level for sep.
         """
         self.survey_name = survey_name
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i, blend_batch):
+    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
         """Performs measurement on the i-th example from the batch."""
         # run source extractor on the first band
         wcs = blend_batch[self.survey_name]["wcs"]
@@ -517,13 +519,11 @@ class MeasureGenerator:
         Args:
             measures: Measure or a list of Measures that will be performed on the
                 outputs of the draw_blend_generator.
-            draw_blend_generator: Generator that outputs dict with blended images,
-                                isolated images, blend catalog, wcs info, and psf.
+            draw_blend_generator: Instance of subclasses of `DrawBlendsGenerator`.
             cpus: The number of parallel processes to run [Default: 1].
             verbose: Whether to print information about measurement.
             save_path: Path to a directory where results will be saved.
                     If None, results will not be saved.
-
         """
         self.measures = self._validate_measure_functions(measures)
         self.measures_names = self._get_unique_measure_names()
@@ -539,6 +539,7 @@ class MeasureGenerator:
         return self
 
     def _validate_measure_functions(self, measures) -> List[Measure]:
+        """Ensure all measure functions are subclasses of `Measure` and correctly instantiated."""
         if not isinstance(measures, list):
             measures = [measures]
 
@@ -572,9 +573,7 @@ class MeasureGenerator:
         Returns:
             draw_blend_generator output from its `__next__` method.
             measurement_results (dict): Dictionary with keys being the name of each
-                `measure_function` passed in. Each value is a dictionary containing keys
-                `catalog`, `deblended_images`, and `segmentation` storing the values returned by
-                the corresponding measure_function` for one batch.
+                measure function passed in, and each value its corresponding `MeasuredBatch`.
         """
         blend_output = next(self.draw_blend_generator)
         meas_output = {
