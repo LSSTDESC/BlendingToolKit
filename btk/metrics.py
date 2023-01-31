@@ -69,13 +69,13 @@ from btk.measure import MeasureGenerator
 from btk.utils import reverse_dictionary_dictionary
 
 
-def get_blendedness(iso_image, blend_iso_images):
+def get_blendedness(iso_image: np.ndarray, blend_iso_images: np.ndarray):
     """Calculate blendedness given isolated images of each galaxy in a blend.
 
     Args:
-        iso_image (np.array): Array of shape = (H,W) corresponding to image of the isolated
+        iso_image: Array of shape = (H,W) corresponding to image of the isolated
             galaxy you are calculating blendedness for.
-        blend_iso_images (np.array): Array of shape = (N, H, W) where N is the number of galaxies
+        blend_iso_images: Array of shape = (N, H, W) where N is the number of galaxies
             in the blend and each image of this array corresponds to an isolated galaxy that is
             part of the blend (includes `iso_image`).
     """
