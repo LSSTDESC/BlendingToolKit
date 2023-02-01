@@ -41,16 +41,14 @@ def iou(segmentation1: np.ndarray, segmentation2: np.ndarray):
 
 
 def psnr(image1: np.ndarray, image2: np.ndarray):
-    """Compute peak-signal-to-noise-ratio."""
+    """Compute peak-signal-to-noise-ratio from skimage."""
     # TODO: use data_range?
     # compute in batches or over number of sources?
     return skimage.metrics.peak_signal_noise_ratio(image1, image2)
 
 
 def ssim(image1: np.ndarray, image2: np.ndarray):
-    """Compute structural similarity index."""
+    """Compute structural similarity index from skimage."""
     return skimage.metrics.structural_similarity(
-        np.moveaxis(image1, 0, -1),
-        np.moveaxis(image2, 0, -1),
-        channel_axis=-1,
+        np.moveaxis(image1, 0, -1), np.moveaxis(image2, 0, -1), channel_axis=-1
     )
