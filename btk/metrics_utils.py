@@ -18,10 +18,7 @@ def mse(image1: np.ndarray, image2: np.ndarray):
     return np.power((image1 - image2), 2).mean(axis=(-1, -2)).sqrt()
 
 
-def iou(
-    segmentation1: np.ndarray,
-    segmentation2: np.ndarray,
-):
+def iou(segmentation1: np.ndarray, segmentation2: np.ndarray):
     """Calculates intersection-over-union (IoU) given two semgentation arrays.
 
     The segmentation arrays should each have values of 1 or 0s only.
