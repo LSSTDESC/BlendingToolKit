@@ -1,13 +1,13 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from typing import Callable, List, Union
+from typing import Callable, List, Optional, Tuple, Union
 
-import astropy.wcs as WCS
 import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
+from astropy.wcs import WCS
 
 
 class Survey(galcheat.survey.Survey):
@@ -217,20 +217,26 @@ def get_psf_from_file(psf_dir, survey):
     return psf_model
 
 
-def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN") -> WCS:
+def make_wcs(
+    pixel_scale: float,
+    shape: Tuple[int, int],
+    projection: str = "TAN",
+    center_pix: Optional[Tuple[int, int]] = None,
+    center_sky: Optional[Tuple[int, int]] = None,
+) -> WCS:
     """Creates WCS for an image.
 
     The default (`center_pix=None` AND `center_sky=None`) is that the center of the image in
     pixels [(s + 1) / 2, (s + 1) / 2] corresponds to (ra, dec) = [0, 0].
 
     Args:
-        pixel_scale (float): pixel size in arcseconds
-        shape (tuple): shape of the image in pixels.
-        center_pix (tuple): tuple representing the center of the image in pixels
-        center_sky (tuple): tuple representing the center of the image in sky coordinates
-                     (RA,DEC) in arcseconds.
-        projection(str): projection type, default to TAN. A list of available
-                            types can be found in astropy.wcs documentation
+        pixel_scale: pixel size in arcseconds
+        shape: shape of the image in pixels.
+        projection: projection type, default to TAN. A list of available
+                        types can be found in astropy.wcs documentation
+        center_pix: tuple representing the center of the image in pixels
+        center_sky: tuple representing the center of the image in sky coordinates
+                        (RA,DEC) in arcseconds.
 
     Returns:
         astropy WCS
@@ -239,7 +245,7 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
         center_sky = [0 for _ in range(2)]
-    w = WCS.WCS(naxis=2)
+    w = WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
     w.wcs.pc = np.diag([pixel_scale / 3600, pixel_scale / 3600])
