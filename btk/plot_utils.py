@@ -219,7 +219,7 @@ def plot_with_isolated(
     for i in range(len(blend_list)):
         images = blend_images[i]
         blend_img = get_rgb_image(images[band_indices], norm=norm) if rgb else images[band_indices]
-        plt.figure(figsize=(2, 2))
+        plt.figure(figsize=(4, 4))
         plt.imshow(blend_img)
         plt.title(f"{len(blend_list[i])} objects")
         if limits:
