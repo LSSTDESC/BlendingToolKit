@@ -40,7 +40,7 @@ class MeasuredExample:
         self.stamp_size = stamp_size
         self.survey_name = survey_name
         pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
-        self.image_size = int(self.stamp_size) / pixel_scale
+        self.image_size = int(self.stamp_size / pixel_scale)
         self.catalog = self._validate_catalog(catalog)
         self.segmentation = self._validate_segmentation(segmentation)
         self.deblended_images = self._validate_deblended_images(deblended_images)
@@ -108,9 +108,8 @@ class MeasuredBatch:
         self.stamp_size = stamp_size
         self.batch_size = batch_size
         self.survey_name = survey_name
-        self.image_size = int(
-            self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec")
-        )
+        pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
+        self.image_size = int(self.stamp_size / pixel_scale)
         self.catalog = self._validate_catalog(catalog_list)
         self.segmentation = self._validate_segmentation(segmentation)
         self.deblended_images = self._validate_deblended_images(deblended_images)
