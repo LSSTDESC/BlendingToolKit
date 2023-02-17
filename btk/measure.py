@@ -5,6 +5,7 @@ import os
 import pickle
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass
 
 import astropy.table
 import numpy as np
@@ -17,7 +18,7 @@ from btk.draw_blends import BlendBatch, DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
 
-
+@dataclass
 class MeasuredExample:
     """Class that validates the results of the measurement for a single image.
 
@@ -25,25 +26,20 @@ class MeasuredExample:
     single `survey_name` survey.
 
     """
+    max_n_sources: int
+    stamp_size: int
+    survey_name: str
+    catalog: astropy.table.Table
+    segmentation: np.ndarray = None
+    deblended_images: np.ndarray = None
 
-    def __init__(
-        self,
-        max_n_sources: int,
-        stamp_size: int,
-        survey_name: str,
-        catalog: astropy.table.Table,
-        segmentation: np.ndarray = None,
-        deblended_images: np.ndarray = None,
-    ) -> None:
-        """Initializes the measured example."""
-        self.max_n_sources = max_n_sources
-        self.stamp_size = stamp_size
-        self.survey_name = survey_name
-        pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
+    def __post_init__(self)-> None:
+        """Performs validation of the measured example."""
+        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
-        self.catalog = self._validate_catalog(catalog)
-        self.segmentation = self._validate_segmentation(segmentation)
-        self.deblended_images = self._validate_deblended_images(deblended_images)
+        self.catalog = self._validate_catalog(self.catalog)
+        self.segmentation = self._validate_segmentation(self.segmentation)
+        self.deblended_images = self._validate_deblended_images(self.deblended_images)
 
     def _validate_catalog(self, catalog: astropy.table.Table):
         if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
@@ -90,29 +86,24 @@ class MeasuredExample:
         return string
 
 
+@dataclass
 class MeasuredBatch:
-    """Class that validates the results of the measurement for a batch of image."""
+    """Class that validates the results of the measurement for a batch of images."""
 
-    def __init__(
-        self,
-        max_n_sources: int,
-        stamp_size: int,
-        batch_size: int,
-        survey_name: str,
-        catalog_list: List[astropy.table.Table],
-        segmentation: np.ndarray = None,
-        deblended_images: np.ndarray = None,
-    ) -> None:
-        """Initializes the measured example."""
-        self.max_n_sources = max_n_sources
-        self.stamp_size = stamp_size
-        self.batch_size = batch_size
-        self.survey_name = survey_name
-        pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
+    max_n_sources: int
+    stamp_size: int
+    batch_size: int
+    survey_name: str
+    catalog_list: List[astropy.table.Table]
+    segmentation: np.ndarray = None
+    deblended_images: np.ndarray = None
+    
+    def __post_init__(self)-> None:
+        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
-        self.catalog = self._validate_catalog(catalog_list)
-        self.segmentation = self._validate_segmentation(segmentation)
-        self.deblended_images = self._validate_deblended_images(deblended_images)
+        self.catalog = self._validate_catalog(self.catalog_list)
+        self.segmentation = self._validate_segmentation(self.segmentation)
+        self.deblended_images = self._validate_deblended_images(self.deblended_images)
 
     def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
         if not isinstance(catalog_list, list):
