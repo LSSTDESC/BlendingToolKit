@@ -3,6 +3,7 @@ import copy
 import json
 import os
 import pickle
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import chain
@@ -11,6 +12,7 @@ from typing import List
 import galsim
 import numpy as np
 from astropy.table import Column, Table
+from astropy.wcs import WCS
 from galcheat.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
@@ -636,17 +638,35 @@ class CosmosGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
         )
 
+@dataclass
+class SurveyBatch:
+    """Class which stores all relevant data for a single survey"""
 
-class BlendBatch(dict):
+    survey_name: str
+    blend_images: np.ndarray
+    isolated_images: np.ndarray
+    blend_list: List[Table]
+    psfs: List[galsim.GSObject]
+    wcs: WCS
+
+    def __repr__(self) -> str:
+        """Return string representation of class."""
+        string = self.__class__.__name__ + f"(survey_name={self.survey_name}, "
+        string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
+        string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
+        string += "\n\t blend_list: list of " + str(type(self.blend_list)) + ", size " + str(len(self.blend_list))
+        string += "\n\t psfs: list of " + str(type(self.psfs)) + ", size " + str(len(self.psfs))
+        string += "\n\t wcs: " + str(type(self.wcs)) + ")"
+        return string
+
+@dataclass
+class BlendBatch:
     """Class which stores the output of DrawBlendGenerator."""
+    batch_size: int
+    max_n_sources: int
+    stamp_size: int
 
-    def __init__(self, batch_size: int, max_n_sources: int, stamp_size: int):
-        """Initialize BlendBatch class."""
-        self.batch_size = batch_size
-        self.max_n_sources = max_n_sources
-        self.stamp_size = stamp_size  # arcseconds
-        self.results = {}
-
+    results = {}
     def _get_pix_stamp_size(self, survey_name: str) -> int:
         return int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
 
@@ -667,18 +687,14 @@ class BlendBatch(dict):
         pix_stamp_size = self._get_pix_stamp_size(survey_name)
         survey = get_surveys(survey_name)
         n_bands = len(survey.available_filters)
+        wcs = self._get_wcs(survey_name)
         b1, c1, ps11, ps12 = blend_images.shape
         b2, n, c2, ps21, ps22 = isolated_images.shape
         assert b1 == b2 == len(blend_list) == self.batch_size
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
-        self.results[survey_name] = {}
-        self.results[survey_name]["blend_images"] = blend_images
-        self.results[survey_name]["isolated_images"] = isolated_images
-        self.results[survey_name]["blend_list"] = blend_list
-        self.results[survey_name]["psfs"] = psfs
-        self.results[survey_name]["wcs"] = self._get_wcs(survey_name)
+        self.results[survey_name] = SurveyBatch(survey_name, blend_images, isolated_images, blend_list, psfs, wcs)
         setattr(self, survey_name, self.results[survey_name])
 
     def __getitem__(self, key: str):
@@ -689,34 +705,20 @@ class BlendBatch(dict):
         """Return string representation of class."""
         string = (
             f"BlendBatch(batch_size = {self.batch_size}, "
-            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size})"
-            + ", containing: \n"
+            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}), containing:"
         )
-        for survey_name in self.results.keys():
-            string += survey_name + ": {"
-            for key, value in self.results[survey_name].items():
-                if isinstance(value, np.ndarray):
-                    string += "\n\t" + key + ": np.ndarray, shape " + str(list(value.shape))
-                elif isinstance(value, list):
-                    item_type = None
-                    if len(value) != 0:
-                        item_type = value[0].__class__
-                    string += (
-                        "\n\t" + key + ": list of " + str(item_type) + ", size " + str(len(value))
-                    )
-                else:
-                    string += "\n\t" + key + ": " + str(type(value))
-            string += "\n} "
+        for key in self.results.keys():
+            string += "\n" + self.results[key].__repr__()
         return string
 
     def save_results(self, path: str, batch_number: int = 0):
         """Save blend results into path."""
         for survey_name in self.results.keys():
             survey_directory = os.path.join(path, str(batch_number), survey_name)
-            blend_images = self[survey_name]["blend_images"]
-            isolated_images = self[survey_name]["isolated_images"]
-            blend_list = self[survey_name]["blend_list"]
-            psfs = self.results[survey_name]["psfs"]
+            blend_images = self[survey_name].blend_images
+            isolated_images = self[survey_name].isolated_images
+            blend_list = self[survey_name].blend_list
+            psfs = self.results[survey_name].psfs
 
             if not os.path.exists(survey_directory):
                 os.makedirs(survey_directory)

@@ -316,7 +316,7 @@ class PeakLocalMax(Measure):
 
     def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
         """Performs measurement on the i-th example from the batch."""
-        blend_image = blend_batch[self.survey_name]["blend_images"][i]
+        blend_image = blend_batch[self.survey_name].blend_images[i]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -330,7 +330,7 @@ class PeakLocalMax(Measure):
         x, y = coordinates[:, 1], coordinates[:, 0]
 
         # convert coordinates to ra, dec
-        wcs = blend_batch[self.survey_name]["wcs"]
+        wcs = blend_batch[self.survey_name].wcs
         ra, dec = wcs.pixel_to_world_values(x, y)
         ra *= 3600
         dec *= 3600
@@ -382,7 +382,7 @@ class SepSingleband(Measure):
     def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
-        blend_image = blend_batch[self.survey_name]["blend_images"][i]
+        blend_image = blend_batch[self.survey_name].blend_images[i]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -404,7 +404,7 @@ class SepSingleband(Measure):
             deblended_images[i] = image * seg_i.astype(image.dtype)
 
         # convert to ra, dec
-        wcs = blend_batch[self.survey_name]["wcs"]
+        wcs = blend_batch[self.survey_name].wcs
         ra, dec = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
         ra *= 3600
         dec *= 3600
@@ -447,8 +447,8 @@ class SepMultiband(Measure):
     def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
         """Performs measurement on the i-th example from the batch."""
         # run source extractor on the first band
-        wcs = blend_batch[self.survey_name]["wcs"]
-        image = blend_batch[self.survey_name]["blend_images"][i]
+        wcs = blend_batch[self.survey_name].wcs
+        image = blend_batch[self.survey_name].blend_images[i]
         bkg = sep.Background(image[0])
         catalog = sep.extract(image[0], self.sigma_noise, err=bkg.globalrms, segmentation_map=False)
         ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
