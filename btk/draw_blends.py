@@ -638,6 +638,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
         )
 
+
 @dataclass
 class SurveyBatch:
     """Class which stores all relevant data for a single survey"""
@@ -654,19 +655,27 @@ class SurveyBatch:
         string = self.__class__.__name__ + f"(survey_name={self.survey_name}, "
         string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
-        string += "\n\t blend_list: list of " + str(type(self.blend_list)) + ", size " + str(len(self.blend_list))
+        string += (
+            "\n\t blend_list: list of "
+            + str(type(self.blend_list))
+            + ", size "
+            + str(len(self.blend_list))
+        )
         string += "\n\t psfs: list of " + str(type(self.psfs)) + ", size " + str(len(self.psfs))
         string += "\n\t wcs: " + str(type(self.wcs)) + ")"
         return string
 
+
 @dataclass
 class BlendBatch:
     """Class which stores the output of DrawBlendGenerator."""
+
     batch_size: int
     max_n_sources: int
     stamp_size: int
 
     results = {}
+
     def _get_pix_stamp_size(self, survey_name: str) -> int:
         return int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
 
@@ -694,7 +703,9 @@ class BlendBatch:
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
-        self.results[survey_name] = SurveyBatch(survey_name, blend_images, isolated_images, blend_list, psfs, wcs)
+        self.results[survey_name] = SurveyBatch(
+            survey_name, blend_images, isolated_images, blend_list, psfs, wcs
+        )
         setattr(self, survey_name, self.results[survey_name])
 
     def __getitem__(self, key: str):

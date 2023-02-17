@@ -18,6 +18,7 @@ from btk.draw_blends import BlendBatch, DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
 
+
 @dataclass
 class MeasuredExample:
     """Class that validates the results of the measurement for a single image.
@@ -26,6 +27,7 @@ class MeasuredExample:
     single `survey_name` survey.
 
     """
+
     max_n_sources: int
     stamp_size: int
     survey_name: str
@@ -33,7 +35,7 @@ class MeasuredExample:
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
 
-    def __post_init__(self)-> None:
+    def __post_init__(self) -> None:
         """Performs validation of the measured example."""
         pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
@@ -97,8 +99,8 @@ class MeasuredBatch:
     catalog_list: List[astropy.table.Table]
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
-    
-    def __post_init__(self)-> None:
+
+    def __post_init__(self) -> None:
         pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
         self.catalog = self._validate_catalog(self.catalog_list)
