@@ -4,8 +4,8 @@ import json
 import os
 import pickle
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple, Union
 
 import astropy.table
 import numpy as np
@@ -101,6 +101,7 @@ class MeasuredBatch:
     deblended_images: np.ndarray = None
 
     def __post_init__(self) -> None:
+        """Run after dataclass init."""
         pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
         self.catalog = self._validate_catalog(self.catalog_list)
