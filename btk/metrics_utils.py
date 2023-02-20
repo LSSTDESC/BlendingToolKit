@@ -129,7 +129,6 @@ def ssim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     Returns:
         Returns structural similarity index between each corresponding iamge as
         an array of shape `N`.
-
     """
     n, h, w = image1.shape
     assert (n, h, w) == image2.shape
