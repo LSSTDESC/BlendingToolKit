@@ -11,7 +11,7 @@ from btk.metrics_utils import get_matches
 class Metric(ABC):
     """Abstract class for BTK metrics."""
 
-    def __init__(self, batch_size: int, survey_name: str, filter_name: str) -> None:
+    def __init__(self, batch_size: int, survey_name: str, *args) -> None:
         """Initialize metric."""
         self.batch_size = batch_size
         self.values = []
@@ -24,7 +24,6 @@ class Metric(ABC):
         """Compute metric based on blend and measured batches."""
         assert self.survey_name in blend_batch.results
         assert self.survey_name == measured_batch.survey_name
-        pass
 
     @abstractmethod
     def aggregate(self) -> np.ndarray:
