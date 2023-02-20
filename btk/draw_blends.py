@@ -3,9 +3,9 @@ import copy
 import json
 import os
 import pickle
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from dataclasses import dataclass
 from itertools import chain
 from typing import List
 
@@ -641,7 +641,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
 @dataclass
 class SurveyBatch:
-    """Class which stores all relevant data for a single survey"""
+    """Class which stores all relevant data for a single survey."""
 
     survey_name: str
     blend_images: np.ndarray
