@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install pdm dependencies
+      - name: Install python packages
         run: |
           pdm install
 

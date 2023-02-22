@@ -24,30 +24,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
-        run: |
-          pip install --upgrade pip
-          pip install poetry
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-pep582: true
+          cache: true
 
       - name: Create environment variables
         run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
-      - name: Poetry cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('./poetry.lock') }}
 
       # galsim needs this.
       - name: Instal FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install poetry dependencies
+      - name: Install python packages
         run: |
-          poetry install
+          pdm install
 
       - name: Run notebooks
         run: |
-          poetry run pytest --nbmake notebooks --ignore "notebooks/01b-scarlet-measure.ipynb"
+          pdm run pytest --nbmake notebooks --ignore "notebooks/01b-scarlet-measure.ipynb"
