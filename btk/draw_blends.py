@@ -131,7 +131,6 @@ class DrawBlendsGenerator(ABC):
         add_noise="all",
         shifts=None,
         indexes=None,
-        channels_last=False,
         save_path=None,
         seed=DEFAULT_SEED,
         apply_shear=False,
@@ -160,9 +159,6 @@ class DrawBlendsGenerator(ABC):
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
                         Used mostly for internal testing purposes.
-            channels_last (bool): Whether to return images as numpy arrays with the channel
-                                (band) dimension as the last dimension or before the pixels
-                                dimensions (default).
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
@@ -193,7 +189,6 @@ class DrawBlendsGenerator(ABC):
             )
         self.add_noise = add_noise
         self.verbose = verbose
-        self.channels_last = channels_last
         self.save_path = save_path
         self.seedseq = np.random.SeedSequence(seed)
 
@@ -285,13 +280,9 @@ class DrawBlendsGenerator(ABC):
             # join results across mini-batches.
             batch_results = list(chain(*mini_batch_results))
 
-            # decide image_shape based on channels_last bool.
-            n_bands = len(s.available_filters)
-            option1 = (n_bands, pix_stamp_size, pix_stamp_size)
-            option2 = (pix_stamp_size, pix_stamp_size, n_bands)
-            image_shape = option1 if not self.channels_last else option2
-
             # organize results.
+            n_bands = len(s.available_filters)
+            image_shape = (n_bands, pix_stamp_size, pix_stamp_size)
             blend_images = np.zeros((self.batch_size, *image_shape))
             isolated_images = np.zeros((self.batch_size, self.max_number, *image_shape))
             blend_list = []
@@ -366,11 +357,6 @@ class DrawBlendsGenerator(ABC):
                 )
                 blend_image_multi[b, :, :] = single_band_output[0]
                 iso_image_multi[:, b, :, :] = single_band_output[1]
-
-            # transpose if requested.
-            dim_order = np.array((0, 1, 2) if not self.channels_last else (1, 2, 0))
-            blend_image_multi = blend_image_multi.transpose(dim_order)
-            iso_image_multi = iso_image_multi.transpose(0, *(dim_order + 1))
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
             index += len(blend)
@@ -529,7 +515,6 @@ class CosmosGenerator(DrawBlendsGenerator):
         add_noise="all",
         shifts=None,
         indexes=None,
-        channels_last=False,
         save_path=None,
         seed=DEFAULT_SEED,
         gal_type="real",
@@ -556,9 +541,6 @@ class CosmosGenerator(DrawBlendsGenerator):
             indexes (list): Contains the ids of the galaxies to use in the stamp.
                         Must be of length batch_size. Must be used with shifts.
                         Used mostly for internal testing purposes.
-            channels_last (bool): Whether to return images as numpy arrays with the channel
-                                (band) dimension as the last dimension or before the pixels
-                                dimensions (default).
             save_path (str): Path to a directory where results will be saved. If left
                             as None, results will not be saved.
             seed (int): Integer seed for reproducible random noise realizations.
@@ -576,7 +558,6 @@ class CosmosGenerator(DrawBlendsGenerator):
             add_noise=add_noise,
             shifts=shifts,
             indexes=indexes,
-            channels_last=channels_last,
             save_path=save_path,
             seed=seed,
         )
