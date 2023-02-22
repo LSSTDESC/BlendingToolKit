@@ -30,7 +30,7 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0 # pick a git hash / tag to point to
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         args:
@@ -47,3 +47,8 @@ repos:
       - id: nbstripout
         args:
           - --keep-output
+  - repo: https://github.com/floatingpurr/sync_with_pdm
+    rev: "0.3.0" # the revision or tag to clone at
+    hooks:
+      - id: sync_with_pdm
+        args: [] # optional args
