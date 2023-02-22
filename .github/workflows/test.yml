@@ -26,7 +26,6 @@ jobs:
         uses: pdm-project/setup-pdm@v3
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x86 # github ci only supports x86
           enable-pep582: true
           cache: true
 
