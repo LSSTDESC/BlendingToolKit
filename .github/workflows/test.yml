@@ -11,33 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.8, 3.9, "3.10"]
 
     steps:
       - name: Checkout github repo
         uses: actions/checkout@v2
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-pep582: true
+          cache: true
 
       # galsim needs this.
       - name: Instal FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install poetry dependencies
+      - name: Install python packages
         run: |
-          poetry install
+          pdm install
 
       - name: Run Tests
         run: |
-          poetry run pytest --cov=./btk --cov-report=xml --durations=0
+          pdm run pytest --cov=./btk --cov-report=xml --durations=0
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

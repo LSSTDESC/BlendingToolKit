@@ -18,30 +18,33 @@ jobs:
       - name: Install pandoc
         run: sudo apt-get install pandoc
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-pep582: true
+          cache: true
 
       # galsim needs this.
       - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install poetry dependencies
+      - name: Install python packages
         run: |
-          poetry install
+          pdm install
 
       - name: Convert notebooks
         run: |
           cd docs/source
           cat tutorials_header.rst > tutorials.rst
           echo "" >> tutorials.rst
-          poetry run jupyter nbconvert --to rst ../../notebooks/00-intro.ipynb --FilesWriter.build_directory="./"
+          pdm run jupyter nbconvert --to rst ../../notebooks/00-intro.ipynb --FilesWriter.build_directory="./"
           cat 00-intro.rst >> tutorials.rst
           echo "" >> tutorials.rst
           cat tutorials_footer.rst >> tutorials.rst
@@ -50,7 +53,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd docs
-          poetry run make html
+          pdm run make html
           if [ $? = 2 ]; then exit 1;fi
           cd build/html
           touch .nojekyll
