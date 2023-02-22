@@ -42,7 +42,7 @@ pip install blending_toolkit
 
 Although you might run into problems installing `galsim`. In case of any issues, please see the more detailed installation instructions [here](https://lsstdesc.org/BlendingToolKit/install.html).
 
-For required packages, see [pyproject.toml](https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml) under the `[tool.poetry.dependencies]` block. For developers, you will also need the packages under the `[tool.poetry.dev-dependencies]` block.
+For required packages, see the [requirements.txt](https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt) file.
 
 ## Tutorial
 

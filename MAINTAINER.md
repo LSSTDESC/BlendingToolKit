@@ -2,56 +2,39 @@
 
 ## Setup environment
 
-1. We use [poetry](https://python-poetry.org) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org). Given some of the complications with installing `galsim` via `poetry`, we follow a hybrid approach of `conda`+`poetry`.
+1. We use [pdm](https://pdm.fming.dev/latest/) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org).
 
-2. It is recommended to create a `conda` virtual environment (using `python3.8`) from scratch and use it to install all required dependencies. After having installed `conda`, please follow the following series of steps:
+2. It is recommended to create a `pdm` virtual environment from scratch and use it to install all required dependencies. Please follow the following series of steps:
 
 ```bash
 # enter to the local repo
 cd BlendingToolKit
 
-# create virtual environment.
-conda create -n btk python=3.8
-conda activate btk
+# install pdm in mac os
+brew install pdm
 
-# make sure you can import galsim after this step before moving on.
-conda install fftw
-conda install -c conda-forge eigen
-conda install -c conda-forge galsim
+# install all python dependencies from pyproject.toml file
+# and create lock file
+pdm update
 
-# poetry allows us to install all dependencies directly from pyproject.toml (except galsim!)
-# poetry reuses the current "btk" virtual environment from conda.
-conda install -c conda-forge poetry==1.1.10
-poetry install
+# activate pdm environment
+eval $(pdm venv activate in-project)
 
-# finally activate pre-commit
+# install the git hook scripts
 pre-commit install
 ```
 
-In Ubuntu/Linux, you might getaway with simply running (and avoid having to use conda):
-
-```bash
-# inside your favorite python virtual environment...
-sudo apt-get install libfftw3-dev libeigen3-dev
-pip install --upgrade pip
-pip install poetry
-poetry install
-pre-commit install
-```
-
-But I find the first method is more robust (works on a MAC too).
+Remember that `galsim` has additional dependencies that you might need to install. Please follow the instructions [here](https://galsim-developers.github.io/GalSim/_build/html/install.html).
 
 ## Updating packages
 
-1. If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `poetry.lock` file to the PR you are working on.
+1. If any of the dependencies requires an update, you can simply run `pdm update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `pdm.lock` file to the PR you are working on.
 
-2. You might also want to update the `requirements.txt` file every now and then:
+2. You might also want to update the `requirements.txt` anytime you edit the `pyproject.toml` file.
 
 ```bash
-poetry export -o requirements.txt --without-hashes --dev
+pdm export -f requirements --without-hashes --pyproject --prod > requirements.txt
 ```
-
-ideally everytime you run `poetry update`.
 
 ## Making new Releases
 
@@ -73,8 +56,8 @@ git pull origin develop
 # 4. Created a release branch that tracks origin/develop
 git checkout -b release/$RELEASE origin/develop
 
-# 5. Bump version with poetry in release branch
-poetry version $RELEASE
+# 5. Bump version in release branch
+# edit pyproject.toml file to update the version
 git add pyproject.toml
 git commit -m "Bump version"
 

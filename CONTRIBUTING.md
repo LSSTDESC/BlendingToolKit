@@ -10,35 +10,28 @@ Please makes sure to complete the following steps if you are interested in contr
     git clone https://github.com/LSSTDESC/BlendingToolKit.git
     ```
 
-2. It is recommended that you use `conda+poetry` to manage the python environment for developing BTK. The following commands should install and activate a `btk` python environment managed by `poetry`:
+2. It is recommended that you use `pdm` to manage the python environment for developing BTK. You can install pdm following the instructions [here](https://pdm.fming.dev/latest/#installation).
+
+3. The following commands should install and activate a `btk` python environment managed by `pdm`:
 
 ```bash
 cd BlendingToolKit
 
-# you can skip this step if you already have a new conda environment specifically for BTK.
-conda create -n btk38 python=3.8
+# install all python dependencies from pyproject.toml file
+pdm install
 
-# activate conda environment.
-conda activate btk38
-
-# install poetry
-conda install -c conda-forge poetry
-
-# install BTK dependencies from pyproject.toml file
-poetry install
-
-# activate poetry environment from inside the conda environment.
-poetry shell
+# activate pdm environment
+eval $(pdm venv activate in-project)
 
 # install the git hook scripts
 pre-commit install
 ```
 
-If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first (inside the `btk38` conda environment), and then try again.
+If you have any problems with the installation, they are probably due to `galsim`. It is recommended that you follow the instructions for [installing galsim](https://galsim-developers.github.io/GalSim/_build/html/install.html) first (inside the `pdm` virtual environment), and then try again.
 
 ## Pull Requests
 
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) can eventually be merged to the `develop` branch. (NOTE: Only the maintainer can push to the `main` branch)
+1. Every contribution to BTK must be made in a form of a Pull Request (PR) can eventually be merged to the `develop` branch. (NOTE: Only the maintainer(s) can push to the `main` branch)
 
 2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
