@@ -1,72 +1,61 @@
-[tool.poetry]
+[project]
 authors = [
-  "Ismael Mendoza <imendoza@umich.edu>",
-  "Somwya Kamath",
-  "Thomas Sainrat",
-  "Maxime Paillasa",
-  "Alexandre Boucaud",
-  "Remy Joseph",
-  "Patricia Burchat",
-  "Cyrille Doux",
-  "Eric Aubourg",
+  {name = "Ismael Mendoza", email = "imendoza@umich.edu"},
+  {name = "Somwya Kamath"},
+  {name = "Thomas Sainrat"},
+  {name = "Maxime Paillasa"},
+  {name = "Alexandre Boucaud"},
+  {name = "Remy Joseph"},
+  {name = "Patricia Burchat"},
+  {name = "Cyrille Doux"},
+  {name = "Eric Aubourg"},
 ]
 classifiers = [
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
+dependencies = [
+  "astropy>=5.1",
+  "galcheat>=1.0.0",
+  "galsim>=2.3.0",
+  "ipywidgets>=7.6.5",
+  "matplotlib>=3.5.1",
+  "numpy>=1.22",
+  "pandas>=1.4.2",
+  "scikit-image>=0.19.2",
+  "scipy>=1.8.1",
+  "seaborn>=0.11.2",
+  "sep>=1.2.0",
+  "tqdm>=4.64.0",
+]
 description = "Blending ToolKit"
-documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
-license = "MIT"
+license = {text = "MIT"}
 name = "blending_toolkit"
-packages = [{include = "btk"}]
 readme = "README.md"
-repository = "https://github.com/LSSTDESC/BlendingToolKit"
+requires-python = ">=3.8"
 version = "1.0.0a8"
 
-[tool.poetry.dependencies]
-astropy = [{version = "^4.3.1", python = "~3.7.1"}, {version = ">=5.1", python = ">=3.8"}]
-galcheat = ">=1.0.0"
-galsim = ">=2.3.5, <2.4.7"
-ipywidgets = ">=7.6.5"
-matplotlib = ">=3.5.1"
-numpy = [{version = ">=1.16.5,<1.22.0", python = "~3.7.1"}, {version = ">=1.22", python = ">=3.8"}]
-pandas = [{version = "~1.3.5", python = "~3.7.1"}, {version = ">=1.4.2", python = ">=3.8"}]
-python = ">= 3.7.0, < 3.11.0"
-scikit-image = ">=0.19.2"
-scipy = [{version = "~1.7.3", python = "~3.7.1"}, {version = ">=1.8.1", python = ">=3.8"}]
-seaborn = ">=0.11.2"
-sep = ">=1.2.0"
-tqdm = ">=4.64.0"
+[project.urls]
+"Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
+documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
+repository = "https://github.com/LSSTDESC/BlendingToolKit"
 
-[tool.poetry.group.dev.dependencies]
-black = ">=22.3.0"
-flake8 = ">=4.0.1"
-flake8-absolute-import = ">=1.0"
-isort = ">=5.10.1"
-jupyter = "^1.0.0"
-jupyter-contrib-nbextensions = "^0.5.1"
-jupyter-sphinx = ">=0.3.2"
-nbconvert = "^7.0.0"
-nbmake = "^1.3.4"
-nbstripout = ">=0.5.0"
-pre-commit = ">=2.18.1"
-pydocstyle = ">=5.1.1"
-pytest = ">=7.1.1"
-pytest-cov = ">=3.0.0"
-sphinx = ">=3.5.4"
-sphinx-rtd-theme = ">=0.4.3"
+[tool.pdm.dev-dependencies]
+docs = ["sphinx>=3.5.4", "sphinx-rtd-theme>=0.4.3", "nbstripout>=0.5.0", "isort>=5.10.1", "jupyter-sphinx>=0.3.2", "nbconvert>=7.0.0"]
+format = ["pre-commit>=2.18.1", "pydocstyle>=5.1.1"]
+notebooks = ["jupyter>=1.0.0", "jupyter-contrib-nbextensions>=0.5.1"]
+test = ["pytest>=7.1.1", "pytest-cov>=3.0.0", "nbmake>=1.3.4", "flake8>=4.0.1", "flake8-absolute-import>=1.0"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
 [tool.black]
 line-length = 100
-target-version = ['py37', 'py38', 'py39', 'py310']
+target-version = ['py38', 'py39', 'py310']
 
 [tool.isort]
 profile = "black"
@@ -87,6 +76,9 @@ testpaths = [
   "tests",
 ]
 
+[tool.pdm.build]
+includes = ["btk"]
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+black = ">=22.3.0"
+build-backend = "pdm.pep517.api"
+requires = ["pdm-pep517>=1.0.0"]
