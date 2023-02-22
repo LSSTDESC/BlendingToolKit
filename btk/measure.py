@@ -394,7 +394,6 @@ class MeasureGenerator:
         """Perform measurements on a single blend."""
         output = []
         for f in self.measure_functions:
-
             out = f(batch, index, **kwargs)
 
             # make sure output is in the correct format.
@@ -514,7 +513,6 @@ class MeasureGenerator:
 
                 # save results if requested.
                 if self.save_path is not None:
-
                     if not os.path.exists(os.path.join(self.save_path, key_name)):
                         os.mkdir(os.path.join(self.save_path, key_name))
 
