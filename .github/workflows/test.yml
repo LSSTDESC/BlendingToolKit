@@ -40,7 +40,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          poetry run pytest --cov=./btk --cov-report=xml --durations=0
+          pdm run pytest --cov=./btk --cov-report=xml --durations=0
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
