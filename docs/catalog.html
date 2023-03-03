@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Catalog &mdash; btk 1.0.0a8 documentation</title>
+  <title>Input Catalog &mdash; btk 1.0.0a9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,14 +27,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> btk
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            btk
           </a>
               <div class="version">
                 1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -67,8 +71,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Input Catalog</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Input Catalog</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/catalog.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,10 +83,10 @@
            <div itemprop="articleBody">
              
   <section id="input-catalog">
-<h1>Input Catalog<a class="headerlink" href="#input-catalog" title="Permalink to this headline"></a></h1>
+<h1>Input Catalog<a class="headerlink" href="#input-catalog" title="Permalink to this heading"></a></h1>
 <p><em>BlendingToolKit</em> (btk) requires an input catalog that contains information required to simulate galaxies and blends.</p>
 <section id="catsim">
-<h2>CatSim<a class="headerlink" href="#catsim" title="Permalink to this headline"></a></h2>
+<h2>CatSim<a class="headerlink" href="#catsim" title="Permalink to this heading"></a></h2>
 <p>The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim <a class="reference external" href="https://www.lsst.org/scientists/simulations/catsim">page</a> for more details.</p>
 <p>BTK includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from <a class="reference external" href="https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk">this page</a>.</p>
 <p>A valid catsim catalog should at least contain the following columns:</p>
@@ -103,7 +107,7 @@
 <p>Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in galcheat we require <cite>i_ab</cite>, <cite>r_ab</cite>, <cite>u_ab</cite>, <cite>y_ab</cite>, <cite>z_ab</cite>, and <cite>g_ab</cite> as found <a class="reference external" href="https://github.com/aboucaud/galcheat/blob/main/galcheat/data/LSST.yaml">here</a>. Please see the <a class="reference external" href="tutorials.html">tutorial</a> and <a class="reference external" href="user_guide.html">user guide</a> for more information about surveys.</p>
 </section>
 <section id="cosmos">
-<h2>COSMOS<a class="headerlink" href="#cosmos" title="Permalink to this headline"></a></h2>
+<h2>COSMOS<a class="headerlink" href="#cosmos" title="Permalink to this heading"></a></h2>
 <p>The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple telescopes which provides a large number of multi-wavelength galaxy images, both as real images and parametric models. Refer to the <a class="reference external" href="https://github.com/GalSim-developers/GalSim/wiki/RealGalaxy%20Data">GalSim page for COSMOS</a> for more details on how to get COSMOS data and to the <a class="reference external" href="https://cosmos.astro.caltech.edu/">official COSMOS website</a> for more information on the COSMOS catalog in general.</p>
 <p>BTK includes an implementation of COSMOS real galaxy rendering, providing the possibility to get more realistic blends.</p>
 </section>
@@ -120,7 +124,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, btk developers.</p>
+    <p>&#169; Copyright 2023, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

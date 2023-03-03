@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.metrics module &mdash; btk 1.0.0a8 documentation</title>
+  <title>btk.metrics module &mdash; btk 1.0.0a9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -28,14 +28,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> btk
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            btk
           </a>
               <div class="version">
                 1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -55,7 +59,23 @@
 <li class="toctree-l3"><a class="reference internal" href="btk.create_blend_generator.html">btk.create_blend_generator module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html">btk.draw_blends module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.measure.html">btk.measure module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">btk.metrics module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">btk.metrics module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.MetricsGenerator"><code class="docutils literal notranslate"><span class="pre">MetricsGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.auc"><code class="docutils literal notranslate"><span class="pre">auc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.compute_metrics"><code class="docutils literal notranslate"><span class="pre">compute_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.detection_metrics"><code class="docutils literal notranslate"><span class="pre">detection_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.distance_center"><code class="docutils literal notranslate"><span class="pre">distance_center()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.get_blendedness"><code class="docutils literal notranslate"><span class="pre">get_blendedness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.get_detection_eff_matrix"><code class="docutils literal notranslate"><span class="pre">get_detection_eff_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.get_detection_match"><code class="docutils literal notranslate"><span class="pre">get_detection_match()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.meas_fixed_aperture"><code class="docutils literal notranslate"><span class="pre">meas_fixed_aperture()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.meas_ksb_ellipticity"><code class="docutils literal notranslate"><span class="pre">meas_ksb_ellipticity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.reconstruction_metrics"><code class="docutils literal notranslate"><span class="pre">reconstruction_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.reconstruction_metrics_blend"><code class="docutils literal notranslate"><span class="pre">reconstruction_metrics_blend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.segmentation_metrics"><code class="docutils literal notranslate"><span class="pre">segmentation_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.metrics.segmentation_metrics_blend"><code class="docutils literal notranslate"><span class="pre">segmentation_metrics_blend()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="btk.plot_utils.html">btk.plot_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html">btk.sampling_functions module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="btk.survey.html">btk.survey module</a></li>
@@ -78,9 +98,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="btk.html">BlendingToolKit API</a> &raquo;</li>
-      <li>btk.metrics module</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="btk.html">BlendingToolKit API</a></li>
+      <li class="breadcrumb-item active">btk.metrics module</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/src/btk.metrics.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="module-btk.metrics">
-<span id="btk-metrics-module"></span><h1>btk.metrics module<a class="headerlink" href="#module-btk.metrics" title="Permalink to this headline"></a></h1>
+<span id="btk-metrics-module"></span><h1>btk.metrics module<a class="headerlink" href="#module-btk.metrics" title="Permalink to this heading"></a></h1>
 <p>Implements a variety of metrics for evaluating measurement results in BTK.</p>
 <p>BTK users are expected to use the MetricsGenerator class, which is initialized by providing
 a MeasureGenerator as well as some parameters. Users which do not want to use the full BTK
@@ -157,7 +177,7 @@ is the standard scalar product on vectors.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_name='r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold_factor=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.MetricsGenerator.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize metrics generator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>measure_generator</strong> (<a class="reference internal" href="btk.measure.html#btk.measure.MeasureGenerator" title="btk.measure.MeasureGenerator"><em>btk.measure.MeasureGenerator</em></a>) – Measurement generator object.</p></li>
 <li><p><strong>meas_band_name</strong> (<em>str</em><em> or </em><em>tuple</em>) – Specifies the name of the band in which you want
@@ -199,7 +219,7 @@ This should be used by providing a list of different kwargs to a measure
 generator, proceed as usual, and give the results of the metrics generator
 to this function.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>metrics_results</strong> (<em>dict</em>) – Output of a btk.metrics.MetricsGenerator.</p></li>
 <li><p><strong>measure_name</strong> (<em>str</em>) – Base name of the measure function which will be
@@ -210,7 +230,7 @@ evaluated.</p></li>
 <li><p><strong>ax.</strong> (<em>drawn on this</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An int corresponding to the average precision.</p>
 </dd>
 </dl>
@@ -218,10 +238,10 @@ evaluated.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.metrics.compute_metrics">
-<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_catalogs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentations=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_threshold=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_band_num=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_last=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_distance=&lt;function</span> <span class="pre">distance_center&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold_match=5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.compute_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Computes all requested metrics given information in a single batch from measure_generator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isolated_images</strong> (<em>array</em>) – Contains all the isolated images, with shape NMCHW OR NMHWC
 depending on channels_last, with M the maximum number of galaxies
@@ -257,7 +277,7 @@ By default the distance is the euclidean distance from center to center.</p></li
 true galaxy in pixels.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>Contains all the computed metrics. Entries are:</dt><dd><ul class="simple">
 <li><p>matches: list of astropy Tables containing the matched detected galaxy
@@ -272,7 +292,7 @@ blends and related metrics</p></li>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>results (dict)</p>
 </dd>
 </dl>
@@ -287,7 +307,7 @@ blends and related metrics</p></li>
 - precision
 - f1</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>detection_catalogs</strong> (<em>list</em>) – Contains one astropy Table for each blend,
 corresponding to the detected galaxies.</p></li>
@@ -296,12 +316,12 @@ column <cite>match_detected_id</cite> containing the index of the
 matched detected galaxy for each true galaxy.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary containing keys corresponding to each implemented
 metric. Each value is a list where each element corresponds to each element of
 the batch (a single blend).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>results_detection (dict)</p>
 </dd>
 </dl>
@@ -312,13 +332,13 @@ the batch (a single blend).</p>
 <span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">distance_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_gal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detected_gal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.distance_center" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the euclidean distance between the two galaxies given as arguments.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>true_gal</strong> (<em>astropy.table.Table</em>) – Contains information related to the true galaxy.</p></li>
 <li><p><strong>detected_gal</strong> (<em>astropy.table.Table</em>) – Contains information related to the detected galaxy</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Distance between the two galaxies</p>
 </dd>
 </dl>
@@ -329,7 +349,7 @@ the batch (a single blend).</p>
 <span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">get_blendedness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_iso_images</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.get_blendedness" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate blendedness given isolated images of each galaxy in a blend.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iso_image</strong> (<em>np.array</em>) – Array of shape = (H,W) corresponding to image of the isolated
 galaxy you are calculating blendedness for.</p></li>
@@ -356,7 +376,7 @@ the test set size. The 5 columns in the summary_table are number of true
 objects, detected sources, undetected objects, spurious detections and
 shredded objects for each of the N blend scenes in the test set.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>summary_table</strong> (<cite>numpy.array</cite>) – Detection summary as a table [N, 5].</p></li>
 <li><p><strong>num</strong> (<em>int</em>) – Maximum number of true objects to create matrix for. Number
@@ -364,7 +384,7 @@ of columns in efficiency matrix will be num+1. The first column
 will correspond to no true objects.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>numpy.ndarray of size[num+2, num+1] that shows detection efficiency.</p>
 </dd>
 </dl>
@@ -383,7 +403,7 @@ and <span class="math notranslate nohighlight">\(X_{i,j}\)</span> is an indicato
 <p>Based on this implementation in scipy:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>true_table</strong> (<em>astropy.table.Table</em>) – Table with entries corresponding to
 the true object parameter values in one blend.</p></li>
@@ -396,7 +416,7 @@ By default the distance is the euclidean distance from center to center.</p></li
 true galaxy in pixels.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><p>Table where each row corresponds to each true
 galaxy in <cite>true_table</cite> and contains two columns:</p>
 <ul class="simple">
@@ -406,8 +426,25 @@ matched detected object. If no match, value is -1.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>match_table (astropy.table.Table)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="btk.metrics.meas_fixed_aperture">
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">meas_fixed_aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.meas_fixed_aperture" title="Permalink to this definition"></a></dt>
+<dd><p>Utility function to measure flux using fixed circular aperture with sep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>np.array</em>) – Image of a single, isolated galaxy with shape (H, W).</p></li>
+<li><p><strong>additional_params</strong> (<em>dict</em>) – Containing keys ‘psf’, ‘survey’ and ‘meas_band_num’.
+The psf should be a Galsim PSF model, the survey a btk Survey
+and meas_band_num an integer indicating the band in which the
+measurement is done.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -417,13 +454,13 @@ matched detected object. If no match, value is -1.</p></li>
 <span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">meas_ksb_ellipticity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.meas_ksb_ellipticity" title="Permalink to this definition"></a></dt>
 <dd><p>Utility function to measure ellipticity using the <cite>galsim.hsm</cite> package, with the KSB method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>np.array</em>) – Image of a single, isolated galaxy with shape (H, W).</p></li>
-<li><p><strong>additional_params</strong> (<em>dict</em>) – Containing keys ‘psf’, ‘pixel_scale’ and ‘meas_band_num’.
-The psf should be a Galsim PSF model, and meas_band_num
-an integer indicating the band in which the measurement
-is done.</p></li>
+<li><p><strong>additional_params</strong> (<em>dict</em>) – Containing keys ‘psf’, ‘survey’ and ‘meas_band_num’.
+The psf should be a Galsim PSF model, the survey a btk Survey
+and meas_band_num an integer indicating the band in which the
+measurement is done.</p></li>
 </ul>
 </dd>
 </dl>
@@ -431,14 +468,14 @@ is done.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.metrics.reconstruction_metrics">
-<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate reconstruction metrics given information from a single batch.</p>
 <p>Currently implemented reconstruction metrics include:
 - Mean Squared Residual (MSR)
 - Peak Signal-to-Noise Ratio (PSNR)
 - Structural Similarity (SSIM)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
 with shape NMCHW where M is the maximum number
@@ -460,10 +497,10 @@ for more details.</p></li>
 by the user.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Contains the results for the batch</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><p>results_reconstruction (astropy.table.Table)</p>
 <p>with one column for each metric (currently: “msr”
 for MSR, “psnr” for PSNR, “ssim” for SSIM, and
@@ -478,10 +515,10 @@ after target_name for each output)).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.metrics.reconstruction_metrics_blend">
-<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics_blend" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">btk.metrics.</span></span><span class="sig-name descname"><span class="pre">reconstruction_metrics_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blended_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isolated_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deblended_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meas_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.metrics.reconstruction_metrics_blend" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates reconstruction metrics given information from a single blend.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
 with shape MCHW where M is the number of
@@ -499,7 +536,7 @@ where one of the target measurement functions
 has multiple outputs.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>Contains the results for the Mean Square Residual</dt><dd><p>metric for each galaxy.</p>
 </dd>
@@ -513,7 +550,7 @@ true and deblended images).</p>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>msr_blend_result (list)</p>
 </dd>
 </dl>
@@ -526,7 +563,7 @@ true and deblended images).</p>
 <p>Currently implemented segmentation metrics include:
 - Intersection-over-Union (IOU)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
 with shape NMCHW where M is the maximum number
@@ -545,11 +582,11 @@ expected noise level in the full image.</p></li>
 <li><p><strong>meas_band_num</strong> (<em>int</em>) – Index of the band in which the true segmentation is computed.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Contains the results for the batch
 with one column for each metric (currently: “iou” for IoU).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>results_segmentation (astropy.table.Table)</p>
 </dd>
 </dl>
@@ -562,7 +599,7 @@ with one column for each metric (currently: “iou” for IoU).</p>
 <p>The true segmentation is obtained from the isolated images by setting to True
 the pixels above the noise_threshold in the band meas_band_num.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isolated_images</strong> (<em>array</em>) – Contains the isolated true galaxy images,
 with shape MCHW where M is the number of
@@ -579,11 +616,11 @@ expected noise level in the full image.</p></li>
 <li><p><strong>meas_band_num</strong> (<em>int</em>) – Index of the band in which the true segmentation is computed.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Contains the results for the IoU metric for each
 galaxy.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>iou_blend_result (list)</p>
 </dd>
 </dl>
@@ -602,7 +639,7 @@ galaxy.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, btk developers.</p>
+    <p>&#169; Copyright 2023, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

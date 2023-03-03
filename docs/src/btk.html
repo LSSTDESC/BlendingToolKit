@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BlendingToolKit API &mdash; btk 1.0.0a8 documentation</title>
+  <title>BlendingToolKit API &mdash; btk 1.0.0a9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -27,14 +27,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> btk
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            btk
           </a>
               <div class="version">
                 1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -77,8 +81,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>BlendingToolKit API</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BlendingToolKit API</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/src/btk.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -89,26 +93,183 @@
            <div itemprop="articleBody">
              
   <section id="blendingtoolkit-api">
-<h1>BlendingToolKit API<a class="headerlink" href="#blendingtoolkit-api" title="Permalink to this headline"></a></h1>
+<h1>BlendingToolKit API<a class="headerlink" href="#blendingtoolkit-api" title="Permalink to this heading"></a></h1>
 <section id="module-btk">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-btk" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-btk" title="Permalink to this heading"></a></h2>
 <p>Toolkit for fast simulation and analysis of overlapping objects for LSSTDESC.</p>
 <p>The code generates on the fly images of overlapping parametric galaxies, while
 providing a framework to test user defined detection/deblending/measurement
 algorithms.</p>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="btk.catalog.html">btk.catalog module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.create_blend_generator.html">btk.create_blend_generator module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.draw_blends.html">btk.draw_blends module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.measure.html">btk.measure module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.metrics.html">btk.metrics module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.plot_utils.html">btk.plot_utils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.sampling_functions.html">btk.sampling_functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="btk.survey.html">btk.survey module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="btk.catalog.html">btk.catalog module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog"><code class="docutils literal notranslate"><span class="pre">Catalog</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog.__init__"><code class="docutils literal notranslate"><span class="pre">Catalog.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog._prepare_table"><code class="docutils literal notranslate"><span class="pre">Catalog._prepare_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog.from_file"><code class="docutils literal notranslate"><span class="pre">Catalog.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog.get_raw_catalog"><code class="docutils literal notranslate"><span class="pre">Catalog.get_raw_catalog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog.name"><code class="docutils literal notranslate"><span class="pre">Catalog.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog.self.table"><code class="docutils literal notranslate"><span class="pre">Catalog.self.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.catalog.html#btk.catalog.CatsimCatalog"><code class="docutils literal notranslate"><span class="pre">CatsimCatalog</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CatsimCatalog._prepare_table"><code class="docutils literal notranslate"><span class="pre">CatsimCatalog._prepare_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CatsimCatalog.from_file"><code class="docutils literal notranslate"><span class="pre">CatsimCatalog.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.catalog.html#btk.catalog.CosmosCatalog"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CosmosCatalog.__init__"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CosmosCatalog._prepare_table"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog._prepare_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CosmosCatalog.from_file"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html#btk.catalog.CosmosCatalog.get_galsim_catalog"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog.get_galsim_catalog()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.create_blend_generator.html">btk.create_blend_generator module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.create_blend_generator.html#btk.create_blend_generator.BlendGenerator"><code class="docutils literal notranslate"><span class="pre">BlendGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.create_blend_generator.html#btk.create_blend_generator.BlendGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">BlendGenerator.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.draw_blends.html">btk.draw_blends module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CatsimGenerator"><code class="docutils literal notranslate"><span class="pre">CatsimGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CatsimGenerator.check_compatibility"><code class="docutils literal notranslate"><span class="pre">CatsimGenerator.check_compatibility()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CatsimGenerator.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">CatsimGenerator.compatible_catalogs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CatsimGenerator.render_single"><code class="docutils literal notranslate"><span class="pre">CatsimGenerator.render_single()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CosmosGenerator"><code class="docutils literal notranslate"><span class="pre">CosmosGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CosmosGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">CosmosGenerator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CosmosGenerator.check_compatibility"><code class="docutils literal notranslate"><span class="pre">CosmosGenerator.check_compatibility()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CosmosGenerator.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">CosmosGenerator.compatible_catalogs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.CosmosGenerator.render_single"><code class="docutils literal notranslate"><span class="pre">CosmosGenerator.render_single()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.check_compatibility"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.check_compatibility()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.compatible_catalogs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_blend"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.render_blend()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_mini_batch"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.render_mini_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator.render_single"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator.render_single()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.SourceNotVisible"><code class="docutils literal notranslate"><span class="pre">SourceNotVisible</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.get_catsim_galaxy"><code class="docutils literal notranslate"><span class="pre">get_catsim_galaxy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.get_center_in_pixels"><code class="docutils literal notranslate"><span class="pre">get_center_in_pixels()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.measure.html">btk.measure module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.measure.html#btk.measure.MeasureGenerator"><code class="docutils literal notranslate"><span class="pre">MeasureGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.measure.html#btk.measure.MeasureGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">MeasureGenerator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.measure.html#btk.measure.MeasureGenerator.run_batch"><code class="docutils literal notranslate"><span class="pre">MeasureGenerator.run_batch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.measure.html#btk.measure.add_pixel_columns"><code class="docutils literal notranslate"><span class="pre">add_pixel_columns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.measure.html#btk.measure.basic_measure"><code class="docutils literal notranslate"><span class="pre">basic_measure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.measure.html#btk.measure.sep_multiband_measure"><code class="docutils literal notranslate"><span class="pre">sep_multiband_measure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.measure.html#btk.measure.sep_singleband_measure"><code class="docutils literal notranslate"><span class="pre">sep_singleband_measure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.metrics.html">btk.metrics module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.MetricsGenerator"><code class="docutils literal notranslate"><span class="pre">MetricsGenerator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.metrics.html#btk.metrics.MetricsGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">MetricsGenerator.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.auc"><code class="docutils literal notranslate"><span class="pre">auc()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.compute_metrics"><code class="docutils literal notranslate"><span class="pre">compute_metrics()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.detection_metrics"><code class="docutils literal notranslate"><span class="pre">detection_metrics()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.distance_center"><code class="docutils literal notranslate"><span class="pre">distance_center()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.get_blendedness"><code class="docutils literal notranslate"><span class="pre">get_blendedness()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.get_detection_eff_matrix"><code class="docutils literal notranslate"><span class="pre">get_detection_eff_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.get_detection_match"><code class="docutils literal notranslate"><span class="pre">get_detection_match()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.meas_fixed_aperture"><code class="docutils literal notranslate"><span class="pre">meas_fixed_aperture()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.meas_ksb_ellipticity"><code class="docutils literal notranslate"><span class="pre">meas_ksb_ellipticity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.reconstruction_metrics"><code class="docutils literal notranslate"><span class="pre">reconstruction_metrics()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.reconstruction_metrics_blend"><code class="docutils literal notranslate"><span class="pre">reconstruction_metrics_blend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.segmentation_metrics"><code class="docutils literal notranslate"><span class="pre">segmentation_metrics()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.metrics.html#btk.metrics.segmentation_metrics_blend"><code class="docutils literal notranslate"><span class="pre">segmentation_metrics_blend()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.plot_utils.html">btk.plot_utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.get_image"><code class="docutils literal notranslate"><span class="pre">get_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.get_quadrant"><code class="docutils literal notranslate"><span class="pre">get_quadrant()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.get_rgb"><code class="docutils literal notranslate"><span class="pre">get_rgb()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.get_rgb_image"><code class="docutils literal notranslate"><span class="pre">get_rgb_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_blends"><code class="docutils literal notranslate"><span class="pre">plot_blends()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_efficiency_matrix"><code class="docutils literal notranslate"><span class="pre">plot_efficiency_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_gal_parameters"><code class="docutils literal notranslate"><span class="pre">plot_gal_parameters()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_metrics_correlation"><code class="docutils literal notranslate"><span class="pre">plot_metrics_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_metrics_distribution"><code class="docutils literal notranslate"><span class="pre">plot_metrics_distribution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_metrics_summary"><code class="docutils literal notranslate"><span class="pre">plot_metrics_summary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_with_deblended"><code class="docutils literal notranslate"><span class="pre">plot_with_deblended()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.plot_utils.html#btk.plot_utils.plot_with_isolated"><code class="docutils literal notranslate"><span class="pre">plot_with_isolated()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.sampling_functions.html">btk.sampling_functions module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.BasicSampling"><code class="docutils literal notranslate"><span class="pre">BasicSampling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.BasicSampling.__call__"><code class="docutils literal notranslate"><span class="pre">BasicSampling.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.BasicSampling.__init__"><code class="docutils literal notranslate"><span class="pre">BasicSampling.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.BasicSampling.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">BasicSampling.compatible_catalogs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSampling"><code class="docutils literal notranslate"><span class="pre">DefaultSampling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSampling.__call__"><code class="docutils literal notranslate"><span class="pre">DefaultSampling.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSampling.__init__"><code class="docutils literal notranslate"><span class="pre">DefaultSampling.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSampling.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">DefaultSampling.compatible_catalogs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSamplingShear"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSamplingShear.__call__"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSamplingShear.__init__"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.DefaultSamplingShear.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear.compatible_catalogs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction"><code class="docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction.__call__"><code class="docutils literal notranslate"><span class="pre">SamplingFunction.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction.__init__"><code class="docutils literal notranslate"><span class="pre">SamplingFunction.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction.compatible_catalogs"><code class="docutils literal notranslate"><span class="pre">SamplingFunction.compatible_catalogs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="btk.survey.html">btk.survey module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.Filter"><code class="docutils literal notranslate"><span class="pre">Filter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.from_galcheat_filter"><code class="docutils literal notranslate"><span class="pre">Filter.from_galcheat_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.full_exposure_time"><code class="docutils literal notranslate"><span class="pre">Filter.full_exposure_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.name"><code class="docutils literal notranslate"><span class="pre">Filter.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.psf_fwhm"><code class="docutils literal notranslate"><span class="pre">Filter.psf_fwhm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.sky_brightness"><code class="docutils literal notranslate"><span class="pre">Filter.sky_brightness</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Filter.zeropoint"><code class="docutils literal notranslate"><span class="pre">Filter.zeropoint</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.Survey"><code class="docutils literal notranslate"><span class="pre">Survey</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.available_filters"><code class="docutils literal notranslate"><span class="pre">Survey.available_filters</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.description"><code class="docutils literal notranslate"><span class="pre">Survey.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.effective_area"><code class="docutils literal notranslate"><span class="pre">Survey.effective_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.from_galcheat_survey"><code class="docutils literal notranslate"><span class="pre">Survey.from_galcheat_survey()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.gain"><code class="docutils literal notranslate"><span class="pre">Survey.gain</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.get_filter"><code class="docutils literal notranslate"><span class="pre">Survey.get_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.mirror_diameter"><code class="docutils literal notranslate"><span class="pre">Survey.mirror_diameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.name"><code class="docutils literal notranslate"><span class="pre">Survey.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.obscuration"><code class="docutils literal notranslate"><span class="pre">Survey.obscuration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.pixel_scale"><code class="docutils literal notranslate"><span class="pre">Survey.pixel_scale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.references"><code class="docutils literal notranslate"><span class="pre">Survey.references</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html#btk.survey.Survey.zeropoint_airmass"><code class="docutils literal notranslate"><span class="pre">Survey.zeropoint_airmass</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.get_default_psf"><code class="docutils literal notranslate"><span class="pre">get_default_psf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.get_default_psf_with_galcheat_info"><code class="docutils literal notranslate"><span class="pre">get_default_psf_with_galcheat_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.get_psf_from_file"><code class="docutils literal notranslate"><span class="pre">get_psf_from_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.get_surveys"><code class="docutils literal notranslate"><span class="pre">get_surveys()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="btk.survey.html#btk.survey.make_wcs"><code class="docutils literal notranslate"><span class="pre">make_wcs()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -125,7 +286,7 @@ algorithms.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, btk developers.</p>
+    <p>&#169; Copyright 2023, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

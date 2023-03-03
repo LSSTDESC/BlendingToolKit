@@ -16,7 +16,7 @@ The required packages for ``btk`` are:
 * seaborn
 * sep
 
-And their specific versions are listed in the ``pyproject.toml`` file under the ``[tool.poetry.dependencies]`` block.
+and their specific versions are listed in the ``requirements.txt`` file, found `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt>`_.
 
 Install GalSim
 -------------------------------
