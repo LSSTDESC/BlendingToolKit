@@ -44,17 +44,17 @@ pdm export -f requirements --without-hashes --pyproject --prod > requirements.tx
 # 0. Create release tag
 export RELEASE=XX.YY.ZZ
 
-# 1. Checked out into develop branch
-git checkout develop
+# 1. Checked out into dev branch
+git checkout dev
 
 # 2. Fetched all remote updates
 git remote update
 
-# 3. Update local develop branch with remote copy
-git pull origin develop
+# 3. Update local dev branch with remote copy
+git pull origin dev
 
-# 4. Created a release branch that tracks origin/develop
-git checkout -b release/$RELEASE origin/develop
+# 4. Created a release branch that tracks origin/dev
+git checkout -b release/$RELEASE origin/dev
 
 # 5. Bump version in release branch
 # edit pyproject.toml file to update the version
@@ -84,14 +84,14 @@ git push origin main
 # 13. Pushed the tags to remote repository
 git push origin --tags
 
-# 14. Checkout into develop branch
-git checkout develop
+# 14. Checkout into dev branch
+git checkout dev
 
-# 15. Merged release branch into develop branch
+# 15. Merged release branch into dev branch
 git merge release/$RELEASE
 
-# 16. Pushed develop branch to remote repository
-git push origin develop
+# 16. Pushed dev branch to remote repository
+git push origin dev
 
 # 17. Removed release branch from the local repository
 git branch -D release/$RELEASE
