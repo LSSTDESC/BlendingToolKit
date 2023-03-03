@@ -1,10 +1,34 @@
 """Contains utility functions, including functions for loading saved results."""
 import os
+from copy import deepcopy
 
 import numpy as np
 from astropy.table import Table
 
 BLEND_RESULT_KEYS = ("blend_images", "isolated_images", "blend_list")
+
+
+def add_pixel_columns(catalog, wcs):
+    """Uses the wcs to add a column to the catalog corresponding to pixel coordinates.
+
+    The catalog must contain `ra` and `dec` columns.
+
+    Args:
+        catalog (astropy.table.Table): Catalog to modify.
+        wcs (astropy.wcs.WCS): WCS corresponding to the wanted
+                               transformation.
+    """
+    catalog_t = deepcopy(catalog)
+    for blend in catalog_t:
+        x_peak = []
+        y_peak = []
+        for gal in blend:
+            coords = wcs.world_to_pixel_values(gal["ra"] / 3600, gal["dec"] / 3600)
+            x_peak.append(coords[0])
+            y_peak.append(coords[1])
+        blend.add_column(x_peak, name="x_peak")
+        blend.add_column(y_peak, name="y_peak")
+    return catalog_t
 
 
 def load_blend_results(path, survey):
@@ -150,27 +174,6 @@ def load_all_results(path, surveys, measure_names, n_batch, n_meas_kwargs=1):
                     metrics_results[k][dir_name] = metr_results[k]
 
     return blend_results, measure_results, metrics_results
-
-
-def reverse_list_dictionary(to_reverse, keys):
-    """Transforms a list of dictionaries into a dictionary of lists.
-
-    Additionally, if the initial list contains None instead of dictionaries,
-    the dictionnary will contain lists of None.
-    Mainly used in the measure.py file.
-
-    Args:
-        to_reverse (list): List to reverse, should contain dictionaries (or None)
-        keys (list): Keys of the dictionaries inside the list.
-
-    Returns:
-        Dictionary.
-    """
-    if to_reverse[0] is None:
-        to_reverse = {k: [None for _ in range(len(to_reverse))] for k in keys}
-    else:
-        to_reverse = {k: [to_reverse[n][k] for n in range(len(to_reverse))] for k in keys}
-    return to_reverse
 
 
 def reverse_dictionary_dictionary(to_reverse):
