@@ -153,9 +153,10 @@ def distance_center(cat1: Table, cat2: Table) -> np.ndarray:
     return np.hypot(x_peak1 - x_peak2, y_peak1 - y_peak2)
 
 
-def get_id_matches(truth: Table, pred: Table):
+def get_id_matches(truth: Table, pred: Table) -> Tuple[np.ndarray, np.ndarray]:
     """Assume catalogs are already matched one-to-one."""
-    return list(range(len(truth)))
+    dist = distance_center(truth, pred)
+    return list(range(len(truth))), dist
 
 
 def get_least_dist_matches(
