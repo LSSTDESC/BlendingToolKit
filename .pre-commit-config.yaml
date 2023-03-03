@@ -29,6 +29,19 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --convention=google
+          - --match="(?!test_).*\.py"
+        exclude: |
+          (?x)(
+              ^docs/source/conf.py|
+              ^conftest.py|
+              ^tests/
+          )
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
     hooks:
