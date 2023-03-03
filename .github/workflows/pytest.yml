@@ -9,41 +9,41 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
 
-  steps:
-    - name: Checkout github repo
-      uses: actions/checkout@v2
+    steps:
+      - name: Checkout github repo
+        uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Setup PDM
-      uses: pdm-project/setup-pdm@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-pep582: true
-        cache: true
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-pep582: true
+          cache: true
 
-    # galsim needs this.
-    - name: Instal FFTW
-      run: |
-        sudo apt-get install libfftw3-dev
+      # galsim needs this.
+      - name: Instal FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
 
-    - name: Install python packages
-      run: |
-        pdm install
+      - name: Install python packages
+        run: |
+          pdm install
 
-    - name: Run Tests
-      run: |
-        pdm run pytest --cov=./btk --cov-report=xml --durations=0
+      - name: Run Tests
+        run: |
+          pdm run pytest --cov=./btk --cov-report=xml --durations=0
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-        flags: unittests
-        env_vars: OS,PYTHON
-        name: codecov-umbrella
-        fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: true
