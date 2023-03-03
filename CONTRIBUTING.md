@@ -31,7 +31,7 @@ If you have any problems with the installation, they are probably due to `galsim
 
 ## Pull Requests
 
-1. Every contribution to BTK must be made in a form of a Pull Request (PR) can eventually be merged to the `develop` branch. (NOTE: Only the maintainer(s) can push to the `main` branch)
+1. Every contribution to BTK must be made in a form of a Pull Request (PR) can eventually be merged to the `dev` branch. (NOTE: Only the maintainer(s) can push to the `main` branch)
 
 2. Every pull request must pass the workflows specified in `.github/workflows` before merging.
 
@@ -43,10 +43,10 @@ If you have any problems with the installation, they are probably due to `galsim
 
     - If you get stuck by `pre-commit` errors, please ping us on your PR.
 
-3. If other branches were merged while you were working on this PR to the `develop` branch, then you will to rebase before merging:
+3. If other branches were merged while you were working on this PR to the `dev` branch, then you will to rebase before merging:
 
     ```bash
-    git rebase origin/develop
+    git rebase origin/dev
     # follow the instructions and resolve conflicts...
     # Feel free to ask other developers if you are not sure of the conflicts.
     git push --force
