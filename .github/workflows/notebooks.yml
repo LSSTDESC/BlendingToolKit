@@ -4,7 +4,9 @@ on:
   schedule:
     - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
   push:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
 
 jobs:
   build:
