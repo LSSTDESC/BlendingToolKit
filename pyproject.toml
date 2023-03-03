@@ -78,3 +78,8 @@ includes = ["btk"]
 [build-system]
 build-backend = "pdm.pep517.api"
 requires = ["pdm-pep517>=1.0.0"]
+
+[tool.pydocstyle]
+convention = "google"
+inherit = false
+match = "(?!test_).*\\.py"
