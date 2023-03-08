@@ -553,8 +553,7 @@ def plot_gal_parameters(blend_list, context="talk"):
 
 def plot_metrics_summary(  # noqa: C901
     metrics_results,
-    target_meas_keys=[],
-    target_meas_limits=[],
+    target_meas_params={},
     n_bins_target=30,
     aliases={},
     save_path=None,
@@ -609,7 +608,7 @@ def plot_metrics_summary(  # noqa: C901
         max_mag = np.max(metrics_results["galaxy_summary"][measure_keys[0]]["ref_mag"])
         min_size = np.min(metrics_results["galaxy_summary"][measure_keys[0]]["btk_size"])
         max_size = np.max(metrics_results["galaxy_summary"][measure_keys[0]]["btk_size"])
-    plot_keys = ["reconstruction", "segmentation", "eff_matrix"] + target_meas_keys + ["custom"]
+    plot_keys = ["reconstruction", "segmentation", "eff_matrix"] + list(target_meas_params.keys()) + ["custom"]
 
     if interactive:
         layout = widgets.Layout(width="auto")
@@ -720,7 +719,6 @@ def plot_metrics_summary(  # noqa: C901
             return 0
         if multiresolution and len(surveys) == 0:
             return 0
-
         # Group all the data into a dataframe for using seaborn
         if multiresolution:
             dataframes = {}
@@ -756,8 +754,8 @@ def plot_metrics_summary(  # noqa: C901
             (concatenated["btk_size"] >= size_limits[0])
             & (concatenated["btk_size"] <= size_limits[1])
         ]
-        for k in target_meas_keys:
-            concatenated["delta_" + k] = concatenated[k] - concatenated[k + "_true"]
+        for k in target_meas_params.keys():
+            concatenated[f"delta_{k}"] = (concatenated[k] - concatenated[f"{k}_true"])/concatenated[f"{k}_true"]
 
         # Custom scatter plot for the two chosen quantities
         if plot_selections["custom"]:
@@ -798,7 +796,7 @@ def plot_metrics_summary(  # noqa: C901
             plt.show()
 
         # Plots for the measure functions
-        selected_target_meas = [m for m in target_meas_keys if plot_selections[m]]
+        selected_target_meas = [m for m in target_meas_params.keys() if plot_selections[m]]
         if selected_target_meas != []:
             n_target_meas = len(selected_target_meas)
             height_ratios = list(np.concatenate([[3, 1] for i in range(n_target_meas)]))
@@ -823,12 +821,12 @@ def plot_metrics_summary(  # noqa: C901
                 ax[2 * i].set(
                     xlabel="Measured " + k,
                     ylabel="True " + k,
-                    xlim=target_meas_limits[i],
-                    ylim=target_meas_limits[i],
+                    xlim=target_meas_params[k]["limits"],
+                    ylim=target_meas_params[k]["limits"],
+                    xscale=target_meas_params[k].get("scale","linear"),
+                    yscale=target_meas_params[k].get("scale","linear"),
                 )
-                xlow, xhigh = ax[2 * i].get_xlim()
-                x = np.linspace(xlow, xhigh, 10)
-                ax[2 * i].plot(x, x, linestyle="--", color="black", zorder=-10)
+                ax[2 * i].axline((0,0), (1,1), linestyle="--", color="black", zorder=-10)
 
                 mag_low = np.min(concatenated["ref_mag"])
                 mag_high = np.max(concatenated["ref_mag"])
@@ -837,37 +835,18 @@ def plot_metrics_summary(  # noqa: C901
                     labels = np.digitize(concatenated["ref_mag"], bins)
                     means = []
                     stds = []
-                    to_delete = []
                     for j in range(1, n_bins_target):
-                        mean = np.mean(
-                            concatenated["delta_" + k][
-                                (labels == j) & (concatenated["Measure function"] == meas_func)
-                            ]
-                        )
-                        if not np.isnan(mean):
-                            means.append(mean)
-                            stds.append(
-                                np.std(
-                                    concatenated["delta_" + k][
-                                        (labels == j)
-                                        & (concatenated["Measure function"] == meas_func)
-                                    ]
-                                )
-                            )
-                        else:
-                            to_delete.append(j)
-                    bins = np.delete(bins, to_delete)
+                        filtered_df = concatenated["delta_" + k][
+                                (labels == j) & (concatenated["Measure function"] == aliases.get(meas_func,meas_func))
+                            ].dropna()
+                        means.append(np.mean(filtered_df))
+                        stds.append(np.std(filtered_df))
+
                     ax[2 * i + 1].errorbar(
                         bins[1:] - (mag_high - mag_low) / n_bins_target, means, stds
                     )
 
-                ax[2 * i + 1].plot(
-                    np.linspace(mag_low, mag_high, 10),
-                    np.zeros((10)),
-                    linestyle="--",
-                    color="black",
-                    zorder=-10,
-                )
+                ax[2 * i + 1].axhline(0,linestyle="--",color="black",zorder=-10)
                 ax[2 * i + 1].set_xlabel("Magnitude")  # noqa: W605
                 ax[2 * i + 1].set_ylabel(f"$\\Delta${k}")  # noqa: W605
             plt.tight_layout()
@@ -889,7 +868,7 @@ def plot_metrics_summary(  # noqa: C901
                     )
                 else:
                     plot_efficiency_matrix(metrics_results["detection"][k]["eff_matrix"], ax=ax[i])
-                ax[i].set_title(k)
+                ax[i].set_title(aliases.get(k,k))
             if save_path is not None:
                 plt.savefig(os.path.join(save_path, "efficiency_matrices.png"))
             plt.show()
