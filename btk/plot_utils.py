@@ -296,9 +296,9 @@ def plot_with_deblended(
     rgb = len(band_indices) == 3
     for i in indexes:
         nrow = len(matches[i])
-        fig = plt.figure(constrained_layout=True, figsize=(10, 10 + 5 * nrow))
+        fig = plt.figure(constrained_layout=True, figsize=(10, 10 + 3.5 * nrow))
         spec = fig.add_gridspec(
-            nrow + 1, 3, height_ratios=[nrow] + [1] * nrow, width_ratios=[1, 1, 1]
+            nrow + 1, 3, height_ratios=[3] + [1] * nrow, width_ratios=[1, 1, 1]
         )
         ax = [[] for j in range(nrow + 1)]
         ax[0].append(fig.add_subplot(spec[0, :]))
