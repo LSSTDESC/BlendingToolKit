@@ -296,7 +296,7 @@ def plot_with_deblended(
     rgb = len(band_indices) == 3
     for i in indexes:
         nrow = len(matches[i])
-        fig = plt.figure(constrained_layout=True, figsize=(10, 10 + 3.5 * nrow))
+        fig = plt.figure(constrained_layout=True, figsize=(10, 10 + 10/3 * nrow))
         spec = fig.add_gridspec(
             nrow + 1, 3, height_ratios=[3] + [1] * nrow, width_ratios=[1, 1, 1]
         )
@@ -365,8 +365,7 @@ def plot_with_deblended(
                 )
                 if k == 0:
                     ax[k][-1].set_title("Detected galaxies")
-                if not rgb:
-                    ax[k][-1].set_yticks([])
+                ax[k][-1].set_yticks([])
                 ax[k].append(fig.add_subplot(spec[k + 1, 2]))
                 ax[k][-1].imshow(
                     get_image(
@@ -380,15 +379,15 @@ def plot_with_deblended(
                 )
                 if k == 0:
                     ax[k][-1].set_title("Residuals")
+                ax[k][-1].set_yticks([])
                 if not rgb:
-                    ax[k][-1].set_yticks([])
                     divider = make_axes_locatable(ax[k][-1])
                     ax[k].append(divider.append_axes("right", size="5%", pad=0.05))
                     normalize = Normalize(vmin=vmin / noise_level, vmax=vmax / noise_level)
                     cbar = fig.colorbar(cm.ScalarMappable(normalize), cax=ax[k][-1])
                     cbar.set_label("SNR")
                 # inset axes....
-                axins = ax[k][-2].inset_axes(
+                axins = ax[k][-1 if rgb else -2].inset_axes(
                     get_quadrant(
                         [blend_list[i]["x_peak"][k], blend_list[i]["y_peak"][k]],
                         isolated_images[i][k].shape[-1],
@@ -414,7 +413,7 @@ def plot_with_deblended(
                 axins.set_xticks([])
                 axins.set_yticks([])
 
-                ax[k][-2].indicate_inset_zoom(axins, edgecolor="black")
+                ax[k][-1 if rgb else -2].indicate_inset_zoom(axins, edgecolor="black")
         spec.tight_layout(fig)
         plt.show()
 
@@ -554,6 +553,7 @@ def plot_gal_parameters(blend_list, context="talk"):
 def plot_metrics_summary(  # noqa: C901
     metrics_results,
     target_meas_params={},
+    limits={},
     n_bins_target=30,
     aliases={},
     save_path=None,
@@ -564,9 +564,15 @@ def plot_metrics_summary(  # noqa: C901
 
     Args:
         metrics_results (dict): Output of a MetricsGenerator.
-        target_meas_keys (list): List of the keys for the target measures.
-        target_meas_limits (list): List of tuples indicating the limits for the plots
-                                   of the target measures
+        target_meas_params (dict): Dictionary indicating the parameters for the target measures.
+            Keys should correspond to the target measures. Values should be dictionaries,
+            supported keys are "limits" (setting the limits for the scatter plots) and "scale"
+            (can be "log" or "linear")
+        limits (dict) : Dictionary setting the limits for the magnitude, the blendedness and the size.
+            Keys should be "magnitude", "blendedness" and/or "size". Values should be tuples of length
+            2 indicating the desired bounds. Only works in non-interactive mode.
+        limits (dict): List of tuples indicating the limits for the plots
+                        of the target measures
         n_bins_target (int): Number of bins for the target measure plots
         aliases (dict) : Replaces the names contained in the keys by their
                                 associated values. Used to get proper names in the
@@ -584,23 +590,14 @@ def plot_metrics_summary(  # noqa: C901
     # We need to handle the multiresolution case
     if isinstance(metrics_results["galaxy_summary"][measure_keys[0]], dict):
         survey_keys = list(metrics_results["galaxy_summary"][measure_keys[0]].keys())
-        gal_summary_keys = list(
-            metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]].keys()
-        )
+        gal_summary_0 = metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]]
+        gal_summary_keys = list(gal_summary_0.keys())
         multiresolution = True
         # Limits for widgets
-        min_mag = np.min(
-            metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]]["ref_mag"]
-        )
-        max_mag = np.max(
-            metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]]["ref_mag"]
-        )
-        min_size = np.min(
-            metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]]["btk_size"]
-        )
-        max_size = np.max(
-            metrics_results["galaxy_summary"][measure_keys[0]][survey_keys[0]]["btk_size"]
-        )
+        min_mag = np.min(gal_summary_0["ref_mag"])
+        max_mag = np.max(gal_summary_0["ref_mag"])
+        min_size = np.min(gal_summary_0["btk_size"])
+        max_size = np.max(gal_summary_0["btk_size"])
     else:
         gal_summary_keys = list(metrics_results["galaxy_summary"][measure_keys[0]].keys())
         multiresolution = False
@@ -708,9 +705,9 @@ def plot_metrics_summary(  # noqa: C901
             meas_func_names = measure_keys
             if multiresolution:
                 surveys = survey_keys
-            blendedness_limits = [0, 1]
-            mag_limits = [min_mag, max_mag]
-            size_limits = [min_size, max_size]
+            blendedness_limits = limits.get("blendedness",[0, 1])
+            mag_limits = limits.get("magnitude",[min_mag, max_mag])
+            size_limits = limits.get("size",[min_size, max_size])
             plot_selections = {w: True for w in plot_keys}
             plot_selections["custom"] = False
 

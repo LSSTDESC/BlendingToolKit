@@ -141,7 +141,10 @@ def meas_fixed_aperture(image, additional_params):
         filt.psf_fwhm.to_value("arcsec") / pixel_scale,
         err=sky_level,
     )
-    result = [flux[0], fluxerr[0]]
+    try:
+        result = [flux[0], fluxerr[0]]
+    except:
+        result = [np.nan,np.nan]
     return result
 
 
