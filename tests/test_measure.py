@@ -2,13 +2,13 @@ import numpy as np
 from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
-from btk.draw_blends import CatsimGenerator
-from btk.measure import (
-    MeasureGenerator,
+from btk.deblend import (
+    DeblendGenerator,
     basic_measure,
     sep_multiband_measure,
     sep_singleband_measure,
 )
+from btk.draw_blends import CatsimGenerator
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
@@ -50,7 +50,7 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
         seed=TEST_SEED,
         batch_size=8,
     )
-    meas_generator = MeasureGenerator(
+    meas_generator = DeblendGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
     )
     blend_results, results = next(meas_generator)
@@ -159,7 +159,7 @@ def test_locations():
             seed=TEST_SEED,
             batch_size=4,
         )
-        meas_generator = MeasureGenerator(
+        meas_generator = DeblendGenerator(
             sep_singleband_measure, draw_blend_generator, measure_kwargs=[{"sigma_noise": 1.5}]
         )
 
@@ -198,7 +198,7 @@ def test_locations():
             seed=TEST_SEED,
             batch_size=4,
         )
-        meas_generator = MeasureGenerator(
+        meas_generator = DeblendGenerator(
             sep_singleband_measure, draw_blend_generator, measure_kwargs=[{"sigma_noise": 1.5}]
         )
         for _ in range(3):

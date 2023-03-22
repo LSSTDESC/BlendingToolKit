@@ -3,8 +3,8 @@ from unittest.mock import patch
 from conftest import data_dir
 
 from btk.catalog import CatsimCatalog
+from btk.deblend import DeblendGenerator, sep_multiband_measure, sep_singleband_measure
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator, sep_multiband_measure, sep_singleband_measure
 from btk.metrics import MetricsGenerator, meas_ksb_ellipticity
 from btk.plot_utils import plot_metrics_summary
 from btk.sampling_functions import DefaultSampling
@@ -33,7 +33,7 @@ def test_multiresolution(mock_show):
         add_noise=add_noise,
     )
 
-    meas_generator = MeasureGenerator(
+    meas_generator = DeblendGenerator(
         [sep_singleband_measure, sep_multiband_measure], draw_blend_generator, cpus=cpus
     )
     metrics_generator = MetricsGenerator(

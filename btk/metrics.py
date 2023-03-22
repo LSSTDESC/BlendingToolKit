@@ -4,8 +4,8 @@ from typing import Callable, Dict, Union
 
 import numpy as np
 
+from btk.deblend import DeblendedBatch
 from btk.draw_blends import BlendBatch
-from btk.measure import MeasuredBatch
 from btk.metrics_utils import get_id_matches, iou, match_stats
 
 
@@ -39,7 +39,7 @@ class Metric(ABC):
     def __call__(
         self,
         blend_batch: BlendBatch,
-        measured_batch: MeasuredBatch,
+        measured_batch: DeblendedBatch,
         *args,
         match_fn=get_id_matches,
         **kwargs,
@@ -60,7 +60,7 @@ class Precision(Metric):
     def _get_data(
         self,
         blend_batch: BlendBatch,
-        measured_batch: MeasuredBatch,
+        measured_batch: DeblendedBatch,
         match_fn: Callable = get_id_matches,
     ) -> Dict[str, np.ndarray]:
         """Compute precision on batch."""
@@ -107,7 +107,7 @@ class IoU(Metric):
     def _get_data(
         self,
         blend_batch: BlendBatch,
-        measured_batch: MeasuredBatch,
+        measured_batch: DeblendedBatch,
         match_fn=get_id_matches,
     ) -> Dict[str, np.ndarray]:
         assert "segmentation" in blend_batch.results[self.survey_name]

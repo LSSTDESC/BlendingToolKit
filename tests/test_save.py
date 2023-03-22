@@ -3,8 +3,8 @@ import tempfile
 import numpy as np
 
 from btk.catalog import CatsimCatalog
+from btk.deblend import DeblendGenerator, sep_singleband_measure
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator, sep_singleband_measure
 from btk.metrics import MetricsGenerator, meas_ksb_ellipticity
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
@@ -26,7 +26,7 @@ def test_save():
         stamp_size=stamp_size,
         save_path=output_dir,
     )
-    meas_generator = MeasureGenerator(
+    meas_generator = DeblendGenerator(
         sep_singleband_measure, draw_blend_generator, save_path=output_dir
     )
     metrics_generator = MetricsGenerator(

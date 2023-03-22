@@ -6,8 +6,8 @@ from conftest import data_dir
 
 import btk.plot_utils as plot_utils
 from btk.catalog import CatsimCatalog
+from btk.deblend import DeblendGenerator, sep_singleband_measure
 from btk.draw_blends import CatsimGenerator
-from btk.measure import MeasureGenerator, sep_singleband_measure
 from btk.metrics import (
     MetricsGenerator,
     auc,
@@ -50,7 +50,7 @@ def get_metrics_generator(
         stamp_size=stamp_size,
         seed=TEST_SEED,
     )
-    meas_generator = MeasureGenerator(
+    meas_generator = DeblendGenerator(
         meas_function, draw_blend_generator, cpus=cpus, measure_kwargs=measure_kwargs
     )
     metrics_generator = MetricsGenerator(
