@@ -491,7 +491,10 @@ class CatsimGenerator(DrawBlendsGenerator):
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
             return gal_conv.drawImage(
-                nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
+                nx=pix_stamp_size,
+                ny=pix_stamp_size,
+                scale=survey.pixel_scale.to_value("arcsec"),
+                bandpass=None,
             )
 
         except SourceNotVisible:
@@ -616,7 +619,10 @@ class CosmosGenerator(DrawBlendsGenerator):
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
         return gal_conv.drawImage(
-            nx=pix_stamp_size, ny=pix_stamp_size, scale=survey.pixel_scale.to_value("arcsec")
+            nx=pix_stamp_size,
+            ny=pix_stamp_size,
+            scale=survey.pixel_scale.to_value("arcsec"),
+            bandpass=None,
         )
 
 
@@ -723,7 +729,7 @@ class BlendBatch:
                 pickle.dump(psfs, f)
 
         # save general info about blend
-        with open(os.path.join(path, "blend.json"), "w") as f:
+        with open(os.path.join(path, "blend.json"), "w", encoding="utf-8") as f:
             json.dump(
                 {
                     "batch_size": self.batch_size,
@@ -736,7 +742,7 @@ class BlendBatch:
     @classmethod
     def load_results(cls, path: str, batch_number: int = 0):
         """Load blend results from path."""
-        with open(os.path.join(path, "blend.json"), "r") as f:
+        with open(os.path.join(path, "blend.json"), "r", encoding="utf-8") as f:
             blend_config = json.load(f)
         blend = cls(**blend_config)
         # get folders within the path
