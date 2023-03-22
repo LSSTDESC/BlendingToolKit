@@ -20,12 +20,11 @@ from btk.survey import get_surveys
 
 
 @dataclass
-class MeasuredExample:
+class DeblendedExample:
     """Class that validates the results of the measurement for a single image.
 
     For now, the segmentation and deblended images must correspond only to the
     single `survey_name` survey.
-
     """
 
     max_n_sources: int
@@ -89,7 +88,7 @@ class MeasuredExample:
 
 
 @dataclass
-class MeasuredBatch:
+class DeblendedBatch:
     """Class that validates the results of the measurement for a batch of images."""
 
     max_n_sources: int
@@ -148,7 +147,7 @@ class MeasuredBatch:
     def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
-            f"MeasuredBatch(batch_size = {self.batch_size}, "
+            f"DeblendedBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}, "
             f"survey_name = {self.survey_name})" + ", containing: \n"
         )
@@ -180,7 +179,7 @@ class MeasuredBatch:
                 pickle.dump(self.catalog, f)
 
         # save general info about class
-        with open(os.path.join(path, "meas.json"), "w") as f:
+        with open(os.path.join(path, "meas.json"), "w", encoding="utf-8") as f:
             json.dump(
                 {
                     "batch_size": self.batch_size,
@@ -195,7 +194,7 @@ class MeasuredBatch:
     def load_batch(cls, path: str, survey_name: str, batch_number: int):
         """Load batch of measure results from disk."""
         load_dir = os.path.join(path, str(batch_number), survey_name)
-        with open(os.path.join(path, "meas.json"), "r") as f:
+        with open(os.path.join(path, "meas.json"), "r", encoding="utf-8") as f:
             meas_config = json.load(f)
         assert meas_config["survey_name"] == survey_name
 
@@ -211,14 +210,14 @@ class MeasuredBatch:
         )
 
 
-class Measure(ABC):
+class Deblender(ABC):
     """Abstract base class containing the measure class for BTK.
 
     Each new measure class should be a subclass of Measure.
     """
 
     @abstractmethod
-    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Implements the call of a measure function on the i-th example.
 
         Overwrite this function if you perform measurment one image at a time.
@@ -230,7 +229,7 @@ class Measure(ABC):
             Instance of `MeasuredExample` class
         """
 
-    def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> MeasuredBatch:
+    def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> DeblendedBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on the batch.
@@ -256,7 +255,7 @@ class Measure(ABC):
             segmentation = np.array([measured_example.segmentation for measured_example in output])
         if output[0].deblended_images is not None:
             deblended = np.array([measured_example.deblended_images for measured_example in output])
-        return MeasuredBatch(
+        return DeblendedBatch(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             batch_size=blend_batch.batch_size,
@@ -272,7 +271,7 @@ class Measure(ABC):
         return cls.__name__
 
 
-class PeakLocalMax(Measure):
+class PeakLocalMax(Deblender):
     """This class detects centroids with `skimage.feature.peak_local_max`.
 
     The function performs detection and deblending of the sources based on the provided
@@ -308,7 +307,7 @@ class PeakLocalMax(Measure):
         self.use_mean = use_mean
         self.use_band = use_band
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         blend_image = blend_batch[self.survey_name].blend_images[i]
         if self.use_mean:
@@ -333,7 +332,7 @@ class PeakLocalMax(Measure):
         catalog = astropy.table.Table()
         catalog["ra"], catalog["dec"] = ra, dec
 
-        return MeasuredExample(
+        return DeblendedExample(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
@@ -341,7 +340,7 @@ class PeakLocalMax(Measure):
         )
 
 
-class SepSingleband(Measure):
+class SepSingleband(Deblender):
     """Return detection, segmentation and deblending information running SEP on a single band.
 
     The function performs detection and deblending of the sources based on the provided
@@ -373,7 +372,7 @@ class SepSingleband(Measure):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch[self.survey_name].blend_images[i]
@@ -406,7 +405,7 @@ class SepSingleband(Measure):
         # wrap results in astropy table
         t = astropy.table.Table()
         t["ra"], t["dec"] = ra, dec
-        return MeasuredExample(
+        return DeblendedExample(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
@@ -416,7 +415,7 @@ class SepSingleband(Measure):
         )
 
 
-class SepMultiband(Measure):
+class SepMultiband(Deblender):
     """This class returns centers detected with SEP by combining predictions in different bands.
 
     For each band in the input image we run sep for detection and append new detections to a running
@@ -438,7 +437,7 @@ class SepMultiband(Measure):
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> MeasuredExample:
+    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         # run source extractor on the first band
         wcs = blend_batch[self.survey_name].wcs
@@ -488,7 +487,7 @@ class SepMultiband(Measure):
         catalog = astropy.table.Table()
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
-        return MeasuredExample(
+        return DeblendedExample(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
@@ -496,71 +495,66 @@ class SepMultiband(Measure):
         )
 
 
-class MeasureGenerator:
+class DeblendGenerator:
     """Generates output of deblender and measurement algorithm."""
 
     def __init__(
         self,
-        measures: Union[List[Measure], Measure],
+        deblenders: Union[List[Deblender], Deblender],
         draw_blend_generator: DrawBlendsGenerator,
         cpus: int = 1,
         verbose: bool = False,
-        save_path: Optional[str] = None,
     ):
         """Initialize measurement generator.
 
         Args:
-            measures: Measure or a list of Measures that will be performed on the
-                outputs of the draw_blend_generator.
+            deblenders: Deblender or a list of Deblender that will be used on the
+                            outputs of the draw_blend_generator.
             draw_blend_generator: Instance of subclasses of `DrawBlendsGenerator`.
             cpus: The number of parallel processes to run [Default: 1].
             verbose: Whether to print information about measurement.
-            save_path: Path to a directory where results will be saved.
-                    If None, results will not be saved.
         """
-        self.measures = self._validate_measure_functions(measures)
-        self.measures_names = self._get_unique_measure_names()
+        self.deblenders = self._validate_deblenders(deblenders)
+        self.measures_names = self._get_unique_deblender_names()
         self.draw_blend_generator = draw_blend_generator
         self.cpus = cpus
 
         self.batch_size = self.draw_blend_generator.batch_size
         self.verbose = verbose
-        self.save_path = save_path
 
     def __iter__(self):
         """Return iterator which is the object itself."""
         return self
 
-    def _validate_measure_functions(self, measures) -> List[Measure]:
+    def _validate_deblenders(self, deblenders) -> List[Deblender]:
         """Ensure all measure functions are subclasses of `Measure` and correctly instantiated."""
-        if not isinstance(measures, list):
-            measures = [measures]
+        if not isinstance(deblenders, list):
+            deblenders = [deblenders]
 
-        for meas in measures:
-            if inspect.isclass(meas):
-                if not issubclass(meas, Measure):
-                    raise TypeError(f"'{meas.__name__}' must subclass from Measure")
-                else:
-                    raise TypeError(
-                        f"'{meas.__name__}' must be instantiated. Use '{meas.__name__}()' instead"
-                    )
-            elif not isinstance(meas, Measure):
+        for deblender in deblenders:
+            if inspect.isclass(deblender):
+                if not issubclass(deblender, Deblender):
+                    raise TypeError(f"'{deblender.__name__}' must subclass from Measure")
                 raise TypeError(
-                    f"Got type'{type(meas)}', but expected an object of a Measure class"
+                    f"'{deblender.__name__}' must be instantiated. Use '{deblender.__name__}()'"
                 )
-        return measures
+            if not isinstance(deblender, Deblender):
+                raise TypeError(
+                    f"Got type'{type(deblender)}', but expected an object of a Measure class"
+                )
+        return deblenders
 
-    def _get_unique_measure_names(self) -> List[str]:
-        """Get list of unique indexed names of each measure function passed in (as necessary)."""
-        measures_names = [str(meas) for meas in self.measures]
-        names_counts = {name: 0 for name in set(measures_names) if measures_names.count(name) > 1}
-        for ii, name in enumerate(measures_names):
+    def _get_unique_deblender_names(self) -> List[str]:
+        """Get list of unique indexed names of each deblender passed in (as necessary)."""
+        deblender_names = [str(deblender) for deblender in self.deblenders]
+        names_counts = {name: 0 for name in set(deblender_names) if deblender_names.count(name) > 1}
+        for ii, name in enumerate(deblender_names):
             if name in names_counts:
-                measures_names[ii] += f"_{names_counts[name]}"
+                deblender_names[ii] += f"_{names_counts[name]}"
                 names_counts[name] += 1
-        return measures_names
+        return deblender_names
 
-    def __next__(self) -> Tuple[BlendBatch, Dict[str, MeasuredBatch]]:
+    def __next__(self) -> Tuple[BlendBatch, Dict[str, DeblendedBatch]]:
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
@@ -571,7 +565,7 @@ class MeasureGenerator:
         blend_output = next(self.draw_blend_generator)
         meas_output = {
             meas_name: meas.batch_call(blend_output)
-            for meas_name, meas in zip(self.measures_names, self.measures)
+            for meas_name, meas in zip(self.measures_names, self.deblenders)
         }
         return blend_output, meas_output
 
