@@ -15,8 +15,8 @@ DEFAULT_SEED = 0
 from . import (
     catalog,
     create_blend_generator,
+    deblend,
     draw_blends,
-    measure,
     metrics,
     multiprocess,
     plot_utils,
