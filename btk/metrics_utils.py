@@ -285,3 +285,15 @@ def meas_fixed_aperture(image, additional_params):
     )
     result = [flux[0], fluxerr[0]]
     return result
+
+
+# TODO: metrics module in python (folder)
+# output of matching, `matching.py`, a
+# class that does the matching and all functions related to matching e.g. `match_stats`
+# one file per metric, e.g. reconstruction.py, detection.py, segmentation.py, etc.
+# that come from the `metrics_utis.py` file
+# play with `__init__.py` module to surface the functions in the `metrics` folder
+# TODO: probably a class that uses output from other part of BTK.
+# TODO: `btkize` my output? function that make it very explicit. (make it very simple to use)
+# only one kind of input possible for metrics. (no need to have a lot of different functions)
+# TODO: do matching complete separate, and provide `Match` object.

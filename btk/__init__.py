@@ -19,7 +19,6 @@ from . import (
     draw_blends,
     metrics,
     multiprocess,
-    plot_utils,
     sampling_functions,
     survey,
     utils,
