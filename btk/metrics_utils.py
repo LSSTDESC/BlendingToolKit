@@ -115,7 +115,7 @@ def psnr(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     return psnr
 
 
-def ssim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
+def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     """Compute structural similarity index from skimage.
 
     Args:
