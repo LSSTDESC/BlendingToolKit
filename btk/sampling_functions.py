@@ -88,7 +88,7 @@ class DefaultSampling(SamplingFunction):
         return "CatsimCatalog", "CosmosCatalog"
 
     def __call__(self, table, shifts=None, indexes=None):
-        """Applies default sampling to the input CatSim-like catalog.
+        """Applies default sampling to catalog.
 
         Returns an astropy table with entries corresponding to a blend centered close to postage
         stamp center.
@@ -141,9 +141,7 @@ class BasicSampling(SamplingFunction):
     Includes magnitude cut, restriction on the shape, shift randomization.
     """
 
-    def __init__(
-        self, max_number=4, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED
-    ):
+    def __init__(self, max_number=4, min_number=1, stamp_size=24.0, seed=DEFAULT_SEED):
         """Initializes the basic sampling function.
 
         Args:
@@ -156,7 +154,6 @@ class BasicSampling(SamplingFunction):
         """
         super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
-        self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
 
         if min_number < 1:
             raise ValueError("At least 1 bright galaxy will be added, so need min_number >=1.")
