@@ -72,15 +72,15 @@ class DeblendedExample:
             f"stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
             + ", containing: \n"
         )
-        string += "\tcatalog: " + str(type(self.catalog[0]))
+        string += "\tcatalog: " + str(astropy.table.Table)
 
         if self.segmentation is not None:
-            string += "\n\tsegmentation: np.ndarray, shape " + str(list(self.segmentation.shape))
+            string += "\n\tsegmentation: " + str(np.ndarray) + ", shape " + str(list(self.segmentation.shape))
         else:
             string += "\n\tsegmentation: None"
 
         if self.deblended_images is not None:
-            string += "\n\tdeblended_images: np.ndarray, shape "
+            string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape "
             string += str(list(self.deblended_images.shape))
         else:
             string += "\n\tdeblended_images: None"
@@ -152,16 +152,16 @@ class DeblendedBatch:
             f"survey_name = {self.survey_name})" + ", containing: \n"
         )
         string += (
-            "\tcatalog: list of " + str(type(self.catalog[0])) + ", size " + str(len(self.catalog))
+            "\tcatalog: list of " + str(astropy.table.Table) + ", size " + str(len(self.catalog))
         )
 
         if self.segmentation is not None:
-            string += "\n\tsegmentation: np.ndarray, shape " + str(list(self.segmentation.shape))
+            string += "\n\tsegmentation: " + str(np.ndarray) + ", shape " + str(list(self.segmentation.shape))
         else:
             string += "\n\tsegmentation: None"
 
         if self.deblended_images is not None:
-            string += "\n\tdeblended_images: np.ndarray, shape " + str(
+            string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape " + str(
                 list(self.deblended_images.shape)
             )
         else:

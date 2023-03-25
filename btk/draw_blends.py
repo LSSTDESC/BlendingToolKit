@@ -644,11 +644,11 @@ class SurveyBatch:
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
         string += (
             "\n\t blend_list: list of "
-            + str(type(self.blend_list))
+            + str(Table)
             + ", size "
             + str(len(self.blend_list))
         )
-        string += "\n\t psfs: list of " + str(type(self.psfs)) + ", size " + str(len(self.psfs))
+        string += "\n\t psfs: list of " + str(galsim.GSObject) + ", size " + str(len(self.psfs))
         string += "\n\t wcs: " + str(type(self.wcs)) + ")"
         return string
 
