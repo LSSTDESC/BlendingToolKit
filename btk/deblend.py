@@ -570,7 +570,7 @@ class DeblendGenerator:
         return blend_output, meas_output
 
 
-available_measure_functions = {
+available_deblenders = {
     "PeakLocalMax": PeakLocalMax,
     "SepSingleBand": SepSingleband,
     "SepMultiBand": SepMultiband,
