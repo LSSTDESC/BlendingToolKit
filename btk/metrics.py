@@ -6,7 +6,8 @@ import numpy as np
 
 from btk.deblend import DeblendedBatch
 from btk.draw_blends import BlendBatch
-from btk.metrics_utils import get_id_matches, iou, match_stats
+from btk.match import get_id_matches
+from btk.metrics_utils import iou, match_stats
 
 
 class Metric(ABC):
