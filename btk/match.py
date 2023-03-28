@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Tuple
+from typing import Tuple
 import numpy as np
 from astropy import units
 from astropy.table import Table
@@ -36,9 +36,8 @@ def pixel_l2_distance_matrix(
 
 
 class Matching(ABC):
-    def __init__(self, distance_matrix_function: Callable, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """Initialize matching class."""
-        self.distance_matrix_function = distance_matrix_function
 
     @abstractmethod
     def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
@@ -60,32 +59,29 @@ class IdentityMatching(Matching):
     """Assuming that catalogs are already matched one-to-one, performs trivial identity matching;"""
 
     def __call__(self, truth_catalog, predicted_catalog) -> np.ndarray:
-        return np.array(range(len(truth_catalog)))
+        return np.array(range(len(predicted_catalog)))
 
 
-class HungarianMatching(Matching):
-    def __init__(
-        self, dist_thresh=5.0, distance_matrix_function=pixel_l2_distance_matrix, *args, **kwargs
-    ) -> None:
+class PixelHungarianMatching(Matching):
+    def __init__(self, pixel_max_sep=5.0, *args, **kwargs) -> None:
         """Initialize matching class.
 
         Args:
-            dist_thresh: match detections only if they are at most dist_thresh appart
-            distance_matrix_function: function to compute the distance matrix
+            max_sep: the maximum separation in pixels to be considered a match
         """
-        self.distance_function = distance_matrix_function
-        self.dist_thresh = dist_thresh
+        self.distance_function = pixel_l2_distance_matrix
+        self.max_sep = pixel_max_sep
 
     def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+        """Extract pixel coordinates out of catalogs"""
         if "x_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column x_peak")
+            raise KeyError("One of the catalogs has no column 'x_peak'")
         if "y_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column y_peak")
+            raise KeyError("One of the catalogs has no column 'y_peak'")
         return (catalog["x_peak"], catalog["y_peak"])
 
     def __call__(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
         """Performs Hungarian matching algorithm on pixel coordinates from catalogs.
-        The optimal matching is computed based on the following optimization problem:
 
         Based on this implementation in scipy:
         https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
@@ -94,8 +90,8 @@ class HungarianMatching(Matching):
             truth_catalog: truth catalog containing relevant detecion information
             predicted_catalog: predicted catalog to compare with the ground truth
         Returns:
-            matches: Index of row in `pred` table corresponding to matched detected object.
-                If no match, value is -1.
+            matches: a 1D array where j-th entry is the index of the target row
+                that matched with the j-th detected row. If no match, value is -1.
         """
         dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
         # solve optimization problem using Hungarian matching algorithm
@@ -103,7 +99,63 @@ class HungarianMatching(Matching):
         # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
         true_indx, detected_indx = linear_sum_assignment(dist)
 
-        # if the distance is greater than dist_thresh then mark detection as -1
-        mask = dist[true_indx, detected_indx] > self.dist_thresh
+        # if the distance is greater than max_sep then mark detection as -1
+        mask = dist[true_indx, detected_indx] > self.max_sep
         detected_indx[mask] = -1
         return detected_indx
+
+
+class ClosestSkyNeighbourMatching(Matching):
+    def __init__(self, arcsec_max_sep=2.0, *args, **kwargs) -> None:
+        """Initialize matching class.
+
+        Args:
+            max_sep: the maximum separation in arcsec to be considered a match
+            num_neighbours: number of closest neighbours to consider for each target
+        """
+        self.max_sep = arcsec_max_sep
+
+    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+        """Extract ra, dec coordinates out of catalogs"""
+        if "ra" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'ra'")
+        if "dec" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'dec'")
+        return (catalog["ra"], catalog["dec"])
+
+    def __call__(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
+        """
+        Performs 1st Nearest Neigbour look up for each coordinate in predicted_catalog.
+        Then we prune repeated detections of a given target source by assigning it
+        to the closest object in the predicted catalog, and discarding the rest. Finally,
+        we apply max_separation threshold.
+
+        Based on this implementation in AstroPy:
+        https://docs.astropy.org/en/stable/coordinates/matchsep.html
+
+        Args:
+            truth_catalog: truth catalog containing relevant detecion information
+            predicted_catalog: predicted catalog to compare with the ground truth
+        Returns:
+            matches: a 1D array where j-th entry is the index of the target row
+                that matched with the j-th detected row. If no match, value is -1.
+        """
+        ra1, dec1 = self.preprocess_catalog(truth_catalog)
+        ra2, dec2 = self.preprocess_catalog(predicted_catalog)
+        true_coordinates = SkyCoord(ra=ra1 * units.arcsec, dec=dec1 * units.arcsec)
+        pred_coordinates = SkyCoord(ra=ra2 * units.arcsec, dec=dec2 * units.arcsec)
+
+        # computes 1st nearest neighbour
+        idx, d2d, _ = pred_coordinates.match_to_catalog_sky(true_coordinates)
+
+        # remove repeated detecions, saving only closest one
+        match_idx = np.array([-1] * len(idx))
+        for target_idx in set(idx):
+            masked_d2d = d2d.arcsec.copy()
+            masked_d2d[idx != target_idx] = np.inf
+            match_id = np.argmin(masked_d2d)
+            match_idx[match_id] = target_idx
+
+        # if the matched distance exceeds max_sep, we discard that detection
+        match_idx[d2d * units.arcsec > self.max_sep] = -1
+        return match_idx
