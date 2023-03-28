@@ -1,107 +1,109 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Tuple
 import numpy as np
+from astropy import units
 from astropy.table import Table
+from astropy.coordinates import SkyCoord
 from scipy.optimize import linear_sum_assignment
+from scipy import spatial
+
+
+def pixel_l2_distance_matrix(
+    x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray
+) -> np.ndarray:
+    """Computes the pixel L2 (Ecludian) distance matrix between target objects (x1, y1)
+    and detected objects (x2, y2).
+
+    Args:
+        x1: an array of x-coordinate(s) of target objects in pixels
+        y1: an array of y-coordinate(s) of target objects in pixels
+        x2: an array of x-coordinate(s) of detected objects in pixels
+        y2: an array of y-coordinate(s) of detected objects in pixels
+
+    Return:
+        a 2d array of shape [len(x1), len(x2)] of L2 pixel distances between targets and detected objects
+
+    The funciton works even if the number of target objects is different from number of output
+    objects. Note that i-th row and j-th column of the output matrix denotes the distance
+    between the i-th target object and j-th predicted object.
+    """
+    assert (
+        x1.shape == y1.shape and x2.shape == y2.shape
+    ), "Shapes of corresponding arrays must be the same."
+    target_vectors = np.stack((x1, y1), axis=1)
+    prediction_vectors = np.stack((x2, y2), axis=1)
+    return spatial.distance_matrix(target_vectors, prediction_vectors)
 
 
 class Matching(ABC):
-    def __init__(self, distance_function: Callable, *args, **kwargs) -> None:
+    def __init__(self, distance_matrix_function: Callable, *args, **kwargs) -> None:
         """Initialize matching class."""
-        self.distance_function = distance_function
+        self.distance_matrix_function = distance_matrix_function
 
     @abstractmethod
-    def match():
-        pass
+    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+        """Extracts coordinate information required for matching."""
+
+    def compute_distance_matrix(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
+        """Based on the catalogs and user-defined preprocessing computes distance matrix."""
+        x1, y1 = self.preprocess_catalog(truth_catalog)
+        x2, y2 = self.preprocess_catalog(predicted_catalog)
+        return self.distance_matrix_function(x1, y1, x2, y2)
+
+    @abstractmethod
+    def __call__(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
+        # TODO: explain the output of the match method here or in child classes?
+        """Perform matching procedure between truth and prediction"""
 
 
-def distance_center(cat1: Table, cat2: Table) -> np.ndarray:
-    """Computes the euclidean distance between the two galaxies given as arguments.
+class IdentityMatching(Matching):
+    """Assuming that catalogs are already matched one-to-one, performs trivial identity matching;"""
 
-    Args:
-        cat1: Catalog containing at least columns `x_peak` and `y_peak`.
-        cat2: Catalog containing at least columns `x_peak` and `y_peak`.
-
-    Returns:
-        Distance between corresponding galaxies in each catalog as an np.ndarray.
-    """
-    x_peak1, y_peak1 = cat1["x_peak"].data, cat1["y_peak"].data
-    x_peak2, y_peak2 = cat2["x_peak"].data, cat2["y_peak"].data
-    return np.hypot(x_peak1 - x_peak2, y_peak1 - y_peak2)
+    def __call__(self, truth_catalog, predicted_catalog) -> np.ndarray:
+        return np.array(range(len(truth_catalog)))
 
 
-def get_id_matches(truth: Table, pred: Table) -> Tuple[np.ndarray, np.ndarray]:
-    """Assume catalogs are already matched one-to-one."""
-    dist = distance_center(truth, pred)
-    return list(range(len(truth))), dist
+class HungarianMatching(Matching):
+    def __init__(
+        self, dist_thresh=5.0, distance_matrix_function=pixel_l2_distance_matrix, *args, **kwargs
+    ) -> None:
+        """Initialize matching class.
 
+        Args:
+            dist_thresh: match detections only if they are at most dist_thresh appart
+            distance_matrix_function: function to compute the distance matrix
+        """
+        self.distance_function = distance_matrix_function
+        self.dist_thresh = dist_thresh
 
-def get_least_dist_matches(
-    truth: Table,
-    pred: Table,
-    f_distance: Callable = distance_center,
-    dist_thresh: float = 5.0,
-) -> Tuple[np.ndarray, np.ndarray]:
-    r"""Uses the Hungarian algorithm to find optimal matching between detections and true objects.
+    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+        if "x_peak" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column x_peak")
+        if "y_peak" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column y_peak")
+        return (catalog["x_peak"], catalog["y_peak"])
 
-    The optimal matching is computed based on the following optimization problem:
+    def __call__(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
+        """Performs Hungarian matching algorithm on pixel coordinates from catalogs.
+        The optimal matching is computed based on the following optimization problem:
 
-    .. math::
+        Based on this implementation in scipy:
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
 
-        \sum_{i} \sum_{j} C_{i,j} X_{i,j}
+        Args:
+            truth_catalog: truth catalog containing relevant detecion information
+            predicted_catalog: predicted catalog to compare with the ground truth
+        Returns:
+            matches: Index of row in `pred` table corresponding to matched detected object.
+                If no match, value is -1.
+        """
+        dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
+        # solve optimization problem using Hungarian matching algorithm
+        # truth_catalog[true_indx[i]] is matched with predicted_catalog[detected_indx[i]]
+        # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
+        true_indx, detected_indx = linear_sum_assignment(dist)
 
-    where, in the BTK context, :math:`C_{ij}` is the cost function between matching true object
-    :math:`i` with detected object :math:`j` computed as the L2 distance between the two objects,
-    and :math:`X_{i,j}` is an indicator function over the matches.
-
-    Based on this implementation in scipy:
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
-
-    Args:
-        truth: Table with entries corresponding to
-            the true object parameter values in one blend.
-        pred: Table with entries corresponding
-            to output of measurement algorithm in one blend.
-        f_distance: Function used to compute the distance between true and detected
-            galaxies. Takes as arguments the entries corresponding to the two galaxies.
-            By default the distance is the euclidean distance from center to center.
-        dist_thresh: Maximum distance for matching a detected and a
-                true galaxy in pixels.
-
-    Returns:
-        Tuple containing two elements:
-            - "matches": Index of row in `pred` table corresponding to
-                matched detected object. If no match, value is -1.
-            - "dist_m": distance between true object and matched object or 0 if not matched.
-
-    """
-    if "x_peak" not in truth.colnames:
-        raise KeyError("True table has no column x_peak")
-    if "y_peak" not in truth.colnames:
-        raise KeyError("True table has no column y_peak")
-    if "x_peak" not in pred.colnames:
-        raise KeyError("Detection table has no column x_peak")
-    if "y_peak" not in pred.colnames:
-        raise KeyError("Detection table has no column y_peak")
-
-    # dist[i][j] = distance between true object i and detected object j.
-    dist = np.zeros((len(truth), len(pred)))
-    for i, true_gal in enumerate(truth):
-        for j, detected_gal in enumerate(pred):
-            dist[i][j] = f_distance(true_gal, detected_gal)
-
-    # solve optimization problem.
-    # true_table[true_indx[i]] is matched with detected_table[detected_indx[i]]
-    # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
-    true_indx, detected_indx = linear_sum_assignment(dist)
-
-    # for each true galaxy i, match_indx[i] is the index of detected_table matched to that true
-    # galaxy or -1 if there is no match.
-    match_indx = [-1] * len(truth)
-    dist_m = [0.0] * len(truth)
-    for i, indx in enumerate(true_indx):
-        if dist[indx][detected_indx[i]] <= dist_thresh:
-            match_indx[indx] = detected_indx[i]
-            dist_m[indx] = dist[indx][detected_indx[i]]
-
-    return match_indx, dist_m
+        # if the distance is greater than dist_thresh then mark detection as -1
+        mask = dist[true_indx, detected_indx] > self.dist_thresh
+        detected_indx[mask] = -1
+        return detected_indx
