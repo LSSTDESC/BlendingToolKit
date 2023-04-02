@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
 import numpy as np
 from astropy import units
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from scipy.optimize import linear_sum_assignment
 from scipy import spatial
-
+from typing import Tuple
 
 def pixel_l2_distance_matrix(
     x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray
@@ -40,7 +39,7 @@ class Matching(ABC):
         """Initialize matching class."""
 
     @abstractmethod
-    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts coordinate information required for matching."""
 
     def compute_distance_matrix(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
@@ -63,7 +62,9 @@ class IdentityMatching(Matching):
 
 
 class PixelHungarianMatching(Matching):
-    def __init__(self, pixel_max_sep=5.0, *args, **kwargs) -> None:
+    def __init__(
+        self, pixel_max_sep=5.0, *args, **kwargs
+    ) -> None:
         """Initialize matching class.
 
         Args:
@@ -72,7 +73,7 @@ class PixelHungarianMatching(Matching):
         self.distance_function = pixel_l2_distance_matrix
         self.max_sep = pixel_max_sep
 
-    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extract pixel coordinates out of catalogs"""
         if "x_peak" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'x_peak'")
@@ -90,7 +91,7 @@ class PixelHungarianMatching(Matching):
             truth_catalog: truth catalog containing relevant detecion information
             predicted_catalog: predicted catalog to compare with the ground truth
         Returns:
-            matches: a 1D array where j-th entry is the index of the target row
+            matches: a 1D array where j-th entry is the index of the target row 
                 that matched with the j-th detected row. If no match, value is -1.
         """
         dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
@@ -104,7 +105,6 @@ class PixelHungarianMatching(Matching):
         detected_indx[mask] = -1
         return detected_indx
 
-
 class ClosestSkyNeighbourMatching(Matching):
     def __init__(self, arcsec_max_sep=2.0, *args, **kwargs) -> None:
         """Initialize matching class.
@@ -115,14 +115,14 @@ class ClosestSkyNeighbourMatching(Matching):
         """
         self.max_sep = arcsec_max_sep
 
-    def preprocess_catalog(self, catalog: Table) -> Tuple(np.ndarray, np.ndarray):
+    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extract ra, dec coordinates out of catalogs"""
         if "ra" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'ra'")
         if "dec" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'dec'")
         return (catalog["ra"], catalog["dec"])
-
+    
     def __call__(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
         """
         Performs 1st Nearest Neigbour look up for each coordinate in predicted_catalog.
@@ -137,25 +137,25 @@ class ClosestSkyNeighbourMatching(Matching):
             truth_catalog: truth catalog containing relevant detecion information
             predicted_catalog: predicted catalog to compare with the ground truth
         Returns:
-            matches: a 1D array where j-th entry is the index of the target row
+            matches: a 1D array where j-th entry is the index of the target row 
                 that matched with the j-th detected row. If no match, value is -1.
         """
         ra1, dec1 = self.preprocess_catalog(truth_catalog)
         ra2, dec2 = self.preprocess_catalog(predicted_catalog)
-        true_coordinates = SkyCoord(ra=ra1 * units.arcsec, dec=dec1 * units.arcsec)
-        pred_coordinates = SkyCoord(ra=ra2 * units.arcsec, dec=dec2 * units.arcsec)
-
+        true_coordinates = SkyCoord(ra = ra1*units.arcsec, dec=dec1*units.arcsec)
+        pred_coordinates = SkyCoord(ra = ra2*units.arcsec, dec=dec2*units.arcsec)
+        
         # computes 1st nearest neighbour
         idx, d2d, _ = pred_coordinates.match_to_catalog_sky(true_coordinates)
 
         # remove repeated detecions, saving only closest one
-        match_idx = np.array([-1] * len(idx))
+        detected_indx = np.array([-1] * len(idx))
         for target_idx in set(idx):
             masked_d2d = d2d.arcsec.copy()
             masked_d2d[idx != target_idx] = np.inf
             match_id = np.argmin(masked_d2d)
-            match_idx[match_id] = target_idx
+            detected_indx[match_id] = target_idx
 
         # if the matched distance exceeds max_sep, we discard that detection
-        match_idx[d2d * units.arcsec > self.max_sep] = -1
-        return match_idx
+        detected_indx[d2d.to(units.arcsec) > self.max_sep] = -1
+        return detected_indx

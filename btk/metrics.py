@@ -6,7 +6,7 @@ import numpy as np
 
 from btk.deblend import DeblendedBatch
 from btk.draw_blends import BlendBatch
-from btk.match import get_id_matches
+from btk.match import IdentityMatching
 from btk.metrics_utils import iou, match_stats
 
 
@@ -42,7 +42,7 @@ class Metric(ABC):
         blend_batch: BlendBatch,
         measured_batch: DeblendedBatch,
         *args,
-        match_fn=get_id_matches,
+        match_fn=IdentityMatching,
         **kwargs,
     ) -> np.ndarray:
         """Compute metric on batch, update global state, and return metric."""
@@ -62,7 +62,7 @@ class Precision(Metric):
         self,
         blend_batch: BlendBatch,
         measured_batch: DeblendedBatch,
-        match_fn: Callable = get_id_matches,
+        match_fn: Callable = IdentityMatching,
     ) -> Dict[str, np.ndarray]:
         """Compute precision on batch."""
         matches = []
@@ -109,7 +109,7 @@ class IoU(Metric):
         self,
         blend_batch: BlendBatch,
         measured_batch: DeblendedBatch,
-        match_fn=get_id_matches,
+        match_fn=IdentityMatching,
     ) -> Dict[str, np.ndarray]:
         assert "segmentation" in blend_batch.results[self.survey_name]
 
