@@ -17,7 +17,7 @@ from skimage.feature import peak_local_max
 from btk.draw_blends import BlendBatch, DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
-
+from btk.match import Matching, IdentityMatching
 
 @dataclass
 class DeblendedExample:
@@ -144,6 +144,41 @@ class DeblendedBatch:
             )
         return deblended_images
 
+    # TODO remove survey_name from arguments once BlendBatch is refactored.
+    def match(self, blend_batch: BlendBatch, survey_name: str, matching: Matching = IdentityMatching()) -> None:
+        """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
+        assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
+        self.match_list = []
+        for i in range(self.batch_size):
+            # performs matching procedure
+            truth_catalog = blend_batch[survey_name].blend_list[i]
+            predicted_catalog  = self.catalog[i]
+            match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
+            self.match_list.append(match_indx)
+            # rearanges catalog according to the matches
+            new_table = astropy.table.Table(names = predicted_catalog.colnames)
+            for j in range(len(truth_catalog)):
+                if j in match_indx:
+                    new_table.add_row(predicted_catalog[np.where(match_indx == j)[0][0]])
+                else:
+                    new_table.add_row([None] * len(predicted_catalog.colnames))
+            self.catalog[i] = new_table
+
+            # segmentation and deblended_images are of size max_n_sources across axis=1
+            # we want to rarange an array across that axis using match_indx
+            full_indx = np.arange(self.max_n_sources)
+            rearange_indx = np.array([-1] * len(full_indx))
+            rearange_indx[:len(match_indx)] = match_indx
+            rearange_indx[rearange_indx == -1] = list(set(full_indx) - set(match_indx))
+
+            # rearanges segmentations according to the matches
+            if self.segmentation is not None:
+                self.segmentation[i] = self.segmentation[i][rearange_indx]
+
+            # rearanges deblended images according to the matches
+            if self.deblended_images is not None:
+                self.deblended_images[i] = self.deblended_images[i][rearange_indx]
+
     def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
@@ -226,7 +261,7 @@ class Deblender(ABC):
             blend_batch: Instance of `BlendBatch` class
 
         Returns:
-            Instance of `MeasuredExample` class
+            Instance of `DeblendedExample` class
         """
 
     def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> DeblendedBatch:
@@ -241,7 +276,7 @@ class Deblender(ABC):
             cpus: Number of cpus to paralelize across
 
         Returns:
-            Instance of `MeasuredBatch` class
+            Instance of `DeblendedBatch` class
         """
         args_iter = ((i, blend_batch) for i in range(blend_batch.batch_size))
         output = multiprocess(
