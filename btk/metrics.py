@@ -70,7 +70,7 @@ class Precision(Metric):
         n_preds = np.zeros(self.batch_size)
         for ii in range(self.batch_size):
             truth = blend_batch.results["catalog"][self.survey_name][ii]
-            pred = measured_batch.catalog[ii]
+            pred = measured_batch.catalog_list[ii]
             n_preds[ii] = len(pred)
             matches[ii], _ = match_fn(truth, pred)
 
@@ -117,7 +117,7 @@ class IoU(Metric):
         matched_segs = {"seg1": [], "seg2": []}
         for ii in range(self.batch_size):
             truth = blend_batch.results["catalog"][self.survey_name][ii]
-            pred = measured_batch.catalog[ii]
+            pred = measured_batch.catalog_list[ii]
             match, _ = match_fn(truth, pred)
             for jj in range(len(match)):
                 seg1 = blend_batch.results[self.survey_name]["segmentation"][ii][jj]
