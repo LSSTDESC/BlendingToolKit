@@ -1,14 +1,12 @@
 """Atomic metric functions."""
 
-from typing import Callable, List, Tuple
+from typing import List, Tuple
 
 import galsim
 import numpy as np
 import sep
-from astropy.table import Table
 from galcheat.utilities import mean_sky_level
 from galsim import GSObject
-from scipy.optimize import linear_sum_assignment
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 
@@ -98,9 +96,9 @@ def psnr(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
 
     Args:
         images1: Array of shape `NHW` containing `N` images each of
-                        size `NHW`.
+                size `NHW`.
         images2: Array of shape `NHW` containing `N` images each of
-                        size `NHW`.
+                size `NHW`.
         kwargs: Keyword arguments to be passed in to `peak_signal_noise_ratio` function
                 within `skimage.metrics`.
 
@@ -109,10 +107,10 @@ def psnr(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     """
     n, h, w = image1.shape
     assert (n, h, w) == image2.shape
-    psnr = np.zeros(n)
+    psnr_ = np.zeros(n)
     for ii in range(n):
-        psnr[ii] = peak_signal_noise_ratio(image1[ii], image2[ii], **kwargs)
-    return psnr
+        psnr_[ii] = peak_signal_noise_ratio(image1[ii], image2[ii], **kwargs)
+    return psnr_
 
 
 def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
@@ -184,7 +182,7 @@ def meas_fixed_aperture(image, additional_params):
     if len(catalog) != 1 and verbose:
         print(f"{len(catalog)} where detected when measuring flux.")
 
-    flux, fluxerr, flag = sep.sum_circle(
+    flux, fluxerr, _ = sep.sum_circle(
         image[meas_band_num],
         catalog["x"],
         catalog["y"],
@@ -193,15 +191,3 @@ def meas_fixed_aperture(image, additional_params):
     )
     result = [flux[0], fluxerr[0]]
     return result
-
-
-# TODO: metrics module in python (folder)
-# output of matching, `matching.py`, a
-# class that does the matching and all functions related to matching e.g. `match_stats`
-# one file per metric, e.g. reconstruction.py, detection.py, segmentation.py, etc.
-# that come from the `metrics_utis.py` file
-# play with `__init__.py` module to surface the functions in the `metrics` folder
-# TODO: probably a class that uses output from other part of BTK.
-# TODO: `btkize` my output? function that make it very explicit. (make it very simple to use)
-# only one kind of input possible for metrics. (no need to have a lot of different functions)
-# TODO: do matching complete separate, and provide `Match` object.
