@@ -198,13 +198,13 @@ class DrawBlendsGenerator(ABC):
             self.surveys = [surveys]
             self.check_compatibility(surveys)
         elif isinstance(surveys, Iterable):
-            for s in surveys:
-                if not isinstance(s, Survey):
+            for surv in surveys:
+                if not isinstance(surv, Survey):
                     raise TypeError(
                         f"surveys must be a Survey object or an Iterable of Survey objects, but "
-                        f"Iterable contained object of type {type(s)}"
+                        f"Iterable contained object of type {type(surv)}"
                     )
-                self.check_compatibility(s)
+                self.check_compatibility(surv)
             self.surveys = surveys
         else:
             raise TypeError(
@@ -256,17 +256,17 @@ class DrawBlendsGenerator(ABC):
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
         results = BlendBatch(self.batch_size, self.max_number, self.stamp_size)
-        for s in self.surveys.values():
-            pix_stamp_size = int(self.stamp_size / s.pixel_scale.to_value("arcsec"))
-            psf = self._get_psf_from_survey(s)
-            wcs = make_wcs(s.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
+        for surv in self.surveys.values():
+            pix_stamp_size = int(self.stamp_size / surv.pixel_scale.to_value("arcsec"))
+            psf = self._get_psf_from_survey(surv)
+            wcs = make_wcs(surv.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
 
             input_args = []
             seedseq_minibatch = self.seedseq.spawn(self.batch_size // mini_batch_size + 1)
 
-            for i in range(0, self.batch_size, mini_batch_size):
-                cat = copy.deepcopy(blend_cat[i : i + mini_batch_size])
-                input_args.append((cat, psf, wcs, s, seedseq_minibatch[i // mini_batch_size]))
+            for ii in range(0, self.batch_size, mini_batch_size):
+                cat = copy.deepcopy(blend_cat[ii : ii + mini_batch_size])
+                input_args.append((cat, psf, wcs, surv, seedseq_minibatch[ii // mini_batch_size]))
 
             # multiprocess and join results
             # ideally, each cpu processes a single mini_batch
@@ -281,7 +281,7 @@ class DrawBlendsGenerator(ABC):
             batch_results = list(chain(*mini_batch_results))
 
             # organize results.
-            n_bands = len(s.available_filters)
+            n_bands = len(surv.available_filters)
             image_shape = (n_bands, pix_stamp_size, pix_stamp_size)
             blend_images = np.zeros((self.batch_size, *image_shape))
             isolated_images = np.zeros((self.batch_size, self.max_number, *image_shape))
@@ -291,7 +291,7 @@ class DrawBlendsGenerator(ABC):
                 isolated_images[ii] = batch_results[ii][1]
                 blend_list.append(batch_results[ii][2])
 
-            results.add_results(s.name, blend_images, isolated_images, blend_list, psf)
+            results.add_results(surv.name, blend_images, isolated_images, blend_list, psf)
 
         return results
 
@@ -331,7 +331,7 @@ class DrawBlendsGenerator(ABC):
         process_id = get_current_process()
         main_desc = f"Generating blends for {survey.name} survey"
         desc = main_desc if process_id == "main" else f"{main_desc} in process id {process_id}"
-        for i, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
+        for ii, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale.to_value("arcsec")
             pix_stamp_size = int(self.stamp_size / pixel_scale)
@@ -350,13 +350,13 @@ class DrawBlendsGenerator(ABC):
             iso_image_multi = np.zeros((self.max_number, n_bands, pix_stamp_size, pix_stamp_size))
             blend_image_multi = np.zeros((n_bands, pix_stamp_size, pix_stamp_size))
             seedseq_blend = seedseq_minibatch.spawn(n_bands)
-            for b, name in enumerate(survey.available_filters):
-                filt = survey.get_filter(name)
+            for jj, filter_name in enumerate(survey.available_filters):
+                filt = survey.get_filter(filter_name)
                 single_band_output = self.render_blend(
-                    blend, psf[b], filt, survey, seedseq_blend[b], extra_data[i]
+                    blend, psf[jj], filt, survey, seedseq_blend[jj], extra_data[ii]
                 )
-                blend_image_multi[b, :, :] = single_band_output[0]
-                iso_image_multi[:, b, :, :] = single_band_output[1]
+                blend_image_multi[jj, :, :] = single_band_output[0]
+                iso_image_multi[:, jj, :, :] = single_band_output[1]
 
             outputs.append([blend_image_multi, iso_image_multi, blend])
             index += len(blend)
@@ -397,12 +397,12 @@ class DrawBlendsGenerator(ABC):
         iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
         _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
 
-        for k, entry in enumerate(blend_catalog):
-            single_image = self.render_single(entry, filt, psf, survey, extra_data[k])
+        for ii, entry in enumerate(blend_catalog):
+            single_image = self.render_single(entry, filt, psf, survey, extra_data[ii])
             if single_image is None:
-                iso_image[k] = np.zeros(single_image)
+                iso_image[ii] = np.zeros(single_image)
             else:
-                iso_image[k] = single_image.array
+                iso_image[ii] = single_image.array
                 _blend_image += single_image
 
         # add noise.
@@ -642,12 +642,7 @@ class SurveyBatch:
         string = self.__class__.__name__ + f"(survey_name={self.survey_name}, "
         string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
-        string += (
-            "\n\t blend_list: list of "
-            + str(Table)
-            + ", size "
-            + str(len(self.blend_list))
-        )
+        string += "\n\t blend_list: list of " + str(Table) + ", size " + str(len(self.blend_list))
         string += "\n\t psfs: list of " + str(galsim.GSObject) + ", size " + str(len(self.psfs))
         string += "\n\t wcs: " + str(type(self.wcs)) + ")"
         return string
@@ -705,18 +700,18 @@ class BlendBatch:
             f"BlendBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}), containing:"
         )
-        for key in self.results.keys():
-            string += "\n" + self.results[key].__repr__()
+        for _, survey_batch in self.results.items():
+            string += "\n" + survey_batch.__repr__()
         return string
 
     def save_results(self, path: str, batch_number: int = 0):
         """Save blend results into path."""
-        for survey_name in self.results.keys():
+        for survey_name, survey_batch in self.results.items():
             survey_directory = os.path.join(path, str(batch_number), survey_name)
-            blend_images = self[survey_name].blend_images
-            isolated_images = self[survey_name].isolated_images
-            blend_list = self[survey_name].blend_list
-            psfs = self.results[survey_name].psfs
+            blend_images = survey_batch.blend_images
+            isolated_images = survey_batch.isolated_images
+            blend_list = survey_batch.blend_list
+            psfs = survey_batch.psfs
 
             if not os.path.exists(survey_directory):
                 os.makedirs(survey_directory)
