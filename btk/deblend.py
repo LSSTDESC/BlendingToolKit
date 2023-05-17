@@ -109,7 +109,7 @@ class DeblendedBatch:
         """Run after dataclass init."""
         pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
         self.image_size = int(self.stamp_size / pixel_scale)
-        self.catalog = self._validate_catalog(self.catalog_list)
+        self.catalog_list = self._validate_catalog(self.catalog_list)
         self.segmentation = self._validate_segmentation(self.segmentation)
         self.deblended_images = self._validate_deblended_images(self.deblended_images)
         self.match_list = []
@@ -154,13 +154,18 @@ class DeblendedBatch:
     # TODO remove survey_name from arguments once BlendBatch is refactored.
     def match(
         self, blend_batch: BlendBatch, survey_name: str, matching: Matching = IdentityMatching()
-    ) -> None:
+    ) -> "DeblendedBatch":
         """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
         assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
+
+        new_catalog_list = []
+        new_segmentation = np.zeros_like(self.segmentation)
+        new_deblended_images = np.zeros_like(self.deblended_images)
+
         for ii in range(self.batch_size):
             # performs matching procedure
             truth_catalog = blend_batch[survey_name].blend_list[ii]
-            predicted_catalog = self.catalog[ii]
+            predicted_catalog = self.catalog_list[ii]
             match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
             self.match_list.append(match_indx)
             # rearanges catalog according to the matches
@@ -170,7 +175,7 @@ class DeblendedBatch:
                     new_table.add_row(predicted_catalog[np.where(match_indx == jj)[0][0]])
                 else:
                     new_table.add_row([None] * len(predicted_catalog.colnames))
-            self.catalog[ii] = new_table
+            new_catalog_list.append(new_table)
 
             # segmentation and deblended_images are of size max_n_sources across axis=1
             # we want to rarange an array across that axis using match_indx
@@ -181,11 +186,21 @@ class DeblendedBatch:
 
             # rearanges segmentations according to the matches
             if self.segmentation is not None:
-                self.segmentation[ii] = self.segmentation[ii][rearange_indx]
+                new_segmentation[ii] = self.segmentation[ii][rearange_indx]
 
             # rearanges deblended images according to the matches
             if self.deblended_images is not None:
-                self.deblended_images[ii] = self.deblended_images[ii][rearange_indx]
+                new_deblended_images[ii] = self.deblended_images[ii][rearange_indx]
+
+        return DeblendedBatch(
+            self.max_n_sources,
+            self.stamp_size,
+            self.batch_size,
+            survey_name,
+            new_catalog_list,
+            new_segmentation,
+            new_deblended_images,
+        )
 
     def __repr__(self) -> str:
         """Return string representation of class."""
@@ -195,7 +210,10 @@ class DeblendedBatch:
             f"survey_name = {self.survey_name})" + ", containing: \n"
         )
         string += (
-            "\tcatalog: list of " + str(astropy.table.Table) + ", size " + str(len(self.catalog))
+            "\tcatalog: list of "
+            + str(astropy.table.Table)
+            + ", size "
+            + str(len(self.catalog_list))
         )
 
         if self.segmentation is not None:
@@ -227,7 +245,7 @@ class DeblendedBatch:
             np.save(os.path.join(save_dir, "segmentation"), self.segmentation)
             np.save(os.path.join(save_dir, "deblended_images"), self.deblended_images)
             with open(os.path.join(save_dir, "catalog.pickle"), "wb") as f:
-                pickle.dump(self.catalog, f)
+                pickle.dump(self.catalog_list, f)
 
         # save general info about class
         with open(os.path.join(path, "meas.json"), "w", encoding="utf-8") as f:
