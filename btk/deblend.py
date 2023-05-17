@@ -312,12 +312,8 @@ class Deblender(ABC):
         Returns:
             Instance of `DeblendedBatch` class
         """
-        args_iter = ((i, blend_batch) for i in range(blend_batch.batch_size))
-        output = multiprocess(
-            self.__call__,
-            args_iter,
-            cpus=cpus,
-        )
+        args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
+        output = multiprocess(self.__call__, args_iter, cpus=cpus)
         catalog_list = [measured_example.catalog for measured_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
