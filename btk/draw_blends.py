@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import chain
-from typing import List
+from typing import List, Union
 
 import galsim
 import numpy as np
@@ -180,7 +180,6 @@ class DrawBlendsGenerator(ABC):
         self.augment_data = augment_data
         self.stamp_size = stamp_size
         self._set_surveys(surveys)
-        self.is_multiresolution = len(self.surveys) > 1
 
         noise_options = {"none", "all", "background", "galaxy"}
         if add_noise not in noise_options:
@@ -690,9 +689,11 @@ class BlendBatch:
         )
         setattr(self, survey_name, self.results[survey_name])
 
-    def __getitem__(self, key: str):
-        """Return key in results dictionary."""
-        return self.results[key]
+    def __getitem__(self, item: Union[str, int, slice]):
+        """Return SurveyBatch for a given survey name or index."""
+        if isinstance(item, (int, slice)):
+            return list(self.results.values())[item]
+        return self.results[item]
 
     def __repr__(self):
         """Return string representation of class."""
