@@ -15,9 +15,10 @@ from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
 from btk.draw_blends import BlendBatch, DrawBlendsGenerator
+from btk.match import IdentityMatching, Matching
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
-from btk.match import Matching, IdentityMatching
+
 
 @dataclass
 class DeblendedExample:
@@ -75,7 +76,12 @@ class DeblendedExample:
         string += "\tcatalog: " + str(astropy.table.Table)
 
         if self.segmentation is not None:
-            string += "\n\tsegmentation: " + str(np.ndarray) + ", shape " + str(list(self.segmentation.shape))
+            string += (
+                "\n\tsegmentation: "
+                + str(np.ndarray)
+                + ", shape "
+                + str(list(self.segmentation.shape))
+            )
         else:
             string += "\n\tsegmentation: None"
 
@@ -106,6 +112,7 @@ class DeblendedBatch:
         self.catalog = self._validate_catalog(self.catalog_list)
         self.segmentation = self._validate_segmentation(self.segmentation)
         self.deblended_images = self._validate_deblended_images(self.deblended_images)
+        self.match_list = []
 
     def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
         if not isinstance(catalog_list, list):
@@ -145,39 +152,40 @@ class DeblendedBatch:
         return deblended_images
 
     # TODO remove survey_name from arguments once BlendBatch is refactored.
-    def match(self, blend_batch: BlendBatch, survey_name: str, matching: Matching = IdentityMatching()) -> None:
+    def match(
+        self, blend_batch: BlendBatch, survey_name: str, matching: Matching = IdentityMatching()
+    ) -> None:
         """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
         assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
-        self.match_list = []
-        for i in range(self.batch_size):
+        for ii in range(self.batch_size):
             # performs matching procedure
-            truth_catalog = blend_batch[survey_name].blend_list[i]
-            predicted_catalog  = self.catalog[i]
+            truth_catalog = blend_batch[survey_name].blend_list[ii]
+            predicted_catalog = self.catalog[ii]
             match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
             self.match_list.append(match_indx)
             # rearanges catalog according to the matches
-            new_table = astropy.table.Table(names = predicted_catalog.colnames)
-            for j in range(len(truth_catalog)):
-                if j in match_indx:
-                    new_table.add_row(predicted_catalog[np.where(match_indx == j)[0][0]])
+            new_table = astropy.table.Table(names=predicted_catalog.colnames)
+            for jj in range(len(truth_catalog)):
+                if jj in match_indx:
+                    new_table.add_row(predicted_catalog[np.where(match_indx == jj)[0][0]])
                 else:
                     new_table.add_row([None] * len(predicted_catalog.colnames))
-            self.catalog[i] = new_table
+            self.catalog[ii] = new_table
 
             # segmentation and deblended_images are of size max_n_sources across axis=1
             # we want to rarange an array across that axis using match_indx
             full_indx = np.arange(self.max_n_sources)
             rearange_indx = np.array([-1] * len(full_indx))
-            rearange_indx[:len(match_indx)] = match_indx
+            rearange_indx[: len(match_indx)] = match_indx
             rearange_indx[rearange_indx == -1] = list(set(full_indx) - set(match_indx))
 
             # rearanges segmentations according to the matches
             if self.segmentation is not None:
-                self.segmentation[i] = self.segmentation[i][rearange_indx]
+                self.segmentation[ii] = self.segmentation[ii][rearange_indx]
 
             # rearanges deblended images according to the matches
             if self.deblended_images is not None:
-                self.deblended_images[i] = self.deblended_images[i][rearange_indx]
+                self.deblended_images[ii] = self.deblended_images[ii][rearange_indx]
 
     def __repr__(self) -> str:
         """Return string representation of class."""
@@ -191,13 +199,21 @@ class DeblendedBatch:
         )
 
         if self.segmentation is not None:
-            string += "\n\tsegmentation: " + str(np.ndarray) + ", shape " + str(list(self.segmentation.shape))
+            string += (
+                "\n\tsegmentation: "
+                + str(np.ndarray)
+                + ", shape "
+                + str(list(self.segmentation.shape))
+            )
         else:
             string += "\n\tsegmentation: None"
 
         if self.deblended_images is not None:
-            string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape " + str(
-                list(self.deblended_images.shape)
+            string += (
+                "\n\tdeblended_images: "
+                + str(np.ndarray)
+                + ", shape "
+                + str(list(self.deblended_images.shape))
             )
         else:
             string += "\n\tdeblended_images: None"
@@ -252,7 +268,7 @@ class Deblender(ABC):
     """
 
     @abstractmethod
-    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Implements the call of a measure function on the i-th example.
 
         Overwrite this function if you perform measurment one image at a time.
@@ -342,9 +358,9 @@ class PeakLocalMax(Deblender):
         self.use_mean = use_mean
         self.use_band = use_band
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
-        blend_image = blend_batch[self.survey_name].blend_images[i]
+        blend_image = blend_batch[self.survey_name].blend_images[ii]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -407,10 +423,10 @@ class SepSingleband(Deblender):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
-        blend_image = blend_batch[self.survey_name].blend_images[i]
+        blend_image = blend_batch[self.survey_name].blend_images[ii]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -426,10 +442,10 @@ class SepSingleband(Deblender):
         n_objects = len(catalog)
         segmentation_exp = np.zeros((blend_batch.max_n_sources, *image.shape), dtype=bool)
         deblended_images = np.zeros((blend_batch.max_n_sources, *image.shape), dtype=image.dtype)
-        for i in range(n_objects):
-            seg_i = segmentation == i + 1
-            segmentation_exp[i] = seg_i
-            deblended_images[i] = image * seg_i.astype(image.dtype)
+        for jj in range(n_objects):
+            seg_i = segmentation == jj + 1
+            segmentation_exp[jj] = seg_i
+            deblended_images[jj] = image * seg_i.astype(image.dtype)
 
         # convert to ra, dec
         wcs = blend_batch[self.survey_name].wcs
@@ -438,13 +454,13 @@ class SepSingleband(Deblender):
         dec *= 3600
 
         # wrap results in astropy table
-        t = astropy.table.Table()
-        t["ra"], t["dec"] = ra, dec
+        cat = astropy.table.Table()
+        cat["ra"], cat["dec"] = ra, dec
         return DeblendedExample(
             max_n_sources=blend_batch.max_n_sources,
             stamp_size=blend_batch.stamp_size,
             survey_name=self.survey_name,
-            catalog=t,
+            catalog=cat,
             segmentation=segmentation_exp,
             deblended_images=deblended_images,
         )
