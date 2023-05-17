@@ -88,3 +88,6 @@ match = "(?!test_).*\\.py"
 good-names = [
     "x","y","x1","y1","x2","y2", "f", "b1", "b2", "c", "ii", "jj", "c1", "c2", "n"
 ]
+disable = """
+          too-many-arguments
+      """
