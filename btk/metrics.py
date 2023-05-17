@@ -1,4 +1,5 @@
 """Implements a variety of metrics for evaluating measurement results in BTK."""
+# pylint: disable=arguments-differ
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, Union
 
