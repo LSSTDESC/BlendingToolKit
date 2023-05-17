@@ -1,17 +1,19 @@
+"""Tools to match detected objects with truth catalog."""
 from abc import ABC, abstractmethod
+from typing import Tuple
+
 import numpy as np
 from astropy import units
-from astropy.table import Table
 from astropy.coordinates import SkyCoord
-from scipy.optimize import linear_sum_assignment
+from astropy.table import Table
 from scipy import spatial
-from typing import Tuple
+from scipy.optimize import linear_sum_assignment
+
 
 def pixel_l2_distance_matrix(
     x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray
 ) -> np.ndarray:
-    """Computes the pixel L2 (Ecludian) distance matrix between target objects (x1, y1)
-    and detected objects (x2, y2).
+    """Computes the pixel L2 (Ecludian) distance matrix between targets and detections.
 
     Args:
         x1: an array of x-coordinate(s) of target objects in pixels
@@ -20,7 +22,8 @@ def pixel_l2_distance_matrix(
         y2: an array of y-coordinate(s) of detected objects in pixels
 
     Return:
-        a 2d array of shape [len(x1), len(x2)] of L2 pixel distances between targets and detected objects
+        2d array of shape [len(x1), len(x2)] of L2 pixel distances between
+        targets and detected objects.
 
     The funciton works even if the number of target objects is different from number of output
     objects. Note that i-th row and j-th column of the output matrix denotes the distance
@@ -35,8 +38,11 @@ def pixel_l2_distance_matrix(
 
 
 class Matching(ABC):
-    def __init__(self, *args, **kwargs) -> None:
+    """Base class for matching algorithms."""
+
+    def __init__(self, **kwargs) -> None:  # pylint: disable=unused-argument
         """Initialize matching class."""
+        self.distance_matrix_function = pixel_l2_distance_matrix  # default
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts coordinate information required for matching."""
@@ -50,31 +56,32 @@ class Matching(ABC):
 
     @abstractmethod
     def match_catalogs(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
-        """Perform matching procedure between truth and prediction"""
-
+        """Perform matching procedure between truth and prediction."""
 
 
 class IdentityMatching(Matching):
-    """Assuming that catalogs are already matched one-to-one, performs trivial identity matching;"""
+    """Assumes catalogs are already matched one-to-one, returns trivial identity matching."""
 
     def match_catalogs(self, truth_catalog, predicted_catalog) -> np.ndarray:
+        """Returns trivial identity matching."""
         return np.array(range(len(predicted_catalog)))
 
 
 class PixelHungarianMatching(Matching):
-    def __init__(
-        self, pixel_max_sep=5.0, *args, **kwargs
-    ) -> None:
+    """Match based on pixel coordinates using Hungarian matching algorithm."""
+
+    def __init__(self, pixel_max_sep=5.0, **kwargs) -> None:
         """Initialize matching class.
 
         Args:
-            max_sep: the maximum separation in pixels to be considered a match
+            pixel_max_sep: the maximum separation in pixels to be considered a match
         """
+        super().__init__(**kwargs)
         self.distance_function = pixel_l2_distance_matrix
         self.max_sep = pixel_max_sep
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
-        """Extract pixel coordinates out of catalogs"""
+        """Extract pixel coordinates out of catalogs."""
         if "x_peak" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'x_peak'")
         if "y_peak" not in catalog.colnames:
@@ -91,7 +98,7 @@ class PixelHungarianMatching(Matching):
             truth_catalog: truth catalog containing relevant detecion information
             predicted_catalog: predicted catalog to compare with the ground truth
         Returns:
-            matched_indx: a 1D array where j-th entry is the index of the target row 
+            matched_indx: a 1D array where j-th entry is the index of the target row
                 that matched with the j-th detected row. If no match, value is -1.
         """
         dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
@@ -105,26 +112,30 @@ class PixelHungarianMatching(Matching):
         matched_indx[mask] = -1
         return matched_indx
 
+
 class ClosestSkyNeighbourMatching(Matching):
-    def __init__(self, arcsec_max_sep=2.0, *args, **kwargs) -> None:
+    """Match based on closest neighbour in the sky."""
+
+    def __init__(self, arcsec_max_sep=2.0, **kwargs) -> None:
         """Initialize matching class.
 
         Args:
-            max_sep: the maximum separation in arcsec to be considered a match
-            num_neighbours: number of closest neighbours to consider for each target
+            arcsec_max_sep: the maximum separation in arcsec to be considered a match
         """
+        super().__init__(**kwargs)
         self.max_sep = arcsec_max_sep
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
-        """Extract ra, dec coordinates out of catalogs"""
+        """Extract ra, dec coordinates out of catalogs."""
         if "ra" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'ra'")
         if "dec" not in catalog.colnames:
             raise KeyError("One of the catalogs has no column 'dec'")
         return (catalog["ra"], catalog["dec"])
-    
+
     def match_catalogs(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
-        """
+        """Matches catalogs based on closest neighbour in sky coordinates.
+
         Performs 1st Nearest Neigbour look up for each coordinate in predicted_catalog.
         Then we prune repeated detections of a given target source by assigning it
         to the closest object in the predicted catalog, and discarding the rest. Finally,
@@ -136,15 +147,16 @@ class ClosestSkyNeighbourMatching(Matching):
         Args:
             truth_catalog: truth catalog containing relevant detecion information
             predicted_catalog: predicted catalog to compare with the ground truth
+
         Returns:
-            matched_indx: a 1D array where j-th entry is the index of the target row 
+            matched_indx: a 1D array where j-th entry is the index of the target row
                 that matched with the j-th detected row. If no match, value is -1.
         """
         ra1, dec1 = self.preprocess_catalog(truth_catalog)
         ra2, dec2 = self.preprocess_catalog(predicted_catalog)
-        true_coordinates = SkyCoord(ra = ra1*units.arcsec, dec=dec1*units.arcsec)
-        pred_coordinates = SkyCoord(ra = ra2*units.arcsec, dec=dec2*units.arcsec)
-        
+        true_coordinates = SkyCoord(ra=ra1 * units.arcsec, dec=dec1 * units.arcsec)
+        pred_coordinates = SkyCoord(ra=ra2 * units.arcsec, dec=dec2 * units.arcsec)
+
         # computes 1st nearest neighbour
         idx, d2d, _ = pred_coordinates.match_to_catalog_sky(true_coordinates)
 
