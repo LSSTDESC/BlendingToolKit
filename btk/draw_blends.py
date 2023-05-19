@@ -12,7 +12,6 @@ from typing import List, Union
 import galsim
 import numpy as np
 from astropy.table import Column, Table
-from astropy.wcs import WCS
 from galcheat.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
@@ -222,7 +221,7 @@ class DrawBlendsGenerator(ABC):
         """Returns iterable which is the object itself."""
         return self
 
-    def _get_psf_from_survey(self, survey: Survey):
+    def _get_psf_from_survey(self, survey: Survey) -> List[galsim.GSObject]:
         # make PSF and WCS
         psf = []
         for band in survey.available_filters:
@@ -254,10 +253,10 @@ class DrawBlendsGenerator(ABC):
         """
         blend_cat = next(self.blend_generator)
         mini_batch_size = np.max([self.batch_size // self.cpus, 1])
-        results = BlendBatch(self.batch_size, self.max_number, self.stamp_size)
+        blend_batch_list = []
         for surv in self.surveys.values():
             pix_stamp_size = int(self.stamp_size / surv.pixel_scale.to_value("arcsec"))
-            psf = self._get_psf_from_survey(surv)
+            psf = self._get_psf_from_survey(surv)  # psf is the same for all blends in batch.
             wcs = make_wcs(surv.pixel_scale.to_value("arcsec"), (pix_stamp_size, pix_stamp_size))
 
             input_args = []
@@ -290,9 +289,23 @@ class DrawBlendsGenerator(ABC):
                 isolated_images[ii] = batch_results[ii][1]
                 blend_list.append(batch_results[ii][2])
 
-            results.add_results(surv.name, blend_images, isolated_images, blend_list, psf)
+            blend_batch = BlendBatch(
+                self.batch_size,
+                self.max_number,
+                self.stamp_size,
+                surv.name,
+                blend_images,
+                isolated_images,
+                blend_list,
+                psf,
+            )
 
-        return results
+            blend_batch_list.append(blend_batch)
+
+        if len(blend_batch_list) == 1:
+            return blend_batch_list[0]
+
+        return MultiResolutionBlendBatch(blend_batch_list)
 
     def render_mini_batch(self, blend_list, psf, wcs, survey, seedseq_minibatch, extra_data=None):
         """Returns isolated and blended images for blend catalogs in blend_list.
@@ -626,15 +639,38 @@ class CosmosGenerator(DrawBlendsGenerator):
 
 
 @dataclass
-class SurveyBatch:
-    """Class which stores all relevant data for a single survey."""
+class BlendBatch:
+    """Class which stores all relevant data for blends in a single survey."""
 
+    batch_size: int
+    max_n_sources: int
+    stamp_size: int
     survey_name: str
     blend_images: np.ndarray
     isolated_images: np.ndarray
     blend_list: List[Table]
-    psfs: List[galsim.GSObject]
-    wcs: WCS
+    psf: List[galsim.GSObject]  # each element corresponds to each band
+
+    def _get_pix_stamp_size(self) -> int:
+        """Returns the size of the stamps in pixels."""
+        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
+        return int(self.stamp_size / pixel_scale)
+
+    def _get_wcs(self):
+        pix_stamp_size = self._get_pix_stamp_size()
+        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
+        return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
+
+    def __post_init__(self):
+        """Checks that the data is of the right shape."""
+        self.wcs = self._get_wcs()
+        n_bands = len(get_surveys(self.survey_name).available_filters)
+        b1, c1, ps11, ps12 = self.blend_images.shape
+        b2, n, c2, ps21, ps22 = self.isolated_images.shape
+        assert b1 == b2 == len(self.blend_list) == self.batch_size
+        assert c1 == c2 == n_bands
+        assert n == self.max_n_sources
+        assert ps11 == ps12 == ps21 == ps22 == self._get_pix_stamp_size()
 
     def __repr__(self) -> str:
         """Return string representation of class."""
@@ -646,48 +682,82 @@ class SurveyBatch:
         string += "\n\t wcs: " + str(type(self.wcs)) + ")"
         return string
 
+    def save(self, path: str, batch_number: int = 0):
+        """Save the batch to disk.
 
-@dataclass
-class BlendBatch:
-    """Class which stores the output of DrawBlendGenerator."""
+        Args:
+            path (str): Path to save the batch to.
+            batch_number (int): Number of the batch.
+        """
+        os.makedirs(path, exist_ok=True)
+        np.save(os.path.join(path, f"blend_images_{batch_number}.npy"), self.blend_images)
+        np.save(os.path.join(path, f"isolated_images_{batch_number}.npy"), self.isolated_images)
+        np.save(os.path.join(path, f"blend_list_{batch_number}.npy"), self.blend_list)
 
-    batch_size: int
-    max_n_sources: int
-    stamp_size: int
+        with open(os.path.join(path, f"psf_{batch_number}.pickle"), "wb") as f:
+            pickle.dump(self.psf, f)
 
-    results = {}
+        # save general info about blend
+        with open(os.path.join(path, "blend.json"), "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "batch_size": self.batch_size,
+                    "max_n_sources": self.max_n_sources,
+                    "stamp_size": self.stamp_size,
+                    "survey_name": self.survey_name,
+                },
+                f,
+            )
 
-    def _get_pix_stamp_size(self, survey_name: str) -> int:
-        return int(self.stamp_size / get_surveys(survey_name).pixel_scale.to_value("arcsec"))
+    @classmethod
+    def load(cls, path: str, batch_number: int = 0):
+        """Load the batch from disk.
 
-    def _get_wcs(self, survey_name: str):
-        pix_stamp_size = self._get_pix_stamp_size(survey_name)
-        pixel_scale = get_surveys(survey_name).pixel_scale.to_value("arcsec")
-        return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
+        Args:
+            path (str): Path to load the batch from.
+            batch_number (int): Number of the batch.
+        """
+        # load general infrom about blend
+        with open(os.path.join(path, "blend.json"), "r", encoding="utf-8") as f:
+            blend_info = json.load(f)
+        batch_size = blend_info["batch_size"]
+        max_n_sources = blend_info["max_n_sources"]
+        stamp_size = blend_info["stamp_size"]
+        survey_name = blend_info["survey_name"]
 
-    def add_results(
-        self,
-        survey_name: str,
-        blend_images: np.ndarray,
-        isolated_images: np.ndarray,
-        blend_list: List[Table],
-        psfs: List[galsim.GSObject],
-    ):
-        """Add output of results for a given survey."""
-        pix_stamp_size = self._get_pix_stamp_size(survey_name)
-        survey = get_surveys(survey_name)
-        n_bands = len(survey.available_filters)
-        wcs = self._get_wcs(survey_name)
-        b1, c1, ps11, ps12 = blend_images.shape
-        b2, n, c2, ps21, ps22 = isolated_images.shape
-        assert b1 == b2 == len(blend_list) == self.batch_size
-        assert c1 == c2 == n_bands
-        assert n == self.max_n_sources
-        assert ps11 == ps12 == ps21 == ps22 == pix_stamp_size
-        self.results[survey_name] = SurveyBatch(
-            survey_name, blend_images, isolated_images, blend_list, psfs, wcs
+        blend_images = np.load(os.path.join(path, f"blend_images_{batch_number}.npy"))
+        isolated_images = np.load(os.path.join(path, f"isolated_images_{batch_number}.npy"))
+        blend_list = np.load(os.path.join(path, f"blend_list_{batch_number}.npy"))
+
+        # load psfs
+        with open(os.path.join(path, f"psf_{batch_number}.pickle"), "rb") as f:
+            psf = pickle.load(f)
+
+        return cls(
+            batch_size,
+            max_n_sources,
+            stamp_size,
+            survey_name,
+            blend_images,
+            isolated_images,
+            blend_list,
+            psf,
         )
-        setattr(self, survey_name, self.results[survey_name])
+
+
+class MultiResolutionBlendBatch:
+    """Class which stores blend information for multiple surveys."""
+
+    def __init__(self, blend_batch_list: List[BlendBatch]):
+        """Initialise the class and input format."""
+        assert len(blend_batch_list) > 0
+        self.batch_size = blend_batch_list[0].batch_size
+        self.max_n_sources = blend_batch_list[0].max_n_sources
+        self.stamp_size = blend_batch_list[0].stamp_size
+        self.survey_names = [blend_batch.survey_name for blend_batch in blend_batch_list]
+        for blend_batch in blend_batch_list:
+            assert isinstance(blend_batch, BlendBatch)
+        self.results = {blend_batch.survey_name: blend_batch for blend_batch in blend_batch_list}
 
     def __getitem__(self, item: Union[str, int, slice]):
         """Return SurveyBatch for a given survey name or index."""
@@ -698,57 +768,27 @@ class BlendBatch:
     def __repr__(self):
         """Return string representation of class."""
         string = (
-            f"BlendBatch(batch_size = {self.batch_size}, "
+            f"SurveysBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}), containing:"
         )
-        for _, survey_batch in self.results.items():
-            string += "\n" + survey_batch.__repr__()
+        for _, blend_batch in self.results.items():
+            string += "\n" + blend_batch.__repr__()
         return string
 
-    def save_results(self, path: str, batch_number: int = 0):
+    def save(self, path: str, batch_number: int = 0):
         """Save blend results into path."""
-        for survey_name, survey_batch in self.results.items():
+        for survey_name, blend_batch in self.results.items():
             survey_directory = os.path.join(path, str(batch_number), survey_name)
-            blend_images = survey_batch.blend_images
-            isolated_images = survey_batch.isolated_images
-            blend_list = survey_batch.blend_list
-            psfs = survey_batch.psfs
-
             if not os.path.exists(survey_directory):
                 os.makedirs(survey_directory)
-
-            np.save(os.path.join(survey_directory, "blend_images.npy"), blend_images)
-            np.save(os.path.join(survey_directory, "isolated_images.npy"), isolated_images)
-            with open(os.path.join(survey_directory, "blend_list.pickle"), "wb") as f:
-                pickle.dump(blend_list, f)
-            with open(os.path.join(survey_directory, "psfs.pickle"), "wb") as f:
-                pickle.dump(psfs, f)
-
-        # save general info about blend
-        with open(os.path.join(path, "blend.json"), "w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "batch_size": self.batch_size,
-                    "max_n_sources": self.max_n_sources,
-                    "stamp_size": self.stamp_size,
-                },
-                f,
-            )
+            blend_batch.save(survey_directory, batch_number)
 
     @classmethod
-    def load_results(cls, path: str, batch_number: int = 0):
+    def load(cls, path: str, batch_number: int = 0):
         """Load blend results from path."""
-        with open(os.path.join(path, "blend.json"), "r", encoding="utf-8") as f:
-            blend_config = json.load(f)
-        blend = cls(**blend_config)
-        # get folders within the path
-        batch_path = os.path.join(path, str(batch_number))
-        for survey_name in next(os.walk(batch_path))[1]:
-            blend_images = np.load(os.path.join(batch_path, survey_name, "blend_images.npy"))
-            isolated_images = np.load(os.path.join(batch_path, survey_name, "isolated_images.npy"))
-            with open(os.path.join(batch_path, survey_name, "blend_list.pickle"), "rb") as f:
-                blend_list = pickle.load(f)
-            with open(os.path.join(batch_path, survey_name, "psfs.pickle"), "rb") as f:
-                psfs = pickle.load(f)
-            blend.add_results(survey_name, blend_images, isolated_images, blend_list, psfs)
-        return blend
+        blend_batch_list = []
+        for survey_name in os.listdir(os.path.join(path, str(batch_number))):
+            blend_batch_list.append(
+                BlendBatch.load(os.path.join(path, str(batch_number), survey_name), batch_number)
+            )
+        return cls(blend_batch_list)
