@@ -1,10 +1,6 @@
 """Contains the Measure and MeasureExample classes and its subclasses."""
 import inspect
-import json
-import os
-import pickle
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union
 
 import astropy.table
@@ -14,269 +10,9 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
-from btk.draw_blends import BlendBatch, DrawBlendsGenerator
-from btk.match import IdentityMatching, Matching
+from btk.blend_batch import BlendBatch, DeblendedBatch, DeblendedExample
+from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
-from btk.survey import get_surveys
-
-
-@dataclass
-class DeblendedExample:
-    """Class that validates the results of the measurement for a single image.
-
-    For now, the segmentation and deblended images must correspond only to the
-    single `survey_name` survey.
-    """
-
-    max_n_sources: int
-    stamp_size: int
-    survey_name: str
-    catalog: astropy.table.Table
-    segmentation: np.ndarray = None
-    deblended_images: np.ndarray = None
-
-    def __post_init__(self) -> None:
-        """Performs validation of the measured example."""
-        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
-        self.image_size = int(self.stamp_size / pixel_scale)
-        self.catalog = self._validate_catalog(self.catalog)
-        self.segmentation = self._validate_segmentation(self.segmentation)
-        self.deblended_images = self._validate_deblended_images(self.deblended_images)
-
-    def _validate_catalog(self, catalog: astropy.table.Table):
-        if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
-            raise ValueError(
-                "The output catalog of at least one of your measurement functions does"
-                "not contain the mandatory 'ra' and 'dec' columns"
-            )
-        return catalog
-
-    def _validate_segmentation(self, segmentation):
-        if segmentation is not None:
-            assert segmentation.shape == (self.max_n_sources, self.image_size, self.image_size)
-            assert segmentation.min() >= 0 and segmentation.max() <= 1
-        return segmentation
-
-    def _validate_deblended_images(self, deblended_images):
-        if deblended_images is not None:
-            assert deblended_images.shape == (
-                self.max_n_sources,
-                self.image_size,
-                self.image_size,
-            )
-        return deblended_images
-
-    def __repr__(self):
-        """Return string representation of class."""
-        string = (
-            f"MeasuredExample(max_n_sources = {self.max_n_sources}, "
-            f"stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
-            + ", containing: \n"
-        )
-        string += "\tcatalog: " + str(astropy.table.Table)
-
-        if self.segmentation is not None:
-            string += (
-                "\n\tsegmentation: "
-                + str(np.ndarray)
-                + ", shape "
-                + str(list(self.segmentation.shape))
-            )
-        else:
-            string += "\n\tsegmentation: None"
-
-        if self.deblended_images is not None:
-            string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape "
-            string += str(list(self.deblended_images.shape))
-        else:
-            string += "\n\tdeblended_images: None"
-        return string
-
-
-@dataclass
-class DeblendedBatch:
-    """Class that validates the results of the measurement for a batch of images."""
-
-    max_n_sources: int
-    stamp_size: int
-    batch_size: int
-    survey_name: str
-    catalog_list: List[astropy.table.Table]
-    segmentation: np.ndarray = None
-    deblended_images: np.ndarray = None
-
-    def __post_init__(self) -> None:
-        """Run after dataclass init."""
-        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
-        self.image_size = int(self.stamp_size / pixel_scale)
-        self.catalog_list = self._validate_catalog(self.catalog_list)
-        self.segmentation = self._validate_segmentation(self.segmentation)
-        self.deblended_images = self._validate_deblended_images(self.deblended_images)
-        self.match_list = []
-
-    def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
-        if not isinstance(catalog_list, list):
-            raise TypeError(
-                "Catalog must be a list of 'astropy.table.Table' for each image in the batch"
-            )
-        assert len(catalog_list) == self.batch_size
-        for catalog in catalog_list:
-            if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
-                raise ValueError(
-                    "The output catalog of at least one of your measurement functions does"
-                    "not contain the mandatory 'ra' and 'dec' columns"
-                )
-        return catalog_list
-
-    def _validate_segmentation(self, segmentation: Optional[np.ndarray] = None) -> np.ndarray:
-        if segmentation is not None:
-            assert segmentation.shape == (
-                self.batch_size,
-                self.max_n_sources,
-                self.image_size,
-                self.image_size,
-            )
-            assert segmentation.min() >= 0 and segmentation.max() <= 1
-        return segmentation
-
-    def _validate_deblended_images(
-        self, deblended_images: Optional[np.ndarray] = None
-    ) -> np.ndarray:
-        if deblended_images is not None:
-            assert deblended_images.shape == (
-                self.batch_size,
-                self.max_n_sources,
-                self.image_size,
-                self.image_size,
-            )
-        return deblended_images
-
-    # TODO remove survey_name from arguments once BlendBatch is refactored.
-    def match(
-        self, blend_batch: BlendBatch, survey_name: str, matching: Matching = IdentityMatching()
-    ) -> "DeblendedBatch":
-        """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
-        assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
-
-        new_catalog_list = []
-        new_segmentation = np.zeros_like(self.segmentation)
-        new_deblended_images = np.zeros_like(self.deblended_images)
-
-        for ii in range(self.batch_size):
-            # performs matching procedure
-            truth_catalog = blend_batch[survey_name].blend_list[ii]
-            predicted_catalog = self.catalog_list[ii]
-            match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
-            self.match_list.append(match_indx)
-            # rearanges catalog according to the matches
-            new_table = astropy.table.Table(names=predicted_catalog.colnames)
-            for jj in range(len(truth_catalog)):
-                if jj in match_indx:
-                    new_table.add_row(predicted_catalog[np.where(match_indx == jj)[0][0]])
-                else:
-                    new_table.add_row([None] * len(predicted_catalog.colnames))
-            new_catalog_list.append(new_table)
-
-            # segmentation and deblended_images are of size max_n_sources across axis=1
-            # we want to rarange an array across that axis using match_indx
-            full_indx = np.arange(self.max_n_sources)
-            rearange_indx = np.array([-1] * len(full_indx))
-            rearange_indx[: len(match_indx)] = match_indx
-            rearange_indx[rearange_indx == -1] = list(set(full_indx) - set(match_indx))
-
-            # rearanges segmentations according to the matches
-            if self.segmentation is not None:
-                new_segmentation[ii] = self.segmentation[ii][rearange_indx]
-
-            # rearanges deblended images according to the matches
-            if self.deblended_images is not None:
-                new_deblended_images[ii] = self.deblended_images[ii][rearange_indx]
-
-        return DeblendedBatch(
-            self.max_n_sources,
-            self.stamp_size,
-            self.batch_size,
-            survey_name,
-            new_catalog_list,
-            new_segmentation,
-            new_deblended_images,
-        )
-
-    def __repr__(self) -> str:
-        """Return string representation of class."""
-        string = (
-            f"DeblendedBatch(batch_size = {self.batch_size}, "
-            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.stamp_size}, "
-            f"survey_name = {self.survey_name})" + ", containing: \n"
-        )
-        string += (
-            "\tcatalog: list of "
-            + str(astropy.table.Table)
-            + ", size "
-            + str(len(self.catalog_list))
-        )
-
-        if self.segmentation is not None:
-            string += (
-                "\n\tsegmentation: "
-                + str(np.ndarray)
-                + ", shape "
-                + str(list(self.segmentation.shape))
-            )
-        else:
-            string += "\n\tsegmentation: None"
-
-        if self.deblended_images is not None:
-            string += (
-                "\n\tdeblended_images: "
-                + str(np.ndarray)
-                + ", shape "
-                + str(list(self.deblended_images.shape))
-            )
-        else:
-            string += "\n\tdeblended_images: None"
-        return string
-
-    def save_batch(self, path: str, batch_number: int) -> None:
-        """Save batch of measure results to disk."""
-        save_dir = os.path.join(path, str(batch_number), self.survey_name)
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-            np.save(os.path.join(save_dir, "segmentation"), self.segmentation)
-            np.save(os.path.join(save_dir, "deblended_images"), self.deblended_images)
-            with open(os.path.join(save_dir, "catalog.pickle"), "wb") as f:
-                pickle.dump(self.catalog_list, f)
-
-        # save general info about class
-        with open(os.path.join(path, "meas.json"), "w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "batch_size": self.batch_size,
-                    "max_n_sources": self.max_n_sources,
-                    "stamp_size": self.stamp_size,
-                    "survey_name": self.survey_name,
-                },
-                f,
-            )
-
-    @classmethod
-    def load_batch(cls, path: str, survey_name: str, batch_number: int):
-        """Load batch of measure results from disk."""
-        load_dir = os.path.join(path, str(batch_number), survey_name)
-        with open(os.path.join(path, "meas.json"), "r", encoding="utf-8") as f:
-            meas_config = json.load(f)
-        assert meas_config["survey_name"] == survey_name
-
-        with open(os.path.join(load_dir, "catalog.pickle"), "rb") as f:
-            catalog = pickle.load(f)
-        segmentation = np.load(os.path.join(load_dir, "segmentation.npy"))
-        deblended_images = np.load(os.path.join(load_dir, "deblended_images.npy"))
-        return cls(
-            catalog=catalog,
-            segmentation=segmentation,
-            deblended_images=deblended_images,
-            **meas_config,
-        )
 
 
 class Deblender(ABC):
@@ -321,13 +57,12 @@ class Deblender(ABC):
         if output[0].deblended_images is not None:
             deblended = np.array([measured_example.deblended_images for measured_example in output])
         return DeblendedBatch(
-            max_n_sources=blend_batch.max_n_sources,
-            stamp_size=blend_batch.stamp_size,
-            batch_size=blend_batch.batch_size,
-            survey_name=output[0].survey_name,
-            catalog_list=catalog_list,
-            segmentation=segmentation,
-            deblended_images=deblended,
+            blend_batch.batch_size,
+            blend_batch.max_n_sources,
+            blend_batch.image_size,
+            catalog_list,
+            segmentation,
+            deblended,
         )
 
     @classmethod
@@ -346,7 +81,6 @@ class PeakLocalMax(Deblender):
 
     def __init__(
         self,
-        survey_name: str,
         threshold_scale: int = 5,
         min_distance: int = 2,
         use_mean: bool = False,
@@ -357,11 +91,9 @@ class PeakLocalMax(Deblender):
         Args:
             threshold_scale: Minimum intensity of peaks.
             min_distance: Mimum distance in pixels between two peaks
-            survey_name: Name of the survey to measure on
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
-        self.survey_name = survey_name
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
 
@@ -373,8 +105,8 @@ class PeakLocalMax(Deblender):
         self.use_band = use_band
 
     def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
-        """Performs measurement on the i-th example from the batch."""
-        blend_image = blend_batch[self.survey_name].blend_images[ii]
+        """Performs measurement on the ii-th example from the batch."""
+        blend_image = blend_batch.blend_images[ii]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -388,7 +120,7 @@ class PeakLocalMax(Deblender):
         x, y = coordinates[:, 1], coordinates[:, 0]
 
         # convert coordinates to ra, dec
-        wcs = blend_batch[self.survey_name].wcs
+        wcs = blend_batch.wcs
         ra, dec = wcs.pixel_to_world_values(x, y)
         ra *= 3600
         dec *= 3600
@@ -397,12 +129,7 @@ class PeakLocalMax(Deblender):
         catalog = astropy.table.Table()
         catalog["ra"], catalog["dec"] = ra, dec
 
-        return DeblendedExample(
-            max_n_sources=blend_batch.max_n_sources,
-            stamp_size=blend_batch.stamp_size,
-            survey_name=self.survey_name,
-            catalog=catalog,
-        )
+        return DeblendedExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
 
 class SepSingleband(Deblender):
@@ -415,7 +142,6 @@ class SepSingleband(Deblender):
 
     def __init__(
         self,
-        survey_name: str,
         sigma_noise: float = 1.5,
         use_mean: bool = False,
         use_band: Optional[int] = None,
@@ -423,12 +149,10 @@ class SepSingleband(Deblender):
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
         Args:
-            survey_name: Name of the survey to measure on
             sigma_noise: Noise level for sep.
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
-        self.survey_name = survey_name
         if use_band is None and not use_mean:
             raise ValueError("Either set 'use_mean=True' OR indicate a 'use_band' index")
         if use_band is not None and use_mean:
@@ -440,7 +164,7 @@ class SepSingleband(Deblender):
     def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
-        blend_image = blend_batch[self.survey_name].blend_images[ii]
+        blend_image = blend_batch.blend_images[ii]
         if self.use_mean:
             image = np.mean(blend_image, axis=0)
         else:
@@ -462,7 +186,7 @@ class SepSingleband(Deblender):
             deblended_images[jj] = image * seg_i.astype(image.dtype)
 
         # convert to ra, dec
-        wcs = blend_batch[self.survey_name].wcs
+        wcs = blend_batch._get_wcs()
         ra, dec = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
         ra *= 3600
         dec *= 3600
@@ -470,13 +194,13 @@ class SepSingleband(Deblender):
         # wrap results in astropy table
         cat = astropy.table.Table()
         cat["ra"], cat["dec"] = ra, dec
+
         return DeblendedExample(
-            max_n_sources=blend_batch.max_n_sources,
-            stamp_size=blend_batch.stamp_size,
-            survey_name=self.survey_name,
-            catalog=cat,
-            segmentation=segmentation_exp,
-            deblended_images=deblended_images,
+            blend_batch.max_n_sources,
+            blend_batch.image_size,
+            cat,
+            segmentation_exp,
+            deblended_images,
         )
 
 
@@ -490,23 +214,21 @@ class SepMultiband(Deblender):
     detected coordinates.
     """
 
-    def __init__(self, survey_name: str, matching_threshold: float = 1.0, sigma_noise: float = 1.5):
+    def __init__(self, matching_threshold: float = 1.0, sigma_noise: float = 1.5):
         """Initialize the SepMultiband measurement function.
 
         Args:
-            survey_name: Name of the survey to measure on.
             matching_threshold: Threshold value for match detections that are close
             sigma_noise: Noise level for sep.
         """
-        self.survey_name = survey_name
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
 
-    def __call__(self, i: int, blend_batch: BlendBatch) -> DeblendedExample:
-        """Performs measurement on the i-th example from the batch."""
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+        """Performs measurement on the ii-th example from the batch."""
         # run source extractor on the first band
-        wcs = blend_batch[self.survey_name].wcs
-        image = blend_batch[self.survey_name].blend_images[i]
+        wcs = blend_batch.wcs
+        image = blend_batch.blend_images[ii]
         bkg = sep.Background(image[0])
         catalog = sep.extract(image[0], self.sigma_noise, err=bkg.globalrms, segmentation_map=False)
         ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
@@ -552,12 +274,7 @@ class SepMultiband(Deblender):
         catalog = astropy.table.Table()
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
-        return DeblendedExample(
-            max_n_sources=blend_batch.max_n_sources,
-            stamp_size=blend_batch.stamp_size,
-            survey_name=self.survey_name,
-            catalog=catalog,
-        )
+        return DeblendedExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
 
 
 class DeblendGenerator:
