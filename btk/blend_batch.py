@@ -214,9 +214,8 @@ class DeblendedExample:
     def __repr__(self):
         """Return string representation of class."""
         string = (
-            f"MeasuredExample(max_n_sources = {self.max_n_sources}, "
-            f"stamp_size = {self.stamp_size}, survey_name = {self.survey_name})"
-            + ", containing: \n"
+            f"DeblendedExample(max_n_sources = {self.max_n_sources}, "
+            f"image_size = {self.image_size})" + ", containing: \n"
         )
         string += "\tcatalog: " + str(astropy.table.Table)
 
