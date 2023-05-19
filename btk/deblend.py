@@ -10,7 +10,12 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from skimage.feature import peak_local_max
 
-from btk.blend_batch import BlendBatch, DeblendedBatch, DeblendedExample
+from btk.blend_batch import (
+    BlendBatch,
+    DeblendedBatch,
+    DeblendedExample,
+    MultiResolutionBlendBatch,
+)
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 
@@ -23,7 +28,7 @@ class Deblender(ABC):
 
     @abstractmethod
     def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
-        """Implements the call of a measure function on the i-th example.
+        """Implements the call of a measure function on the ii-th example.
 
         Overwrite this function if you perform measurment one image at a time.
 
@@ -50,16 +55,76 @@ class Deblender(ABC):
         """
         args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
         output = multiprocess(self.__call__, args_iter, cpus=cpus)
-        catalog_list = [measured_example.catalog for measured_example in output]
+        catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
-            segmentation = np.array([measured_example.segmentation for measured_example in output])
+            segmentation = np.array([db_example.segmentation for db_example in output])
         if output[0].deblended_images is not None:
-            deblended = np.array([measured_example.deblended_images for measured_example in output])
+            deblended = np.array([db_example.deblended_images for db_example in output])
         return DeblendedBatch(
             blend_batch.batch_size,
             blend_batch.max_n_sources,
             blend_batch.image_size,
+            catalog_list,
+            segmentation,
+            deblended,
+        )
+
+    @classmethod
+    def __repr__(cls):
+        """Returns the name of the class for bookkeeping."""
+        return cls.__name__
+
+
+class MultiResolutionDeblender(ABC):
+    """Abstract base class for deblenders using multiresolution images."""
+
+    def __init__(self, survey_names: Union[list, tuple]) -> None:
+        """Initialize the multiresolution deblender."""
+        assert isinstance(survey_names, (list, tuple))
+        assert len(survey_names) > 1, "At least two surveys must be used."
+
+        self.survey_names = survey_names
+
+    @abstractmethod
+    def __call__(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendedExample:
+        """Implements the call of a measure function on the ii-th example.
+
+        Overwrite this function if you perform measurment one image at a time.
+
+        Args:
+            blend_batch: Instance of `BlendBatch` class
+
+        Returns:
+            Instance of `DeblendedExample` class
+        """
+
+    def batch_call(self, mr_batch: MultiResolutionBlendBatch, cpus: int = 1) -> DeblendedBatch:
+        """Implements the call of a measure function on the entire batch.
+
+        Overwrite this function if you perform measurments on the batch.
+        The default fucntionality is to use multiprocessing to speed up
+        the iteration over all examples in the batch.
+
+        Args:
+            blend_batch: Instance of `BlendBatch` class
+            cpus: Number of cpus to paralelize across
+
+        Returns:
+            Instance of `DeblendedBatch` class
+        """
+        args_iter = ((ii, mr_batch) for ii in range(mr_batch.batch_size))
+        output = multiprocess(self.__call__, args_iter, cpus=cpus)
+        catalog_list = [db_example.catalog for db_example in output]
+        segmentation, deblended = None, None
+        if output[0].segmentation is not None:
+            segmentation = np.array([db_example.segmentation for db_example in output])
+        if output[0].deblended_images is not None:
+            deblended = np.array([db_example.deblended_images for db_example in output])
+        return DeblendedBatch(
+            mr_batch.batch_size,
+            mr_batch.max_n_sources,
+            mr_batch.image_size,
             catalog_list,
             segmentation,
             deblended,
