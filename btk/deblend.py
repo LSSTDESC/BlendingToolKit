@@ -1,4 +1,4 @@
-"""Contains the Measure and MeasureExample classes and its subclasses."""
+"""Contains the Deblender classes and its subclasses."""
 import inspect
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
@@ -26,13 +26,30 @@ class Deblender(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    @abstractmethod
     def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
-        """Implements the call of a measure function on the ii-th example.
-
-        Overwrite this function if you perform measurment one image at a time.
+        """Calls the (user-implemented) `deblend` method along with validation of the input.
 
         Args:
+            ii: The index of the example in the batch.
+            blend_batch: Instance of `BlendBatch` class
+
+        Returns:
+            Instance of `DeblendedExample` class
+        """
+        if not isinstance(blend_batch, BlendBatch):
+            raise TypeError(
+                f"Got type'{type(blend_batch)}', but expected an object of a BlendBatch class."
+            )
+        self.deblend(ii, blend_batch)
+
+    @abstractmethod
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+        """Runs the deblender on the ii-th example of a given batch.
+
+        This method should be overwritten by the user if a new deblender is implemented.
+
+        Args:
+            ii: The index of the example in the batch.
             blend_batch: Instance of `BlendBatch` class
 
         Returns:
@@ -86,14 +103,31 @@ class MultiResolutionDeblender(ABC):
 
         self.survey_names = survey_names
 
-    @abstractmethod
     def __call__(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendedExample:
-        """Implements the call of a measure function on the ii-th example.
-
-        Overwrite this function if you perform measurment one image at a time.
+        """Calls the (user-implemented) deblend method along with validation of the input.
 
         Args:
-            blend_batch: Instance of `BlendBatch` class
+            ii: The index of the example in the batch.
+            mr_batch: Instance of `MultiResolutionBlendBatch` class
+
+        Returns:
+            Instance of `DeblendedExample` class
+        """
+        if not isinstance(mr_batch, MultiResolutionBlendBatch):
+            raise TypeError(
+                f"Got type'{type(mr_batch)}', but expected a MultiResolutionBlendBatch object."
+            )
+        self.deblend(ii, mr_batch)
+
+    @abstractmethod
+    def deblend(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendedExample:
+        """Runs the MR deblender on the ii-th example of a given batch.
+
+        This method should be overwritten by the user if a new deblender is implemented.
+
+        Args:
+            ii: The index of the example in the batch.
+            mr_batch: Instance of `MultiResolutionBlendBatch` class
 
         Returns:
             Instance of `DeblendedExample` class
@@ -102,12 +136,12 @@ class MultiResolutionDeblender(ABC):
     def batch_call(self, mr_batch: MultiResolutionBlendBatch, cpus: int = 1) -> DeblendedBatch:
         """Implements the call of a measure function on the entire batch.
 
-        Overwrite this function if you perform measurments on the batch.
+        Overwrite this function if you perform measurments on a batch.
         The default fucntionality is to use multiprocessing to speed up
         the iteration over all examples in the batch.
 
         Args:
-            blend_batch: Instance of `BlendBatch` class
+            mr_batch: Instance of `MultiResolutionBlendBatch` class
             cpus: Number of cpus to paralelize across
 
         Returns:
@@ -226,7 +260,7 @@ class SepSingleband(Deblender):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch.blend_images[ii]
@@ -251,7 +285,7 @@ class SepSingleband(Deblender):
             deblended_images[jj] = image * seg_i.astype(image.dtype)
 
         # convert to ra, dec
-        wcs = blend_batch._get_wcs()
+        wcs = blend_batch.wcs
         ra, dec = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
         ra *= 3600
         dec *= 3600
@@ -289,7 +323,7 @@ class SepMultiband(Deblender):
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
         """Performs measurement on the ii-th example from the batch."""
         # run source extractor on the first band
         wcs = blend_batch.wcs
@@ -343,7 +377,7 @@ class SepMultiband(Deblender):
 
 
 class DeblendGenerator:
-    """Generates output of deblender and measurement algorithm."""
+    """Run one or more deblenders on the batches from the given draw_blend_generator."""
 
     def __init__(
         self,
@@ -362,7 +396,7 @@ class DeblendGenerator:
             verbose: Whether to print information about measurement.
         """
         self.deblenders = self._validate_deblenders(deblenders)
-        self.measures_names = self._get_unique_deblender_names()
+        self.deblender_names = self._get_unique_deblender_names()
         self.draw_blend_generator = draw_blend_generator
         self.cpus = cpus
 
@@ -380,14 +414,23 @@ class DeblendGenerator:
 
         for deblender in deblenders:
             if inspect.isclass(deblender):
-                if not issubclass(deblender, Deblender):
-                    raise TypeError(f"'{deblender.__name__}' must subclass from Measure")
+                is_deblender_cls = issubclass(deblender, Deblender)
+                is_mr_deblender_cls = issubclass(deblender, MultiResolutionDeblender)
+                if not (is_deblender_cls or is_mr_deblender_cls):
+                    raise TypeError(
+                        f"'{deblender.__name__}' must subclass from Deblender or"
+                        "MultiResolutionDeblender."
+                    )
                 raise TypeError(
                     f"'{deblender.__name__}' must be instantiated. Use '{deblender.__name__}()'"
                 )
-            if not isinstance(deblender, Deblender):
+
+            is_deblender = isinstance(deblender, Deblender)
+            is_mr_deblender = isinstance(deblender, MultiResolutionDeblender)
+            if not is_deblender and not is_mr_deblender:
                 raise TypeError(
-                    f"Got type'{type(deblender)}', but expected an object of a Measure class"
+                    f"Got type'{type(deblender)}', but expected an object of a Deblender or"
+                    "MultiResolutionDeblender class."
                 )
         return deblenders
 
@@ -405,16 +448,16 @@ class DeblendGenerator:
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:
-            draw_blend_generator output from its `__next__` method.
-            measurement_results (dict): Dictionary with keys being the name of each
+            blend_batch: draw_blend_generator output from its `__next__` method.
+            deblended_output (dict): Dictionary with keys being the name of each
                 measure function passed in, and each value its corresponding `MeasuredBatch`.
         """
-        blend_output = next(self.draw_blend_generator)
-        meas_output = {
-            meas_name: meas.batch_call(blend_output)
-            for meas_name, meas in zip(self.measures_names, self.deblenders)
+        blend_batch = next(self.draw_blend_generator)
+        deblended_output = {
+            name: deblender.batch_call(blend_batch, cpus=self.cpus)
+            for name, deblender in zip(self.deblender_names, self.deblenders)
         }
-        return blend_output, meas_output
+        return blend_batch, deblended_output
 
 
 available_deblenders = {
