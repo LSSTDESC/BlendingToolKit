@@ -31,10 +31,10 @@ class Deblender(ABC):
 
         Args:
             ii: The index of the example in the batch.
-            blend_batch: Instance of `BlendBatch` class
+            blend_batch: Instance of `BlendBatch` class.
 
         Returns:
-            Instance of `DeblendedExample` class
+            Instance of `DeblendedExample` class.
         """
         if not isinstance(blend_batch, BlendBatch):
             raise TypeError(
@@ -309,7 +309,7 @@ class SepMultiband(Deblender):
     For each band in the input image we run sep for detection and append new detections to a running
     list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
     to calculate the angular distance between each new coordinate and its closest neighbour. Then we
-    discard those new coordinates that were closer than matching_threshold to any one of already
+    discard those new coordinates that were closer than `matching_threshold` to any one of already
     detected coordinates.
     """
 
@@ -317,7 +317,7 @@ class SepMultiband(Deblender):
         """Initialize the SepMultiband measurement function.
 
         Args:
-            matching_threshold: Threshold value for match detections that are close
+            matching_threshold: Threshold value for match detections that are close (arcsecs).
             sigma_noise: Noise level for sep.
         """
         self.matching_threshold = matching_threshold
