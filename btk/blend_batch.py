@@ -27,17 +27,6 @@ class BlendBatch:
     blend_list: List[Table]
     psf: List[galsim.GSObject]  # each element corresponds to each band
 
-    def _get_image_size(self) -> int:
-        """Returns the size of the stamps in pixels."""
-        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
-        return int(self.stamp_size / pixel_scale)
-
-    def _get_wcs(self):
-        """Returns the wcs of the stamps."""
-        pix_stamp_size = self._get_image_size()
-        pixel_scale = get_surveys(self.survey_name).pixel_scale.to_value("arcsec")
-        return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
-
     def __post_init__(self):
         """Checks that the data is of the right shape."""
         self.wcs = self._get_wcs()
@@ -49,6 +38,25 @@ class BlendBatch:
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == self._get_image_size()
+
+    def _get_image_size(self) -> int:
+        """Returns the size of the stamps in pixels."""
+        survey = get_surveys(self.survey_name)
+        pixel_scale = survey.pixel_scale.to_value("arcsec")
+        return int(self.stamp_size / pixel_scale)
+
+    def _get_wcs(self):
+        """Returns the wcs of the stamps."""
+        pix_stamp_size = self._get_image_size()
+        survey = get_surveys(self.survey_name)
+        pixel_scale = survey.pixel_scale.to_value("arcsec")
+        return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
+
+    def get_numpy_psf(self):
+        """Returns the psf as a numpy array."""
+        return np.array(
+            [psf.drawImage(nx=self.image_size, ny=self.image_size).array for psf in self.psf]
+        )
 
     def __repr__(self) -> str:
         """Return string representation of class."""
