@@ -3,7 +3,7 @@ import json
 import os
 import pickle
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import astropy
 import galsim
@@ -301,7 +301,7 @@ class DeblendedBatch:
 
     def match(
         self, blend_batch: BlendBatch, matching: Matching = IdentityMatching()
-    ) -> "DeblendedBatch":
+    ) -> Tuple["DeblendedBatch", List[np.ndarray]]:
         """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
         assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
 
