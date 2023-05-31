@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import astropy.table
 import numpy as np
+import scarlet
 import sep
 from astropy import units
 from astropy.coordinates import SkyCoord
@@ -387,51 +388,58 @@ class Scarlet(Deblender):
         self.e_rel = e_rel
         self.n_steps = n_steps
 
-    def deblend(  # noqa
+    def deblend(
         self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
     ) -> DeblendedExample:
         # if no reference catalog is provided, truth catalog is used
         if reference_catalog is None:
             catalog = blend_batch.blend_list[ii]
+        else:
+            catalog = reference_catalog
 
-        assert "x" in reference_catalog.colnames and "y" in reference_catalog.colnames
+        # if catalog is empty return empty images
+        if len(catalog) == 0:
+            return DeblendedExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
+
+        assert "x" in catalog.colnames and "y" in catalog.colnames
+
         survey = get_surveys(blend_batch.survey_name)
         bkg = np.array(
             [mean_sky_level(survey, band).to_value("electron") for band in survey.filters]
         )
 
         image = blend_batch.blend_images[ii]
-        coadd = np.mean(image, axis=0)  # noqa
+        image_size = image.shape[-1]
         bands = get_surveys(blend_batch.survey_name).available_filters
         n_bands = len(bands)
         psf = blend_batch.get_numpy_psf()
         wcs = blend_batch.wcs
 
         # initialize scarlet
-        model_psf = scarlet.GaussianPSF(sigma=(0.6,) * n_bands)  # noqa
-        model_frame = scarlet.Frame(image.shape, psf=model_psf, channels=bands, wcs=wcs)  # noqa
-        scarlet_psf = scarlet.ImagePSF(psf)  # noqa
-        weights = np.ones(image.shape) / bkg.reshape(-1, 1, 1)  # noqa
-        obs = scarlet.Observation(  # noqa
-            image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs
-        )  # noqa
+        model_psf = scarlet.GaussianPSF(sigma=(0.6,) * n_bands)
+        model_frame = scarlet.Frame(image.shape, psf=model_psf, channels=bands, wcs=wcs)
+        scarlet_psf = scarlet.ImagePSF(psf)
+        weights = np.ones(image.shape) / bkg.reshape((-1, 1, 1))
+        obs = scarlet.Observation(image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs)
         observations = [obs.match(model_frame)]
 
-        ra_dec = np.array(wcs.pixel_to_world_values(catalog["x"], catalog["y"])).T
+        skycoords = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        ra_dec = np.array(skycoords).T
 
         # We define a source for each detection
         sources = [
-            scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)  # noqa
+            scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)
             for sky_coord in ra_dec
         ]
         scarlet.initialization.set_spectra_to_match(sources, observations)  # noqa
 
         t = Table()
+        t["ra"], t["dec"] = skycoords
+        t["ra"], t["dec"] = t["ra"] * 3600, t["dec"] * 3600
 
         try:
             blend = scarlet.Blend(sources, observations)  # noqa
             blend.fit(self.n_steps, e_rel=self.e_rel)
-
             individual_sources, selected_peaks = [], []
             for component in sources:
                 y, x = component.center
@@ -441,14 +449,15 @@ class Scarlet(Deblender):
                 individual_sources.append(model_)
             selected_peaks = np.array(selected_peaks)
             deblended_images = np.array(individual_sources)
-            sky_coords = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
-            t["ra"], t["dec"] = sky_coords
+            return DeblendedExample(
+                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
+            )
 
         except AssertionError:
-            return -1
-
-        t["ra"], t["dec"] = t["ra"] * 3600, t["dec"] * 3600
-        return {"catalog": t, "segmentation": None, "deblended_images": deblended_images}
+            deblended_images = np.zeros((len(catalog), n_bands, image_size, image_size)) * np.nan
+            return DeblendedExample(
+                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
+            )
 
 
 class DeblendGenerator:
