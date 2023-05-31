@@ -8,6 +8,8 @@ import numpy as np
 import sep
 from astropy import units
 from astropy.coordinates import SkyCoord
+from astropy.table import Table
+from galcheat.utilities import mean_sky_level
 from skimage.feature import peak_local_max
 
 from btk.blend_batch import (
@@ -18,6 +20,7 @@ from btk.blend_batch import (
 )
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
+from btk.survey import get_surveys
 
 
 class Deblender(ABC):
@@ -189,9 +192,9 @@ class PeakLocalMax(Deblender):
 
         Args:
             threshold_scale: Minimum intensity of peaks.
-            min_distance: Mimum distance in pixels between two peaks
-            use_mean: Flag to use the band average for the measurement
-            use_band: Integer index of the band to use for the measurement
+            min_distance: Minimum distance in pixels between two peaks.
+            use_mean: Flag to use the band average for the measurement.
+            use_band: Integer index of the band to use for the measurement.
         """
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
@@ -374,6 +377,78 @@ class SepMultiband(Deblender):
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
         return DeblendedExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
+
+
+class Scarlet(Deblender):
+    """Implementation of the scarlet deblender."""
+
+    def __init__(self, thresh=0.1, e_rel=1e-5, n_steps=200):
+        self.thres = thresh
+        self.e_rel = e_rel
+        self.n_steps = n_steps
+
+    def deblend(  # noqa
+        self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
+    ) -> DeblendedExample:
+        # if no reference catalog is provided, truth catalog is used
+        if reference_catalog is None:
+            catalog = blend_batch.blend_list[ii]
+
+        assert "x" in reference_catalog.colnames and "y" in reference_catalog.colnames
+        survey = get_surveys(blend_batch.survey_name)
+        bkg = np.array(
+            [mean_sky_level(survey, band).to_value("electron") for band in survey.filters]
+        )
+
+        image = blend_batch.blend_images[ii]
+        coadd = np.mean(image, axis=0)  # noqa
+        bands = get_surveys(blend_batch.survey_name).available_filters
+        n_bands = len(bands)
+        psf = blend_batch.get_numpy_psf()
+        wcs = blend_batch.wcs
+
+        # initialize scarlet
+        model_psf = scarlet.GaussianPSF(sigma=(0.6,) * n_bands)  # noqa
+        model_frame = scarlet.Frame(image.shape, psf=model_psf, channels=bands, wcs=wcs)  # noqa
+        scarlet_psf = scarlet.ImagePSF(psf)  # noqa
+        weights = np.ones(image.shape) / bkg.reshape(-1, 1, 1)  # noqa
+        obs = scarlet.Observation(  # noqa
+            image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs
+        )  # noqa
+        observations = [obs.match(model_frame)]
+
+        ra_dec = np.array(wcs.pixel_to_world_values(catalog["x"], catalog["y"])).T
+
+        # We define a source for each detection
+        sources = [
+            scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)  # noqa
+            for sky_coord in ra_dec
+        ]
+        scarlet.initialization.set_spectra_to_match(sources, observations)  # noqa
+
+        t = Table()
+
+        try:
+            blend = scarlet.Blend(sources, observations)  # noqa
+            blend.fit(self.n_steps, e_rel=self.e_rel)
+
+            individual_sources, selected_peaks = [], []
+            for component in sources:
+                y, x = component.center
+                selected_peaks.append([x, y])
+                model = component.get_model(frame=model_frame)
+                model_ = observations[0].render(model)
+                individual_sources.append(model_)
+            selected_peaks = np.array(selected_peaks)
+            deblended_images = np.array(individual_sources)
+            sky_coords = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+            t["ra"], t["dec"] = sky_coords
+
+        except AssertionError:
+            return -1
+
+        t["ra"], t["dec"] = t["ra"] * 3600, t["dec"] * 3600
+        return {"catalog": t, "segmentation": None, "deblended_images": deblended_images}
 
 
 class DeblendGenerator:
