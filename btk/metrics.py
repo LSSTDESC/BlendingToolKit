@@ -41,15 +41,15 @@ class Metric(ABC):
     def __call__(
         self,
         blend_batch: BlendBatch,
-        measured_batch: DeblendedBatch,
+        deblended_batch: DeblendedBatch,
         *args,
         match_fn=IdentityMatching,
         **kwargs,
     ) -> np.ndarray:
         """Compute metric on batch, update global state, and return metric."""
         assert self.survey_name in blend_batch.results
-        assert self.survey_name == measured_batch.survey_name
-        data = self._get_data(blend_batch, measured_batch, *args, match_fn=match_fn, **kwargs)
+        assert self.survey_name == deblended_batch.survey_name
+        data = self._get_data(blend_batch, deblended_batch, *args, match_fn=match_fn, **kwargs)
         value = self._compute(data)
         self.all_data.append(data)
         self.values.append(value)
