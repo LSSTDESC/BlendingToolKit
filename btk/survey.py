@@ -54,7 +54,7 @@ class Survey(galcheat.survey.Survey):
             galcheat_filter = galcheat_survey.get_filter(band)
             btk_filt = Filter.from_galcheat_filter(galcheat_filter)
             btk_filters[band] = btk_filt
-        btk_survey._filters = btk_filters
+        btk_survey._filters = btk_filters  # pylint: disable=attribute-defined-outside-init
 
         return btk_survey
 
@@ -72,7 +72,9 @@ class Filter(galcheat.filter.Filter):
         return cls(**vars(galcheat_filter))
 
 
-def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
+def get_surveys(
+    names: Union[str, List[str]], psf_func: Callable = None
+) -> Union[Survey, List[Survey]]:
     """Return specified surveys from galcheat extended to contain PSF information.
 
     This function currently returns a list of `Survey` instances if `names` is a list with more
@@ -189,7 +191,7 @@ def get_default_psf(
     elif atmospheric_psf_model is None and optical_psf_model is None:
         raise RuntimeError("Neither the atmospheric nor the optical PSF components are defined.")
 
-    return psf_model.withFlux(1.0)
+    return psf_model.withFlux(1.0, bandpass=None)
 
 
 def get_psf_from_file(psf_dir, survey):
