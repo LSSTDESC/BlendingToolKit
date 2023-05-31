@@ -21,13 +21,10 @@ dependencies = [
   "astropy>=5.1",
   "galcheat>=1.0.0",
   "galsim>=2.3.0",
-  "ipywidgets>=7.6.5",
   "matplotlib>=3.5.1",
   "numpy>=1.22",
-  "pandas>=1.4.2",
   "scikit-image>=0.19.2",
   "scipy>=1.8.1",
-  "seaborn>=0.11.2",
   "sep>=1.2.0",
   "tqdm>=4.64.0",
 ]
@@ -86,9 +83,10 @@ testpaths = ["tests"]
 
 [tool.pdm.build]
 includes = ["btk"]
+
 [build-system]
 build-backend = "pdm.pep517.api"
-requires = ["pdm-pep517>=1.0.0"]
+requires = ["pdm-pep517>=1.0.0", "pybind11>=2.10.0"]
 
 [tool.pydocstyle]
 convention = "google"
