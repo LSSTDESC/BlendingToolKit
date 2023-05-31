@@ -18,17 +18,17 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy>=1.22",
-    "astropy>=5.1",
-    "galcheat>=1.0.0",
-    "matplotlib>=3.7.1",
-    "scikit-image>=0.20.0",
-    "scipy>=1.9.1",
-    "tqdm>=4.65.0",
-    "sep>=1.2.1",
-    "galsim>=2.4.9",
-    "scarlet @ git+https://github.com/pmelchior/scarlet.git@btk-v1",
-    "pybind11>=2.10.4",
+  "numpy>=1.22",
+  "astropy>=5.1",
+  "galcheat>=1.0.0",
+  "matplotlib>=3.7.1",
+  "scikit-image>=0.20.0",
+  "scipy>=1.9.1",
+  "tqdm>=4.65.0",
+  "sep>=1.2.1",
+  "galsim>=2.4.9",
+  "scarlet @ git+https://github.com/pmelchior/scarlet.git@btk-v1",
+  "pybind11>=2.10.4",
 ]
 description = "Blending ToolKit"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
