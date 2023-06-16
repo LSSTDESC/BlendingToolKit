@@ -221,6 +221,21 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "autograd"
+version = "1.5"
+description = "Efficiently computes derivatives of numpy code."
+optional = false
+python-versions = "*"
+files = [
+    {file = "autograd-1.5-py3-none-any.whl", hash = "sha256:a22a17e71c4a601359d544827762dd66d5ba50b287a8444d4f85ada1ee762ef6"},
+    {file = "autograd-1.5.tar.gz", hash = "sha256:d80bd225154d1db13cb4eaccf7a18c358be72092641b68717f96fcf1d16acd0b"},
+]
+
+[package.dependencies]
+future = ">=0.15.2"
+numpy = ">=1.12"
+
+[[package]]
 name = "babel"
 version = "2.12.1"
 description = "Internationalization utilities"
@@ -2200,6 +2215,16 @@ files = [
 ]
 
 [[package]]
+name = "peigen"
+version = "0.0.9"
+description = "Python wrapper for Eigen C++ header"
+optional = false
+python-versions = "*"
+files = [
+    {file = "peigen-0.0.9.tar.gz", hash = "sha256:97f88e9f044ccb99327ea2526f1e41c104162f7671c8d72729857f209064416f"},
+]
+
+[[package]]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -2389,6 +2414,21 @@ files = [
 
 [package.dependencies]
 wcwidth = "*"
+
+[[package]]
+name = "proxmin"
+version = "0.6.12"
+description = "Proximal methods for constrained optimization"
+optional = false
+python-versions = "*"
+files = [
+    {file = "proxmin-0.6.12-py2.py3-none-any.whl", hash = "sha256:ae68aaca0b347f2e5d6bc8ab4b75cf7d20375f02caf77b3baa93e07527523671"},
+    {file = "proxmin-0.6.12.tar.gz", hash = "sha256:2055cccc178be11394ef86ab802e9cb855dff40c89a7ca0ff3377091885afae5"},
+]
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
 
 [[package]]
 name = "psutil"
@@ -3871,4 +3911,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1,<3.12"
-content-hash = "48b0b907a5e9591a354020cb927668cd2b414d661ad96ee00b6c40bc246fb15f"
+content-hash = "7a1bb2a0ddbff2ffa133a219b0b3fdd5d0834f11388fae73e45989a410236983"

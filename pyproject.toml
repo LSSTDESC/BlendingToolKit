@@ -60,6 +60,14 @@ pytest-cov = ">=4.1.0"
 sphinx = ">=4.2.0"
 sphinx-rtd-theme = ">=1.2.1"
 
+[tool.poetry.group.scarlet]
+optional = true
+
+[tool.poetry.group.scarlet.dependencies]
+peigen = "^0.0.9"
+autograd = "^1.5"
+proxmin = "^0.6.12"
+
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
