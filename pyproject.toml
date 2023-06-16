@@ -1,14 +1,14 @@
-[project]
+[tool.poetry]
 authors = [
-  {name = "Ismael Mendoza", email = "imendoza@umich.edu"},
-  {name = "Somwya Kamath"},
-  {name = "Thomas Sainrat"},
-  {name = "Maxime Paillasa"},
-  {name = "Alexandre Boucaud"},
-  {name = "Remy Joseph"},
-  {name = "Patricia Burchat"},
-  {name = "Cyrille Doux"},
-  {name = "Eric Aubourg"},
+  "Ismael Mendoza <imendoza@umich.edu>",
+  "Somwya Kamath",
+  "Thomas Sainrat",
+  "Maxime Paillasa",
+  "Alexandre Boucaud",
+  "Remy Joseph",
+  "Patricia Burchat",
+  "Cyrille Doux",
+  "Eric Aubourg",
 ]
 classifiers = [
   "Programming Language :: Python :: 3.8",
@@ -17,38 +17,65 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
-dependencies = [
-  "numpy>=1.22",
-  "astropy>=5.1",
-  "galcheat>=1.0.0",
-  "matplotlib>=3.7.1",
-  "scikit-image>=0.20.0",
-  "scipy>=1.9.1",
-  "tqdm>=4.65.0",
-  "sep>=1.2.1",
-  "galsim>=2.4.9",
-  "scarlet @ git+https://github.com/pmelchior/scarlet.git@btk-v1",
-  "pybind11>=2.10.4",
-]
 description = "Blending ToolKit"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
-license = {text = "MIT"}
+license = "MIT"
 name = "blending_toolkit"
 readme = "README.md"
-requires-python = ">=3.8.1,<3.12"
 version = "1.0.0a9"
-
-[project.urls]
-"Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
-documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
+packages = [{ include = "btk" }]
 repository = "https://github.com/LSSTDESC/BlendingToolKit"
+homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/python-poetry/poetry/issues"
+
+[tool.poetry.dependencies]
+numpy = ">=1.22"
+astropy = "^5.1"
+galcheat = "^1.0.0"
+matplotlib = "^3.7.1"
+scikit-image = "^0.20.0"
+scipy = "^1.9.1"
+tqdm = "^4.65.0"
+sep = "^1.2.1"
+galsim = "^2.4.9"
+python = "^3.8.1,<3.12"
+
+[tool.poetry.dev-dependencies]
+black = "^23.3.0"
+flake8 = "^6.0.0"
+flake8-absolute-import = ">=1.0.0"
+isort = ">=5.12.0"
+jupyter = ">=1.0.0"
+jupyter-sphinx = ">=0.4.0"
+nbconvert = ">=7.4.0"
+nbmake = ">=1.4.1"
+nbstripout = ">=0.6.1"
+pre-commit = ">=3.3.2"
+pydocstyle = ">=6.3.0"
+pylint = ">=2.11.1"
+pytest = ">=7.3.1"
+pytest-cov = ">=4.1.0"
+sphinx = ">=4.2.0"
+sphinx-rtd-theme = ">=1.2.1"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
 
 [tool.black]
 line-length = 100
 target-version = ['py38', 'py39', 'py310']
 
 [tool.isort]
+multi_line_output = 3
 profile = "black"
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 100
 
 [tool.pytest.ini_options]
 addopts = "-ra"
@@ -63,37 +90,6 @@ filterwarnings = [
 ]
 minversion = "6.0"
 testpaths = ["tests"]
-
-[tool.pdm.build]
-includes = ["btk"]
-
-[tool.pdm.dev-dependencies]
-format = [
-  "pre-commit>=3.3.2",
-  "pydocstyle>=6.3.0",
-  "black>=23.3.0",
-]
-notebooks = [
-  "jupyter>=1.0.0",
-]
-sphinx = [
-  "sphinx-rtd-theme>=1.2.1",
-  "nbstripout>=0.6.1",
-  "isort>=5.12.0",
-  "jupyter-sphinx>=0.4.0",
-  "nbconvert>=7.4.0",
-]
-test = [
-  "pytest>=7.3.1",
-  "pytest-cov>=4.1.0",
-  "nbmake>=1.4.1",
-  "flake8>=6.0.0",
-  "flake8-absolute-import>=1.0.0.1",
-]
-
-[build-system]
-build-backend = "pdm.pep517.api"
-requires = ["pdm-pep517>=1.0.0", "pybind11>=2.10.0"]
 
 [tool.pydocstyle]
 convention = "google"
