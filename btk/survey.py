@@ -191,7 +191,7 @@ def get_default_psf(
     elif atmospheric_psf_model is None and optical_psf_model is None:
         raise RuntimeError("Neither the atmospheric nor the optical PSF components are defined.")
 
-    return psf_model.withFlux(1.0, bandpass=None)
+    return psf_model.withFlux(1.0)
 
 
 def get_psf_from_file(psf_dir, survey):
