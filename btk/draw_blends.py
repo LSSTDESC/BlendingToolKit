@@ -502,7 +502,6 @@ class CatsimGenerator(DrawBlendsGenerator):
                 nx=pix_stamp_size,
                 ny=pix_stamp_size,
                 scale=survey.pixel_scale.to_value("arcsec"),
-                bandpass=None,
             )
 
         except SourceNotVisible:
@@ -630,5 +629,4 @@ class CosmosGenerator(DrawBlendsGenerator):
             nx=pix_stamp_size,
             ny=pix_stamp_size,
             scale=survey.pixel_scale.to_value("arcsec"),
-            bandpass=None,
         )
