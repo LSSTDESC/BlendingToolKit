@@ -498,7 +498,7 @@ class CatsimGenerator(DrawBlendsGenerator):
                     raise KeyError("g1 and g2 not found in blend list.")
             gal_conv = galsim.Convolve(gal, psf)
             gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
-            return gal_conv.drawImage(
+            return gal_conv.drawImage(  # pylint: disable=no-value-for-parameter
                 nx=pix_stamp_size,
                 ny=pix_stamp_size,
                 scale=survey.pixel_scale.to_value("arcsec"),
@@ -625,7 +625,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         # Apply the shift
         gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
 
-        return gal_conv.drawImage(
+        return gal_conv.drawImage(  # pylint: disable=no-value-for-parameter
             nx=pix_stamp_size,
             ny=pix_stamp_size,
             scale=survey.pixel_scale.to_value("arcsec"),
