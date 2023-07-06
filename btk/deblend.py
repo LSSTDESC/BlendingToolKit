@@ -13,7 +13,7 @@ from astropy.table import Table
 from galcheat.utilities import mean_sky_level
 from skimage.feature import peak_local_max
 
-from btk.blend_batch import BlendBatch, DeblendedBatch, DeblendedExample, MultiResolutionBlendBatch
+from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
@@ -25,7 +25,7 @@ class Deblender(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Calls the (user-implemented) `deblend` method along with validation of the input.
 
         Args:
@@ -42,7 +42,7 @@ class Deblender(ABC):
         self.deblend(ii, blend_batch)
 
     @abstractmethod
-    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Runs the deblender on the ii-th example of a given batch.
 
         This method should be overwritten by the user if a new deblender is implemented.
@@ -55,7 +55,7 @@ class Deblender(ABC):
             Instance of `DeblendedExample` class
         """
 
-    def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> DeblendedBatch:
+    def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> DeblendBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on the batch.
@@ -77,7 +77,7 @@ class Deblender(ABC):
             segmentation = np.array([db_example.segmentation for db_example in output])
         if output[0].deblended_images is not None:
             deblended = np.array([db_example.deblended_images for db_example in output])
-        return DeblendedBatch(
+        return DeblendBatch(
             blend_batch.batch_size,
             blend_batch.max_n_sources,
             blend_batch.image_size,
@@ -102,7 +102,7 @@ class MultiResolutionDeblender(ABC):
 
         self.survey_names = survey_names
 
-    def __call__(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendExample:
         """Calls the (user-implemented) deblend method along with validation of the input.
 
         Args:
@@ -119,7 +119,7 @@ class MultiResolutionDeblender(ABC):
         self.deblend(ii, mr_batch)
 
     @abstractmethod
-    def deblend(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendExample:
         """Runs the MR deblender on the ii-th example of a given batch.
 
         This method should be overwritten by the user if a new deblender is implemented.
@@ -132,7 +132,7 @@ class MultiResolutionDeblender(ABC):
             Instance of `DeblendedExample` class
         """
 
-    def batch_call(self, mr_batch: MultiResolutionBlendBatch, cpus: int = 1) -> DeblendedBatch:
+    def batch_call(self, mr_batch: MultiResolutionBlendBatch, cpus: int = 1) -> DeblendBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on a batch.
@@ -154,7 +154,7 @@ class MultiResolutionDeblender(ABC):
             segmentation = np.array([db_example.segmentation for db_example in output])
         if output[0].deblended_images is not None:
             deblended = np.array([db_example.deblended_images for db_example in output])
-        return DeblendedBatch(
+        return DeblendBatch(
             mr_batch.batch_size,
             mr_batch.max_n_sources,
             mr_batch.image_size,
@@ -202,7 +202,7 @@ class PeakLocalMax(Deblender):
         self.use_mean = use_mean
         self.use_band = use_band
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
         blend_image = blend_batch.blend_images[ii]
         if self.use_mean:
@@ -227,7 +227,7 @@ class PeakLocalMax(Deblender):
         catalog = astropy.table.Table()
         catalog["ra"], catalog["dec"] = ra, dec
 
-        return DeblendedExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
+        return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
 
 class SepSingleband(Deblender):
@@ -259,7 +259,7 @@ class SepSingleband(Deblender):
         self.use_band = use_band
         self.sigma_noise = sigma_noise
 
-    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch.blend_images[ii]
@@ -293,7 +293,7 @@ class SepSingleband(Deblender):
         cat = astropy.table.Table()
         cat["ra"], cat["dec"] = ra, dec
 
-        return DeblendedExample(
+        return DeblendExample(
             blend_batch.max_n_sources,
             blend_batch.image_size,
             cat,
@@ -322,7 +322,7 @@ class SepMultiband(Deblender):
         self.matching_threshold = matching_threshold
         self.sigma_noise = sigma_noise
 
-    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendedExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
         # run source extractor on the first band
         wcs = blend_batch.wcs
@@ -372,7 +372,7 @@ class SepMultiband(Deblender):
         catalog = astropy.table.Table()
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
-        return DeblendedExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
+        return DeblendExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
 
 
 class Scarlet(Deblender):
@@ -385,7 +385,7 @@ class Scarlet(Deblender):
 
     def deblend(
         self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
-    ) -> DeblendedExample:
+    ) -> DeblendExample:
         # if no reference catalog is provided, truth catalog is used
         if reference_catalog is None:
             catalog = blend_batch.blend_list[ii]
@@ -394,7 +394,7 @@ class Scarlet(Deblender):
 
         # if catalog is empty return empty images
         if len(catalog) == 0:
-            return DeblendedExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
+            return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
         assert "x" in catalog.colnames and "y" in catalog.colnames
 
@@ -444,13 +444,13 @@ class Scarlet(Deblender):
                 individual_sources.append(model_)
             selected_peaks = np.array(selected_peaks)
             deblended_images = np.array(individual_sources)
-            return DeblendedExample(
+            return DeblendExample(
                 blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
             )
 
         except AssertionError:
             deblended_images = np.zeros((len(catalog), n_bands, image_size, image_size)) * np.nan
-            return DeblendedExample(
+            return DeblendExample(
                 blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
             )
 
@@ -523,7 +523,7 @@ class DeblendGenerator:
                 names_counts[name] += 1
         return deblender_names
 
-    def __next__(self) -> Tuple[BlendBatch, Dict[str, DeblendedBatch]]:
+    def __next__(self) -> Tuple[BlendBatch, Dict[str, DeblendBatch]]:
         """Return measurement results on a single batch from the draw_blend_generator.
 
         Returns:

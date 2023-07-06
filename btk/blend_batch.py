@@ -181,7 +181,7 @@ class MultiResolutionBlendBatch:
 
 
 @dataclass
-class DeblendedExample:
+class DeblendExample:
     """Class that validates the deblending results for a single blend."""
 
     max_n_sources: int
@@ -222,7 +222,7 @@ class DeblendedExample:
     def __repr__(self):
         """Return string representation of class."""
         string = (
-            f"DeblendedExample(max_n_sources = {self.max_n_sources}, "
+            f"DeblendExample(max_n_sources = {self.max_n_sources}, "
             f"image_size = {self.image_size})" + ", containing: \n"
         )
         string += "\tcatalog: " + str(astropy.table.Table)
@@ -246,7 +246,7 @@ class DeblendedExample:
 
 
 @dataclass
-class DeblendedBatch:
+class DeblendBatch:
     """Class that validates the deblending results for a batch of images in a single survey."""
 
     batch_size: int
@@ -301,7 +301,7 @@ class DeblendedBatch:
 
     def match(
         self, blend_batch: BlendBatch, matching: Matching = IdentityMatching()
-    ) -> Tuple["DeblendedBatch", List[np.ndarray]]:
+    ) -> Tuple["DeblendBatch", List[np.ndarray]]:
         """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
         assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
 
@@ -340,7 +340,7 @@ class DeblendedBatch:
             if self.deblended_images is not None:
                 new_deblended_images[ii] = self.deblended_images[ii][rearange_indx]
 
-        match_deblended_batch = DeblendedBatch(
+        match_deblended_batch = DeblendBatch(
             self.max_n_sources,
             self.batch_size,
             new_catalog_list,
@@ -353,7 +353,7 @@ class DeblendedBatch:
     def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
-            f"DeblendedBatch(batch_size = {self.batch_size}, "
+            f"DeblendBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
             f", containing: \n"
         )
