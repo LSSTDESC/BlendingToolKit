@@ -41,8 +41,8 @@ def test_multiresolution(mock_show):
     )
     blend_results, measure_results, metrics_results = next(metrics_generator)
 
-    assert "LSST" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
-    assert "HSC" in blend_results["blend_list"].keys(), "Both surveys get well defined outputs"
+    assert "LSST" in blend_results["catalog_list"].keys(), "Both surveys get well defined outputs"
+    assert "HSC" in blend_results["catalog_list"].keys(), "Both surveys get well defined outputs"
     assert blend_results["blend_images"]["LSST"][0].shape[-1] == int(
         24.0 / 0.2
     ), "LSST survey should have a pixel scale of 0.2"

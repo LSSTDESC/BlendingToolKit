@@ -55,7 +55,10 @@ def get_meas_results(meas_function, cpus=1, measure_kwargs=None):
     )
     blend_results, results = next(meas_generator)
     target = np.array(
-        [[blend["x_peak"].item(), blend["y_peak"].item()] for blend in blend_results["blend_list"]]
+        [
+            [blend["x_peak"].item(), blend["y_peak"].item()]
+            for blend in blend_results["catalog_list"]
+        ]
     )
     return target, results
 
@@ -167,7 +170,7 @@ def test_locations():
         target_centers = np.array(
             [
                 [blend["x_peak"].item(), blend["y_peak"].item()]
-                for blend in blend_results["blend_list"]
+                for blend in blend_results["catalog_list"]
             ]
         )
         # count the number of detected sources for both algroitms
@@ -206,7 +209,7 @@ def test_locations():
             target_centers = np.array(
                 [
                     [blend["x_peak"].item(), blend["y_peak"].item()]
-                    for blend in blend_results["blend_list"]
+                    for blend in blend_results["catalog_list"]
                 ]
             )
             # count the number of detected sources for both algroitms

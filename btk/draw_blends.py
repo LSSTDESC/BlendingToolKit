@@ -279,11 +279,11 @@ class DrawBlendsGenerator(ABC):
             image_shape = (n_bands, pix_stamp_size, pix_stamp_size)
             blend_images = np.zeros((self.batch_size, *image_shape))
             isolated_images = np.zeros((self.batch_size, self.max_number, *image_shape))
-            blend_list = []
+            catalog_list = []
             for ii in range(self.batch_size):
                 blend_images[ii] = batch_results[ii][0]
                 isolated_images[ii] = batch_results[ii][1]
-                blend_list.append(batch_results[ii][2])
+                catalog_list.append(batch_results[ii][2])
 
             blend_batch = BlendBatch(
                 self.batch_size,
@@ -292,7 +292,7 @@ class DrawBlendsGenerator(ABC):
                 surv.name,
                 blend_images,
                 isolated_images,
-                blend_list,
+                catalog_list,
                 psf,
             )
 
@@ -303,16 +303,16 @@ class DrawBlendsGenerator(ABC):
 
         return MultiResolutionBlendBatch(blend_batch_list)
 
-    def render_mini_batch(self, blend_list, psf, wcs, survey, seedseq_minibatch, extra_data=None):
-        """Returns isolated and blended images for blend catalogs in blend_list.
+    def render_mini_batch(self, catalog_list, psf, wcs, survey, seedseq_minibatch, extra_data=None):
+        """Returns isolated and blended images for blend catalogs in catalog_list.
 
-        Function loops over blend_list and draws blend and isolated images in each
-        band. Even though blend_list was input to the function, we return it since,
+        Function loops over catalog_list and draws blend and isolated images in each
+        band. Even though catalog_list was input to the function, we return it since,
         the blend catalogs now include additional columns that flag if an object
         was not drawn and object centers in pixel coordinates.
 
         Args:
-            blend_list (list): List of catalogs with entries corresponding to one
+            catalog_list (list): List of catalogs with entries corresponding to one
                                blend. The size of this list is equal to the
                                mini_batch_size.
             psf (list): List of Galsim objects containing the PSF
@@ -333,13 +333,15 @@ class DrawBlendsGenerator(ABC):
         index = 0
 
         if extra_data is None:
-            extra_data = np.zeros((len(blend_list), np.max([len(blend) for blend in blend_list])))
+            extra_data = np.zeros(
+                (len(catalog_list), np.max([len(blend) for blend in catalog_list]))
+            )
 
         # prepare progress bar description
         process_id = get_current_process()
         main_desc = f"Generating blends for {survey.name} survey"
         desc = main_desc if process_id == "main" else f"{main_desc} in process id {process_id}"
-        for ii, blend in tqdm(enumerate(blend_list), total=len(blend_list), desc=desc):
+        for ii, blend in tqdm(enumerate(catalog_list), total=len(catalog_list), desc=desc):
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale.to_value("arcsec")
             pix_stamp_size = int(self.stamp_size / pixel_scale)

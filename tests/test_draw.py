@@ -158,15 +158,15 @@ class TestBasicDraw:
     def test_default(self, mock_show):
         default_draw_generator = get_draw_generator(fixed_parameters=True)
         draw_output = next(default_draw_generator)
-        btk.plot_utils.plot_blends(draw_output["blend_images"], draw_output["blend_list"])
+        btk.plot_utils.plot_blends(draw_output["blend_images"], draw_output["catalog_list"])
         plt.close("all")
         btk.plot_utils.plot_with_isolated(
-            draw_output["blend_images"], draw_output["isolated_images"], draw_output["blend_list"]
+            draw_output["blend_images"], draw_output["isolated_images"], draw_output["catalog_list"]
         )
         plt.close("all")
-        assert len(draw_output["blend_list"]) == 8, "Default batch should return 8"
+        assert len(draw_output["catalog_list"]) == 8, "Default batch should return 8"
         assert (
-            len(draw_output["blend_list"][3]) < 3
+            len(draw_output["catalog_list"][3]) < 3
         ), "Default max_number should \
             generate 2 or 1 galaxies per blend."
         self.match_background_noise(draw_output["blend_images"])
@@ -218,5 +218,5 @@ def test_rotation():
         augment_data=True,
     )
     blend_results = next(draw_generator)
-    rotation = blend_results["blend_list"][0]["btk_rotation"]
+    rotation = blend_results["catalog_list"][0]["btk_rotation"]
     assert np.all(0 <= rotation) and np.all(rotation <= 360)

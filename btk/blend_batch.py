@@ -24,7 +24,7 @@ class BlendBatch:
     survey_name: str
     blend_images: np.ndarray
     isolated_images: np.ndarray
-    blend_list: List[Table]
+    catalog_list: List[Table]
     psf: List[galsim.GSObject]  # each element corresponds to each band
 
     def __post_init__(self):
@@ -34,7 +34,7 @@ class BlendBatch:
         n_bands = len(get_surveys(self.survey_name).available_filters)
         b1, c1, ps11, ps12 = self.blend_images.shape
         b2, n, c2, ps21, ps22 = self.isolated_images.shape
-        assert b1 == b2 == len(self.blend_list) == self.batch_size
+        assert b1 == b2 == len(self.catalog_list) == self.batch_size
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == self._get_image_size()
@@ -63,7 +63,9 @@ class BlendBatch:
         string = self.__class__.__name__ + f"(survey_name={self.survey_name}, "
         string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
-        string += "\n\t blend_list: list of " + str(Table) + ", size " + str(len(self.blend_list))
+        string += (
+            "\n\t catalog_list: list of " + str(Table) + ", size " + str(len(self.catalog_list))
+        )
         string += "\n\t psfs: list of " + str(galsim.GSObject) + ", size " + str(len(self.psf))
         string += "\n\t wcs: " + str(type(self.wcs)) + ")"
         return string
@@ -78,7 +80,7 @@ class BlendBatch:
         os.makedirs(path, exist_ok=True)
         np.save(os.path.join(path, f"blend_images_{batch_number}.npy"), self.blend_images)
         np.save(os.path.join(path, f"isolated_images_{batch_number}.npy"), self.isolated_images)
-        np.save(os.path.join(path, f"blend_list_{batch_number}.npy"), self.blend_list)
+        np.save(os.path.join(path, f"catalog_list_{batch_number}.npy"), self.catalog_list)
 
         with open(os.path.join(path, f"psf_{batch_number}.pickle"), "wb") as f:
             pickle.dump(self.psf, f)
@@ -113,7 +115,7 @@ class BlendBatch:
 
         blend_images = np.load(os.path.join(path, f"blend_images_{batch_number}.npy"))
         isolated_images = np.load(os.path.join(path, f"isolated_images_{batch_number}.npy"))
-        blend_list = np.load(os.path.join(path, f"blend_list_{batch_number}.npy"))
+        catalog_list = np.load(os.path.join(path, f"catalog_list_{batch_number}.npy"))
 
         # load psfs
         with open(os.path.join(path, f"psf_{batch_number}.pickle"), "rb") as f:
@@ -126,7 +128,7 @@ class BlendBatch:
             survey_name,
             blend_images,
             isolated_images,
-            blend_list,
+            catalog_list,
             psf,
         )
 
@@ -312,7 +314,7 @@ class DeblendBatch:
 
         for ii in range(self.batch_size):
             # performs matching procedure
-            truth_catalog = blend_batch.blend_list[ii]
+            truth_catalog = blend_batch.catalog_list[ii]
             predicted_catalog = self.catalog_list[ii]
             match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
             match_list.append(match_indx)

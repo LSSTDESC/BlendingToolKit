@@ -8,12 +8,7 @@ import btk.plot_utils as plot_utils
 from btk.catalog import CatsimCatalog
 from btk.deblend import DeblendGenerator, sep_singleband_measure
 from btk.draw_blends import CatsimGenerator
-from btk.metrics import (
-    MetricsGenerator,
-    auc,
-    get_detection_eff_matrix,
-    meas_ksb_ellipticity,
-)
+from btk.metrics import MetricsGenerator, auc, get_detection_eff_matrix, meas_ksb_ellipticity
 from btk.sampling_functions import DefaultSampling
 from btk.survey import get_surveys
 
@@ -88,7 +83,7 @@ def test_sep_metrics(mock_show):
     plot_utils.plot_with_deblended(
         blend_results["blend_images"],
         blend_results["isolated_images"],
-        blend_results["blend_list"],
+        blend_results["catalog_list"],
         meas_results["catalog"]["sep_singleband_measure"],
         meas_results["deblended_images"]["sep_singleband_measure"],
         metrics_results["matches"]["sep_singleband_measure"],

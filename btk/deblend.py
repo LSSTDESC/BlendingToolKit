@@ -388,7 +388,7 @@ class Scarlet(Deblender):
     ) -> DeblendExample:
         # if no reference catalog is provided, truth catalog is used
         if reference_catalog is None:
-            catalog = blend_batch.blend_list[ii]
+            catalog = blend_batch.catalog_list[ii]
         else:
             catalog = reference_catalog
 
