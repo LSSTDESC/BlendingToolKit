@@ -5,8 +5,7 @@ from typing import Dict, List, Union
 
 import numpy as np
 
-from btk.deblend import DeblendBatch
-from btk.draw_blends import BlendBatch
+from btk.blend_batch import BlendBatch, DeblendBatch
 from btk.metrics_utils import iou, match_stats, mse, psnr, struct_sim
 
 
