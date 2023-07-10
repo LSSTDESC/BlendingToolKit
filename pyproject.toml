@@ -114,6 +114,8 @@ disable = """
 good-names = [
   "x",
   "y",
+  "xs",
+  "ys",
   "x1",
   "y1",
   "x2",
