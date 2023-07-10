@@ -6,6 +6,39 @@ import numpy as np
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 
+def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise: float = 3):
+    """Get segmentation from isolated galaxy images based on noise level cutoff.
+
+    Input of `isolated_images` should be a single band.
+
+    Args:
+        isolate_images: Images of isolated galaxies. Shape only be in a single band.
+        sky_level: Background level of all images. Images are assume to not be
+            background-substracted.
+        sigma_noise: Sigma level at which an pixel is considered to be noise. Should match
+            the argument in SEP if that is being used to compuate the segmentation
+            for deblending.
+    """
+    b, n, _, _ = isolated_images.shape
+    err = np.sqrt(sky_level)
+    return isolated_images > sigma_noise * err
+
+
+def get_match_stats(match_list: List[np.ndarray], n_preds: np.ndarray) -> tuple:
+    """Return statistics on matches including tp, fp, t, p."""
+    n = len(match_list)
+    tp = np.zeros(len(n))
+    fp = np.zeros(len(n))
+    t = np.zeros(len(n))
+    p = np.zeros(len(n))
+    for ii in range(n):
+        tp[ii] = np.sum(match_list[ii] >= 0)
+        fp[ii] = np.sum(match_list[ii] == -1)
+        t[ii] = len(match_list[ii])
+        p[ii] = n_preds[ii]
+    return tp, fp, t, p
+
+
 def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     """Computes mean-squared-error (MSE) between two images.
 
@@ -86,21 +119,6 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     for ii in range(n):
         ssim[ii] = structural_similarity(image1[ii], image2[ii], **kwargs)
     return ssim
-
-
-def match_stats(match_list: List[np.ndarray], n_preds: np.ndarray) -> tuple:
-    """Return statistics on matches including tp, fp, t, p."""
-    n = len(match_list)
-    tp = np.zeros(len(n))
-    fp = np.zeros(len(n))
-    t = np.zeros(len(n))
-    p = np.zeros(len(n))
-    for ii in range(n):
-        tp[ii] = np.sum(match_list[ii] >= 0)
-        fp[ii] = np.sum(match_list[ii] == -1)
-        t[ii] = len(match_list[ii])
-        p[ii] = n_preds[ii]
-    return tp, fp, t, p
 
 
 def efficiency_matrix(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
