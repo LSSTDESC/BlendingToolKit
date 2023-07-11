@@ -7,7 +7,7 @@ import sep
 from galsim import GSObject
 
 
-def get_single_ksb_ellipticity(
+def _get_single_ksb_ellipticity(
     image: np.ndarray, psf: GSObject, pixel_scale: float, verbose=False
 ) -> Tuple[float, float]:
     """Utility function to measure ellipticity using the KSB method.
@@ -37,37 +37,35 @@ def get_single_ksb_ellipticity(
 
 
 def get_ksb_ellipticity(
-    iso_images: np.ndarray, psf: GSObject, pixel_scale: float, verbose=False
+    images: np.ndarray, psf: GSObject, pixel_scale: float, verbose=False
 ) -> np.ndarray:
     """Return ellipticities of both true and detected galaxies, assuming they are matched."""
     # psf is assumed to be the same for the entire batch and correspond to selected band.
-    assert len(iso_images.shape) == 4  # (batch_size, max_n_sources, H, W)
-    batch_size, max_n_sources, _, _ = iso_images.shape
+    assert len(images.shape) == 4  # (batch_size, max_n_sources, H, W)
+    batch_size, max_n_sources, _, _ = images.shape
     ellipticities = np.zeros((batch_size, max_n_sources, 2))
     for ii in range(batch_size):
         for jj in range(max_n_sources):
-            if np.sum(iso_images[ii, jj]) > 0:
-                ellipticities[ii, jj] = get_single_ksb_ellipticity(
-                    iso_images[ii, jj], psf, pixel_scale, verbose=verbose
+            if np.sum(images[ii, jj]) > 0:
+                ellipticities[ii, jj] = _get_single_ksb_ellipticity(
+                    images[ii, jj], psf, pixel_scale, verbose=verbose
                 )
             else:
                 ellipticities[ii, jj] = (np.nan, np.nan)
     return ellipticities
 
 
-def get_blendedness(iso_image: np.ndarray, blend_iso_images: np.ndarray):
+def get_blendedness(iso_image: np.ndarray):
     """Calculate blendedness given isolated images of each galaxy in a blend.
 
     Args:
-        iso_image: Array of shape = (..., H, W) corresponding to image of the isolated
+        iso_image: Array of shape = (..., N, H, W) corresponding to images of the isolated
             galaxy you are calculating blendedness for.
-        blend_iso_images: Array of shape = (..., H, W) where N is the number of galaxies
-            in the blend and each image of this array corresponds to an isolated galaxy that is
-            part of the blend (includes `iso_image`).
     """
-    num = np.sum(iso_image * iso_image, axis=(1, 2))
-    blend = np.sum(blend_iso_images, axis=1)[:, None]
-    denom = np.sum(blend * iso_image, axis=(1, 2))
+    assert iso_image.ndim >= 3
+    num = np.sum(iso_image * iso_image, axis=(-1, -2))
+    blend = np.sum(iso_image, axis=-3)[..., None, :, :]
+    denom = np.sum(blend * iso_image, axis=(-1, -2))
     return 1 - num / denom
 
 
@@ -85,20 +83,8 @@ def get_snr(iso_image: np.ndarray, sky_level: float) -> float:
     return np.sqrt(np.sum(images * images, axis=(1, 2))) / err
 
 
-def get_residual_images(iso_images: np.ndarray, blend_images: np.ndarray):
-    """Calculate residual images given isolated images of each galaxy in a blend.
-
-    Args:
-        iso_images: Array of shape = (B, N, H, W) corresponding to images of the isolated
-            galaxies you are calculating residual images for.
-        blends: Array of shape = (B, H, W) where B is the batch size. Contains noise.
-    """
-    except_one_images = np.sum(iso_images, axis=1)[:, None] - iso_images
-    return blend_images[:, None] - except_one_images
-
-
-def get_aperture_flux(
-    image: np.ndarray, x: np.ndarray, y: np.ndarray, sky_level: float, radius: float
+def _get_single_aperture_flux(
+    image: np.ndarray, x: np.ndarray, y: np.ndarray, radius: float, sky_level: float
 ) -> np.ndarray:
     """Utility function to measure flux using fixed circular aperture with sep.
 
@@ -110,13 +96,13 @@ def get_aperture_flux(
             Images are assume to be background substracted.
         radius (float): Radius of the aperture in pixels.
     """
-
+    assert image.ndim == 2
     flux, _, _ = sep.sum_circle(image, x, y, radius, err=sky_level)
     return flux[0]
 
 
 def get_aperture_fluxes(
-    images: np.ndarray, xs: np.ndarray, ys: np.ndarray, sky_level: float = 0, radius: float = 3
+    images: np.ndarray, xs: np.ndarray, ys: np.ndarray, radius: float, sky_level: float
 ) -> np.ndarray:
     """Utility function to measure flux using fixed circular aperture with sep.
 
@@ -128,8 +114,21 @@ def get_aperture_fluxes(
             Images are assume to be background substracted.
         radius (float): Radius of the aperture in pixels.
     """
+    assert images.ndim == 3
     batch_size = images.shape[0]
     fluxes = np.zeros((batch_size, len(xs)))
     for ii in range(batch_size):
-        fluxes[ii] = get_aperture_flux(images[ii], xs[ii], ys[ii], sky_level, radius)
+        fluxes[ii] = _get_single_aperture_flux(images[ii], xs[ii], ys[ii], radius, sky_level)
     return fluxes
+
+
+def get_residual_images(iso_images: np.ndarray, blend_images: np.ndarray) -> np.ndarray:
+    """Calculate residual images given isolated images of each galaxy in a blend.
+
+    Args:
+        iso_images: Array of shape = (B, N, H, W) corresponding to images of the isolated
+            galaxies you are calculating residual images for.
+        blends: Array of shape = (B, H, W) where B is the batch size. Contains noise.
+    """
+    except_one_images = np.sum(iso_images, axis=1)[:, None] - iso_images
+    return blend_images[:, None] - except_one_images
