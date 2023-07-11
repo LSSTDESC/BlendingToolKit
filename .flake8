@@ -2,4 +2,4 @@
 max-line-length=100
 max-complexity=18
 ignore=E203, W503
-exclude=btk/__init__.py,docs/build/
+exclude=btk/__init__.py,docs/build/, btk/metrics/__init__.py
