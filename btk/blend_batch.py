@@ -310,7 +310,7 @@ class DeblendBatch:
         match_list = []
         new_catalog_list = []
         new_segmentation = np.zeros_like(self.segmentation) * np.nan
-        new_deblended_images = np.zeros_like(self.deblended_images) * np.nan
+        new_deblended_images = np.zeros_like(self.deblended_images)
 
         for ii in range(self.batch_size):
             # performs matching procedure
@@ -328,19 +328,19 @@ class DeblendBatch:
             new_catalog_list.append(new_table)
 
             # segmentation and deblended_images are of size max_n_sources across axis=1
-            # we want to rarange an array across that axis using match_indx
+            # we want to rearrange an array across that axis using match_indx
             full_indx = np.arange(self.max_n_sources)
-            rearange_indx = np.array([-1] * len(full_indx))
-            rearange_indx[: len(match_indx)] = match_indx
-            rearange_indx[rearange_indx == -1] = list(set(full_indx) - set(match_indx))
+            rearrange_indx = np.array([-1] * len(full_indx))
+            rearrange_indx[: len(match_indx)] = match_indx
+            rearrange_indx[rearrange_indx == -1] = list(set(full_indx) - set(match_indx))
 
             # rearanges segmentations according to the matches
             if self.segmentation is not None:
-                new_segmentation[ii] = self.segmentation[ii][rearange_indx]
+                new_segmentation[ii] = self.segmentation[ii][rearrange_indx]
 
             # rearanges deblended images according to the matches
             if self.deblended_images is not None:
-                new_deblended_images[ii] = self.deblended_images[ii][rearange_indx]
+                new_deblended_images[ii] = self.deblended_images[ii][rearrange_indx]
 
         match_deblended_batch = DeblendBatch(
             self.max_n_sources,
