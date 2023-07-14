@@ -1,8 +1,11 @@
 """Contains utility functions, including functions for loading saved results."""
 from copy import deepcopy
 
+from astropy.table import Table
+from astropy.wcs import WCS
 
-def add_pixel_columns(catalog, wcs):
+
+def add_pixel_columns(catalog: Table, wcs: WCS):
     """Uses the wcs to add a column to the catalog corresponding to pixel coordinates.
 
     The catalog must contain `ra` and `dec` columns.
