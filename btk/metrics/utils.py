@@ -29,17 +29,19 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     return np.where(is_on, seg, np.nan)
 
 
-def get_match_stats(match_list: List[np.ndarray], n_preds: np.ndarray) -> tuple:
+def get_match_stats(
+    pred_matches: List[np.ndarray], n_trues: np.ndarray, n_preds: np.ndarray
+) -> tuple:
     """Return statistics on matches including tp, fp, t, p."""
-    n = len(match_list)
+    n = len(pred_matches)
     tp = np.zeros(len(n))
     fp = np.zeros(len(n))
     t = np.zeros(len(n))
     p = np.zeros(len(n))
     for ii in range(n):
-        tp[ii] = np.sum(match_list[ii] >= 0)
-        fp[ii] = np.sum(match_list[ii] == -1)
-        t[ii] = len(match_list[ii])
+        tp[ii] = np.sum(pred_matches[ii] >= 0)
+        fp[ii] = np.sum(pred_matches[ii] == -1)
+        t[ii] = n_trues[ii]
         p[ii] = n_preds[ii]
     return tp, fp, t, p
 
@@ -127,9 +129,9 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     return ssim
 
 
-def efficiency_matrix(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
+def effmat(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
     """Returns efficiency matrices based on number of matched truth and predicted galaxies."""
-    n = len(t)
+    n = len(t)  # batch size
     max_true_n_sources = max(t)
     max_pred_n_sources = max(tp)
     eff_mat = np.zeros((max_pred_n_sources + 1, max_true_n_sources + 1))
