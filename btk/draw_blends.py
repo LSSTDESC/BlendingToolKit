@@ -355,6 +355,8 @@ class DrawBlendsGenerator(ABC):
                 rng = np.random.default_rng(seedseq_minibatch.generate_state(1))
                 theta = rng.uniform(0, 360, size=len(blend))
                 blend.add_column(Column(theta), name="btk_rotation")
+            else:
+                blend.add_column(Column(np.zeros(len(blend))), name="btk_rotation")
 
             n_bands = len(survey.available_filters)
             iso_image_multi = np.zeros((self.max_number, n_bands, pix_stamp_size, pix_stamp_size))
@@ -489,10 +491,8 @@ class CatsimGenerator(DrawBlendsGenerator):
 
         pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
         try:
-            if self.augment_data:
-                entry["pa_bulge"] = (entry["pa_bulge"] + entry["btk_rotation"]) % 360
-                entry["pa_disk"] = (entry["pa_disk"] + entry["btk_rotation"]) % 360
             gal = get_catsim_galaxy(entry, filt, survey)
+            gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
             if self.apply_shear:
                 if "g1" in entry.keys() and "g2" in entry.keys():
                     gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
@@ -609,11 +609,10 @@ class CosmosGenerator(DrawBlendsGenerator):
             gal_mag = entry["ref_mag"]
         gal_flux = mag2counts(gal_mag, survey, filt).to_value("electron")
 
-        gal = galsim_catalog.makeGalaxy(
-            entry["btk_index"], gal_type=self.gal_type, noise_pad_size=0
-        ).withFlux(gal_flux)
-        if self.augment_data:
-            gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
+        index = entry["btk_index"]
+        gal = galsim_catalog.makeGalaxy(index, gal_type=self.gal_type, noise_pad_size=0)
+        gal = gal.withFlux(gal_flux)
+        gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
         if self.apply_shear:
             if "g1" in entry.keys() and "g2" in entry.keys():
                 gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
