@@ -3,14 +3,12 @@ import json
 import os
 import pickle
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
-import astropy
 import galsim
 import numpy as np
 from astropy.table import Table
 
-from btk.match import IdentityMatching, Matching
 from btk.survey import get_surveys, make_wcs
 
 
@@ -188,7 +186,7 @@ class DeblendExample:
 
     max_n_sources: int
     image_size: int
-    catalog: astropy.table.Table
+    catalog: Table
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
 
@@ -198,7 +196,7 @@ class DeblendExample:
         self.segmentation = self._validate_segmentation(self.segmentation)
         self.deblended_images = self._validate_deblended_images(self.deblended_images)
 
-    def _validate_catalog(self, catalog: astropy.table.Table):
+    def _validate_catalog(self, catalog: Table):
         if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
             raise ValueError(
                 "The output catalog of at least one of your measurement functions does"
@@ -227,7 +225,7 @@ class DeblendExample:
             f"DeblendExample(max_n_sources = {self.max_n_sources}, "
             f"image_size = {self.image_size})" + ", containing: \n"
         )
-        string += "\tcatalog: " + str(astropy.table.Table)
+        string += "\tcatalog: " + str(Table)
 
         if self.segmentation is not None:
             string += (
@@ -254,7 +252,7 @@ class DeblendBatch:
     batch_size: int
     max_n_sources: int
     image_size: int
-    catalog_list: List[astropy.table.Table]
+    catalog_list: List[Table]
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
 
@@ -264,7 +262,7 @@ class DeblendBatch:
         self.segmentation = self._validate_segmentation(self.segmentation)
         self.deblended_images = self._validate_deblended_images(self.deblended_images)
 
-    def _validate_catalog(self, catalog_list: List[astropy.table.Table]):
+    def _validate_catalog(self, catalog_list: List[Table]):
         if not isinstance(catalog_list, list):
             raise TypeError(
                 "Catalog must be a list of 'astropy.table.Table' for each image in the batch"
@@ -301,57 +299,6 @@ class DeblendBatch:
             )
         return deblended_images
 
-    def match(
-        self, blend_batch: BlendBatch, matching: Matching = IdentityMatching()
-    ) -> Tuple["DeblendBatch", List[np.ndarray]]:
-        """Matches and rearanges DeblendedBatch according to a given BlendBatch."""
-        assert blend_batch.batch_size == self.batch_size, "batch sizes must be the same"
-
-        match_list = []
-        new_catalog_list = []
-        new_segmentation = np.zeros_like(self.segmentation) * np.nan
-        new_deblended_images = np.zeros_like(self.deblended_images)
-
-        for ii in range(self.batch_size):
-            # performs matching procedure
-            truth_catalog = blend_batch.catalog_list[ii]
-            predicted_catalog = self.catalog_list[ii]
-            match_indx = matching.match_catalogs(truth_catalog, predicted_catalog)
-            match_list.append(match_indx)
-            # rearranges catalog according to the matches
-            new_table = astropy.table.Table(names=predicted_catalog.colnames)
-            for jj in range(len(truth_catalog)):
-                if jj in match_indx:
-                    new_table.add_row(predicted_catalog[np.where(match_indx == jj)[0][0]])
-                else:
-                    new_table.add_row([None] * len(predicted_catalog.colnames))
-            new_catalog_list.append(new_table)
-
-            # segmentation and deblended_images are of size max_n_sources across axis=1
-            # we want to rearrange an array across that axis using match_indx
-            full_indx = np.arange(self.max_n_sources)
-            rearrange_indx = np.array([-1] * len(full_indx))
-            rearrange_indx[: len(match_indx)] = match_indx
-            rearrange_indx[rearrange_indx == -1] = list(set(full_indx) - set(match_indx))
-
-            # rearanges segmentations according to the matches
-            if self.segmentation is not None:
-                new_segmentation[ii] = self.segmentation[ii][rearrange_indx]
-
-            # rearanges deblended images according to the matches
-            if self.deblended_images is not None:
-                new_deblended_images[ii] = self.deblended_images[ii][rearrange_indx]
-
-        match_deblended_batch = DeblendBatch(
-            self.max_n_sources,
-            self.batch_size,
-            new_catalog_list,
-            new_segmentation,
-            new_deblended_images,
-        )
-
-        return match_deblended_batch, match_list
-
     def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
@@ -359,12 +306,7 @@ class DeblendBatch:
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
             f", containing: \n"
         )
-        string += (
-            "\tcatalog: list of "
-            + str(astropy.table.Table)
-            + ", size "
-            + str(len(self.catalog_list))
-        )
+        string += "\tcatalog: list of " + str(Table) + ", size " + str(len(self.catalog_list))
 
         if self.segmentation is not None:
             string += (
