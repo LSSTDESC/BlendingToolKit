@@ -17,6 +17,8 @@ from . import (
     create_blend_generator,
     deblend,
     draw_blends,
+    match,
+    measure,
     metrics,
     multiprocess,
     sampling_functions,
