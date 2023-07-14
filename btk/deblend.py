@@ -3,7 +3,6 @@ import inspect
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
-import astropy.table
 import numpy as np
 import scarlet
 import sep
@@ -224,7 +223,7 @@ class PeakLocalMax(Deblender):
         dec *= 3600
 
         # wrap in catalog
-        catalog = astropy.table.Table()
+        catalog = Table()
         catalog["ra"], catalog["dec"] = ra, dec
 
         return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
@@ -290,7 +289,7 @@ class SepSingleband(Deblender):
         dec *= 3600
 
         # wrap results in astropy table
-        cat = astropy.table.Table()
+        cat = Table()
         cat["ra"], cat["dec"] = ra, dec
 
         return DeblendExample(
@@ -369,7 +368,7 @@ class SepMultiband(Deblender):
                 dec_coordinates = np.concatenate([dec_coordinates, dec_detections])
 
         # Wrap in the astropy table
-        catalog = astropy.table.Table()
+        catalog = Table()
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
         return DeblendExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
