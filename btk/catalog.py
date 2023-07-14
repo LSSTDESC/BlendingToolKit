@@ -3,9 +3,10 @@ import os
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-import astropy.table
+import astropy
 import galsim
 import numpy as np
+from astropy.table import Table
 
 
 class Catalog(ABC):
@@ -36,7 +37,7 @@ class Catalog(ABC):
 
     @classmethod
     @abstractmethod
-    def from_file(cls, catalog_file, verbose):
+    def from_file(cls, catalog_files, verbose):
         """Constructs the catalog object from a file. Should be implemented in subclasses."""
 
     @abstractmethod
@@ -69,7 +70,7 @@ class CatsimCatalog(Catalog):
         """
         _, ext = os.path.splitext(catalog_files)
         fmt = "fits" if ext.lower() == ".fits" else "ascii.basic"
-        catalog = astropy.table.Table.read(catalog_files, format=fmt)
+        catalog = Table.read(catalog_files, format=fmt)
         return cls(catalog, verbose=verbose)
 
     def _prepare_table(self, raw_catalog):
@@ -108,7 +109,7 @@ class CosmosCatalog(Catalog):
         self.galsim_catalog = galsim_catalog
 
     @classmethod
-    def from_file(cls, catalog_files, exclusion_level="marginal", verbose=False):
+    def from_file(cls, catalog_files, verbose=False, exclusion_level="marginal"):
         """Constructs the catalog object from a file. It also places exclusion level cuts.
 
         For more details: (https://galsim-developers.github.io/GalSim/_build/html/real_gal.html)
@@ -117,6 +118,7 @@ class CosmosCatalog(Catalog):
             catalog_files(list): list containing the two paths to the COSMOS data. Please see
                 the tutorial page for more details
                 (https://lsstdesc.org/BlendingToolKit/tutorials.html#using-cosmos-galaxies).
+            verbose: whether to print verbose info.
             exclusion_level(str): Level of additional cuts to make on the galaxies based on the
                 quality of postage stamp definition and/or parametric fit quality [beyond the
                 minimal cuts imposed when making the catalog - see Mandelbaum et
@@ -134,12 +136,11 @@ class CosmosCatalog(Catalog):
                 Note that the _selection.fits file must be present in the same repo as the real
                 images catalog, Otherwise the "bad_stamp" and "marginal" cuts will fail
                 [default: "marginal"]
-            verbose: whether to print verbose info.
         """
         galsim_catalog = galsim.COSMOSCatalog(catalog_files[0], exclusion_level=exclusion_level)
 
-        catalog_coord = astropy.table.Table.read(catalog_files[0])
-        catalog_fit = astropy.table.Table.read(catalog_files[1])
+        catalog_coord = Table.read(catalog_files[0])
+        catalog_fit = Table.read(catalog_files[1])
 
         catalog_coord = catalog_coord[galsim_catalog.orig_index]
         catalog_fit = catalog_fit[galsim_catalog.orig_index]
