@@ -1,6 +1,6 @@
 """Tools to match detected objects with truth catalog."""
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 from astropy import units
@@ -8,6 +8,90 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from scipy import spatial
 from scipy.optimize import linear_sum_assignment
+
+
+class MatchInfo:
+    """Stores information about matching between truth and detected objects for a single batch."""
+
+    def __init__(
+        self,
+        true_matches: List[np.ndarray],
+        pred_matches: List[np.ndarray],
+        n_true: np.ndarray,
+        n_pred: np.ndarray,
+    ) -> None:
+        """Initialize MatchInfo.
+
+        Args:
+            true_matches: a list of 1D array, each entry corresponds to a numpy array
+                containing the index of detected object in the truth catalog that
+                got matched with the i-th truth object in the blend.
+            pred_matches: a list of 1D array, where the j-th entry of i-th array
+                corresponds to the index of truth object in the i-th blend
+                that got matched with the j-th detected object in that blend.
+                If no match, value is -1.
+            n_true: a 1D array of length N, where each entry is the number of truth objects.
+            n_pred: a 1D array of length N, where each entry is the number of detected objects.
+        """
+        self.true_matches = true_matches
+        self.pred_matches = pred_matches
+        self.n_true = n_true
+        self.n_pred = n_pred
+        self.detected = self._get_detected()
+        self.matched = self._get_matched()
+        self.batch_size = len(n_true)
+
+    def _get_detected(self) -> List[np.ndarray]:
+        """Returns a boolean mask for each true object indicating if it was detected."""
+        detected = []
+        for n, match in zip(self.n_true, self.true_matches):
+            arr = [1 if ii in match else 0 for ii in range(n)]
+            detected.append(np.array(arr).astype(bool))
+        return detected
+
+    def _get_matched(self) -> List[np.ndarray]:
+        """Returns a boolean mask for each detected object indicating if it was matched."""
+        matched = []
+        for n, match in zip(self.n_pred, self.pred_matches):
+            arr = [1 if ii in match else 0 for ii in range(n)]
+            matched.append(np.array(arr).astype(bool))
+        return matched
+
+    def match_true_catalos(self, catalog_list: Table) -> List[Table]:
+        """Returns a list of matched truth catalogs."""
+        matched_catalogs = []
+        for ii in range(self.batch_size):
+            cat = catalog_list[ii].copy()
+            matched_catalogs.append(cat[self.true_matches[ii]])
+        return matched_catalogs
+
+    def match_true_arrays(self, *arrs: np.ndarray) -> tuple:
+        """Return matched truth arrays."""
+        new_arrs = []
+        for arr in arrs:
+            new_arr = np.zeros_like(arr)
+            for ii in range(self.batch_size):
+                new_arr[ii] = arr[ii][self.true_matches[ii]]
+            new_arrs.append(new_arr)
+        return tuple(new_arrs)
+
+    def match_pred_catalogs(self, catalog_list: Table) -> List[Table]:
+        """Returns a list of matched pred catalogs."""
+        matched_catalogs = []
+        for ii in range(self.batch_size):
+            cat = catalog_list[ii].copy()
+            matched_catalogs.append(cat[self.pred_matches[ii]])
+        return matched_catalogs
+
+    def match_pred_arrays(self, *arrs: np.ndarray) -> tuple:
+        """Return matched pred arrays."""
+        new_arrs = []
+        for arr in arrs:
+            new_arr = np.zeros_like(arr)
+            for ii in range(self.batch_size):
+                new_arr[ii] = arr[ii][self.pred_matches[ii]]
+            new_arrs.append(new_arr)
+        return tuple(new_arrs)
 
 
 def pixel_l2_distance_matrix(
@@ -29,9 +113,7 @@ def pixel_l2_distance_matrix(
     objects. Note that i-th row and j-th column of the output matrix denotes the distance
     between the i-th target object and j-th predicted object.
     """
-    assert (
-        x1.shape == y1.shape and x2.shape == y2.shape
-    ), "Shapes of corresponding arrays must be the same."
+    assert x1.shape == y1.shape and x2.shape == y2.shape, "Shapes of arrays must be the same."
     target_vectors = np.stack((x1, y1), axis=1)
     prediction_vectors = np.stack((x2, y2), axis=1)
     return spatial.distance_matrix(target_vectors, prediction_vectors)
@@ -42,7 +124,21 @@ class Matching(ABC):
 
     def __init__(self, **kwargs) -> None:  # pylint: disable=unused-argument
         """Initialize matching class."""
-        self.distance_matrix_function = pixel_l2_distance_matrix  # default
+        self.distance_matrix_function = pixel_l2_distance_matrix
+
+    def __call__(self, true_catalog_list: List[Table], pred_catalog_list: List[Table]) -> MatchInfo:
+        """Performs matching procedure between truth and prediction catalog lists."""
+        match_true = []
+        match_pred = []
+        n_true = []
+        n_pred = []
+        for true_catalog, pred_catalog in zip(true_catalog_list, pred_catalog_list):
+            true_match, pred_match = self.match_catalogs(true_catalog, pred_catalog)
+            match_true.append(true_match)
+            match_pred.append(pred_match)
+            n_true.append(len(true_catalog))
+            n_pred.append(len(pred_catalog))
+        return MatchInfo(match_true, match_pred, np.array(n_true), np.array(n_pred))
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts coordinate information required for matching."""
@@ -105,12 +201,15 @@ class PixelHungarianMatching(Matching):
         # solve optimization problem using Hungarian matching algorithm
         # truth_catalog[true_indx[i]] is matched with predicted_catalog[matched_indx[i]]
         # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
-        true_indx, matched_indx = linear_sum_assignment(dist)
+        true_indx, pred_indx = linear_sum_assignment(dist)
 
         # if the distance is greater than max_sep then mark detection as -1
-        mask = dist[true_indx, matched_indx] > self.max_sep
-        matched_indx[mask] = -1
-        return matched_indx
+        true_mask = dist[pred_indx, true_indx] > self.max_sep
+        true_indx[true_mask] = -1
+        pred_mask = dist[true_indx, pred_indx] > self.max_sep
+        pred_indx[pred_mask] = -1
+
+        return true_indx, pred_indx
 
 
 class ClosestSkyNeighbourMatching(Matching):
@@ -161,13 +260,25 @@ class ClosestSkyNeighbourMatching(Matching):
         idx, d2d, _ = pred_coordinates.match_to_catalog_sky(true_coordinates)
 
         # remove repeated detecions, saving only closest one
-        matched_indx = np.array([-1] * len(idx))
+        pred_indx = np.array([-1] * len(idx))
         for target_idx in set(idx):
             masked_d2d = d2d.arcsec.copy()
             masked_d2d[idx != target_idx] = np.inf
             match_id = np.argmin(masked_d2d)
-            matched_indx[match_id] = target_idx
+            pred_indx[match_id] = target_idx
 
         # if the matched distance exceeds max_sep, we discard that detection
-        matched_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
-        return matched_indx
+        pred_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
+
+        # now for ture indices
+        idx, d2d, _ = true_coordinates.match_to_catalog_sky(pred_coordinates)
+        true_indx = np.array([-1] * len(idx))
+        for target_idx in set(idx):
+            masked_d2d = d2d.arcsec.copy()
+            masked_d2d[idx != target_idx] = np.inf
+            match_id = np.argmin(masked_d2d)
+            true_indx[match_id] = target_idx
+
+        true_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
+
+        return true_indx, pred_indx
