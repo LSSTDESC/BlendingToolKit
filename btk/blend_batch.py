@@ -309,9 +309,9 @@ class DeblendBatch:
         string = (
             f"DeblendBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
-            f", containing: \n"
+            f"image_size = {self.image_size})" + ", containing: \n"
         )
-        string += "\tcatalog: list of " + str(Table) + ", size " + str(len(self.catalog_list))
+        string += "\tcatalog_list: list of " + str(Table) + ", size " + str(len(self.catalog_list))
 
         if self.segmentation is not None:
             string += (
@@ -334,14 +334,16 @@ class DeblendBatch:
             string += "\n\tdeblended_images: None"
         return string
 
-    def save(self, path: str, batch_number: int) -> None:
+    def save(self, path: str, batch_number: int = 0):
         """Save batch of measure results to disk."""
         save_dir = os.path.join(path, str(batch_number))
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-            np.save(os.path.join(save_dir, "segmentation"), self.segmentation)
-            np.save(os.path.join(save_dir, "deblended_images"), self.deblended_images)
-            with open(os.path.join(save_dir, "catalog.pickle"), "wb") as f:
+            if self.segmentation is not None:
+                np.save(os.path.join(save_dir, "segmentation"), self.segmentation)
+            if self.deblended_images is not None:
+                np.save(os.path.join(save_dir, "deblended_images"), self.deblended_images)
+            with open(os.path.join(save_dir, "catalog_list.pickle"), "wb") as f:
                 pickle.dump(self.catalog_list, f)
 
         # save general info about class
@@ -356,18 +358,21 @@ class DeblendBatch:
             )
 
     @classmethod
-    def load(cls, path: str, batch_number: int):
+    def load(cls, path: str, batch_number: int = 0):
         """Load batch of measure results from disk."""
         load_dir = os.path.join(path, str(batch_number))
         with open(os.path.join(path, "meas.json"), "r", encoding="utf-8") as f:
             meas_config = json.load(f)
 
-        with open(os.path.join(load_dir, "catalog.pickle"), "rb") as f:
-            catalog = pickle.load(f)
-        segmentation = np.load(os.path.join(load_dir, "segmentation.npy"))
-        deblended_images = np.load(os.path.join(load_dir, "deblended_images.npy"))
+        with open(os.path.join(load_dir, "catalog_list.pickle"), "rb") as f:
+            catalog_list = pickle.load(f)
+        segmentation, deblended_images = None, None
+        if os.path.exists(os.path.join(load_dir, "segmentation.npy")):
+            segmentation = np.load(os.path.join(load_dir, "segmentation.npy"))
+        if os.path.exists(os.path.join(load_dir, "deblended_images.npy")):
+            deblended_images = np.load(os.path.join(load_dir, "deblended_images.npy"))
         return cls(
-            catalog=catalog,
+            catalog_list=catalog_list,
             segmentation=segmentation,
             deblended_images=deblended_images,
             **meas_config,
