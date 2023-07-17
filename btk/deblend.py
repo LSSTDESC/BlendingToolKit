@@ -38,7 +38,7 @@ class Deblender(ABC):
             raise TypeError(
                 f"Got type'{type(blend_batch)}', but expected an object of a BlendBatch class."
             )
-        self.deblend(ii, blend_batch)
+        return self.deblend(ii, blend_batch)
 
     @abstractmethod
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
@@ -201,7 +201,7 @@ class PeakLocalMax(Deblender):
         self.use_mean = use_mean
         self.use_band = use_band
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
+    def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
         blend_image = blend_batch.blend_images[ii]
         if self.use_mean:
@@ -371,7 +371,7 @@ class SepMultiband(Deblender):
         catalog = Table()
         catalog["ra"] = ra_coordinates
         catalog["dec"] = dec_coordinates
-        return DeblendExample(blend_batch.max_n_sources, blend_batch.image.size, catalog)
+        return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
 
 class Scarlet(Deblender):
