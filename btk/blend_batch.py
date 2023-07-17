@@ -78,10 +78,12 @@ class BlendBatch:
         os.makedirs(path, exist_ok=True)
         np.save(os.path.join(path, f"blend_images_{batch_number}.npy"), self.blend_images)
         np.save(os.path.join(path, f"isolated_images_{batch_number}.npy"), self.isolated_images)
-        np.save(os.path.join(path, f"catalog_list_{batch_number}.npy"), self.catalog_list)
 
         with open(os.path.join(path, f"psf_{batch_number}.pickle"), "wb") as f:
             pickle.dump(self.psf, f)
+
+        with open(os.path.join(path, f"catalog_list_{batch_number}.pickle"), "wb") as f:
+            pickle.dump(self.catalog_list, f)
 
         # save general info about blend
         with open(os.path.join(path, "blend.json"), "w", encoding="utf-8") as f:
@@ -113,11 +115,14 @@ class BlendBatch:
 
         blend_images = np.load(os.path.join(path, f"blend_images_{batch_number}.npy"))
         isolated_images = np.load(os.path.join(path, f"isolated_images_{batch_number}.npy"))
-        catalog_list = np.load(os.path.join(path, f"catalog_list_{batch_number}.npy"))
 
         # load psfs
         with open(os.path.join(path, f"psf_{batch_number}.pickle"), "rb") as f:
             psf = pickle.load(f)
+
+        # load catalog
+        with open(os.path.join(path, f"catalog_list_{batch_number}.pickle"), "rb") as f:
+            catalog_list = pickle.load(f)
 
         return cls(
             batch_size,

@@ -5,7 +5,7 @@ import numpy as np
 
 from btk.match import MatchInfo
 from btk.metrics.base import Metric
-from btk.metrics.utils import effmat, match_stats
+from btk.metrics.utils import effmat, get_match_stats
 
 
 class DetectionMetric(Metric):
@@ -21,7 +21,9 @@ class Precision(DetectionMetric):
 
     def _get_data(self, match_info: MatchInfo) -> Dict[str, np.ndarray]:
         """Compute precision on batch."""
-        tp, fp, t, p = match_stats(match_info.pred_matches, match_info.n_true, match_info.n_pred)
+        tp, fp, t, p = get_match_stats(
+            match_info.pred_matches, match_info.n_true, match_info.n_pred
+        )
         return {"tp": tp, "fp": fp, "t": t, "p": p}
 
     def _compute(self, data: tuple) -> float:
@@ -49,7 +51,7 @@ class Efficiency(DetectionMetric):
 
     def _get_data(self, match_info: MatchInfo) -> Dict[str, np.ndarray]:
         """Compute efficiency matrix on batch."""
-        tp, _, t, _ = match_stats(match_info.pred_matches, match_info.n_true, match_info.n_pred)
+        tp, _, t, _ = get_match_stats(match_info.pred_matches, match_info.n_true, match_info.n_pred)
         eff_matrix = effmat(tp, t)
         return {"eff_matrix": eff_matrix}
 
