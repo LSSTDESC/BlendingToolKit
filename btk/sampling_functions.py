@@ -128,9 +128,9 @@ class DefaultSampling(SamplingFunction):
         blend_table["ra"] += x_peak
         blend_table["dec"] += y_peak
 
-        if np.any(blend_table["ra"] > self.stamp_size / 2.0) or np.any(
-            blend_table["dec"] > self.stamp_size / 2.0
-        ):
+        out_of_bounds = np.any(blend_table["ra"] > self.stamp_size / 2.0)
+        out_of_bounds = out_of_bounds or np.any(blend_table["dec"] > self.stamp_size / 2.0)
+        if out_of_bounds:
             warnings.warn("Object center lies outside the stamp")
         return blend_table
 
