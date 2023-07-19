@@ -1,6 +1,4 @@
 """Contains utility functions, including functions for loading saved results."""
-from copy import deepcopy
-
 from astropy.table import Table
 from astropy.wcs import WCS
 
@@ -15,8 +13,7 @@ def add_pixel_columns(catalog: Table, wcs: WCS):
         wcs (astropy.wcs.WCS): WCS corresponding to the wanted
                                transformation.
     """
-    catalog_t = deepcopy(catalog)
-    for blend in catalog_t:
+    for blend in catalog:
         x_peak = []
         y_peak = []
         for gal in blend:
@@ -25,4 +22,3 @@ def add_pixel_columns(catalog: Table, wcs: WCS):
             y_peak.append(coords[1])
         blend.add_column(x_peak, name="x_peak")
         blend.add_column(y_peak, name="y_peak")
-    return catalog_t
