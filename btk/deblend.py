@@ -24,7 +24,7 @@ class Deblender(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    def __call__(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
+    def __call__(self, blend_batch: BlendBatch, njobs: int = 1) -> DeblendExample:
         """Calls the (user-implemented) `deblend` method along with validation of the input.
 
         Args:
@@ -38,7 +38,7 @@ class Deblender(ABC):
             raise TypeError(
                 f"Got type'{type(blend_batch)}', but expected an object of a BlendBatch class."
             )
-        return self.deblend(ii, blend_batch)
+        return self.batch_call(blend_batch, njobs)
 
     @abstractmethod
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
@@ -69,7 +69,7 @@ class Deblender(ABC):
             Instance of `DeblendedBatch` class
         """
         args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
-        output = multiprocess(self.__call__, args_iter, njobs=njobs)
+        output = multiprocess(self.deblend, args_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
@@ -101,7 +101,7 @@ class MultiResolutionDeblender(ABC):
 
         self.survey_names = survey_names
 
-    def __call__(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendExample:
+    def __call__(self, mr_batch: MultiResolutionBlendBatch, njobs: int = 1) -> DeblendExample:
         """Calls the (user-implemented) deblend method along with validation of the input.
 
         Args:
@@ -115,7 +115,7 @@ class MultiResolutionDeblender(ABC):
             raise TypeError(
                 f"Got type'{type(mr_batch)}', but expected a MultiResolutionBlendBatch object."
             )
-        self.deblend(ii, mr_batch)
+        self.batch_call(mr_batch, njobs)
 
     @abstractmethod
     def deblend(self, ii: int, mr_batch: MultiResolutionBlendBatch) -> DeblendExample:
@@ -146,7 +146,7 @@ class MultiResolutionDeblender(ABC):
             Instance of `DeblendedBatch` class
         """
         args_iter = ((ii, mr_batch) for ii in range(mr_batch.batch_size))
-        output = multiprocess(self.__call__, args_iter, njobs=njobs)
+        output = multiprocess(self.deblend, args_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
@@ -238,10 +238,7 @@ class SepSingleBand(Deblender):
     """
 
     def __init__(
-        self,
-        sigma_noise: float = 1.5,
-        use_mean: bool = False,
-        use_band: Optional[int] = None,
+        self, sigma_noise: float = 1.5, use_mean: bool = False, use_band: Optional[int] = None
     ) -> None:
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
