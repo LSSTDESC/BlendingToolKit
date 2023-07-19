@@ -54,7 +54,7 @@ class Deblender(ABC):
             Instance of `DeblendedExample` class
         """
 
-    def batch_call(self, blend_batch: BlendBatch, cpus: int = 1) -> DeblendBatch:
+    def batch_call(self, blend_batch: BlendBatch, njobs: int = 1) -> DeblendBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on the batch.
@@ -63,13 +63,13 @@ class Deblender(ABC):
 
         Args:
             blend_batch: Instance of `BlendBatch` class
-            cpus: Number of cpus to paralelize across
+            njobs: Number of njobs to paralelize across
 
         Returns:
             Instance of `DeblendedBatch` class
         """
         args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
-        output = multiprocess(self.__call__, args_iter, cpus=cpus)
+        output = multiprocess(self.__call__, args_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
@@ -131,7 +131,7 @@ class MultiResolutionDeblender(ABC):
             Instance of `DeblendedExample` class
         """
 
-    def batch_call(self, mr_batch: MultiResolutionBlendBatch, cpus: int = 1) -> DeblendBatch:
+    def batch_call(self, mr_batch: MultiResolutionBlendBatch, njobs: int = 1) -> DeblendBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on a batch.
@@ -140,13 +140,13 @@ class MultiResolutionDeblender(ABC):
 
         Args:
             mr_batch: Instance of `MultiResolutionBlendBatch` class
-            cpus: Number of cpus to paralelize across
+            njobs: Number of njobs to paralelize across
 
         Returns:
             Instance of `DeblendedBatch` class
         """
         args_iter = ((ii, mr_batch) for ii in range(mr_batch.batch_size))
-        output = multiprocess(self.__call__, args_iter, cpus=cpus)
+        output = multiprocess(self.__call__, args_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
@@ -461,7 +461,7 @@ class DeblendGenerator:
         self,
         deblenders: Union[List[Deblender], Deblender],
         draw_blend_generator: DrawBlendsGenerator,
-        cpus: int = 1,
+        njobs: int = 1,
         verbose: bool = False,
     ):
         """Initialize measurement generator.
@@ -470,13 +470,13 @@ class DeblendGenerator:
             deblenders: Deblender or a list of Deblender that will be used on the
                             outputs of the draw_blend_generator.
             draw_blend_generator: Instance of subclasses of `DrawBlendsGenerator`.
-            cpus: The number of parallel processes to run [Default: 1].
+            njobs: The number of parallel processes to run [Default: 1].
             verbose: Whether to print information about measurement.
         """
         self.deblenders = self._validate_deblenders(deblenders)
         self.deblender_names = self._get_unique_deblender_names()
         self.draw_blend_generator = draw_blend_generator
-        self.cpus = cpus
+        self.njobs = njobs
 
         self.batch_size = self.draw_blend_generator.batch_size
         self.verbose = verbose
@@ -532,7 +532,7 @@ class DeblendGenerator:
         """
         blend_batch = next(self.draw_blend_generator)
         deblended_output = {
-            name: deblender.batch_call(blend_batch, cpus=self.cpus)
+            name: deblender.batch_call(blend_batch, njobs=self.njobs)
             for name, deblender in zip(self.deblender_names, self.deblenders)
         }
         return blend_batch, deblended_output

@@ -106,9 +106,9 @@ def get_catsim_galaxy(entry, filt, survey, no_disk=False, no_bulge=False, no_agn
 class DrawBlendsGenerator(ABC):
     """Class that generates images of blends and individual isolated objects in batches.
 
-    Batch is divided into mini batches of size blend_generator.batch_size//cpus and
+    Batch is divided into mini batches of size blend_generator.batch_size//njobs and
     each mini-batch analyzed separately. The results are then combined to output a
-    dict with results of entire batch. If the number of cpus is greater than one, then each of
+    dict with results of entire batch. If the number of njobs is greater than one, then each of
     the mini-batches are run in parallel.
     """
 
@@ -121,7 +121,7 @@ class DrawBlendsGenerator(ABC):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        cpus=1,
+        njobs=1,
         verbose=False,
         add_noise="all",
         shifts=None,
@@ -141,7 +141,7 @@ class DrawBlendsGenerator(ABC):
                 single BTK Survey object.
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
-            cpus (int): Number of cpus to use; defines the number of minibatches
+            njobs (int): Number of njobs to use; defines the number of minibatches
             verbose (bool): Indicates whether additionnal information should be printed
             add_noise (str): Indicates if the blends should be generated with noise.
                             "all" indicates that all the noise should be applied,
@@ -168,7 +168,7 @@ class DrawBlendsGenerator(ABC):
             catalog, sampling_function, batch_size, shifts, indexes, verbose
         )
         self.catalog = self.blend_generator.catalog
-        self.cpus = cpus
+        self.njobs = njobs
         self.batch_size = self.blend_generator.batch_size
         self.max_number = self.blend_generator.max_number
         self.apply_shear = apply_shear
@@ -248,7 +248,7 @@ class DrawBlendsGenerator(ABC):
             PSF images and WCS.
         """
         blend_cat = next(self.blend_generator)
-        mini_batch_size = np.max([self.batch_size // self.cpus, 1])
+        mini_batch_size = np.max([self.batch_size // self.njobs, 1])
         blend_batch_list = []
         for surv in self.surveys.values():
             pix_stamp_size = int(self.stamp_size / surv.pixel_scale.to_value("arcsec"))
@@ -267,7 +267,7 @@ class DrawBlendsGenerator(ABC):
             mini_batch_results = multiprocess(
                 self.render_mini_batch,
                 input_args,
-                cpus=self.cpus,
+                njobs=self.njobs,
                 verbose=self.verbose,
             )
 
@@ -522,7 +522,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         surveys: list,
         batch_size=8,
         stamp_size=24,
-        cpus=1,
+        njobs=1,
         verbose=False,
         add_noise="all",
         shifts=None,
@@ -540,7 +540,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             surveys (list): List of btk Survey objects defining the observing conditions
             batch_size (int): Number of blends generated per batch
             stamp_size (float): Size of the stamps, in arcseconds
-            cpus (int): Number of cpus to use; defines the number of minibatches
+            njobs (int): Number of njobs to use; defines the number of minibatches
             verbose (bool): Indicates whether additionnal information should be printed
             add_noise (str): Indicates if the blends should be generated with noise.
                             "all" indicates that all the noise should be applied,
@@ -565,7 +565,7 @@ class CosmosGenerator(DrawBlendsGenerator):
             surveys=surveys,
             batch_size=batch_size,
             stamp_size=stamp_size,
-            cpus=cpus,
+            njobs=njobs,
             verbose=verbose,
             add_noise=add_noise,
             shifts=shifts,
