@@ -10,7 +10,7 @@ from scipy import spatial
 from scipy.optimize import linear_sum_assignment
 
 
-class MatchInfo:
+class Matching:
     """Stores information about matching between truth and detected objects for a single batch."""
 
     def __init__(
@@ -57,7 +57,7 @@ class MatchInfo:
             matched.append(np.array(arr).astype(bool))
         return matched
 
-    def match_true_catalos(self, catalog_list: Table) -> List[Table]:
+    def match_true_catalogs(self, catalog_list: Table) -> List[Table]:
         """Returns a list of matched truth catalogs."""
         matched_catalogs = []
         for ii in range(self.batch_size):
@@ -119,14 +119,14 @@ def pixel_l2_distance_matrix(
     return spatial.distance_matrix(target_vectors, prediction_vectors)
 
 
-class Matching(ABC):
+class Matcher(ABC):
     """Base class for matching algorithms."""
 
     def __init__(self, **kwargs) -> None:  # pylint: disable=unused-argument
         """Initialize matching class."""
         self.distance_matrix_function = pixel_l2_distance_matrix
 
-    def __call__(self, true_catalog_list: List[Table], pred_catalog_list: List[Table]) -> MatchInfo:
+    def __call__(self, true_catalog_list: List[Table], pred_catalog_list: List[Table]) -> Matching:
         """Performs matching procedure between truth and prediction catalog lists."""
         match_true = []
         match_pred = []
@@ -138,7 +138,7 @@ class Matching(ABC):
             match_pred.append(pred_match)
             n_true.append(len(true_catalog))
             n_pred.append(len(pred_catalog))
-        return MatchInfo(match_true, match_pred, np.array(n_true), np.array(n_pred))
+        return Matching(match_true, match_pred, np.array(n_true), np.array(n_pred))
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts coordinate information required for matching."""
@@ -155,7 +155,7 @@ class Matching(ABC):
         """Perform matching procedure between truth and prediction."""
 
 
-class IdentityMatching(Matching):
+class IdentityMatcher(Matcher):
     """Assumes catalogs are already matched one-to-one, returns trivial identity matching."""
 
     def match_catalogs(self, truth_catalog, predicted_catalog) -> np.ndarray:
@@ -163,7 +163,7 @@ class IdentityMatching(Matching):
         return np.array(range(len(predicted_catalog)))
 
 
-class PixelHungarianMatching(Matching):
+class PixelHungarianMatcher(Matcher):
     """Match based on pixel coordinates using Hungarian matching algorithm."""
 
     def __init__(self, pixel_max_sep=5.0, **kwargs) -> None:
@@ -204,7 +204,7 @@ class PixelHungarianMatching(Matching):
         true_indx, pred_indx = linear_sum_assignment(dist)
 
         # if the distance is greater than max_sep then mark detection as -1
-        true_mask = dist[pred_indx, true_indx] > self.max_sep
+        true_mask = dist.T[pred_indx, true_indx] > self.max_sep
         true_indx[true_mask] = -1
         pred_mask = dist[true_indx, pred_indx] > self.max_sep
         pred_indx[pred_mask] = -1
@@ -212,7 +212,7 @@ class PixelHungarianMatching(Matching):
         return true_indx, pred_indx
 
 
-class ClosestSkyNeighbourMatching(Matching):
+class ClosestSkyNeighbourMatcher(Matcher):
     """Match based on closest neighbour in the sky."""
 
     def __init__(self, arcsec_max_sep=2.0, **kwargs) -> None:
