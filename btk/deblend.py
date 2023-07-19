@@ -229,7 +229,7 @@ class PeakLocalMax(Deblender):
         return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
 
-class SepSingleband(Deblender):
+class SepSingleBand(Deblender):
     """Return detection, segmentation and deblending information running SEP on a single band.
 
     The function performs detection and deblending of the sources based on the provided
@@ -540,6 +540,6 @@ class DeblendGenerator:
 
 available_deblenders = {
     "PeakLocalMax": PeakLocalMax,
-    "SepSingleBand": SepSingleband,
+    "SepSingleBand": SepSingleBand,
     "SepMultiBand": SepMultiband,
 }
