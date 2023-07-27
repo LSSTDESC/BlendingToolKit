@@ -123,6 +123,7 @@ class DrawBlendsGenerator(ABC):
         stamp_size=24,
         njobs=1,
         verbose=False,
+        use_bar=True,
         add_noise="all",
         shifts=None,
         indexes=None,
@@ -143,6 +144,7 @@ class DrawBlendsGenerator(ABC):
             stamp_size (float): Size of the stamps, in arcseconds
             njobs (int): Number of njobs to use; defines the number of minibatches
             verbose (bool): Indicates whether additionnal information should be printed
+            use_bar (bool): Whether to use progress bar (default: True)
             add_noise (str): Indicates if the blends should be generated with noise.
                             "all" indicates that all the noise should be applied,
                             "background" adds only the background noise,
@@ -174,6 +176,7 @@ class DrawBlendsGenerator(ABC):
         self.apply_shear = apply_shear
         self.augment_data = augment_data
         self.stamp_size = stamp_size
+        self.use_bar = use_bar
         self._set_surveys(surveys)
 
         noise_options = {"none", "all", "background", "galaxy"}
@@ -341,7 +344,9 @@ class DrawBlendsGenerator(ABC):
         process_id = get_current_process()
         main_desc = f"Generating blends for {survey.name} survey"
         desc = main_desc if process_id == "main" else f"{main_desc} in process id {process_id}"
-        for ii, blend in tqdm(enumerate(catalog_list), total=len(catalog_list), desc=desc):
+        for ii, blend in tqdm(
+            enumerate(catalog_list), total=len(catalog_list), desc=desc, disable=not self.use_bar
+        ):
             # All bands in same survey have same pixel scale, WCS
             pixel_scale = survey.pixel_scale.to_value("arcsec")
             pix_stamp_size = int(self.stamp_size / pixel_scale)
