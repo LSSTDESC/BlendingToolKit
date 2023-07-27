@@ -31,10 +31,10 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
 def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
     """Return statistics on matches including tp, fp, t, p."""
     n = len(detected)  # batch_size
-    tp = np.zeros(len(n))
-    fp = np.zeros(len(n))
-    t = np.zeros(len(n))
-    p = np.zeros(len(n))
+    tp = np.zeros(n)
+    fp = np.zeros(n)
+    t = np.zeros(n)
+    p = np.zeros(n)
     for ii in range(n):
         tp[ii] = np.sum(matched[ii])
         fp[ii] = len(matched[ii]) - np.sum(matched[ii])
