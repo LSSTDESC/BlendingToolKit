@@ -79,8 +79,7 @@ def get_snr(iso_image: np.ndarray, sky_level: float) -> float:
             background-substracted.
     """
     images = iso_image + sky_level
-    err = np.sqrt(sky_level)
-    return np.sqrt(np.sum(images * images, axis=(1, 2))) / err
+    return np.sqrt(np.sum(iso_image * iso_image / images, axis=(-1, -2)))
 
 
 def _get_single_aperture_flux(
