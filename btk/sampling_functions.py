@@ -66,7 +66,14 @@ class DefaultSampling(SamplingFunction):
     """Default sampling function used for producing blend tables."""
 
     def __init__(
-        self, max_number=2, min_number=1, stamp_size=24.0, max_shift=None, seed=DEFAULT_SEED
+        self,
+        max_number=2,
+        min_number=1,
+        stamp_size=24.0,
+        max_shift=None,
+        seed=DEFAULT_SEED,
+        max_mag=25.3,
+        min_mag=-np.inf,
     ):
         """Initializes default sampling function.
 
@@ -77,10 +84,13 @@ class DefaultSampling(SamplingFunction):
             max_shift (float): Magnitude of maximum value of shift. If None then it
                              is set as one-tenth the stamp size. (in arcseconds)
             seed (int): Seed to initialize randomness for reproducibility.
+            min_mag (float): Minimum magnitude allowed in samples
+            max_mag (float): Maximum magnitude allowed in samples.
         """
         super().__init__(max_number=max_number, min_number=min_number, seed=seed)
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
+        self.min_mag, self.max_mag = min_mag, max_mag
 
     @property
     def compatible_catalogs(self):
@@ -93,13 +103,11 @@ class DefaultSampling(SamplingFunction):
         Returns an astropy table with entries corresponding to a blend centered close to postage
         stamp center.
 
-        Function selects entries from input table that are brighter than 25.3 mag
-        in the i band. Number of objects per blend is set at a random integer
-        between 1 and ``self.max_number``. The blend table is then randomly sampled
-        entries from the table after selection cuts. The centers are randomly
-        distributed within 1/10th of the stamp size. Here even though the galaxies
-        are sampled from a CatSim catalog, their spatial location are not
-        representative of real blends.
+        Number of objects per blend is set at a random integer between 1 and ``self.max_number``.
+        The blend table is then randomly sampled entries from the table after magnitude
+        selection cuts. The centers are randomly  distributed within 1/10th of the stamp size.
+        Here even though the galaxies are sampled from a CatSim catalog, their spatial
+        location are not representative of real blends.
 
         Args:
             table (Astropy.table): Table containing entries corresponding to galaxies
@@ -113,7 +121,8 @@ class DefaultSampling(SamplingFunction):
             Astropy.table with entries corresponding to one blend.
         """
         number_of_objects = self.rng.integers(self.min_number, self.max_number + 1)
-        (q,) = np.where(table["ref_mag"] <= 25.3)
+        cond = (table["ref_mag"] <= self.max_mag) & (table["ref_mag"] > self.min_mag)
+        (q,) = np.where(cond)
 
         if indexes is None:
             blend_table = table[self.rng.choice(q, size=number_of_objects)]
