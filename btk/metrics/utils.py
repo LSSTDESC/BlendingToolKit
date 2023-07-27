@@ -1,6 +1,5 @@
 """Atomic metric functions."""
 
-from typing import List
 
 import numpy as np
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
@@ -29,20 +28,18 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     return np.where(is_on, seg, np.nan)
 
 
-def get_match_stats(
-    pred_matches: List[np.ndarray], n_trues: np.ndarray, n_preds: np.ndarray
-) -> tuple:
+def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
     """Return statistics on matches including tp, fp, t, p."""
-    n = len(pred_matches)
+    n = len(detected)  # batch_size
     tp = np.zeros(len(n))
     fp = np.zeros(len(n))
     t = np.zeros(len(n))
     p = np.zeros(len(n))
     for ii in range(n):
-        tp[ii] = np.sum(pred_matches[ii] >= 0)
-        fp[ii] = np.sum(pred_matches[ii] == -1)
-        t[ii] = n_trues[ii]
-        p[ii] = n_preds[ii]
+        tp[ii] = np.sum(matched[ii])
+        fp[ii] = len(matched[ii]) - np.sum(matched[ii])
+        t[ii] = len(detected[ii])
+        p[ii] = len(matched[ii])
     return tp, fp, t, p
 
 
