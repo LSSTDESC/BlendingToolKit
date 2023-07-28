@@ -377,3 +377,108 @@ class DeblendBatch:
             deblended_images=deblended_images,
             **meas_config,
         )
+
+
+
+
+@dataclass
+class MDeblendExample(DeblendExample):
+    """Class that validates the deblending results for a 
+       single blend over multiple bands."""
+    max_n_sources: int
+    image_size: int
+    catalog: Table
+    n_bands: int = 6
+    segmentation: np.ndarray = None
+    deblended_images: np.ndarray = None
+
+    def _validate_deblended_images(self, deblended_images):
+        if deblended_images is not None:
+            assert deblended_images.shape == (
+                self.max_n_sources,
+                self.n_bands,
+                self.image_size,
+                self.image_size,
+            )
+        return deblended_images
+
+    def __repr__(self):
+            """Return string representation of class."""
+            string = (
+                f"DeblendExample(max_n_sources = {self.max_n_sources}, "
+                f"image_size = {self.image_size}), n_bands = {self.n_bands}" + ", containing: \n"
+            )
+            string += "\tcatalog: " + str(Table)
+    
+            if self.segmentation is not None:
+                string += (
+                    "\n\tsegmentation: "
+                    + str(np.ndarray)
+                    + ", shape "
+                    + str(list(self.segmentation.shape))
+                )
+            else:
+                string += "\n\tsegmentation: None"
+    
+            if self.deblended_images is not None:
+                string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape "
+                string += str(list(self.deblended_images.shape))
+            else:
+                string += "\n\tdeblended_images: None"
+            return string
+
+@dataclass
+class MDeblendBatch(DeblendBatch):
+    """Class that validates the deblending results for a batch of images
+       in a single survey over multiple bands."""
+
+    batch_size: int
+    max_n_sources: int
+    image_size: int
+    catalog_list: List[Table]
+    n_bands: int = 6
+    segmentation: np.ndarray = None
+    deblended_images: np.ndarray = None
+
+    def _validate_deblended_images(
+        self, deblended_images: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if deblended_images is not None:
+            assert deblended_images.shape == (
+                self.batch_size,
+                self.max_n_sources,
+                self.n_bands,
+                self.image_size,
+                self.image_size,
+            )
+        return deblended_images
+
+    def __repr__(self) -> str:
+        """Return string representation of class."""
+        string = (
+            f"DeblendBatch(batch_size = {self.batch_size}, "
+            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
+            f"image_size = {self.image_size}), n_bands = {self.n_bands}" + ", containing: \n"
+        )
+        string += "\tcatalog_list: list of " + str(Table) + ", size " + str(len(self.catalog_list))
+
+        if self.segmentation is not None:
+            string += (
+                "\n\tsegmentation: "
+                + str(np.ndarray)
+                + ", shape "
+                + str(list(self.segmentation.shape))
+            )
+        else:
+            string += "\n\tsegmentation: None"
+
+        if self.deblended_images is not None:
+            string += (
+                "\n\tdeblended_images: "
+                + str(np.ndarray)
+                + ", shape "
+                + str(list(self.deblended_images.shape))
+            )
+        else:
+            string += "\n\tdeblended_images: None"
+        return string
