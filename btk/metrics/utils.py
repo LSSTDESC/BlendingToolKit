@@ -55,7 +55,7 @@ def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     Returns:
         Returns MSE between each corresponding iamge as an array of shape `*`.
     """
-    return np.power((image1 - image2), 2).mean(axis=(-1, -2)).sqrt()
+    return np.sqrt(np.power((image1 - image2), 2).mean(axis=(-1, -2)))
 
 
 def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
