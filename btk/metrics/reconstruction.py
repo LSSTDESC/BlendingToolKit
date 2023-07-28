@@ -8,6 +8,7 @@ from btk.metrics.base import Metric
 from btk.metrics.utils import mse, psnr, struct_sim
 
 
+# TODO: keep mse for each object, average later.
 class ReconstructionMetric(Metric, ABC):
     """Abstract class for reconstruction metrics in BTK."""
 
@@ -22,7 +23,7 @@ class ReconstructionMetric(Metric, ABC):
             if n_sources > 0:
                 images1 = iso_images1[ii, :n_sources]
                 images2 = iso_images2[ii, :n_sources]
-                results[ii] = metric_func(images1, images2)
+                results[ii] = np.mean(metric_func(images1, images2))
             else:
                 results[ii] = np.nan
 
@@ -33,7 +34,7 @@ class ReconstructionMetric(Metric, ABC):
 
 
 class MSE(ReconstructionMetric):
-    """Intersection-over-Union class metric."""
+    """MSE class metric."""
 
     def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
         return {"mse": self._get_recon_metric(iso_images1, iso_images2, mse)}
@@ -43,7 +44,7 @@ class MSE(ReconstructionMetric):
 
 
 class PSNR(ReconstructionMetric):
-    """Intersection-over-Union class metric."""
+    """PSNR class metric."""
 
     def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
         return {"psnr": self._get_recon_metric(iso_images1, iso_images2, psnr)}
@@ -53,7 +54,7 @@ class PSNR(ReconstructionMetric):
 
 
 class StructSim(ReconstructionMetric):
-    """Intersection-over-Union class metric."""
+    """Structurality Similarity class metric."""
 
     def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
         return {"ssim": self._get_recon_metric(iso_images1, iso_images2, struct_sim)}
