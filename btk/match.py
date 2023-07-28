@@ -71,7 +71,8 @@ class Matching:
         for arr in arrs:
             new_arr = np.zeros_like(arr)
             for ii in range(self.batch_size):
-                new_arr[ii] = arr[ii][self.true_matches[ii]]
+                n_sources = len(self.true_matches[ii])
+                new_arr[ii, :n_sources] = arr[ii][self.true_matches[ii]]
             new_arrs.append(new_arr)
         return tuple(new_arrs)
 
@@ -89,7 +90,8 @@ class Matching:
         for arr in arrs:
             new_arr = np.zeros_like(arr)
             for ii in range(self.batch_size):
-                new_arr[ii] = arr[ii][self.pred_matches[ii]]
+                n_sources = len(self.pred_matches[ii])
+                new_arr[ii, :n_sources] = arr[ii][self.pred_matches[ii]]
             new_arrs.append(new_arr)
         return tuple(new_arrs)
 
