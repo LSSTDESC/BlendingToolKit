@@ -370,7 +370,7 @@ class SepMultiband(Deblender):
         catalog["dec"] = dec_coordinates
         return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
-class Scarlet(Deblender):
+class ScarletDeblend(Deblender):
     """Implementation of the scarlet deblender."""
 
     def __init__(self, n=1, e_rel=1e-5, n_steps=1000):
@@ -419,6 +419,13 @@ class Scarlet(Deblender):
         skycoords = wcs.pixel_to_world_values(catalog["x_peak"], catalog["y_peak"])
         ra_dec = np.array(skycoords).T
 
+        # We define a source for each detection
+        # sources = [
+        #     scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)
+        #     for sky_coord in ra_dec
+        # ]
+        # scarlet.initialization.set_spectra_to_match(sources, observations)  # noqa
+
         sources, skipped = scarlet.initialization.init_all_sources(model_frame,
                                                        ra_dec,
                                                        observations,
@@ -427,8 +434,9 @@ class Scarlet(Deblender):
                                                        thresh=1,
                                                        fallback=True,
                                                        silent=True,
-                                                       set_spectra=True
+                                                       set_spectra=False
                                                       )
+
 
         t = Table()
         t["ra"], t["dec"] = skycoords
@@ -449,9 +457,10 @@ class Scarlet(Deblender):
 
         deblended_images[:len(individual_sources)] = np.array(individual_sources)
 
+
         return MDeblendExample(
             blend_batch.max_n_sources, blend_batch.image_size, t,
-            n_bands=n_bands, deblended_images=deblended_images
+            n_bands=6, deblended_images=deblended_images, scarlet_sources=sources
         )
 
 
@@ -464,6 +473,9 @@ class Scarlet(Deblender):
             segmentation = np.array([db_example.segmentation for db_example in output])
         if output[0].deblended_images is not None:
             deblended = np.array([db_example.deblended_images for db_example in output])
+        if output[0].scarlet_sources is not None:
+            scarlet_sources = [db_example.scarlet_sources for db_example in output]
+        print("deblended:", deblended.shape)
         return MDeblendBatch(
             blend_batch.batch_size,
             blend_batch.max_n_sources,
@@ -471,6 +483,7 @@ class Scarlet(Deblender):
             catalog_list,
             segmentation=segmentation,
             deblended_images=deblended,
+            scarlet_sources=scarlet_sources
         )
 
 class DeblendGenerator:

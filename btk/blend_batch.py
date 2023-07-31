@@ -379,18 +379,17 @@ class DeblendBatch:
         )
 
 
-
-
 @dataclass
 class MDeblendExample(DeblendExample):
-    """Class that validates the deblending results for a 
-       single blend over multiple bands."""
+    """Class that validates the deblending results for a single blend over multiple bands."""
+
     max_n_sources: int
     image_size: int
     catalog: Table
     n_bands: int = 6
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
+    scarlet_sources: list = None
 
     def _validate_deblended_images(self, deblended_images):
         if deblended_images is not None:
@@ -405,11 +404,11 @@ class MDeblendExample(DeblendExample):
     def __repr__(self):
             """Return string representation of class."""
             string = (
-                f"DeblendExample(max_n_sources = {self.max_n_sources}, "
+                f"MDeblendExample(max_n_sources = {self.max_n_sources}, "
                 f"image_size = {self.image_size}), n_bands = {self.n_bands}" + ", containing: \n"
             )
             string += "\tcatalog: " + str(Table)
-    
+
             if self.segmentation is not None:
                 string += (
                     "\n\tsegmentation: "
@@ -419,18 +418,25 @@ class MDeblendExample(DeblendExample):
                 )
             else:
                 string += "\n\tsegmentation: None"
-    
+
             if self.deblended_images is not None:
                 string += "\n\tdeblended_images: " + str(np.ndarray) + ", shape "
                 string += str(list(self.deblended_images.shape))
             else:
                 string += "\n\tdeblended_images: None"
+
+            if self.scarlet_sources is not None:
+                string += "\n\tscarlet_sources: " + str(list) + ", length "
+                string += str(len(self.scarlet_sources))
+            else:
+                string += "\n\tscarlet_sources: None"
             return string
+
 
 @dataclass
 class MDeblendBatch(DeblendBatch):
     """Class that validates the deblending results for a batch of images
-       in a single survey over multiple bands."""
+    in a single survey over multiple bands."""
 
     batch_size: int
     max_n_sources: int
@@ -439,6 +445,7 @@ class MDeblendBatch(DeblendBatch):
     n_bands: int = 6
     segmentation: np.ndarray = None
     deblended_images: np.ndarray = None
+    scarlet_sources: list = None
 
     def _validate_deblended_images(
         self, deblended_images: Optional[np.ndarray] = None
@@ -456,7 +463,7 @@ class MDeblendBatch(DeblendBatch):
     def __repr__(self) -> str:
         """Return string representation of class."""
         string = (
-            f"DeblendBatch(batch_size = {self.batch_size}, "
+            f"MDeblendBatch(batch_size = {self.batch_size}, "
             f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
             f"image_size = {self.image_size}), n_bands = {self.n_bands}" + ", containing: \n"
         )
@@ -481,4 +488,11 @@ class MDeblendBatch(DeblendBatch):
             )
         else:
             string += "\n\tdeblended_images: None"
+
+        if self.scarlet_sources is not None:
+            string += "\n\tscarlet_sources: " + str(list) + ", length "
+            string += str(len(self.scarlet_sources))
+        else:
+            string += "\n\tscarlet_sources: None"
+
         return string
