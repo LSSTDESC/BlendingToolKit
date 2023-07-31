@@ -370,14 +370,13 @@ class SepMultiband(Deblender):
         catalog["dec"] = dec_coordinates
         return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
-
 class Scarlet(Deblender):
     """Implementation of the scarlet deblender."""
 
-    def __init__(self, thresh=0.1, e_rel=1e-5, n_steps=200):
-        self.thres = thresh
+    def __init__(self, n=1, e_rel=1e-5, n_steps=1000):
         self.e_rel = e_rel
         self.n_steps = n_steps
+        self.scarlet_n = n
 
     def deblend(
         self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
@@ -392,12 +391,10 @@ class Scarlet(Deblender):
         if len(catalog) == 0:
             return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
-        assert "x" in catalog.colnames and "y" in catalog.colnames
+        assert "x_peak" in catalog.colnames and "y_peak" in catalog.colnames
 
         survey = get_surveys(blend_batch.survey_name)
-        bkg = np.array(
-            [mean_sky_level(survey, band).to_value("electron") for band in survey.filters]
-        )
+
 
         image = blend_batch.blend_images[ii]
         image_size = image.shape[-1]
@@ -406,50 +403,75 @@ class Scarlet(Deblender):
         psf = blend_batch.get_numpy_psf()
         wcs = blend_batch.wcs
 
+        bkg = np.array(
+            [mean_sky_level(survey, band).to_value("electron") for band in bands]
+        )
+
         # initialize scarlet
         model_psf = scarlet.GaussianPSF(sigma=(0.6,) * n_bands)
         model_frame = scarlet.Frame(image.shape, psf=model_psf, channels=bands, wcs=wcs)
         scarlet_psf = scarlet.ImagePSF(psf)
         weights = np.ones(image.shape) / bkg.reshape((-1, 1, 1))
-        obs = scarlet.Observation(image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs)
-        observations = [obs.match(model_frame)]
 
-        skycoords = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
+        obs = scarlet.Observation(image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs)
+        observations = obs.match(model_frame)
+
+        skycoords = wcs.pixel_to_world_values(catalog["x_peak"], catalog["y_peak"])
         ra_dec = np.array(skycoords).T
 
-        # We define a source for each detection
-        sources = [
-            scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)
-            for sky_coord in ra_dec
-        ]
-        scarlet.initialization.set_spectra_to_match(sources, observations)  # noqa
+        sources, skipped = scarlet.initialization.init_all_sources(model_frame,
+                                                       ra_dec,
+                                                       observations,
+                                                       max_components=self.scarlet_n,
+                                                       min_snr=50,
+                                                       thresh=1,
+                                                       fallback=True,
+                                                       silent=True,
+                                                       set_spectra=True
+                                                      )
 
         t = Table()
         t["ra"], t["dec"] = skycoords
         t["ra"], t["dec"] = t["ra"] * 3600, t["dec"] * 3600
 
-        try:
-            blend = scarlet.Blend(sources, observations)  # noqa
-            blend.fit(self.n_steps, e_rel=self.e_rel)
-            individual_sources, selected_peaks = [], []
-            for component in sources:
-                y, x = component.center
-                selected_peaks.append([x, y])
-                model = component.get_model(frame=model_frame)
-                model_ = observations[0].render(model)
-                individual_sources.append(model_)
-            selected_peaks = np.array(selected_peaks)
-            deblended_images = np.array(individual_sources)
-            return DeblendExample(
-                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
-            )
+        blend = scarlet.Blend(sources, observations)  # noqa
+        blend.fit(self.n_steps, e_rel=self.e_rel)
+        individual_sources, selected_peaks = [], []
+        for component in sources:
+            y, x = component.center
+            selected_peaks.append([x, y])
+            model = component.get_model(frame=model_frame)
+            model_ = observations.render(model)
+            individual_sources.append(model_)
+        selected_peaks = np.array(selected_peaks)
+        deblended_images = np.zeros((blend_batch.max_n_sources, n_bands,
+                                     blend_batch.image_size, blend_batch.image_size))
 
-        except AssertionError:
-            deblended_images = np.zeros((len(catalog), n_bands, image_size, image_size)) * np.nan
-            return DeblendExample(
-                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
-            )
+        deblended_images[:len(individual_sources)] = np.array(individual_sources)
 
+        return MDeblendExample(
+            blend_batch.max_n_sources, blend_batch.image_size, t,
+            n_bands=n_bands, deblended_images=deblended_images
+        )
+
+
+    def batch_call(self, blend_batch: BlendBatch, njobs: int = 1) -> MDeblendBatch:
+        args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
+        output = multiprocess(self.deblend, args_iter, njobs=njobs)
+        catalog_list = [db_example.catalog for db_example in output]
+        segmentation, deblended = None, None
+        if output[0].segmentation is not None:
+            segmentation = np.array([db_example.segmentation for db_example in output])
+        if output[0].deblended_images is not None:
+            deblended = np.array([db_example.deblended_images for db_example in output])
+        return MDeblendBatch(
+            blend_batch.batch_size,
+            blend_batch.max_n_sources,
+            blend_batch.image_size,
+            catalog_list,
+            segmentation=segmentation,
+            deblended_images=deblended,
+        )
 
 class DeblendGenerator:
     """Run one or more deblenders on the batches from the given draw_blend_generator."""
