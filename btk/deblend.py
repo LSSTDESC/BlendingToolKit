@@ -12,7 +12,7 @@ from astropy.table import Table
 from galcheat.utilities import mean_sky_level
 from skimage.feature import peak_local_max
 
-from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
+from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch, MDeblendExample, MDeblendBatch
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 from btk.survey import get_surveys
