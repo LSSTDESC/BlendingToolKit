@@ -101,7 +101,7 @@ def get_surveys(
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
-                psf = get_default_psf_with_galcheat_info(survey, filtr)
+                psf = _get_default_psf_with_galcheat_info(survey, filtr)
             else:
                 psf = psf_func(survey, filtr)
             filtr.psf = psf
@@ -112,7 +112,7 @@ def get_surveys(
     return surveys
 
 
-def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
+def _get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
     """Return the default PSF model as a galsim object based on galcheat survey parameters.
 
     Args:
@@ -122,7 +122,7 @@ def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
     Returns:
         Galsim object corresponding to simulated PSF.
     """
-    return get_default_psf(
+    return _get_default_psf(
         survey.mirror_diameter.to_value("m"),
         survey.effective_area.to_value("m2"),
         filtr.psf_fwhm.to_value("arcsec"),
@@ -131,34 +131,34 @@ def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
     )
 
 
-def get_default_psf(
-    mirror_diameter,
-    effective_area,
-    fwhm,
-    filt_wavelength,
-    atmospheric_model="Kolmogorov",
-):
+def _get_default_psf(
+    mirror_diameter: float,
+    effective_area: float,
+    fwhm: float,
+    filt_wavelength: float,
+    atmospheric_model: str = "Kolmogorov",
+) -> galsim.GSObject:
     """Defines a synthetic galsim PSF model.
 
     Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
     Args:
-        mirror_diameter (float): in meters [m]
-        effective_area (float): effective total light collecting area in square meters [m2]
-        filt_wavelength (string): filter wavelength in Angstroms. [Angstrom]
-        fwhm (float): fwhm of the atmospheric component in arcseconds. [arcsec]
-        atmospheric_model (string): type of atmospheric model. Current options:
-            ['Kolmogorov', 'Moffat'].
+        mirror_diameter: in meters [m]
+        effective_area: effective total light collecting area in square meters [m2]
+        filt_wavelength: filter wavelength in Angstroms. [Angstrom]
+        fwhm: fwhm of the atmospheric component in arcseconds. [arcsec]
+        atmospheric_model: type of atmospheric model. Current options:
+            ['Kolmogorov', 'Moffat', 'None'].
 
     Returns:
-        psf_model: galsim psf model
+        Galsim PSF model.
     """
     # define atmospheric psf
     if atmospheric_model == "Kolmogorov":
         atmospheric_psf_model = galsim.Kolmogorov(fwhm=fwhm)
     elif atmospheric_model == "Moffat":
         atmospheric_psf_model = galsim.Moffat(2, fwhm=fwhm)
-    elif atmospheric_model is None:
+    elif atmospheric_model == "None":
         atmospheric_psf_model = None
     else:
         raise NotImplementedError(
@@ -191,18 +191,18 @@ def get_default_psf(
     elif atmospheric_psf_model is None and optical_psf_model is None:
         raise RuntimeError("Neither the atmospheric nor the optical PSF components are defined.")
 
-    return psf_model.withFlux(1.0)
+    return psf_model.withFlux(1.0)  # pylint: disable=no-value-for-parameter
 
 
-def get_psf_from_file(psf_dir, survey):
+def get_psf_from_file(psf_dir: str, survey: Survey) -> galsim.InterpolatedImage:
     """Generates a custom PSF galsim model from FITS file(s).
 
     Args:
-        psf_dir (string): directory where the PSF FITS files are
-        survey (btk Survey): BTK Survey object
+        psf_dir: directory where the PSF FITS files are
+        survey: BTK Survey object
 
     Returns:
-        galsim PSF model
+        galsim.InterpolatedImage: PSF model
     """
     psf_files = os.listdir(psf_dir)
     if len(psf_files) > 1:
