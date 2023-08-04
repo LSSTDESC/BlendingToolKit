@@ -13,8 +13,8 @@ __version__ = metadata.version("blending_toolkit")
 DEFAULT_SEED = 0
 
 from . import (
+    blend_generator,
     catalog,
-    create_blend_generator,
     deblend,
     draw_blends,
     match,
