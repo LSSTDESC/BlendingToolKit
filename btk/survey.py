@@ -13,11 +13,11 @@ from astropy.wcs import WCS
 class Survey(galcheat.survey.Survey):
     """Survey object that extends Galcheat surveys to allow modification."""
 
-    def __setattr__(self, x, val):
+    def __setattr__(self, x: str, val):
         """Allow attribute modification."""
         self.__dict__[x] = val
 
-    def get_filter(self, filter_name):
+    def get_filter(self, filter_name: str) -> "Filter":
         """Same as Galcheat getter method for filter except return a view not a copy."""
         if filter_name not in self.available_filters:
             raise ValueError(
@@ -62,7 +62,7 @@ class Survey(galcheat.survey.Survey):
 class Filter(galcheat.filter.Filter):
     """Survey object that extends Galcheat surveys to allow modification."""
 
-    def __setattr__(self, x, val):
+    def __setattr__(self, x: str, val):
         """Allow attribute modification."""
         self.__dict__[x] = val
 
@@ -81,13 +81,13 @@ def get_surveys(
     than one element. If `names` is a str or a singleton list then we return a single `Survey`.
 
     Args:
-        names (str or list): A single str specifying a survey from galcheat.available_surveys().
-        psf_func (function): Python function which takes in two arguments: `survey` and `filter`
+        names: A single str specifying a survey from galcheat.available_surveys().
+        psf_func: Python function which takes in two arguments: `survey` and `filter`
             that returns a PSF as a galsim object or as a callable with no arguments.
             If `None`, the default PSF for the specified survey will be used in each band.
 
     Returns:
-        btk.survey.Survey object or list of such objects.
+        BTK Survey object or list of such objects.
     """
     if isinstance(names, str):
         names = [names]
@@ -112,16 +112,8 @@ def get_surveys(
     return surveys
 
 
-def _get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
-    """Return the default PSF model as a galsim object based on galcheat survey parameters.
-
-    Args:
-        survey (Survey): BTK Survey object.
-        filtr (Filter): BTK Filter object.
-
-    Returns:
-        Galsim object corresponding to simulated PSF.
-    """
+def _get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter) -> galsim.GSObject:
+    """Return the default PSF model as a galsim object based on galcheat survey parameters."""
     return _get_default_psf(
         survey.mirror_diameter.to_value("m"),
         survey.effective_area.to_value("m2"),
