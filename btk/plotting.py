@@ -1,16 +1,20 @@
 """Utility functions for plotting images."""
+from typing import Optional
+
 import numpy as np
 
 
-def get_rgb(image, min_val=None, max_val=None):
+def get_rgb(image: np.ndarray, min_val: Optional[float] = None, max_val: Optional[float] = None):
     """Function to normalize 3 band input image to RGB 0-255 image.
+
     Args:
-        image (array_like): Image array to convert to RGB image with dtype
+        image: Image array to convert to RGB image with dtype
                 uint8 [bands, height, width].
-        min_val (array_like): Pixel values in
-        image less than or equal to this are set to zero in the RGB output.
-        max_val (array_like): Pixel values in image greater than
+        min_val: Pixel values in image less than or equal to this are
+            set to zero in the RGB output.
+        max_val: Pixel values in image greater than
             or equal to this are set to zero in the RGB output.
+
     Returns:
         uint8 array [height, width, bands] of the input image.
     """
