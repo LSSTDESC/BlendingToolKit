@@ -96,31 +96,6 @@ class Matching:
         return tuple(new_arrs)
 
 
-def pixel_l2_distance_matrix(
-    x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray
-) -> np.ndarray:
-    """Computes the pixel L2 (Ecludian) distance matrix between targets and detections.
-
-    Args:
-        x1: an array of x-coordinate(s) of target objects in pixels
-        y1: an array of y-coordinate(s) of target objects in pixels
-        x2: an array of x-coordinate(s) of detected objects in pixels
-        y2: an array of y-coordinate(s) of detected objects in pixels
-
-    Return:
-        2d array of shape [len(x1), len(x2)] of L2 pixel distances between
-        targets and detected objects.
-
-    The funciton works even if the number of target objects is different from number of output
-    objects. Note that i-th row and j-th column of the output matrix denotes the distance
-    between the i-th target object and j-th predicted object.
-    """
-    assert x1.shape == y1.shape and x2.shape == y2.shape, "Shapes of arrays must be the same."
-    target_vectors = np.stack((x1, y1), axis=1)
-    prediction_vectors = np.stack((x2, y2), axis=1)
-    return spatial.distance_matrix(target_vectors, prediction_vectors)
-
-
 class Matcher(ABC):
     """Base class for matching algorithms."""
 
@@ -142,15 +117,19 @@ class Matcher(ABC):
             n_pred.append(len(pred_catalog))
         return Matching(match_true, match_pred, np.array(n_true), np.array(n_pred))
 
-    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
-        """Extracts coordinate information required for matching."""
-        return catalog
-
     def compute_distance_matrix(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
         """Based on the catalogs and user-defined preprocessing computes distance matrix."""
         x1, y1 = self.preprocess_catalog(truth_catalog)
         x2, y2 = self.preprocess_catalog(predicted_catalog)
         return self.distance_matrix_function(x1, y1, x2, y2)
+
+    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
+        """Extracts coordinate information required for matching."""
+        if "x_peak" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'x_peak'")
+        if "y_peak" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'y_peak'")
+        return (catalog["x_peak"], catalog["y_peak"])
 
     @abstractmethod
     def match_catalogs(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
@@ -162,7 +141,9 @@ class IdentityMatcher(Matcher):
 
     def match_catalogs(self, truth_catalog, predicted_catalog) -> np.ndarray:
         """Returns trivial identity matching."""
-        return np.array(range(len(predicted_catalog)))
+        true_indx = np.array(range(len(truth_catalog)))
+        pred_indx = np.array(range(len(predicted_catalog)))
+        return true_indx, pred_indx
 
 
 class PixelHungarianMatcher(Matcher):
@@ -177,14 +158,6 @@ class PixelHungarianMatcher(Matcher):
         super().__init__(**kwargs)
         self.distance_function = pixel_l2_distance_matrix
         self.max_sep = pixel_max_sep
-
-    def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
-        """Extract pixel coordinates out of catalogs."""
-        if "x_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'x_peak'")
-        if "y_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'y_peak'")
-        return (catalog["x_peak"], catalog["y_peak"])
 
     def match_catalogs(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
         """Performs Hungarian matching algorithm on pixel coordinates from catalogs.
@@ -214,7 +187,7 @@ class PixelHungarianMatcher(Matcher):
         return true_indx, pred_indx
 
 
-class ClosestSkyNeighbourMatcher(Matcher):
+class SkyClosestNeighbourMatcher(Matcher):
     """Match based on closest neighbour in the sky."""
 
     def __init__(self, arcsec_max_sep=2.0, **kwargs) -> None:
@@ -240,7 +213,7 @@ class ClosestSkyNeighbourMatcher(Matcher):
         Performs 1st Nearest Neigbour look up for each coordinate in predicted_catalog.
         Then we prune repeated detections of a given target source by assigning it
         to the closest object in the predicted catalog, and discarding the rest. Finally,
-        we apply max_separation threshold.
+        we apply `max_sep` threshold.
 
         Based on this implementation in AstroPy:
         https://docs.astropy.org/en/stable/coordinates/matchsep.html
@@ -284,3 +257,28 @@ class ClosestSkyNeighbourMatcher(Matcher):
         true_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
 
         return true_indx, pred_indx
+
+
+def pixel_l2_distance_matrix(
+    x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray
+) -> np.ndarray:
+    """Computes the pixel L2 (Ecludian) distance matrix between targets and detections.
+
+    Args:
+        x1: an array of x-coordinate(s) of target objects in pixels
+        y1: an array of y-coordinate(s) of target objects in pixels
+        x2: an array of x-coordinate(s) of detected objects in pixels
+        y2: an array of y-coordinate(s) of detected objects in pixels
+
+    Return:
+        2d array of shape [len(x1), len(x2)] of L2 pixel distances between
+        targets and detected objects.
+
+    The funciton works even if the number of target objects is different from number of output
+    objects. Note that i-th row and j-th column of the output matrix denotes the distance
+    between the i-th target object and j-th predicted object.
+    """
+    assert x1.shape == y1.shape and x2.shape == y2.shape, "Shapes of arrays must be the same."
+    target_vectors = np.stack((x1, y1), axis=1)
+    prediction_vectors = np.stack((x2, y2), axis=1)
+    return spatial.distance_matrix(target_vectors, prediction_vectors)
