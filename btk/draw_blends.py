@@ -286,7 +286,7 @@ class DrawBlendsGenerator(ABC):
                 self.batch_size,
                 self.max_number,
                 self.stamp_size,
-                surv.name,
+                surv,
                 blend_images,
                 isolated_images,
                 catalog_list,
