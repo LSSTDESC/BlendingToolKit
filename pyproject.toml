@@ -142,4 +142,5 @@ good-names = [
   'dx',
   'dy',
   'q',
+  'a',
 ]
