@@ -48,8 +48,3 @@ repos:
       - id: nbstripout
         args:
           - --keep-output
-  - repo: https://github.com/floatingpurr/sync_with_pdm
-    rev: "0.3.0"
-    hooks:
-      - id: sync_with_pdm
-        args: [] # optional args
