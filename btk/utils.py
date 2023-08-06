@@ -4,7 +4,7 @@ from astropy.wcs import WCS
 
 
 def add_pixel_columns(catalog: Table, wcs: WCS):
-    """Uses the wcs to add a column to the catalog corresponding to pixel coordinates.
+    """Uses the wcs to add `x_peak` and `y_peak` (pixel centroids) columns to the catalog.
 
     The catalog must contain `ra` and `dec` columns.
 
