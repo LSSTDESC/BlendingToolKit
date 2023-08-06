@@ -18,33 +18,26 @@ jobs:
     steps:
       - name: Checkout github repo (+ download lfs dependencies)
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+
+      - name: Install poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-pep582: true
-          cache: true
-
-      - name: Create environment variables
-        run: echo "BTK_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          cache: "poetry"
 
       # galsim needs this.
-      - name: Instal FFTW
+      - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install python packages
+      - name: Install poetry dependencies
         run: |
-          pdm install
+          poetry install
 
+      # just checks if they run
       - name: Run notebooks
         run: |
-          pdm run pytest --nbmake notebooks --ignore "notebooks/01b-scarlet-measure.ipynb"
+          poetry run pytest --nbmake notebooks

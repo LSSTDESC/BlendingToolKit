@@ -21,28 +21,24 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v2
 
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-pep582: true
-          cache: true
+          cache: "poetry"
 
       # galsim needs this.
-      - name: Instal FFTW
+      - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install python packages
+      - name: Install poetry dependencies
         run: |
-          pdm install
+          poetry install
 
-      - name: Run pre-commit checks
+      - name: Run linting
         run: |
-          pdm run pre-commit install
-          pdm run pre-commit run --all-files
+          poetry run flake8 btk
