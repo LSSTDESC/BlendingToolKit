@@ -9,7 +9,7 @@ import galsim
 import numpy as np
 from astropy.table import Table
 
-from btk.survey import get_surveys, make_wcs
+from btk.survey import Survey, make_wcs
 
 
 @dataclass
@@ -19,7 +19,7 @@ class BlendBatch:
     batch_size: int
     max_n_sources: int
     stamp_size: int
-    survey_name: str
+    survey: Survey
     blend_images: np.ndarray
     isolated_images: np.ndarray
     catalog_list: List[Table]
@@ -29,7 +29,7 @@ class BlendBatch:
         """Checks that the data is of the right shape."""
         self.wcs = self._get_wcs()
         self.image_size = self._get_image_size()
-        n_bands = len(get_surveys(self.survey_name).available_filters)
+        n_bands = len(self.survey.available_filters)
         b1, c1, ps11, ps12 = self.blend_images.shape
         b2, n, c2, ps21, ps22 = self.isolated_images.shape
         assert b1 == b2 == len(self.catalog_list) == self.batch_size
@@ -39,15 +39,13 @@ class BlendBatch:
 
     def _get_image_size(self) -> int:
         """Returns the size of the stamps in pixels."""
-        survey = get_surveys(self.survey_name)
-        pixel_scale = survey.pixel_scale.to_value("arcsec")
+        pixel_scale = self.survey.pixel_scale.to_value("arcsec")
         return int(self.stamp_size / pixel_scale)
 
     def _get_wcs(self):
         """Returns the wcs of the stamps."""
         pix_stamp_size = self._get_image_size()
-        survey = get_surveys(self.survey_name)
-        pixel_scale = survey.pixel_scale.to_value("arcsec")
+        pixel_scale = self.survey.pixel_scale.to_value("arcsec")
         return make_wcs(pixel_scale, (pix_stamp_size, pix_stamp_size))
 
     def get_numpy_psf(self):
@@ -58,7 +56,7 @@ class BlendBatch:
 
     def __repr__(self) -> str:
         """Return string representation of class."""
-        string = self.__class__.__name__ + f"(survey_name={self.survey_name}, "
+        string = self.__class__.__name__ + f"(survey_name={self.survey}, "
         string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
         string += (
@@ -92,7 +90,7 @@ class BlendBatch:
                     "batch_size": self.batch_size,
                     "max_n_sources": self.max_n_sources,
                     "stamp_size": self.stamp_size,
-                    "survey_name": self.survey_name,
+                    "survey_name": self.survey.name,
                 },
                 f,
             )
