@@ -1,10 +1,10 @@
 """Contains the Deblender classes and its subclasses."""
 import inspect
 from abc import ABC, abstractmethod
+from itertools import repeat
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import scarlet
 import sep
 from astropy import units
 from astropy.coordinates import SkyCoord
@@ -15,7 +15,6 @@ from skimage.feature import peak_local_max
 from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
-from btk.survey import get_surveys
 
 
 class Deblender(ABC):
@@ -24,7 +23,7 @@ class Deblender(ABC):
     Each new measure class should be a subclass of Measure.
     """
 
-    def __call__(self, blend_batch: BlendBatch, njobs: int = 1) -> DeblendExample:
+    def __call__(self, blend_batch: BlendBatch, njobs: int = 1, **kwargs) -> DeblendExample:
         """Calls the (user-implemented) `deblend` method along with validation of the input.
 
         Args:
@@ -38,7 +37,7 @@ class Deblender(ABC):
             raise TypeError(
                 f"Got type'{type(blend_batch)}', but expected an object of a BlendBatch class."
             )
-        return self.batch_call(blend_batch, njobs)
+        return self.batch_call(blend_batch, njobs, **kwargs)
 
     @abstractmethod
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
@@ -54,7 +53,7 @@ class Deblender(ABC):
             Instance of `DeblendedExample` class
         """
 
-    def batch_call(self, blend_batch: BlendBatch, njobs: int = 1) -> DeblendBatch:
+    def batch_call(self, blend_batch: BlendBatch, njobs: int = 1, **kwargs) -> DeblendBatch:
         """Implements the call of a measure function on the entire batch.
 
         Overwrite this function if you perform measurments on the batch.
@@ -69,7 +68,8 @@ class Deblender(ABC):
             Instance of `DeblendedBatch` class
         """
         args_iter = ((ii, blend_batch) for ii in range(blend_batch.batch_size))
-        output = multiprocess(self.deblend, args_iter, njobs=njobs)
+        kwargs_iter = repeat(kwargs)
+        output = multiprocess(self.deblend, args_iter, kwargs_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
         segmentation, deblended = None, None
         if output[0].segmentation is not None:
@@ -233,17 +233,22 @@ class SepSingleBand(Deblender):
     """Return detection, segmentation and deblending information running SEP on a single band.
 
     The function performs detection and deblending of the sources based on the provided
-    band index. If use_mean feature is used, then the measurement function is using
-    the average of all the bands.
+    band index. If `use_mean` feature is used, then we use the average of all the bands.
+
+    For more details on SEP (Source-Extractor Python), see:
+    https://sep.readthedocs.io/en/v1.1.x/index.html#
     """
 
     def __init__(
-        self, sigma_noise: float = 1.5, use_mean: bool = False, use_band: Optional[int] = None
+        self, thresh: float = 1.5, use_mean: bool = False, use_band: Optional[int] = None
     ) -> None:
         """Initializes measurement class. Exactly one of 'use_mean' or 'use_band' must be specified.
 
         Args:
-            sigma_noise: Noise level for sep.
+            thresh: Threshold pixel value for detection use in `sep.extract`. This is
+                interpreted as a relative threshold: the absolute threshold at pixel (j, i)
+                will be `thresh * err[j, i]` where `err` is set to the global rms of
+                the background measured by SEP.
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
@@ -253,7 +258,7 @@ class SepSingleBand(Deblender):
             raise ValueError("Only one of the parameters 'use_band' and 'use_mean' has to be set")
         self.use_mean = use_mean
         self.use_band = use_band
-        self.sigma_noise = sigma_noise
+        self.thresh = thresh
 
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the i-th example from the batch."""
@@ -263,12 +268,11 @@ class SepSingleBand(Deblender):
             image = np.mean(blend_image, axis=0)
         else:
             image = blend_image[self.use_band]
-        assert image.ndim == 2
 
         # run source extractor
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            image, self.sigma_noise, err=bkg.globalrms, segmentation_map=True
+            image, self.thresh, err=bkg.globalrms, segmentation_map=True
         )
 
         n_objects = len(catalog)
@@ -301,22 +305,22 @@ class SepSingleBand(Deblender):
 class SepMultiband(Deblender):
     """This class returns centers detected with SEP by combining predictions in different bands.
 
-    For each band in the input image we run sep for detection and append new detections to a running
-    list of detected coordinates. In order to avoid repeating detections, we run a KD-Tree algorithm
-    to calculate the angular distance between each new coordinate and its closest neighbour. Then we
-    discard those new coordinates that were closer than `matching_threshold` to any one of already
-    detected coordinates.
+    For each band in the input image we run `sep` for detection and append new detections
+    to a running list of detected coordinates. In order to avoid repeating detections,
+    we run a KD-Tree algorithm to calculate the angular distance between each new
+    coordinate and its closest neighbour. Then we discard those new coordinates that
+    were closer than `matching_threshold` to any one of already detected coordinates.
     """
 
-    def __init__(self, matching_threshold: float = 1.0, sigma_noise: float = 1.5):
+    def __init__(self, matching_threshold: float = 1.0, thresh: float = 1.5):
         """Initialize the SepMultiband measurement function.
 
         Args:
             matching_threshold: Threshold value for match detections that are close (arcsecs).
-            sigma_noise: Noise level for sep.
+            sigma_noise: See `SepSingleBand` class.
         """
         self.matching_threshold = matching_threshold
-        self.sigma_noise = sigma_noise
+        self.thresh = thresh
 
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
@@ -324,7 +328,7 @@ class SepMultiband(Deblender):
         wcs = blend_batch.wcs
         image = blend_batch.blend_images[ii]
         bkg = sep.Background(image[0])
-        catalog = sep.extract(image[0], self.sigma_noise, err=bkg.globalrms, segmentation_map=False)
+        catalog = sep.extract(image[0], self.thresh, err=bkg.globalrms, segmentation_map=False)
         ra_coordinates, dec_coordinates = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
         ra_coordinates *= 3600
         dec_coordinates *= 3600
@@ -335,7 +339,7 @@ class SepMultiband(Deblender):
             band_image = image[band]
             bkg = sep.Background(band_image)
             catalog = sep.extract(
-                band_image, self.sigma_noise, err=bkg.globalrms, segmentation_map=False
+                band_image, self.thresh, err=bkg.globalrms, segmentation_map=False
             )
 
             # convert predictions to arcseconds
@@ -374,37 +378,76 @@ class SepMultiband(Deblender):
 class Scarlet(Deblender):
     """Implementation of the scarlet deblender."""
 
-    def __init__(self, thresh=0.1, e_rel=1e-5, n_steps=200):
+    def __init__(
+        self,
+        thresh: float = 1.0,
+        e_rel: float = 1e-5,
+        max_iter: int = 200,
+        max_components: int = 2,
+        min_snr: float = 50,
+    ):
+        """Initialize the Scarlet deblender class.
+
+        This class uses the scarlet deblender to deblend the images. We follow the basic
+        implementation that is layed out in the Scarlet documentation:
+        https://pmelchior.github.io/scarlet/0-quickstart.html. For more details on each
+        of the argument also see the Scarlet API at:
+        https://pmelchior.github.io/scarlet/api/scarlet.initialization.html.
+
+        Args:
+            thresh: Multiple of the backround RMS used as a flux cutoff for morphology
+                initialization for `scarlet.source.ExtendedSource` class. (Default: 0.1).
+            e_rel: Relative error for convergence of the loss function (Default: 1e-5).
+                See `scarlet.blend.Blend.fit` method for details.
+            max_iter: Maximum number of iterations for the optimization (Default: 200).
+            max_components: Maximum number of components in a source.
+            min_snr: Mininmum SNR per component to accept the source.
+        """
         self.thres = thresh
         self.e_rel = e_rel
-        self.n_steps = n_steps
+        self.max_iter = max_iter
+        self.max_components = max_components
+        self.min_snr = min_snr
 
     def deblend(
         self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
     ) -> DeblendExample:
+        """Performs measurement on the ii-th example from the batch.
+
+        Args:
+            ii: The index of the example in the batch.
+            blend_batch: Instance of `BlendBatch` class.
+            reference_catalog: Reference catalog to use for deblending. If None, the
+                truth catalog is used.
+
+        Returns:
+            Instance of `DeblendedExample` class.
+        """
+
+        import scarlet  # pylint: disable=import-outside-toplevel
+
         # if no reference catalog is provided, truth catalog is used
         if reference_catalog is None:
             catalog = blend_batch.catalog_list[ii]
         else:
             catalog = reference_catalog
 
-        # if catalog is empty return empty images
+        # if catalog is empty return no images.
         if len(catalog) == 0:
             return DeblendExample(blend_batch.max_n_sources, blend_batch.image_size, catalog)
 
-        assert "x" in catalog.colnames and "y" in catalog.colnames
-
-        survey = get_surveys(blend_batch.survey_name)
-        bkg = np.array(
-            [mean_sky_level(survey, band).to_value("electron") for band in survey.filters]
-        )
+        assert "ra" in catalog.colnames and "dec" in catalog.colnames
 
         image = blend_batch.blend_images[ii]
-        image_size = image.shape[-1]
-        bands = get_surveys(blend_batch.survey_name).available_filters
-        n_bands = len(bands)
         psf = blend_batch.get_numpy_psf()
         wcs = blend_batch.wcs
+        survey = blend_batch.survey
+        bands = survey.available_filters
+        n_bands = len(survey.available_filters)
+
+        # get background
+        filters = [survey.get_filter(band) for band in bands]
+        bkg = np.array([mean_sky_level(survey, f).to_value("electron") for f in filters])
 
         # initialize scarlet
         model_psf = scarlet.GaussianPSF(sigma=(0.6,) * n_bands)
@@ -412,43 +455,45 @@ class Scarlet(Deblender):
         scarlet_psf = scarlet.ImagePSF(psf)
         weights = np.ones(image.shape) / bkg.reshape((-1, 1, 1))
         obs = scarlet.Observation(image, psf=scarlet_psf, weights=weights, channels=bands, wcs=wcs)
-        observations = [obs.match(model_frame)]
+        observations = obs.match(model_frame)
 
-        skycoords = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
-        ra_dec = np.array(skycoords).T
+        ra_dec = np.array([catalog["ra"] / 3600, catalog["dec"] / 3600]).T
 
-        # We define a source for each detection
-        sources = [
-            scarlet.ExtendedSource(model_frame, sky_coord, observations, thresh=self.thres)
-            for sky_coord in ra_dec
-        ]
-        scarlet.initialization.set_spectra_to_match(sources, observations)  # noqa
+        sources, _ = scarlet.initialization.init_all_sources(
+            model_frame,
+            ra_dec,
+            observations,
+            max_components=self.max_components,
+            min_snr=self.min_snr,
+            thresh=self.thres,
+            fallback=True,
+            silent=True,
+            set_spectra=True,
+        )
 
+        blend = scarlet.Blend(sources, observations)  # noqa
+        blend.fit(self.max_iter, e_rel=self.e_rel)
+        individual_sources, selected_peaks = [], []
+        for component in sources:
+            y, x = component.center
+            selected_peaks.append([x, y])
+            model = component.get_model(frame=model_frame)
+            model_ = observations.render(model)
+            individual_sources.append(model_)
+        selected_peaks = np.array(selected_peaks)
+        deblended_images = np.zeros(
+            (blend_batch.max_n_sources, n_bands, blend_batch.image_size, blend_batch.image_size)
+        )
+        deblended_images[: len(individual_sources)] = individual_sources
+
+        # TODO: check if this is correct
         t = Table()
-        t["ra"], t["dec"] = skycoords
-        t["ra"], t["dec"] = t["ra"] * 3600, t["dec"] * 3600
+        t["ra"] = selected_peaks[:, 0]
+        t["dec"] = selected_peaks[:, 1]
 
-        try:
-            blend = scarlet.Blend(sources, observations)  # noqa
-            blend.fit(self.n_steps, e_rel=self.e_rel)
-            individual_sources, selected_peaks = [], []
-            for component in sources:
-                y, x = component.center
-                selected_peaks.append([x, y])
-                model = component.get_model(frame=model_frame)
-                model_ = observations[0].render(model)
-                individual_sources.append(model_)
-            selected_peaks = np.array(selected_peaks)
-            deblended_images = np.array(individual_sources)
-            return DeblendExample(
-                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
-            )
-
-        except AssertionError:
-            deblended_images = np.zeros((len(catalog), n_bands, image_size, image_size)) * np.nan
-            return DeblendExample(
-                blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
-            )
+        return DeblendExample(
+            blend_batch.max_n_sources, blend_batch.image_size, t, None, deblended_images
+        )
 
 
 class DeblendGenerator:
@@ -539,4 +584,5 @@ available_deblenders = {
     "PeakLocalMax": PeakLocalMax,
     "SepSingleBand": SepSingleBand,
     "SepMultiBand": SepMultiband,
+    "Scarlet": Scarlet,
 }
