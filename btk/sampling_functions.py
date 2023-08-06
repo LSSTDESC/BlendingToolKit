@@ -1,5 +1,4 @@
 """Contains classes of function for extracing information from catalog in blend batches."""
-import warnings
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple
 
@@ -29,6 +28,32 @@ def _get_random_center_shift(
     return dx, dy
 
 
+def _check_centroids_in_bounds(ra: np.ndarray, dec: np.ndarray, stamp_size: float) -> bool:
+    """Checks if the centroids are within the stamp.
+
+    Args:
+        ra: Right ascension of centroids in arcseconds.
+        dec: Declination of centroids in arcseconds.
+        stamp_size: Size of the stamp in arcseconds.
+
+    Returns:
+        True if centroids are within the stamp, False otherwise.
+    """
+    return np.all(np.abs(ra) <= stamp_size / 2.0) and np.all(np.abs(dec) <= stamp_size / 2.0)
+
+
+def _raise_error_if_out_of_bounds(ra: np.ndarray, dec: np.ndarray, stamp_size: float):
+    """Raises ValueError if the centroids are outside the stamp.
+
+    Args:
+        ra: Right ascension of centroids in arcseconds.
+        dec: Declination of centroids in arcseconds.
+        stamp_size: Size of the stamp in arcseconds.
+    """
+    if not _check_centroids_in_bounds(ra, dec, stamp_size):
+        raise ValueError("Object center lies outside the stamp")
+
+
 class SamplingFunction(ABC):
     """Class representing sampling functions to sample input catalog from which to draw blends.
 
@@ -42,7 +67,7 @@ class SamplingFunction(ABC):
         Args:
             max_number: maximum number of catalog entries returned from sample.
             min_number: minimum number of catalog entries returned from sample. (Default: 1)
-            seed: Seed to initialize randomness for reproducibility.
+            seed: Seed to initialize randomness for reproducibility. (Default: btk.DEFAULT_SEED)
         """
         self.min_number = min_number
         self.max_number = max_number
@@ -56,7 +81,7 @@ class SamplingFunction(ABC):
             raise AttributeError("The seed you provided is invalid, should be an int.")
 
     @abstractmethod
-    def __call__(self, table, **kwargs) -> Table:
+    def __call__(self, table) -> Table:
         """Outputs a sample from the given astropy table."""
 
 
@@ -93,7 +118,7 @@ class DefaultSampling(SamplingFunction):
         self.min_mag, self.max_mag = min_mag, max_mag
         self.mag_name = mag_name
 
-    def __call__(self, table: Table, **kwargs) -> Table:
+    def __call__(self, table: Table) -> Table:
         """Applies default sampling to catalog.
 
         Returns an astropy table with entries corresponding to a blend centered close to postage
@@ -128,11 +153,7 @@ class DefaultSampling(SamplingFunction):
         dx, dy = _get_random_center_shift(number_of_objects, self.max_shift, self.rng)
         blend_table["ra"] += dx
         blend_table["dec"] += dy
-
-        out_of_bounds = np.any(blend_table["ra"] > self.stamp_size / 2.0)
-        out_of_bounds = out_of_bounds or np.any(blend_table["dec"] > self.stamp_size / 2.0)
-        if out_of_bounds:
-            warnings.warn("Object center lies outside the stamp")
+        _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
         return blend_table
 
 
@@ -166,7 +187,7 @@ class BasicSampling(SamplingFunction):
         if min_number < 1:
             raise ValueError("At least 1 bright galaxy will be added, so need min_number >=1.")
 
-    def __call__(self, table: Table, **kwargs) -> Table:
+    def __call__(self, table: Table) -> Table:
         """Samples galaxies from input catalog to make blend scene.
 
         - Then number of galaxies in a blend are drawn from a uniform distribution of one
@@ -213,6 +234,8 @@ class BasicSampling(SamplingFunction):
         dx, dy = _get_random_center_shift(number_of_objects + 1, max_shift, self.rng)
         blend_table["ra"] += dx
         blend_table["dec"] += dy
+
+        _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
         return blend_table
 
 
@@ -246,4 +269,65 @@ class DefaultSamplingShear(DefaultSampling):
         blend_table = super().__call__(table)
         blend_table["g1"] = self.shear[0]
         blend_table["g2"] = self.shear[1]
+        return blend_table
+
+
+class PairSampling(SamplingFunction):
+    """Sampling function for pairs of galaxies. Picks one centered bright galaxy and second dim.
+
+    The bright galaxy is centered at the center of the stamp and the dim galaxy is shifted.
+    The bright galaxy is chosen with magnitude less than `bright_cut` and the dim galaxy
+    is chosen with magnitude cut larger than `bright_cut` and less than `dim_cut`. The cuts
+    can be customized by the user at initialization.
+
+    """
+
+    def __init__(
+        self,
+        stamp_size: float = 24.0,
+        max_shift: float = Optional[None],
+        mag_name: str = "i_ab",
+        seed: int = DEFAULT_SEED,
+        bright_cut: float = 25.3,
+        dim_cut: float = 28.0,
+    ):
+        """Initializes the PairSampling function.
+
+        Args:
+            stamp_size: Size of the desired stamp (in arcseconds).
+            max_shift: Maximum value of shift from center. If None then its set as one-tenth the
+                stamp size (in arcseconds).
+            seed: See parent class.
+            bright_cut: Magnitude cut for bright galaxy. (Default: 25.3)
+            dim_cut: Magnitude cut for dim galaxy. (Default: 28.0)
+        """
+        super().__init__(2, 1, seed)
+        self.stamp_size = stamp_size
+        self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
+        self.mag_name = mag_name
+        self.bright_cut = bright_cut
+        self.dim_cut = dim_cut
+
+    def __call__(self, table: Table):
+        """Samples galaxies from input catalog to make blend scene."""
+        if self.mag_name not in table.colnames:
+            raise ValueError(f"Catalog must have '{self.mag_name}' column.")
+
+        (q_bright,) = np.where(table[self.mag_name] <= self.bright_cut)
+        (q_dim,) = np.where(
+            (table[self.mag_name] > self.bright_cut) & (table[self.mag_name] <= self.dim_cut)
+        )
+
+        indexes = [np.random.choice(q_bright), np.random.choice(q_dim)]
+        blend_table = table[indexes]
+
+        blend_table["ra"] = 0.0
+        blend_table["dec"] = 0.0
+
+        x_peak, y_peak = _get_random_center_shift(1, self.max_shift, self.rng)
+
+        blend_table["ra"][1] += x_peak
+        blend_table["dec"][1] += y_peak
+
+        _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
         return blend_table
