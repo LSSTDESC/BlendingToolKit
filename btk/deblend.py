@@ -10,6 +10,7 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from galcheat.utilities import mean_sky_level
+from numpy.linalg import LinAlgError
 from skimage.feature import peak_local_max
 
 from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
@@ -409,12 +410,12 @@ class Scarlet(Deblender):
         Args:
             max_n_sources: See parent class.
             thresh: Multiple of the backround RMS used as a flux cutoff for morphology
-                initialization for `scarlet.source.ExtendedSource` class. (Default: 0.1).
-            e_rel: Relative error for convergence of the loss function (Default: 1e-5).
-                See `scarlet.blend.Blend.fit` method for details.
-            max_iter: Maximum number of iterations for the optimization (Default: 200).
-            max_components: Maximum number of components in a source.
-            min_snr: Mininmum SNR per component to accept the source.
+                initialization for `scarlet.source.ExtendedSource` class. (Default: 1.0)
+            e_rel: Relative error for convergence of the loss function
+                See `scarlet.blend.Blend.fit` method for details. (Default: 1e-5)
+            max_iter: Maximum number of iterations for the optimization (Default: 200)
+            min_snr: Mininmum SNR per component to accept the source. (Default: 50)
+            max_components: Maximum number of components in a source. (Default: 2)
         """
         super().__init__(max_n_sources)
         self.thres = thresh
@@ -424,7 +425,7 @@ class Scarlet(Deblender):
         self.min_snr = min_snr
 
     def deblend(
-        self, ii: int, blend_batch: BlendBatch, reference_catalog: Table = None
+        self, ii: int, blend_batch: BlendBatch, reference_catalogs: Table = None
     ) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch.
 
@@ -441,27 +442,28 @@ class Scarlet(Deblender):
         import scarlet  # pylint: disable=import-outside-toplevel
 
         # if no reference catalog is provided, truth catalog is used
-        if reference_catalog is None:
+        if reference_catalogs is None:
             catalog = blend_batch.catalog_list[ii]
         else:
-            catalog = reference_catalog
+            catalog = reference_catalogs[ii]
+        assert "ra" in catalog.colnames and "dec" in catalog.colnames
 
         image = blend_batch.blend_images[ii]
         n_bands = image.shape[0]
-
-        # if catalog is empty return no images.
-        if len(catalog) == 0:
-            return DeblendExample(
-                blend_batch.max_n_sources, n_bands, blend_batch.image_size, catalog
-            )
-
-        assert "ra" in catalog.colnames and "dec" in catalog.colnames
 
         psf = blend_batch.get_numpy_psf()
         wcs = blend_batch.wcs
         survey = blend_batch.survey
         bands = survey.available_filters
-        n_bands = len(survey.available_filters)
+        img_size = blend_batch.image_size
+
+        # if catalog is empty return no images.
+        if len(catalog) == 0:
+            t = Table()
+            t["ra"] = []
+            t["dec"] = []
+            deblended_images = np.zeros((self.max_n_sources, n_bands, img_size, img_size))
+            return DeblendExample(self.max_n_sources, t, n_bands, img_size, None, deblended_images)
 
         # get background
         filters = [survey.get_filter(band) for band in bands]
@@ -477,41 +479,44 @@ class Scarlet(Deblender):
 
         ra_dec = np.array([catalog["ra"] / 3600, catalog["dec"] / 3600]).T
 
-        sources, _ = scarlet.initialization.init_all_sources(
-            model_frame,
-            ra_dec,
-            observations,
-            max_components=self.max_components,
-            min_snr=self.min_snr,
-            thresh=self.thres,
-            fallback=True,
-            silent=True,
-            set_spectra=True,
-        )
+        try:
+            sources, _ = scarlet.initialization.init_all_sources(
+                model_frame,
+                ra_dec,
+                observations,
+                max_components=self.max_components,
+                min_snr=self.min_snr,
+                thresh=self.thres,
+                fallback=True,
+                silent=True,
+                set_spectra=True,
+            )
 
-        blend = scarlet.Blend(sources, observations)  # noqa
-        blend.fit(self.max_iter, e_rel=self.e_rel)
-        individual_sources, selected_peaks = [], []
-        for component in sources:
-            y, x = component.center
-            selected_peaks.append([x, y])
-            model = component.get_model(frame=model_frame)
-            model_ = observations.render(model)
-            individual_sources.append(model_)
-        selected_peaks = np.array(selected_peaks)
-        deblended_images = np.zeros(
-            (self.max_n_sources, n_bands, blend_batch.image_size, blend_batch.image_size)
-        )
-        deblended_images[: len(individual_sources)] = individual_sources
+            blend = scarlet.Blend(sources, observations)
+            blend.fit(self.max_iter, e_rel=self.e_rel)
+            individual_sources, selected_peaks = [], []
+            for component in sources:
+                y, x = component.center
+                selected_peaks.append([x, y])
+                model = component.get_model(frame=model_frame)
+                model_ = observations.render(model)
+                individual_sources.append(model_)
+            selected_peaks = np.array(selected_peaks)
+            deblended_images = np.zeros((self.max_n_sources, n_bands, img_size, img_size))
+            deblended_images[: len(individual_sources)] = individual_sources
 
-        # TODO: check if this is correct
-        t = Table()
-        t["ra"] = selected_peaks[:, 0]
-        t["dec"] = selected_peaks[:, 1]
+            assert len(selected_peaks) == len(catalog)
 
-        return DeblendExample(
-            self.max_n_sources, t, n_bands, blend_batch.image_size, None, deblended_images
-        )
+            return DeblendExample(
+                self.max_n_sources, catalog, n_bands, blend_batch.image_size, None, deblended_images
+            )
+
+        except LinAlgError:
+            t = Table()
+            t["ra"] = []
+            t["dec"] = []
+            deblended_images = np.zeros((self.max_n_sources, n_bands, img_size, img_size))
+            return DeblendExample(self.max_n_sources, t, n_bands, img_size, None, deblended_images)
 
 
 class DeblendGenerator:
