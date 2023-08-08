@@ -43,7 +43,7 @@ class Deblender(ABC):
         """
         if not isinstance(blend_batch, BlendBatch):
             raise TypeError(
-                f"Got type'{type(blend_batch)}', but expected an object of a BlendBatch class."
+                f"Got type '{type(blend_batch)}', but expected an object of a BlendBatch class."
             )
         return self.batch_call(blend_batch, njobs, **kwargs)
 
