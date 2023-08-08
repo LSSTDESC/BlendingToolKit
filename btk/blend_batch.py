@@ -188,10 +188,11 @@ class DeblendExample:
     """Class that validates the deblending results for a single blend."""
 
     max_n_sources: int
-    image_size: int
     catalog: Table
-    segmentation: np.ndarray = None
-    deblended_images: np.ndarray = None
+    n_bands: Optional[int] = None
+    image_size: Optional[int] = None
+    segmentation: Optional[np.ndarray] = None
+    deblended_images: Optional[np.ndarray] = None
 
     def __post_init__(self) -> None:
         """Performs validation of the measured example."""
@@ -205,27 +206,53 @@ class DeblendExample:
                 "The output catalog of at least one of your measurement functions does"
                 "not contain the mandatory 'ra' and 'dec' columns"
             )
+        if not len(catalog) <= self.max_n_sources:
+            raise ValueError(
+                "The predicted catalog of at least one of your deblended images "
+                "contains more sources than the maximum number of sources specified."
+            )
         return catalog
 
     def _validate_segmentation(self, segmentation):
         if segmentation is not None:
-            assert segmentation.shape == (self.max_n_sources, self.image_size, self.image_size)
-            assert segmentation.min() >= 0 and segmentation.max() <= 1
+            if self.image_size is None or self.n_bands is None:
+                raise ValueError("`image_size` must be specified if segmentation is provided")
+            if segmentation.shape != (self.max_n_sources, self.image_size, self.image_size):
+                raise ValueError(
+                    "The predicted segmentation of at least one of your deblended images "
+                    "has the wrong shape. It should be `(max_n_sources, image_size, image_size)`."
+                )
+            if segmentation.min() < 0 or segmentation.max() > 1:
+                raise ValueError(
+                    "The predicted segmentation of at least one of your deblended images "
+                    "has values outside the range [0, 1]."
+                )
         return segmentation
 
     def _validate_deblended_images(self, deblended_images):
         if deblended_images is not None:
-            assert deblended_images.shape == (
+            if self.image_size is None or self.n_bands is None:
+                raise ValueError(
+                    "`image_size` and `n_bands` must be specified if deblended_images is provided"
+                )
+            deblended_shape = (
                 self.max_n_sources,
+                self.n_bands,
                 self.image_size,
                 self.image_size,
             )
+            if deblended_images.shape != deblended_shape:
+                raise ValueError(
+                    "The predicted deblended_images of at least one of your deblended images "
+                    f"has the wrong shape. It should be {deblended_shape}."
+                )
         return deblended_images
 
     def __repr__(self):
         """Return string representation of class."""
         string = (
             f"DeblendExample(max_n_sources = {self.max_n_sources}, "
+            f"n_bands = {self.n_bands}, "
             f"image_size = {self.image_size})" + ", containing: \n"
         )
         string += "\tcatalog: " + str(Table)
@@ -254,10 +281,11 @@ class DeblendBatch:
 
     batch_size: int
     max_n_sources: int
-    image_size: int
     catalog_list: List[Table]
-    segmentation: np.ndarray = None
-    deblended_images: np.ndarray = None
+    n_bands: Optional[int] = None
+    image_size: Optional[int] = None
+    segmentation: Optional[np.ndarray] = None
+    deblended_images: Optional[np.ndarray] = None
 
     def __post_init__(self) -> None:
         """Run after dataclass init."""
@@ -277,10 +305,17 @@ class DeblendBatch:
                     "The output catalog of at least one of your measurement functions does"
                     "not contain the mandatory 'ra' and 'dec' columns"
                 )
+            if not len(catalog) <= self.max_n_sources:
+                raise ValueError(
+                    "The predicted catalog of at least one of your deblended images "
+                    "contains more sources than the maximum number of sources specified."
+                )
         return catalog_list
 
     def _validate_segmentation(self, segmentation: Optional[np.ndarray] = None) -> np.ndarray:
         if segmentation is not None:
+            if self.image_size is None:
+                raise ValueError("`image_size` must be specified if segmentation is provided")
             assert segmentation.shape == (
                 self.batch_size,
                 self.max_n_sources,
@@ -294,9 +329,14 @@ class DeblendBatch:
         self, deblended_images: Optional[np.ndarray] = None
     ) -> np.ndarray:
         if deblended_images is not None:
+            if self.image_size is None or self.n_bands is None:
+                raise ValueError(
+                    "`image_size` and `n_bands` must be specified if deblended_images is provided"
+                )
             assert deblended_images.shape == (
                 self.batch_size,
                 self.max_n_sources,
+                self.n_bands,
                 self.image_size,
                 self.image_size,
             )
@@ -306,7 +346,8 @@ class DeblendBatch:
         """Return string representation of class."""
         string = (
             f"DeblendBatch(batch_size = {self.batch_size}, "
-            f"max_n_sources = {self.max_n_sources}, stamp_size = {self.image_size}, "
+            f"max_n_sources = {self.max_n_sources} "
+            f"n_bands = {self.n_bands}, "
             f"image_size = {self.image_size})" + ", containing: \n"
         )
         string += "\tcatalog_list: list of " + str(Table) + ", size " + str(len(self.catalog_list))
@@ -351,6 +392,7 @@ class DeblendBatch:
                     "batch_size": self.batch_size,
                     "max_n_sources": self.max_n_sources,
                     "image_size": self.image_size,
+                    "n_bands": self.n_bands,
                 },
                 f,
             )
