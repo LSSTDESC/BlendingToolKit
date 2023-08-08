@@ -56,7 +56,7 @@ class BlendBatch:
 
     def __repr__(self) -> str:
         """Return string representation of class."""
-        string = self.__class__.__name__ + f"(survey_name={self.survey}, "
+        string = self.__class__.__name__ + f"(survey_name={self.survey.name}, "
         string += "\n\t blend_images: np.ndarray, shape " + str(list(self.blend_images.shape))
         string += "\n\t isolated_images: np.ndarray, shape " + str(list(self.isolated_images.shape))
         string += (
@@ -253,7 +253,7 @@ class DeblendExample:
         string = (
             f"DeblendExample(max_n_sources = {self.max_n_sources}, "
             f"n_bands = {self.n_bands}, "
-            f"image_size = {self.image_size})" + ", containing: \n"
+            f"image_size = {self.image_size})" + ", \n containing: \n"
         )
         string += "\tcatalog: " + str(Table)
 
