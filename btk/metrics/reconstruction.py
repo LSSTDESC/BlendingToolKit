@@ -8,7 +8,6 @@ from btk.metrics.base import Metric
 from btk.metrics.utils import mse, psnr, struct_sim
 
 
-# TODO: keep mse for each object, average later.
 class ReconstructionMetric(Metric, ABC):
     """Abstract class for reconstruction metrics in BTK."""
 
