@@ -12,16 +12,8 @@ __version__ = metadata.version("blending_toolkit")
 
 DEFAULT_SEED = 0
 
-from . import (
-    blend_generator,
-    catalog,
-    deblend,
-    draw_blends,
-    match,
-    measure,
-    metrics,
-    multiprocess,
-    sampling_functions,
-    survey,
-    utils,
-)
+from . import catalog, sampling_functions, survey, multiprocess, match, measure, utils
+from . import blend_generator, blend_batch
+from . import draw_blends
+from . import deblend
+from . import metrics
