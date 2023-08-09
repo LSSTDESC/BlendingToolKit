@@ -82,6 +82,7 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 100
+skip = ["btk/__init__.py", "btk/metrics/__init__.py"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
@@ -107,7 +108,8 @@ disable = """
           too-many-arguments,
           too-many-instance-attributes,
           c-extension-no-member,
-          unused-argument
+          unused-argument, 
+          too-few-public-methods
       """
 good-names = [
   "x",
