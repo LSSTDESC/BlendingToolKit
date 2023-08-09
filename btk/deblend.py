@@ -80,13 +80,15 @@ class Deblender(ABC):
         kwargs_iter = repeat(kwargs)
         output = multiprocess(self.deblend, args_iter, kwargs_iter, njobs=njobs)
         catalog_list = [db_example.catalog for db_example in output]
-        segmentation, deblended = None, None
+        segmentation, deblended, extra_data = None, None, None
         n_bands = None
         if output[0].segmentation is not None:
             segmentation = np.array([db_example.segmentation for db_example in output])
         if output[0].deblended_images is not None:
             deblended = np.array([db_example.deblended_images for db_example in output])
             _, _, n_bands, _, _ = deblended.shape
+        if output[0].extra_data is not None:
+            extra_data = [db_example.extra_data for db_example in output]
         return DeblendBatch(
             blend_batch.batch_size,
             self.max_n_sources,
@@ -95,6 +97,7 @@ class Deblender(ABC):
             blend_batch.image_size,
             segmentation,
             deblended,
+            extra_data,
         )
 
     @classmethod
@@ -508,7 +511,13 @@ class Scarlet(Deblender):
             assert len(selected_peaks) == len(catalog)
 
             return DeblendExample(
-                self.max_n_sources, catalog, n_bands, blend_batch.image_size, None, deblended_images
+                self.max_n_sources,
+                catalog,
+                n_bands,
+                blend_batch.image_size,
+                None,
+                deblended_images,
+                extra_data={"scarlet_sources": sources},
             )
 
         except LinAlgError:

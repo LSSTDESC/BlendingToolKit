@@ -193,6 +193,7 @@ class DeblendExample:
     image_size: Optional[int] = None
     segmentation: Optional[np.ndarray] = None
     deblended_images: Optional[np.ndarray] = None
+    extra_data: Optional[dict] = None
 
     def __post_init__(self) -> None:
         """Performs validation of the measured example."""
@@ -286,6 +287,7 @@ class DeblendBatch:
     image_size: Optional[int] = None
     segmentation: Optional[np.ndarray] = None
     deblended_images: Optional[np.ndarray] = None
+    extra_data: Optional[List[dict]] = None
 
     def __post_init__(self) -> None:
         """Run after dataclass init."""
