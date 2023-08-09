@@ -32,7 +32,7 @@ class Deblender(ABC):
         """
         self.max_n_sources = max_n_sources
 
-    def __call__(self, blend_batch: BlendBatch, njobs: int = 1, **kwargs) -> DeblendExample:
+    def __call__(self, blend_batch: BlendBatch, njobs: int = 1, **kwargs) -> DeblendBatch:
         """Calls the (user-implemented) `deblend` method along with validation of the input.
 
         Args:
@@ -119,7 +119,7 @@ class MultiResolutionDeblender(ABC):
 
     def __call__(
         self, ii: int, mr_batch: MultiResolutionBlendBatch, njobs: int = 1
-    ) -> DeblendExample:
+    ) -> DeblendBatch:
         """Calls the (user-implemented) deblend method along with validation of the input.
 
         Args:
