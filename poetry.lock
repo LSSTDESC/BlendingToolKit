@@ -848,19 +848,6 @@ pycodestyle = ">=2.11.0,<2.12.0"
 pyflakes = ">=3.1.0,<3.2.0"
 
 [[package]]
-name = "flake8-absolute-import"
-version = "1.0.0.1"
-description = "flake8 plugin to require absolute imports"
-optional = false
-python-versions = ">=3.4"
-files = [
-    {file = "flake8_absolute_import-1.0.0.1-py3-none-any.whl", hash = "sha256:d24f189bca52ffc0d13e8046606ea42d22a9ad9d409bf39e52b93493cf2ffd2c"},
-]
-
-[package.dependencies]
-flake8 = ">=3.7"
-
-[[package]]
 name = "fonttools"
 version = "4.42.0"
 description = "Tools to manipulate font files"
@@ -3916,4 +3903,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1,<3.12"
-content-hash = "ab0a2d4b661135c99c5769fd347f0a0e55533a6a97aa6e19ea6e4725d56a886e"
+content-hash = "7bca87e066d7ac460d673160c1916ee09394a0f294f34728d62ffaf3e86f26b2"
