@@ -39,6 +39,22 @@ jobs:
         run: |
           poetry install
 
-      - name: Run linting
+      - name: Run black
+        run: |
+          poetry run black --check btk
+
+      - name: Run isort
+        run: |
+          poetry run isort --check btk
+
+      - name: Run pydocstyle
+        run: |
+          poetry run pydocstyle btk
+
+      - name: Run flake8
         run: |
           poetry run flake8 btk
+
+      - name: Run pylint
+        run: |
+          poetry run pylint btk

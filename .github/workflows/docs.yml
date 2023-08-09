@@ -31,7 +31,6 @@ jobs:
           enable-pep582: true
           cache: true
 
-      # galsim needs this.
       - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
