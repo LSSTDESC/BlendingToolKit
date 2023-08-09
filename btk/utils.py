@@ -2,6 +2,8 @@
 from astropy.table import Table
 from astropy.wcs import WCS
 
+DEFAULT_SEED = 0
+
 
 def add_pixel_columns(catalog: Table, wcs: WCS):
     """Uses the wcs to add `x_peak` and `y_peak` (pixel centroids) columns to the catalog.

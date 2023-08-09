@@ -11,13 +11,13 @@ from astropy.wcs import WCS
 from galcheat.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
-from btk import DEFAULT_SEED
 from btk.blend_batch import BlendBatch, MultiResolutionBlendBatch
 from btk.blend_generator import BlendGenerator
 from btk.catalog import Catalog
 from btk.multiprocess import get_current_process, multiprocess
 from btk.sampling_functions import SamplingFunction
 from btk.survey import Filter, Survey, make_wcs
+from btk.utils import DEFAULT_SEED
 
 MAX_SEED_INT = 1_000_000_000
 
@@ -501,6 +501,7 @@ class CatsimGenerator(DrawBlendsGenerator):
             if self.verbose:
                 print("Source not visible")
             entry["not_drawn_" + filt.name] = 1
+            return None
 
 
 class CosmosGenerator(DrawBlendsGenerator):

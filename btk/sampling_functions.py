@@ -6,7 +6,7 @@ import astropy
 import numpy as np
 from astropy.table import Table
 
-from btk import DEFAULT_SEED
+from btk.utils import DEFAULT_SEED
 
 
 def _get_random_center_shift(
