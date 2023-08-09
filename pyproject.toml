@@ -109,7 +109,9 @@ disable = """
           too-many-instance-attributes,
           c-extension-no-member,
           unused-argument, 
-          too-few-public-methods
+          too-few-public-methods,
+          arguments-differ,
+          too-many-locals,
       """
 good-names = [
   "x",
