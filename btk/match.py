@@ -110,7 +110,10 @@ class Matcher(ABC):
         n_true = []
         n_pred = []
         for true_catalog, pred_catalog in zip(true_catalog_list, pred_catalog_list):
-            true_match, pred_match = self.match_catalogs(true_catalog, pred_catalog)
+            if len(true_catalog) == 0 or len(pred_catalog) == 0:
+                true_match, pred_match = np.array([]).astype(int), np.array([]).astype(int)
+            else:
+                true_match, pred_match = self.match_catalogs(true_catalog, pred_catalog)
             match_true.append(true_match)
             match_pred.append(pred_match)
             n_true.append(len(true_catalog))
@@ -125,10 +128,8 @@ class Matcher(ABC):
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extracts coordinate information required for matching."""
-        if "x_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'x_peak'")
-        if "y_peak" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'y_peak'")
+        if "x_peak" not in catalog.colnames or "y_peak" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'x_peak' or 'y_peak'")
         return (catalog["x_peak"], catalog["y_peak"])
 
     @abstractmethod
@@ -201,10 +202,8 @@ class SkyClosestNeighbourMatcher(Matcher):
 
     def preprocess_catalog(self, catalog: Table) -> Tuple[np.ndarray, np.ndarray]:
         """Extract ra, dec coordinates out of catalogs."""
-        if "ra" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'ra'")
-        if "dec" not in catalog.colnames:
-            raise KeyError("One of the catalogs has no column 'dec'")
+        if "ra" not in catalog.colnames or "dec" not in catalog.colnames:
+            raise KeyError("One of the catalogs has no column 'ra' or 'dec'")
         return (catalog["ra"], catalog["dec"])
 
     def match_catalogs(self, truth_catalog: Table, predicted_catalog: Table) -> np.ndarray:
