@@ -127,7 +127,7 @@ def get_residual_images(iso_images: np.ndarray, blend_images: np.ndarray) -> np.
     Args:
         iso_images: Array of shape = (B, N, H, W) corresponding to images of the isolated
             galaxies you are calculating residual images for.
-        blends: Array of shape = (B, H, W) where B is the batch size. Contains noise.
+        blend_images: Array of shape = (B, H, W) where B is the batch size. Contains noise.
     """
     except_one_images = np.sum(iso_images, axis=1)[:, None] - iso_images
     return blend_images[:, None] - except_one_images

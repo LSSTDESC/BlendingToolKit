@@ -11,7 +11,7 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     Input of `isolated_images` should be a single band.
 
     Args:
-        isolate_images: Images of isolated galaxies. Shape only be in a single band.
+        isolated_images: Images of isolated galaxies. Shape only be in a single band.
         sky_level: Background level of all images. Images are assume to not be
             background-substracted.
         sigma_noise: Sigma level at which an pixel is considered to be noise. Should match

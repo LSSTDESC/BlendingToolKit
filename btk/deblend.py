@@ -331,7 +331,7 @@ class SepMultiband(Deblender):
         Args:
             max_n_sources: See parent class.
             matching_threshold: Threshold value for match detections that are close (arcsecs).
-            sigma_noise: See `SepSingleBand` class.
+            thresh: See `SepSingleBand` class.
         """
         super().__init__(max_n_sources)
         self.matching_threshold = matching_threshold
@@ -441,7 +441,6 @@ class Scarlet(Deblender):
         Returns:
             Instance of `DeblendedExample` class.
         """
-
         import scarlet  # pylint: disable=import-outside-toplevel
 
         # if no reference catalog is provided, truth catalog is used

@@ -528,6 +528,18 @@ class CosmosGenerator(DrawBlendsGenerator):
         """Initializes the CosmosGenerator class. See parent class for most attributes.
 
         Args:
+            catalog: See parent class.
+            sampling_function: See parent class.
+            surveys: See parent class.
+            batch_size: See parent class.
+            stamp_size: See parent class.
+            njobs: See parent class.
+            verbose: See parent class.
+            add_noise: See parent class.
+            seed: See parent class.
+            use_bar: See parent class.
+            apply_shear: See parent class.
+            augment_data: See parent class.
             gal_type: string to specify the type of galaxy simulations.
                             Either "real" (default) or "parametric".
         """

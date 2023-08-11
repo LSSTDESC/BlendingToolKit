@@ -132,12 +132,12 @@ class DefaultSampling(SamplingFunction):
          Here even though the galaxies are sampled from a CatSim catalog, their spatial
          location are not representative of real blends.
 
-         Args:
-             table (Astropy.table): Table containing entries corresponding to galaxies
+        Args:
+            table (Astropy.table): Table containing entries corresponding to galaxies
                                     from which to sample.
 
-         Returns:
-             Astropy.table with entries corresponding to one blend.
+        Returns:
+            Astropy.table with entries corresponding to one blend.
         """
         if self.mag_name not in table.colnames:
             raise ValueError(f"Catalog must have '{self.mag_name}' column.")
@@ -297,6 +297,7 @@ class PairSampling(SamplingFunction):
             stamp_size: Size of the desired stamp (in arcseconds).
             max_shift: Maximum value of shift from center. If None then its set as one-tenth the
                 stamp size (in arcseconds).
+            mag_name: Name of the magnitude column in the catalog to be used.
             seed: See parent class.
             bright_cut: Magnitude cut for bright galaxy. (Default: 25.3)
             dim_cut: Magnitude cut for dim galaxy. (Default: 28.0)
