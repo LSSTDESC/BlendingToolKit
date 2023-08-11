@@ -39,6 +39,12 @@ jobs:
         run: |
           poetry install
 
+      - name: Install Scarlet
+        run: |
+          pip install "pybind11[global]" peigen
+          git clone https://github.com/pmelchior/scarlet.git
+          cd scarlet; python setup.py install; cd ..
+
       - name: Run Tests
         run: |
           poetry run pytest --cov=./btk --cov-report=xml --durations=0
