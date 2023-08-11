@@ -1,0 +1,15 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^.*fits
+        args:
+          - --markdown-linebreak-ext=md
+      - id: check-added-large-files
+        args:
+          - "--maxkb=5000"
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        exclude: ^.*fits
