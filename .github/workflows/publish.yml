@@ -24,7 +24,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
 
-      # galsim needs this.
       - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev

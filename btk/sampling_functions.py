@@ -124,16 +124,16 @@ class DefaultSampling(SamplingFunction):
         Returns an astropy table with entries corresponding to a blend centered close to postage
         stamp center.
 
-        - Number of objects per blend is set at a random integer between ``self.min_number`
-         and ``self.max_number``. The blend table is then randomly sampled entries
-         from the table after magnitude selection cuts. The centers are randomly
-         distributed within ``self.max_shift`` of the center of the postage stamp.
+        Number of objects per blend is set at a random integer between ``self.min_number``
+        and ``self.max_number``. The blend table is then randomly sampled entries
+        from the table after magnitude selection cuts. The centers are randomly
+        distributed within ``self.max_shift`` of the center of the postage stamp.
 
-         Here even though the galaxies are sampled from a CatSim catalog, their spatial
-         location are not representative of real blends.
+        Here even though the galaxies are sampled from a CatSim catalog, their spatial
+        location are not representative of real blends.
 
         Args:
-            table (Astropy.table): Table containing entries corresponding to galaxies
+            table: Table containing entries corresponding to galaxies
                                     from which to sample.
 
         Returns:
@@ -190,16 +190,16 @@ class BasicSampling(SamplingFunction):
     def __call__(self, table: Table) -> Table:
         """Samples galaxies from input catalog to make blend scene.
 
-        - Then number of galaxies in a blend are drawn from a uniform distribution of one
+        Then number of galaxies in a blend are drawn from a uniform distribution of one
         up to ``self.max_number``.
 
-        - Function always selects one bright galaxy that is less than 24 mag. The other
+        Function always selects one bright galaxy that is less than 24 mag. The other
         galaxies are selected from a sample with mag<25.3 90% of the times and the
         remaining 10% with mag<28.
 
-        - All galaxies must have semi-major axis is between 0.2 and 2 arcsec.
+        All galaxies must have semi-major axis is between 0.2 and 2 arcsec.
 
-        - The centers are randomly distributed within 1/30 * sqrt(N) of the postage
+        The centers are randomly distributed within 1/30 * sqrt(N) of the postage
         stamp size, where N is the number of objects in the blend. (keeps density constant)
 
         Args:

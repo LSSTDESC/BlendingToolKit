@@ -96,22 +96,24 @@ class CosmosCatalog(Catalog):
         Args:
             catalog_files: tuple containing the two paths to the COSMOS data.
             exclusion_level: Level of additional cuts to make on the galaxies based on the
-                quality of postage stamp definition and/or parametric fit quality [beyond the
-                minimal cuts imposed when making the catalog - see Mandelbaum et
-                al. (2012, MNRAS, 420, 1518) for details].
+                quality of postage stamp definition and/or parametric fit quality (beyond the
+                minimal cuts imposed when making the catalog - see ``Mandelbaum et
+                al. (2012, MNRAS, 420, 1518)`` for details).
                 Options:
-                - "none": No cuts.
-                - "bad_stamp": Apply cuts to eliminate galaxies that have failures in
-                    postage stamp definition.  These cuts may also eliminate a small
-                    subset of the good postage stamps as well.
-                - "bad_fits": Apply cuts to eliminate galaxies that have failures in the
-                    parametric fits.  These cuts may also eliminate a small
-                    subset of the good parametric fits as well.
-                - "marginal": Apply the above cuts, plus ones that eliminate some more
-                    marginal cases.
+
+                    - "none": No cuts.
+                    - "bad_stamp": Apply cuts to eliminate galaxies that have failures in
+                        postage stamp definition. These cuts may also eliminate a small
+                        subset of the good postage stamps as well.
+                    - "bad_fits": Apply cuts to eliminate galaxies that have failures in the
+                        parametric fits. These cuts may also eliminate a small subset of the good
+                        parametric fits as well.
+                    - "marginal": Apply the above cuts, plus ones that eliminate some more
+                        marginal cases.
+
                 Note that the _selection.fits file must be present in the same repo as the real
                 images catalog, Otherwise the "bad_stamp" and "marginal" cuts will fail
-                [default: "marginal"]
+                (default: "marginal")
         """
         galsim_catalog = galsim.COSMOSCatalog(catalog_files[0], exclusion_level=exclusion_level)
 
