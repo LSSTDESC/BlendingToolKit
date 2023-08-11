@@ -66,12 +66,7 @@ MOCK_MODULES = [
     "astropy.table",
     "astropy.io",
     "astropy.io.fits",
-    "fitsio",
     "galsim",
-    "lmfit",
-    "descwl",
-    "skimage",
-    "skimage.feature",
 ]
 
 # -- General configuration ---------------------------------------------------
@@ -90,7 +85,10 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autosummary",  # Create neat summary tables
 ]
+
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
 autodoc_default_options = {
     "members": True,
@@ -127,7 +125,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["tutorials_header.rst", "tutorials_footer.rst", "00-intro.rst"]
+exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None

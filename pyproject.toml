@@ -1,83 +1,96 @@
-[project]
+[tool.poetry]
 authors = [
-  {name = "Ismael Mendoza", email = "imendoza@umich.edu"},
-  {name = "Somwya Kamath"},
-  {name = "Thomas Sainrat"},
-  {name = "Maxime Paillasa"},
-  {name = "Alexandre Boucaud"},
-  {name = "Remy Joseph"},
-  {name = "Patricia Burchat"},
-  {name = "Cyrille Doux"},
-  {name = "Eric Aubourg"},
+  "Ismael Mendoza <imendoza@umich.edu>",
+  "Somwya Kamath",
+  "Thomas Sainrat",
+  "Maxime Paillasa",
+  "Alexandre Boucaud",
+  "Remy Joseph",
+  "Patricia Burchat",
+  "Cyrille Doux",
+  "Eric Aubourg",
 ]
 classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
-dependencies = [
-  "astropy>=5.1",
-  "galcheat>=1.0.0",
-  "galsim>=2.3.0",
-  "ipywidgets>=7.6.5",
-  "matplotlib>=3.5.1",
-  "numpy>=1.22",
-  "pandas>=1.4.2",
-  "scikit-image>=0.19.2",
-  "scipy>=1.8.1",
-  "seaborn>=0.11.2",
-  "sep>=1.2.0",
-  "tqdm>=4.64.0",
-]
 description = "Blending ToolKit"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
-license = {text = "MIT"}
+license = "MIT"
 name = "blending_toolkit"
 readme = "README.md"
-requires-python = ">=3.8.1"
 version = "1.0.0a9"
-
-[project.urls]
-"Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
-documentation = "https://lsstdesc.org/BlendingToolKit/index.html"
+packages = [{ include = "btk" }]
 repository = "https://github.com/LSSTDESC/BlendingToolKit"
+homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
 
-[tool.pdm.dev-dependencies]
-docs = ["sphinx>=3.5.4", "sphinx-rtd-theme>=0.4.3", "nbstripout>=0.5.0", "isort>=5.10.1", "jupyter-sphinx>=0.3.2", "nbconvert>=7.0.0"]
-format = ["pre-commit>=2.18.1", "pydocstyle>=5.1.1", "black>=23.1.0"]
-notebooks = ["jupyter>=1.0.0", "jupyter-contrib-nbextensions>=0.5.1"]
-test = ["pytest>=7.1.1", "pytest-cov>=3.0.0", "nbmake>=1.3.4", "flake8>=6.0.0", "flake8-absolute-import>=1.0"]
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/python-poetry/poetry/issues"
+
+[tool.poetry.dependencies]
+numpy = ">=1.22"
+astropy = ">=5.1"
+galcheat = "^1.0.0"
+matplotlib = ">=3.7.1"
+scikit-image = ">=0.20.0"
+scipy = ">=1.9.1"
+tqdm = ">=4.65.0"
+sep = ">=1.2.1"
+galsim = ">=2.4.9"
+python = "^3.8.1,<3.12"
+pre-commit = "^3.3.3"
+
+[tool.poetry.dev-dependencies]
+black = ">=23.3.0"
+flake8 = ">=6.0.0"
+isort = ">=5.12.0"
+jupyter = ">=1.0.0"
+jupyter-sphinx = ">=0.4.0"
+nbconvert = ">=7.4.0"
+nbmake = ">=1.4.1"
+nbstripout = ">=0.6.1"
+pydocstyle = ">=6.3.0"
+pylint = ">=2.11.1"
+pytest = ">=7.3.1"
+pytest-cov = ">=4.1.0"
+sphinx = ">=4.2.0"
+sphinx-rtd-theme = ">=1.2.1"
+
+[tool.poetry.group.scarlet]
+optional = true
+
+[tool.poetry.group.scarlet.dependencies]
+peigen = "^0.0.9"
+autograd = "^1.5"
+proxmin = "^0.6.12"
+pybind11 = "^2.10.3"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
 
 [tool.black]
 line-length = 100
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py38', 'py39', 'py310', 'py311']
 
 [tool.isort]
+multi_line_output = 3
 profile = "black"
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 100
+skip = ["btk/__init__.py", "btk/metrics/__init__.py"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
-filterwarnings = [
-  "ignore:the imp module is deprecated:DeprecationWarning",
-  "ignore:`np.int` is a deprecated alias:DeprecationWarning",
-  "ignore:numpy.ufunc size changed:RuntimeWarning",
-  "ignore:Creating an ndarray from ragged:numpy.VisibleDeprecationWarning",
-  "ignore:numpy.ndarray size changed, may indicate binary incompatibility. Expected 80 from C header:RuntimeWarning:",
-  "ignore:.*argument to IPyNbFile is deprecated.*:pytest.PytestRemovedIn8Warning",
-  "ignore:.*",
-]
 minversion = "6.0"
-testpaths = [
-  "tests",
-]
-
-[tool.pdm.build]
-includes = ["btk"]
-[build-system]
-build-backend = "pdm.pep517.api"
-requires = ["pdm-pep517>=1.0.0"]
+testpaths = ["tests"]
 
 [tool.pydocstyle]
 convention = "google"

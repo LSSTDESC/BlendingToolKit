@@ -1,23 +1,23 @@
 """Contains information for surveys available in BTK."""
 import os
 import random as rd
-from typing import Callable, List, Union
+from typing import Callable, List, Optional, Tuple, Union
 
-import astropy.wcs as WCS
 import galcheat
 import galsim
 import numpy as np
 from astropy.io import fits
+from astropy.wcs import WCS
 
 
 class Survey(galcheat.survey.Survey):
     """Survey object that extends Galcheat surveys to allow modification."""
 
-    def __setattr__(self, x, val):
+    def __setattr__(self, x: str, val):
         """Allow attribute modification."""
         self.__dict__[x] = val
 
-    def get_filter(self, filter_name):
+    def get_filter(self, filter_name: str) -> "Filter":
         """Same as Galcheat getter method for filter except return a view not a copy."""
         if filter_name not in self.available_filters:
             raise ValueError(
@@ -54,7 +54,7 @@ class Survey(galcheat.survey.Survey):
             galcheat_filter = galcheat_survey.get_filter(band)
             btk_filt = Filter.from_galcheat_filter(galcheat_filter)
             btk_filters[band] = btk_filt
-        btk_survey._filters = btk_filters
+        btk_survey._filters = btk_filters  # pylint: disable=attribute-defined-outside-init
 
         return btk_survey
 
@@ -62,7 +62,7 @@ class Survey(galcheat.survey.Survey):
 class Filter(galcheat.filter.Filter):
     """Survey object that extends Galcheat surveys to allow modification."""
 
-    def __setattr__(self, x, val):
+    def __setattr__(self, x: str, val):
         """Allow attribute modification."""
         self.__dict__[x] = val
 
@@ -72,20 +72,22 @@ class Filter(galcheat.filter.Filter):
         return cls(**vars(galcheat_filter))
 
 
-def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
+def get_surveys(
+    names: Union[str, List[str]], psf_func: Callable = None
+) -> Union[Survey, List[Survey]]:
     """Return specified surveys from galcheat extended to contain PSF information.
 
     This function currently returns a list of `Survey` instances if `names` is a list with more
     than one element. If `names` is a str or a singleton list then we return a single `Survey`.
 
     Args:
-        names (str or list): A single str specifying a survey from galcheat.available_surveys().
-        psf_func (function): Python function which takes in two arguments: `survey` and `filter`
+        names: A single str specifying a survey from galcheat.available_surveys().
+        psf_func: Python function which takes in two arguments: `survey` and `filter`
             that returns a PSF as a galsim object or as a callable with no arguments.
             If `None`, the default PSF for the specified survey will be used in each band.
 
     Returns:
-        btk.survey.Survey object or list of such objects.
+        BTK Survey object or list of such objects.
     """
     if isinstance(names, str):
         names = [names]
@@ -99,7 +101,7 @@ def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
-                psf = get_default_psf_with_galcheat_info(survey, filtr)
+                psf = _get_default_psf_with_galcheat_info(survey, filtr)
             else:
                 psf = psf_func(survey, filtr)
             filtr.psf = psf
@@ -110,17 +112,9 @@ def get_surveys(names: Union[str, List[str]], psf_func: Callable = None):
     return surveys
 
 
-def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
-    """Return the default PSF model as a galsim object based on galcheat survey parameters.
-
-    Args:
-        survey (Survey): BTK Survey object.
-        filtr (Filter): BTK Filter object.
-
-    Returns:
-        Galsim object corresponding to simulated PSF.
-    """
-    return get_default_psf(
+def _get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter) -> galsim.GSObject:
+    """Return the default PSF model as a galsim object based on galcheat survey parameters."""
+    return _get_default_psf(
         survey.mirror_diameter.to_value("m"),
         survey.effective_area.to_value("m2"),
         filtr.psf_fwhm.to_value("arcsec"),
@@ -129,34 +123,34 @@ def get_default_psf_with_galcheat_info(survey: Survey, filtr: Filter):
     )
 
 
-def get_default_psf(
-    mirror_diameter,
-    effective_area,
-    fwhm,
-    filt_wavelength,
-    atmospheric_model="Kolmogorov",
-):
+def _get_default_psf(
+    mirror_diameter: float,
+    effective_area: float,
+    fwhm: float,
+    filt_wavelength: float,
+    atmospheric_model: str = "Kolmogorov",
+) -> galsim.GSObject:
     """Defines a synthetic galsim PSF model.
 
     Credit: WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending)
 
     Args:
-        mirror_diameter (float): in meters [m]
-        effective_area (float): effective total light collecting area in square meters [m2]
-        filt_wavelength (string): filter wavelength in Angstroms. [Angstrom]
-        fwhm (float): fwhm of the atmospheric component in arcseconds. [arcsec]
-        atmospheric_model (string): type of atmospheric model. Current options:
-            ['Kolmogorov', 'Moffat'].
+        mirror_diameter: in meters [m]
+        effective_area: effective total light collecting area in square meters [m2]
+        filt_wavelength: filter wavelength in Angstroms. [Angstrom]
+        fwhm: fwhm of the atmospheric component in arcseconds. [arcsec]
+        atmospheric_model: type of atmospheric model. Current options:
+            ['Kolmogorov', 'Moffat', 'None'].
 
     Returns:
-        psf_model: galsim psf model
+        Galsim PSF model.
     """
     # define atmospheric psf
     if atmospheric_model == "Kolmogorov":
         atmospheric_psf_model = galsim.Kolmogorov(fwhm=fwhm)
     elif atmospheric_model == "Moffat":
         atmospheric_psf_model = galsim.Moffat(2, fwhm=fwhm)
-    elif atmospheric_model is None:
+    elif atmospheric_model == "None":
         atmospheric_psf_model = None
     else:
         raise NotImplementedError(
@@ -189,18 +183,18 @@ def get_default_psf(
     elif atmospheric_psf_model is None and optical_psf_model is None:
         raise RuntimeError("Neither the atmospheric nor the optical PSF components are defined.")
 
-    return psf_model.withFlux(1.0)
+    return psf_model.withFlux(1.0)  # pylint: disable=no-value-for-parameter
 
 
-def get_psf_from_file(psf_dir, survey):
+def get_psf_from_file(psf_dir: str, survey: Survey) -> galsim.InterpolatedImage:
     """Generates a custom PSF galsim model from FITS file(s).
 
     Args:
-        psf_dir (string): directory where the PSF FITS files are
-        survey (btk Survey): BTK Survey object
+        psf_dir: directory where the PSF FITS files are
+        survey: BTK Survey object
 
     Returns:
-        galsim PSF model
+        galsim.InterpolatedImage: PSF model
     """
     psf_files = os.listdir(psf_dir)
     if len(psf_files) > 1:
@@ -217,20 +211,26 @@ def get_psf_from_file(psf_dir, survey):
     return psf_model
 
 
-def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="TAN"):
+def make_wcs(
+    pixel_scale: float,
+    shape: Tuple[int, int],
+    projection: str = "TAN",
+    center_pix: Optional[Tuple[int, int]] = None,
+    center_sky: Optional[Tuple[int, int]] = None,
+) -> WCS:
     """Creates WCS for an image.
 
     The default (`center_pix=None` AND `center_sky=None`) is that the center of the image in
     pixels [(s + 1) / 2, (s + 1) / 2] corresponds to (ra, dec) = [0, 0].
 
     Args:
-        pixel_scale (float): pixel size in arcseconds
-        shape (tuple): shape of the image in pixels.
-        center_pix (tuple): tuple representing the center of the image in pixels
-        center_sky (tuple): tuple representing the center of the image in sky coordinates
-                     (RA,DEC) in arcseconds.
-        projection(str): projection type, default to TAN. A list of available
-                            types can be found in astropy.wcs documentation
+        pixel_scale: pixel size in arcseconds
+        shape: shape of the image in pixels.
+        projection: projection type, default to TAN. A list of available
+                        types can be found in astropy.wcs documentation
+        center_pix: tuple representing the center of the image in pixels
+        center_sky: tuple representing the center of the image in sky coordinates
+                        (RA,DEC) in arcseconds.
 
     Returns:
         astropy WCS
@@ -239,7 +239,7 @@ def make_wcs(pixel_scale, shape, center_pix=None, center_sky=None, projection="T
         center_pix = [(s + 1) / 2 for s in shape]
     if center_sky is None:
         center_sky = [0 for _ in range(2)]
-    w = WCS.WCS(naxis=2)
+    w = WCS(naxis=2)
     w.wcs.ctype = ["RA---" + projection, "DEC--" + projection]
     w.wcs.crpix = center_pix
     w.wcs.pc = np.diag([pixel_scale / 3600, pixel_scale / 3600])

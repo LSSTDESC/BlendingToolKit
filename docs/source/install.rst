@@ -1,22 +1,20 @@
 Installation
 ===============
 
-*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python 3.7``.
+*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python 3.9``.
 The required packages for ``btk`` are:
 
 * astropy
-* fitsio
 * galsim
-* hydra
+* galcheat
 * matplotlib
 * numpy
-* pandas
 * scikit-image
 * scipy
-* seaborn
 * sep
+* tqdm
 
-and their specific versions are listed in the ``requirements.txt`` file, found `here <https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt>`_.
+and their specific versions are listed in the `pyproject.toml <https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml>`_ under the ``[tool.poetry.dependencies]`` section.
 
 Install GalSim
 -------------------------------
@@ -50,4 +48,8 @@ This should install all other missing dependencies if necessary. You can then im
 
 Scarlet
 ------------------------------
-The Scarlet deblender can be used in BTK via the measure function found in this `notebook <https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb>`_. It requires the ``scarlet`` package to be installed. The installation instructions can be found `here <https://pmelchior.github.io/scarlet/install.html>`_. This notebook was tested with the version of scarlet corresponding to the tag `btkv1 <https://github.com/pmelchior/scarlet/releases/tag/btk-v1>`_ found in the scarlet repo.
+BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you
+can easily run the scarlet deblender on BTK blends.
+
+First you need to install scarlet, this is not by default installed with BTK as scarlet
+is not in pypi. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.

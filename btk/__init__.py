@@ -10,17 +10,8 @@ __author__ = "btk developers"
 __email__ = "imendoza@umich.edu"
 __version__ = metadata.version("blending_toolkit")
 
-DEFAULT_SEED = 0
-
-from . import (
-    catalog,
-    create_blend_generator,
-    draw_blends,
-    measure,
-    metrics,
-    multiprocess,
-    plot_utils,
-    sampling_functions,
-    survey,
-    utils,
-)
+from . import catalog, sampling_functions, survey, multiprocess, match, measure, utils
+from . import blend_generator, blend_batch
+from . import draw_blends
+from . import deblend
+from . import metrics
