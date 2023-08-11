@@ -74,7 +74,7 @@ class Matching:
                 n_sources = len(self.true_matches[ii])
                 new_arr[ii, :n_sources] = arr[ii][self.true_matches[ii]]
             new_arrs.append(new_arr)
-        return tuple(new_arrs)
+        return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
 
     def match_pred_catalogs(self, catalog_list: Table) -> List[Table]:
         """Returns a list of matched pred catalogs."""
@@ -93,7 +93,7 @@ class Matching:
                 n_sources = len(self.pred_matches[ii])
                 new_arr[ii, :n_sources] = arr[ii][self.pred_matches[ii]]
             new_arrs.append(new_arr)
-        return tuple(new_arrs)
+        return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
 
 
 class Matcher(ABC):
