@@ -89,15 +89,6 @@ skip = ["btk/__init__.py", "btk/metrics/__init__.py"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
-filterwarnings = [
-  "ignore:the imp module is deprecated:DeprecationWarning",
-  "ignore:`np.int` is a deprecated alias:DeprecationWarning",
-  "ignore:numpy.ufunc size changed:RuntimeWarning",
-  "ignore:Creating an ndarray from ragged:numpy.VisibleDeprecationWarning",
-  "ignore:numpy.ndarray size changed, may indicate binary incompatibility. Expected 80 from C header:RuntimeWarning:",
-  "ignore:.*argument to IPyNbFile is deprecated.*:pytest.PytestRemovedIn8Warning",
-  "ignore:.*",
-]
 minversion = "6.0"
 testpaths = ["tests"]
 
