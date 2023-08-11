@@ -2,39 +2,35 @@
 
 ## Setup environment
 
-1. We use [pdm](https://pdm.fming.dev/latest/) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org).
+1. We use [poetry](https://python-poetry.org/docs/) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org).
 
-2. It is recommended to create a `pdm` virtual environment from scratch and use it to install all required dependencies. Please follow the following series of steps:
+2. For development, it is recommended to create a `poetry` virtual environment from scratch and use it to install all required dependencies. Please follow the following series of steps:
 
 ```bash
 # enter to the local repo
 cd BlendingToolKit
 
-# install pdm in mac os
-brew install pdm
+# install poetry
+curl -sSL https://install.python-poetry.org | python3 -
 
 # install all python dependencies from pyproject.toml file
 # and create lock file
-pdm update
+poetry update
 
 # activate pdm environment
-eval $(pdm venv activate in-project)
+poetry shell
 
 # install the git hook scripts
 pre-commit install
 ```
 
-Remember that `galsim` has additional dependencies that you might need to install. Please follow the instructions [here](https://galsim-developers.github.io/GalSim/_build/html/install.html).
+Remember that `galsim` has additional dependencies that you might need to install prior to running `poetry update`. Please follow the instructions [here](https://galsim-developers.github.io/GalSim/_build/html/install.html).
+
+One workaround in case of problems is to setup a `conda` environment, install `galsim`, install `poetry` with `conda`, and then run `poetry update`.
 
 ## Updating packages
 
-1. If any of the dependencies requires an update, you can simply run `pdm update` inside your local repo to automatically update and install them. Feel free to push the changes of the `pyproject.toml` or `pdm.lock` file to the PR you are working on.
-
-2. You might also want to update the `requirements.txt` anytime you edit the `pyproject.toml` file.
-
-```bash
-pdm export -f requirements --without-hashes --pyproject --prod > requirements.txt
-```
+If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `poetry.lock` file to the PR you are working on.
 
 ## Making new Releases
 
