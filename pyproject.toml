@@ -66,6 +66,7 @@ optional = true
 peigen = "^0.0.9"
 autograd = "^1.5"
 proxmin = "^0.6.12"
+pybind11 = "^2.10.3"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
