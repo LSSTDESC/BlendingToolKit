@@ -19,7 +19,7 @@ disable=
 	# when overriding methods you don't get to pick your arguments
 	unused-argument,
 
-    # sep raises this 
+    # sep raises this
     c-extension-no-member,
 
 
