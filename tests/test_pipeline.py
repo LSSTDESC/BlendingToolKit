@@ -155,3 +155,9 @@ def test_sep(data_dir):
 
     assert recall(detected, matched) > 0.95
     assert precision(detected, matched) > 0.95
+
+
+def test_scarlet():
+    import scarlet
+
+    _ = scarlet.GaussianPSF(sigma=(0.6,) * 6)

@@ -41,9 +41,8 @@ jobs:
 
       - name: Install Scarlet
         run: |
-          pip install "pybind11[global]" peigen
-          git clone https://github.com/pmelchior/scarlet.git
-          cd scarlet; python setup.py install; cd ..
+          poetry run pip install "pybind11[global]" peigen
+          poetry run pip install git+https://github.com/pmelchior/scarlet.git
 
       - name: Run black
         run: |
