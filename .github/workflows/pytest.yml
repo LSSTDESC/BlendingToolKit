@@ -41,9 +41,7 @@ jobs:
 
       - name: Install Scarlet
         run: |
-          pip install "pybind11[global]" peigen
-          pip install --upgrade pybind11
-          pip install git+https://github.com/pmelchior/scarlet.git
+          pip install "pybind11[global]" peigen git+https://github.com/pmelchior/scarlet.git
 
       - name: Run Tests
         run: |
