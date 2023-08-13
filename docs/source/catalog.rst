@@ -8,7 +8,7 @@ CatSim
 -------
 The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim `page <https://www.lsst.org/scientists/simulations/catsim>`_ for more details.
 
-BTK includes a sample input catalog that contains parameters of approximately ``85k`` galaxies. A more extensive catalog can be downloaded from `this page <https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk>`_.
+BTK includes a sample input catalog that contains parameters of approximately ``85k`` galaxies. A more extensive catalog can be downloaded from link: `<https://www.cosmo.bnl.gov/www/esheldon/data/catsim.tar.gz>`_.
 
 A valid catsim catalog should at least contain the following columns:
 
@@ -47,7 +47,9 @@ More information about the COSMOS catalog
 
 To better understand how to provided custom COSMOS data to BTK, let's review in more detail the COSMOS dataset and its implementation in BTK.
 
-The BTK ``CosmosCatalog`` is instantiated from two COSMOS catalog files. The first one contains all the necessary information to draw a real galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details. You can refer to the `COSMOS_23.5_training_sample_readme.txt` and `COSMOS_25.2_training_sample_readme.txt` README files coming with the COSMOS data set `download <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
+The BTK ``CosmosCatalog`` is instantiated from two COSMOS catalog files. The first one contains all the necessary information to draw a real galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the galsim `documentation <https://galsim-developers.github.io/GalSim/_build/html/real_gal.html>`_ for more details.
+
+You can also refer to the `COSMOS_23.5_training_sample_readme.txt` and `COSMOS_25.2_training_sample_readme.txt` README files coming with the COSMOS data set `here <https://zenodo.org/record/3242143>`_ to check the column details of each catalog.
 
 In BTK, both the 'parametric' and 'real' mode to draw galaxies can be used. When drawing 'real' galaxies, most of the information of the second catalog is not necessary, but the file must be provided to instantiate the ``CosmosCatalog`` and ``galsim.COSMOSCatalog`` objects. In practice, BTK uses the ``flux_radius`` column to compute an estimate of the size of each source used for performance evaluation measures, so the second catalog should contain at least this column.
 
