@@ -4,21 +4,22 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Catalog &mdash; btk 1.0.0a9 documentation</title>
+  <title>Galaxy Catalogs &mdash; btk 1.0.0b1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="User Guide" href="user_guide.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
 </head>
 
@@ -46,12 +47,15 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Input Catalog</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Galaxy Catalogs</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#catsim">CatSim</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cosmos">COSMOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cosmos">COSMOS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-different-magnitudes-for-each-band">Using different magnitudes for each band</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#more-information-about-the-cosmos-catalog">More information about the COSMOS catalog</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 <ul>
@@ -72,7 +76,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Input Catalog</li>
+      <li class="breadcrumb-item active">Galaxy Catalogs</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/catalog.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -82,13 +86,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="input-catalog">
-<h1>Input Catalog<a class="headerlink" href="#input-catalog" title="Permalink to this heading"></a></h1>
-<p><em>BlendingToolKit</em> (btk) requires an input catalog that contains information required to simulate galaxies and blends.</p>
+  <section id="galaxy-catalogs">
+<h1>Galaxy Catalogs<a class="headerlink" href="#galaxy-catalogs" title="Permalink to this heading"></a></h1>
+<p><em>BlendingToolKit</em> (btk) requires an galaxy catalog that contains information required to simulate galaxies and blends.</p>
 <section id="catsim">
 <h2>CatSim<a class="headerlink" href="#catsim" title="Permalink to this heading"></a></h2>
 <p>The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim <a class="reference external" href="https://www.lsst.org/scientists/simulations/catsim">page</a> for more details.</p>
-<p>BTK includes a sample input catalog that contains parameters of 100 galaxies. A more extensive catalog can be downloaded from <a class="reference external" href="https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk">this page</a>.</p>
+<p>BTK includes a sample input catalog that contains parameters of approximately <code class="docutils literal notranslate"><span class="pre">85k</span></code> galaxies. A more extensive catalog can be downloaded from <a class="reference external" href="https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk">this page</a>.</p>
 <p>A valid catsim catalog should at least contain the following columns:</p>
 <ul class="simple">
 <li><p><cite>ra</cite>: Right Ascension (degrees)</p></li>
@@ -104,12 +108,31 @@
 <li><p><cite>pa_disk</cite> : Disk position angle (degrees)</p></li>
 <li><p><cite>pa_bulge</cite> : Bulge position angle (degrees), should be equivalent to <cite>pa_disk</cite>.</p></li>
 </ul>
-<p>Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in galcheat we require <cite>i_ab</cite>, <cite>r_ab</cite>, <cite>u_ab</cite>, <cite>y_ab</cite>, <cite>z_ab</cite>, and <cite>g_ab</cite> as found <a class="reference external" href="https://github.com/aboucaud/galcheat/blob/main/galcheat/data/LSST.yaml">here</a>. Please see the <a class="reference external" href="tutorials.html">tutorial</a> and <a class="reference external" href="user_guide.html">user guide</a> for more information about surveys.</p>
+<p>Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in galcheat we require <cite>i_ab</cite>, <cite>r_ab</cite>, <cite>u_ab</cite>, <cite>y_ab</cite>, <cite>z_ab</cite>, and <cite>g_ab</cite> as found <a class="reference external" href="https://github.com/aboucaud/galcheat/blob/main/galcheat/data/LSST.yaml">here</a>.</p>
 </section>
 <section id="cosmos">
 <h2>COSMOS<a class="headerlink" href="#cosmos" title="Permalink to this heading"></a></h2>
 <p>The Cosmic Evolution Survey (COSMOS) is an astronomical survey based on multiple telescopes which provides a large number of multi-wavelength galaxy images, both as real images and parametric models. Refer to the <a class="reference external" href="https://github.com/GalSim-developers/GalSim/wiki/RealGalaxy%20Data">GalSim page for COSMOS</a> for more details on how to get COSMOS data and to the <a class="reference external" href="https://cosmos.astro.caltech.edu/">official COSMOS website</a> for more information on the COSMOS catalog in general.</p>
-<p>BTK includes an implementation of COSMOS real galaxy rendering, providing the possibility to get more realistic blends.</p>
+<p>BTK includes an implementation of COSMOS real galaxy rendering. This enables the possibility
+to have use galaxies with more realistic morphology in the simulated blends.</p>
+<section id="using-different-magnitudes-for-each-band">
+<h3>Using different magnitudes for each band<a class="headerlink" href="#using-different-magnitudes-for-each-band" title="Permalink to this heading"></a></h3>
+<p>BTK offers the possibility to retrieve different magnitudes for each band. In order to use this feature, the corresponding magnitudes can be specified in any of the two provided COSMOS catalogs using the following column name format: <code class="docutils literal notranslate"><span class="pre">&quot;sn_fn&quot;</span></code>, where <code class="docutils literal notranslate"><span class="pre">sn</span></code> and <code class="docutils literal notranslate"><span class="pre">fn</span></code> are the Survey and Filter names, respectively, as written in the <code class="docutils literal notranslate"><span class="pre">Survey</span></code> and <code class="docutils literal notranslate"><span class="pre">Filter</span></code> classes.
+BTK will automatically look for those columns and use the information when available to compute galaxy fluxes.</p>
+</section>
+<section id="more-information-about-the-cosmos-catalog">
+<h3>More information about the COSMOS catalog<a class="headerlink" href="#more-information-about-the-cosmos-catalog" title="Permalink to this heading"></a></h3>
+<p>To better understand how to provided custom COSMOS data to BTK, let’s review in more detail the COSMOS dataset and its implementation in BTK.</p>
+<p>The BTK <code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code> is instantiated from two COSMOS catalog files. The first one contains all the necessary information to draw a real galaxy (such as the paths to the galaxy and PSF stamps or the noise characteristics). The second one contains information about parameters fits to the galaxies (such as sersic parameters or bulge-to-disk ratios). You can refer to the galsim <a class="reference external" href="https://galsim-developers.github.io/GalSim/_build/html/real_gal.html">documentation</a> for more details. You can refer to the <cite>COSMOS_23.5_training_sample_readme.txt</cite> and <cite>COSMOS_25.2_training_sample_readme.txt</cite> README files coming with the COSMOS data set <a class="reference external" href="https://zenodo.org/record/3242143">download</a> to check the column details of each catalog.</p>
+<p>In BTK, both the ‘parametric’ and ‘real’ mode to draw galaxies can be used. When drawing ‘real’ galaxies, most of the information of the second catalog is not necessary, but the file must be provided to instantiate the <code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code> and <code class="docutils literal notranslate"><span class="pre">galsim.COSMOSCatalog</span></code> objects. In practice, BTK uses the <code class="docutils literal notranslate"><span class="pre">flux_radius</span></code> column to compute an estimate of the size of each source used for performance evaluation measures, so the second catalog should contain at least this column.</p>
+<p>Custom COSMOS catalogs to draw ‘real’ galaxies should thus satisfy the following conditions:</p>
+<ol class="arabic simple">
+<li><p>The second catalog should contain at least the <code class="docutils literal notranslate"><span class="pre">flux_radius</span></code> column,</p></li>
+<li><p>The first catalog should contain the same columns than the official COSMOS data release</p></li>
+<li><p>The galaxy and PSF stamps should be provided and accessible.</p></li>
+<li><p>(optional) One of the two catalogs can contain multiband magnitudes using the format described <a class="reference internal" href="#using-different-magnitudes-for-each-band"><span class="std std-ref">above</span></a>.</p></li>
+</ol>
+</section>
 </section>
 </section>
 
@@ -118,7 +141,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="user_guide.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

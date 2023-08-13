@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>btk.deblend module &mdash; btk 1.0.0b1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="btk.metrics module" href="btk.metrics.html" />
+    <link rel="prev" title="btk.draw_blends module" href="btk.draw_blends.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            btk
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../catalog.html">Galaxy Catalogs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="btk.html">BlendingToolKit API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="btk.html#module-btk">Module contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="btk.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="btk.catalog.html">btk.catalog module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.sampling_functions.html">btk.sampling_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.survey.html">btk.survey module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.blend_generator.html">btk.blend_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="btk.draw_blends.html">btk.draw_blends module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">btk.deblend module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.DeblendGenerator"><code class="docutils literal notranslate"><span class="pre">DeblendGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.Deblender"><code class="docutils literal notranslate"><span class="pre">Deblender</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.MultiResolutionDeblender"><code class="docutils literal notranslate"><span class="pre">MultiResolutionDeblender</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.PeakLocalMax"><code class="docutils literal notranslate"><span class="pre">PeakLocalMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.Scarlet"><code class="docutils literal notranslate"><span class="pre">Scarlet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.SepMultiband"><code class="docutils literal notranslate"><span class="pre">SepMultiband</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.deblend.SepSingleBand"><code class="docutils literal notranslate"><span class="pre">SepSingleBand</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="btk.metrics.html">btk.metrics module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">btk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="btk.html">BlendingToolKit API</a></li>
+      <li class="breadcrumb-item active">btk.deblend module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/btk.deblend.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="btk-deblend-module">
+<h1>btk.deblend module<a class="headerlink" href="#btk-deblend-module" title="Permalink to this heading"></a></h1>
+<p>This method implements deblending algorithms to be used within the BTK framework.</p>
+<p>Additional deblending algorithms can be implemented following the same structure as the ones already implemented. Feel free to contact the BTK team if you need help or if you would
+like to add your deblender to the main BTK repository.</p>
+<span class="target" id="module-btk.deblend"></span><p>Contains the Deblender classes and its subclasses.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.DeblendGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">DeblendGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deblenders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><span class="pre">DrawBlendsGenerator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.DeblendGenerator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Run one or more deblenders on the batches from the given draw_blend_generator.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.DeblendGenerator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deblenders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><span class="pre">DrawBlendsGenerator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.DeblendGenerator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize measurement generator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deblenders</strong> – Deblender or a list of Deblender that will be used on the
+outputs of the draw_blend_generator.</p></li>
+<li><p><strong>draw_blend_generator</strong> – Instance of subclasses of <cite>DrawBlendsGenerator</cite>.</p></li>
+<li><p><strong>njobs</strong> – The number of parallel processes to run [Default: 1].</p></li>
+<li><p><strong>verbose</strong> – Whether to print information about measurement.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.Deblender">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">Deblender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.Deblender" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class containing the measure class for BTK.</p>
+<p>Each new measure class should be a subclass of Measure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Deblender.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendBatch</span></span></span><a class="headerlink" href="#btk.deblend.Deblender.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Calls the (user-implemented) <cite>deblend</cite> method along with validation of the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
+<li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedExample</cite> class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Deblender.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.Deblender.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the Deblender class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_n_sources</strong> – Maximum number of sources returned by the deblender.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Deblender.batch_call">
+<span class="sig-name descname"><span class="pre">batch_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendBatch</span></span></span><a class="headerlink" href="#btk.deblend.Deblender.batch_call" title="Permalink to this definition"></a></dt>
+<dd><p>Implements the call of a measure function on the entire batch.</p>
+<p>Overwrite this function if you perform measurments on the batch.
+The default fucntionality is to use multiprocessing to speed up
+the iteration over all examples in the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class</p></li>
+<li><p><strong>njobs</strong> – Number of njobs to paralelize across</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedBatch</cite> class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Deblender.deblend">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.Deblender.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Runs the deblender on the ii-th example of a given batch.</p>
+<p>This method should be overwritten by the user if a new deblender is implemented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
+<li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedExample</cite> class</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.MultiResolutionDeblender">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">MultiResolutionDeblender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.MultiResolutionDeblender" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for deblenders using multiresolution images.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.MultiResolutionDeblender.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mr_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiResolutionBlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendBatch</span></span></span><a class="headerlink" href="#btk.deblend.MultiResolutionDeblender.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Calls the (user-implemented) deblend method along with validation of the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
+<li><p><strong>mr_batch</strong> – Instance of <cite>MultiResolutionBlendBatch</cite> class</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedExample</cite> class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.MultiResolutionDeblender.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.MultiResolutionDeblender.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the multiresolution deblender.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.MultiResolutionDeblender.batch_call">
+<span class="sig-name descname"><span class="pre">batch_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mr_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiResolutionBlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendBatch</span></span></span><a class="headerlink" href="#btk.deblend.MultiResolutionDeblender.batch_call" title="Permalink to this definition"></a></dt>
+<dd><p>Implements the call of a measure function on the entire batch.</p>
+<p>Overwrite this function if you perform measurments on a batch.
+The default fucntionality is to use multiprocessing to speed up
+the iteration over all examples in the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mr_batch</strong> – Instance of <cite>MultiResolutionBlendBatch</cite> class</p></li>
+<li><p><strong>njobs</strong> – Number of njobs to paralelize across</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedBatch</cite> class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.MultiResolutionDeblender.deblend">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mr_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiResolutionBlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.MultiResolutionDeblender.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Runs the MR deblender on the ii-th example of a given batch.</p>
+<p>This method should be overwritten by the user if a new deblender is implemented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
+<li><p><strong>mr_batch</strong> – Instance of <cite>MultiResolutionBlendBatch</cite> class</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedExample</cite> class</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.PeakLocalMax">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">PeakLocalMax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.PeakLocalMax" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a></p>
+<p>This class detects centroids with <cite>skimage.feature.peak_local_max</cite>.</p>
+<p>The function performs detection and deblending of the sources based on the provided
+band index. If use_mean feature is used, then the measurement function is using
+the average of all the bands.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.PeakLocalMax.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.PeakLocalMax.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes measurement class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_n_sources</strong> – See parent class.</p></li>
+<li><p><strong>threshold_scale</strong> – Minimum intensity of peaks.</p></li>
+<li><p><strong>min_distance</strong> – Minimum distance in pixels between two peaks.</p></li>
+<li><p><strong>use_mean</strong> – Flag to use the band average for the measurement.</p></li>
+<li><p><strong>use_band</strong> – Integer index of the band to use for the measurement.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.PeakLocalMax.deblend">
+<span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.PeakLocalMax.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Performs measurement on the ii-th example from the batch.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.Scarlet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">Scarlet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_rel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_snr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.Scarlet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a></p>
+<p>Implementation of the scarlet deblender.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Scarlet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_rel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_snr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.Scarlet.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the Scarlet deblender class.</p>
+<p>This class uses the scarlet deblender to deblend the images. We follow the basic
+implementation that is layed out in the Scarlet documentation:
+<a class="reference external" href="https://pmelchior.github.io/scarlet/0-quickstart.html">https://pmelchior.github.io/scarlet/0-quickstart.html</a>. For more details on each
+of the argument also see the Scarlet API at:
+<a class="reference external" href="https://pmelchior.github.io/scarlet/api/scarlet.initialization.html">https://pmelchior.github.io/scarlet/api/scarlet.initialization.html</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_n_sources</strong> – See parent class.</p></li>
+<li><p><strong>thresh</strong> – Multiple of the backround RMS used as a flux cutoff for morphology
+initialization for <cite>scarlet.source.ExtendedSource</cite> class. (Default: 1.0)</p></li>
+<li><p><strong>e_rel</strong> – Relative error for convergence of the loss function
+See <cite>scarlet.blend.Blend.fit</cite> method for details. (Default: 1e-5)</p></li>
+<li><p><strong>max_iter</strong> – Maximum number of iterations for the optimization (Default: 200)</p></li>
+<li><p><strong>min_snr</strong> – Mininmum SNR per component to accept the source. (Default: 50)</p></li>
+<li><p><strong>max_components</strong> – Maximum number of components in a source. (Default: 2)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.Scarlet.deblend">
+<span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_catalogs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.Scarlet.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Performs measurement on the ii-th example from the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
+<li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class.</p></li>
+<li><p><strong>reference_catalog</strong> – Reference catalog to use for deblending. If None, the
+truth catalog is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of <cite>DeblendedExample</cite> class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.SepMultiband">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">SepMultiband</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.SepMultiband" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a></p>
+<p>This class returns centers detected with SEP by combining predictions in different bands.</p>
+<p>For each band in the input image we run <cite>sep</cite> for detection and append new detections
+to a running list of detected coordinates. In order to avoid repeating detections,
+we run a KD-Tree algorithm to calculate the angular distance between each new
+coordinate and its closest neighbour. Then we discard those new coordinates that
+were closer than <cite>matching_threshold</cite> to any one of already detected coordinates.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.SepMultiband.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.SepMultiband.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the SepMultiband measurement function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_n_sources</strong> – See parent class.</p></li>
+<li><p><strong>matching_threshold</strong> – Threshold value for match detections that are close (arcsecs).</p></li>
+<li><p><strong>thresh</strong> – See <cite>SepSingleBand</cite> class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.SepMultiband.deblend">
+<span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.SepMultiband.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Performs measurement on the ii-th example from the batch.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.deblend.SepSingleBand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.deblend.</span></span><span class="sig-name descname"><span class="pre">SepSingleBand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.SepSingleBand" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a></p>
+<p>Return detection, segmentation and deblending information running SEP on a single band.</p>
+<p>The function performs detection and deblending of the sources based on the provided
+band index. If <cite>use_mean</cite> feature is used, then we use the average of all the bands.</p>
+<p>For more details on SEP (Source-Extractor Python), see:
+<a class="reference external" href="https://sep.readthedocs.io/en/v1.1.x/index">https://sep.readthedocs.io/en/v1.1.x/index</a>.html#</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.SepSingleBand.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.SepSingleBand.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes measurement class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_n_sources</strong> – See parent class.</p></li>
+<li><p><strong>thresh</strong> – Threshold pixel value for detection use in <cite>sep.extract</cite>. This is
+interpreted as a relative threshold: the absolute threshold at pixel (j, i)
+will be <cite>thresh * err[j, i]</cite> where <cite>err</cite> is set to the global rms of
+the background measured by SEP.</p></li>
+<li><p><strong>use_mean</strong> – Flag to use the band average for the measurement</p></li>
+<li><p><strong>use_band</strong> – Integer index of the band to use for the measurement</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.deblend.SepSingleBand.deblend">
+<span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.SepSingleBand.deblend" title="Permalink to this definition"></a></dt>
+<dd><p>Performs measurement on the i-th example from the batch.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="btk.draw_blends.html" class="btn btn-neutral float-left" title="btk.draw_blends module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="btk.metrics.html" class="btn btn-neutral float-right" title="btk.metrics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, btk developers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

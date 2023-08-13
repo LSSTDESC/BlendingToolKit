@@ -4,21 +4,22 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; btk 1.0.0a9 documentation</title>
+  <title>Installation &mdash; btk 1.0.0b1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Input Catalog" href="catalog.html" />
+    <link rel="next" title="Galaxy Catalogs" href="catalog.html" />
     <link rel="prev" title="BlendingToolKit" href="index.html" /> 
 </head>
 
@@ -51,8 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#scarlet">Scarlet</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="catalog.html">Galaxy Catalogs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 <ul>
@@ -85,22 +85,20 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.7</span></code>.
+<p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.9</span></code>.
 The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
 <ul class="simple">
 <li><p>astropy</p></li>
-<li><p>fitsio</p></li>
 <li><p>galsim</p></li>
-<li><p>hydra</p></li>
+<li><p>galcheat</p></li>
 <li><p>matplotlib</p></li>
 <li><p>numpy</p></li>
-<li><p>pandas</p></li>
 <li><p>scikit-image</p></li>
 <li><p>scipy</p></li>
-<li><p>seaborn</p></li>
 <li><p>sep</p></li>
+<li><p>tqdm</p></li>
 </ul>
-<p>and their specific versions are listed in the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file, found <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/requirements.txt">here</a>.</p>
+<p>and their specific versions are listed in the <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml">pyproject.toml</a> under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> section.</p>
 <section id="install-galsim">
 <h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this heading"></a></h2>
 <p>GalSim is a python module that has much of its implementation in C++ for
@@ -126,7 +124,10 @@ for more details.</p>
 </section>
 <section id="scarlet">
 <h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this heading"></a></h2>
-<p>The Scarlet deblender can be used in BTK via the measure function found in this <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/notebooks/01b-scarlet-measure.ipynb">notebook</a>. It requires the <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> package to be installed. The installation instructions can be found <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">here</a>. This notebook was tested with the version of scarlet corresponding to the tag <a class="reference external" href="https://github.com/pmelchior/scarlet/releases/tag/btk-v1">btkv1</a> found in the scarlet repo.</p>
+<p>BTK includes the Scarlet deblender as one of its <code class="docutils literal notranslate"><span class="pre">Deblender</span></code> classes. This means that you
+can easily run the scarlet deblender on BTK blends.</p>
+<p>First you need to install scarlet, this is not by default installed with BTK as scarlet
+is not in pypi. You can install scarlet by following the instructions here: <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">https://pmelchior.github.io/scarlet/install.html</a>.</p>
 </section>
 </section>
 
@@ -135,7 +136,7 @@ for more details.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="BlendingToolKit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="catalog.html" class="btn btn-neutral float-right" title="Input Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="catalog.html" class="btn btn-neutral float-right" title="Galaxy Catalogs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

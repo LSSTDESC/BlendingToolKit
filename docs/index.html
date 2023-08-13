@@ -4,14 +4,15 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BlendingToolKit &mdash; btk 1.0.0a9 documentation</title>
+  <title>BlendingToolKit &mdash; btk 1.0.0b1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -45,8 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="catalog.html">Galaxy Catalogs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 <ul>
@@ -80,16 +80,15 @@
   <a class="reference internal image-reference" href="_images/btk.png"><img alt="_images/btk.png" class="align-center" src="_images/btk.png" style="width: 92.7px; height: 106.5px;" /></a>
 <section id="blendingtoolkit">
 <h1><em>BlendingToolKit</em><a class="headerlink" href="#blendingtoolkit" title="Permalink to this heading"></a></h1>
-<p><em>BlendingToolKit</em> (BTK) is a framework to generate images of blended objects and evaluate performance metrics for different detection, deblending and measurement algorithms.</p>
-<p>Detecting and separating overlapping sources, or “deblending”, is primarily a research problem with several potential algorithmic solutions, including machine learning approaches. Computation of performance metrics on identical datasets will enable comparison between different algorithms. The goals of the btk framework are to allow the user to easily and quickly generate datasets of blended objects for testing different detection, deblending and measurement algorithms, as well as training samples for machine learning algorithms.</p>
+<p><em>BlendingToolKit</em> (BTK) is a framework to generate images of blended objects and evaluate performance metrics on various detection, deblending and measurement algorithms.</p>
+<p>Detecting and separating overlapping sources, or “deblending”, is primarily a research problem with several potential algorithmic solutions, including machine learning approaches. Computation of performance metrics on identical datasets will enable comparison between different algorithms. The goals of the BTK framework are to allow the user to easily and quickly generate datasets of blended objects for testing different detection, deblending and measurement algorithms, as well as training samples for machine learning algorithms.</p>
 </section>
 <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="catalog.html">Galaxy Catalogs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 </div>
@@ -99,7 +98,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src/btk.html">BlendingToolKit API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/btk.html#module-btk">Module contents</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src/btk.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/btk.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.catalog.html">btk.catalog module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.sampling_functions.html">btk.sampling_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.survey.html">btk.survey module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.blend_generator.html">btk.blend_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.draw_blends.html">btk.draw_blends module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.deblend.html">btk.deblend module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src/btk.metrics.html">btk.metrics module</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
