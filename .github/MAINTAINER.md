@@ -54,6 +54,7 @@ git checkout -b release/$RELEASE origin/dev
 
 # 5. Bump version in release branch
 # edit pyproject.toml file to update the version
+poetry version $RELEASE
 git add pyproject.toml
 git commit -m "Bump version"
 
