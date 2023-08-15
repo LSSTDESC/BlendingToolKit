@@ -304,6 +304,7 @@ class SepSingleBand(Deblender):
         # wrap results in astropy table
         cat = Table()
         cat["ra"], cat["dec"] = ra, dec
+        cat["x_peak"], cat["y_peak"] = catalog["x"], catalog["y"]
 
         return DeblendExample(
             self.max_n_sources,
