@@ -62,7 +62,7 @@ deblender = SepSingleBand(max_n_sources=5,
                           use_band=2 # measure on 'r' band
                           )
 
-# run deblender on generated blends
+# run deblender on generated blend images (all batches)
 deblend_batch = deblender(blend_batch)
 
 # setup matcher
