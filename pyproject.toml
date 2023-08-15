@@ -29,7 +29,7 @@ repository = "https://github.com/LSSTDESC/BlendingToolKit"
 homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/python-poetry/poetry/issues"
+"Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
 [tool.poetry.dependencies]
 numpy = ">=1.22"
