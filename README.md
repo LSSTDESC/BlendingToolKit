@@ -29,7 +29,7 @@ science needs.
 
 ## Code example
 
-In what follows we illustrate how to use BTK to generate blended images, run a deblended on them, and
+In what follows we illustrate how to use BTK to generate blended images, run a deblender on them, and
 evaluate the performance of the deblender using metrics. For more details on this example see our
 quick-start notebook at: `notebooks/00-quickstart.ipynb`
 
