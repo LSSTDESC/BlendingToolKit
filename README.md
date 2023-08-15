@@ -43,8 +43,8 @@ catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 # setup survey parameters
 survey = btk.survey.get_surveys("LSST")
 
-# setup sampling function for determining how to put together galaxies in catalog
-# to create blends.
+# setup sampling function
+# this function determines how to organize galaxies in catalogs into blends
 stamp_size = 24.0
 sampling_function = btk.sampling_functions.DefaultSampling(
     catalog=catalog, max_number=5, max_mag=25.3, stamp_size=stamp_size
