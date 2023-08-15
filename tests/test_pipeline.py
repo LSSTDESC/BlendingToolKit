@@ -157,7 +157,41 @@ def test_sep(data_dir):
     assert precision(detected, matched) > 0.95
 
 
-def test_scarlet():
+def test_scarlet(data_dir):
     import scarlet
 
-    _ = scarlet.GaussianPSF(sigma=(0.6,) * 6)
+    max_n_sources = 3
+    stamp_size = 24.0
+    seed = 0
+    max_shift = 2.0  # shift is only 2 arcsecs -> 10 pixels, so blends are likely.
+
+    catalog = btk.catalog.CatsimCatalog.from_file(data_dir / "input_catalog.fits")
+    sampling_function = btk.sampling_functions.DefaultSampling(
+        max_number=max_n_sources,
+        min_number=max_n_sources,  # always 3 sources in every blend.
+        stamp_size=stamp_size,
+        max_shift=max_shift,
+        min_mag=24,
+        max_mag=25,
+        seed=seed,
+    )
+    LSST = btk.survey.get_surveys("LSST")
+
+    batch_size = 10
+
+    draw_generator = btk.draw_blends.CatsimGenerator(
+        catalog,
+        sampling_function,
+        LSST,
+        batch_size=batch_size,
+        stamp_size=stamp_size,
+        njobs=1,
+        add_noise="all",
+        seed=seed,  # use same seed here
+    )
+
+    blend_batch = next(draw_generator)
+    deblender = btk.deblend.Scarlet(max_n_sources)
+    deblend_batch = deblender(blend_batch, reference_catalogs=blend_batch.catalog_list)
+    n_failures = np.sum([len(cat) == 0 for cat in deblend_batch.catalog_list], axis=0)
+    assert n_failures <= 3
