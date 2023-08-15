@@ -44,7 +44,7 @@ catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 survey = btk.survey.get_surveys("LSST")
 
 # setup sampling function
-# this function determines how to organize galaxies in catalogs into blends
+# this function determines how to organize galaxies in catalog into blends
 stamp_size = 24.0
 sampling_function = btk.sampling_functions.DefaultSampling(
     catalog=catalog, max_number=5, max_mag=25.3, stamp_size=stamp_size
@@ -52,16 +52,15 @@ sampling_function = btk.sampling_functions.DefaultSampling(
 
 # setup generator to create batches of blends
 batch_size = 100
-
 draw_generator = btk.draw_blends.CatsimGenerator(
     catalog, sampling_function, survey, batch_size, stamp_size
 )
 
-# get bacth of blends
+# get batch of blends
 blend_batch = next(draw_generator)
 
 # setup deblender (we use SEP in this case)
-deblender = SepSingleBand(max_n_sources=5, # same as above
+deblender = SepSingleBand(max_n_sources=5,
                           use_band=2 # measure on 'r' band
                           )
 
