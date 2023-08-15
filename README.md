@@ -18,8 +18,6 @@ producing multi-band postage stamp images of blend scenes and evaluate the perfo
 
 Documentation can be found at <https://lsstdesc.org/BlendingToolKit/index.html>.
 
-To get started with BTK check at our quickstart notebook at: `notebooks/00-quickstart.ipynb`
-
 ## Workflow
 
 <img src="docs/source/images/diagram.png" alt="btk workflow" width="550"/>
@@ -31,7 +29,7 @@ science needs.
 
 In what follows we illustrate how to use BTK to generate blended images, run a deblender on them, and
 evaluate the performance of the deblender using metrics. For more details on this example see our
-quick-start notebook at: `notebooks/00-quickstart.ipynb`
+quick-start notebook at `notebooks/00-quickstart.ipynb`.
 
 ```python
 import btk
@@ -74,7 +72,7 @@ matcher = PixelHungarianMatcher(pixel_max_sep=5.0 # maximum separation in pixels
 # match true and predicted catalogs
 truth_catalogs = blend_batch.catalog_list
 pred_catalogs = deblend_batch.catalog_list
-matching = matcher(true_catalog_list, pred_catalog_list) # matching object
+matching = matcher(truth_catalogs, pred_catalogs) # object with matching information
 
 # compute detection performance on this batch
 recall = btk.metrics.detection.Recall(batch_size)
