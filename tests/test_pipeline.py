@@ -170,7 +170,7 @@ def test_scarlet(data_dir):
         seed=seed,
     )
     LSST = btk.survey.get_surveys("LSST")
-
+    
     batch_size = 10
 
     draw_generator = btk.draw_blends.CatsimGenerator(
