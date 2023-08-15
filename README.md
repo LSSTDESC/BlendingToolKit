@@ -24,14 +24,15 @@ To get started with BTK check at our quickstart notebook at: `notebooks/00-quick
 
 <img src="docs/source/images/diagram.png" alt="btk workflow" width="550"/>
 
-- In red are the BTK objects that can be customized in various ways by BTK users.
+In red are components of the BTK pipeline that are intended to be easily customized by users to meet their
+science needs.
 
 ## Installation
 
 BTK is pip installable, with the following command:
 
 ```bash
-pip install blending_toolkit
+pip install blending-toolkit==1.0.0b1
 ```
 
 In case of any issues and for details of required packages, please see the more detailed installation instructions [here](https://lsstdesc.org/BlendingToolKit/install.html).
