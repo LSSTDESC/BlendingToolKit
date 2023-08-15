@@ -125,7 +125,7 @@ class DrawBlendsGenerator(ABC):
         self,
         catalog: Catalog,
         sampling_function: SamplingFunction,
-        surveys: list,
+        surveys: Union[List[Survey], Survey],
         batch_size: int = 8,
         stamp_size: float = 24.0,
         njobs: int = 1,
