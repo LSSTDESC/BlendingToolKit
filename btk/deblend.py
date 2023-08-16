@@ -231,6 +231,7 @@ class PeakLocalMax(Deblender):
         # wrap in catalog
         catalog = Table()
         catalog["ra"], catalog["dec"] = ra, dec
+        catalog["x_peak"], catalog["y_peak"] = x, y
 
         return DeblendExample(self.max_n_sources, catalog)
 
