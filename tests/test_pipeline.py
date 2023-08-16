@@ -75,8 +75,6 @@ def test_pipeline(data_dir):
     # test matching works
     matcher = btk.match.PixelHungarianMatcher(pixel_max_sep=5.0)
 
-    wcs = blend_batch.wcs
-    add_pixel_columns(deblend_batch.catalog_list, wcs)
     true_catalog_list = blend_batch.catalog_list
     pred_catalog_list = deblend_batch.catalog_list
     matching = matcher(true_catalog_list, pred_catalog_list)  # matching object
@@ -142,8 +140,6 @@ def test_sep(data_dir):
 
     matcher = btk.match.PixelHungarianMatcher(pixel_max_sep=5.0)
 
-    wcs = blend_batch.wcs
-    add_pixel_columns(deblend_batch.catalog_list, wcs)
     true_catalog_list = blend_batch.catalog_list
     pred_catalog_list = deblend_batch.catalog_list
     matching = matcher(true_catalog_list, pred_catalog_list)  # matching object
@@ -158,8 +154,6 @@ def test_sep(data_dir):
 
 
 def test_scarlet(data_dir):
-    import scarlet
-
     max_n_sources = 3
     stamp_size = 24.0
     seed = 0
