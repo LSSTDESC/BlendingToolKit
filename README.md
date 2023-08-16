@@ -86,7 +86,7 @@ print("Precision: ", precision(matching.detected, matching.matched))
 BTK is pip installable, with the following command:
 
 ```bash
-pip install blending-toolkit==1.0.0b1
+pip install blending-toolkit==1.0.0b2
 ```
 
 In case of any issues and for details of required packages, please see the more detailed installation instructions [here](https://lsstdesc.org/BlendingToolKit/install.html).

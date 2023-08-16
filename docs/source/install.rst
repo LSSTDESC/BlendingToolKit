@@ -37,7 +37,7 @@ Once you installed ``galsim``, you can install the latest released version of ``
 
 .. code-block::
 
-    pip install blending-toolkit==1.0.0b1
+    pip install blending-toolkit==1.0.0b2
 
 The version flag is necessary as the latest version is a pre-release. This command should install all other missing dependencies if necessary. You can then import the package as follows:
 
