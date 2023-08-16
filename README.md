@@ -18,8 +18,6 @@ producing multi-band postage stamp images of blend scenes and evaluate the perfo
 
 Documentation can be found at <https://lsstdesc.org/BlendingToolKit/index.html>.
 
-To get started with BTK check at our quickstart notebook at: `notebooks/00-quickstart.ipynb`
-
 ## Workflow
 
 <img src="docs/source/images/diagram.png" alt="btk workflow" width="550"/>
@@ -29,9 +27,9 @@ science needs.
 
 ## Code example
 
-In what follows we illustrate how to use BTK to generate blended images, run a deblended on them, and
+In what follows we illustrate how to use BTK to generate blended images, run a deblender on them, and
 evaluate the performance of the deblender using metrics. For more details on this example see our
-quick-start notebook at: `notebooks/00-quickstart.ipynb`
+quick-start notebook at `notebooks/00-quickstart.ipynb`.
 
 ```python
 import btk
@@ -44,7 +42,7 @@ catalog = btk.catalog.CatsimCatalog.from_file(catalog_name)
 survey = btk.survey.get_surveys("LSST")
 
 # setup sampling function
-# this function determines how to organize galaxies in catalogs into blends
+# this function determines how to organize galaxies in catalog into blends
 stamp_size = 24.0
 sampling_function = btk.sampling_functions.DefaultSampling(
     catalog=catalog, max_number=5, max_mag=25.3, stamp_size=stamp_size
@@ -52,20 +50,19 @@ sampling_function = btk.sampling_functions.DefaultSampling(
 
 # setup generator to create batches of blends
 batch_size = 100
-
 draw_generator = btk.draw_blends.CatsimGenerator(
     catalog, sampling_function, survey, batch_size, stamp_size
 )
 
-# get bacth of blends
+# get batch of blends
 blend_batch = next(draw_generator)
 
 # setup deblender (we use SEP in this case)
-deblender = SepSingleBand(max_n_sources=5, # same as above
+deblender = SepSingleBand(max_n_sources=5,
                           use_band=2 # measure on 'r' band
                           )
 
-# run deblender on generated blends
+# run deblender on generated blend images (all batches)
 deblend_batch = deblender(blend_batch)
 
 # setup matcher
@@ -75,7 +72,7 @@ matcher = PixelHungarianMatcher(pixel_max_sep=5.0 # maximum separation in pixels
 # match true and predicted catalogs
 truth_catalogs = blend_batch.catalog_list
 pred_catalogs = deblend_batch.catalog_list
-matching = matcher(true_catalog_list, pred_catalog_list) # matching object
+matching = matcher(truth_catalogs, pred_catalogs) # object with matching information
 
 # compute detection performance on this batch
 recall = btk.metrics.detection.Recall(batch_size)
