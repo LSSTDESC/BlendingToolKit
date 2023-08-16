@@ -37,9 +37,9 @@ Once you installed ``galsim``, you can install the latest released version of ``
 
 .. code-block::
 
-    pip install blending_toolkit
+    pip install blending-toolkit==1.0.0b2
 
-This should install all other missing dependencies if necessary. You can then import the package as follows:
+The version flag is necessary as the latest version is a pre-release. This command should install all other missing dependencies if necessary. You can then import the package as follows:
 
 .. code-block:: python
 
@@ -48,8 +48,7 @@ This should install all other missing dependencies if necessary. You can then im
 
 Scarlet
 ------------------------------
-BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you
-can easily run the scarlet deblender on BTK blends.
+BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you can easily run the scarlet deblender on BTK blends.
 
 First you need to install scarlet, this is not by default installed with BTK as scarlet
 is not in pypi. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.

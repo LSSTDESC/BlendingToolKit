@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; btk 1.0.0b1 documentation</title>
+  <title>Installation &mdash; btk 1.0.0b2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -113,10 +113,10 @@ for more details.</p>
 <section id="install-btk">
 <h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this heading"></a></h2>
 <p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest released version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending_toolkit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending</span><span class="o">-</span><span class="n">toolkit</span><span class="o">==</span><span class="mf">1.0.0</span><span class="n">b2</span>
 </pre></div>
 </div>
-<p>This should install all other missing dependencies if necessary. You can then import the package as follows:</p>
+<p>The version flag is necessary as the latest version is a pre-release. This command should install all other missing dependencies if necessary. You can then import the package as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk</span>
 <span class="kn">import</span> <span class="nn">btk.catalog</span>
 </pre></div>
@@ -124,8 +124,7 @@ for more details.</p>
 </section>
 <section id="scarlet">
 <h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this heading"></a></h2>
-<p>BTK includes the Scarlet deblender as one of its <code class="docutils literal notranslate"><span class="pre">Deblender</span></code> classes. This means that you
-can easily run the scarlet deblender on BTK blends.</p>
+<p>BTK includes the Scarlet deblender as one of its <code class="docutils literal notranslate"><span class="pre">Deblender</span></code> classes. This means that you can easily run the scarlet deblender on BTK blends.</p>
 <p>First you need to install scarlet, this is not by default installed with BTK as scarlet
 is not in pypi. You can install scarlet by following the instructions here: <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">https://pmelchior.github.io/scarlet/install.html</a>.</p>
 </section>
