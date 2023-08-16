@@ -8,7 +8,7 @@ CatSim
 -------
 The catalog simulation framework (CatSim) is a database of astrophysical sources with properties that are representative of what the LSST will observe at its ten-year coadded depth. Refer to the official CatSim `page <https://www.lsst.org/scientists/simulations/catsim>`_ for more details.
 
-BTK includes a sample input catalog that contains parameters of approximately ``85k`` galaxies. A more extensive catalog can be downloaded from `this page <https://stanford.box.com/s/s1nzjlinejpqandudjyykjejyxtgylbk>`_.
+BTK includes a sample input catalog that contains parameters of approximately ``85k`` galaxies. A more extensive catalog can be downloaded from `this page <https://www.cosmo.bnl.gov/www/esheldon/data/>`_ (hosted by Erin Sheldon).
 
 A valid catsim catalog should at least contain the following columns:
 
