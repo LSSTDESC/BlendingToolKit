@@ -129,8 +129,8 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
 def effmat(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
     """Returns efficiency matrices based on number of matched truth and predicted galaxies."""
     n = len(t)  # batch size
-    max_true_n_sources = int(max(t))
-    max_pred_n_sources = int(max(tp))
+    max_true_n_sources = max(t)
+    max_pred_n_sources = max(tp)
     eff_mat = np.zeros((max_pred_n_sources + 1, max_true_n_sources + 1))
     for ii in range(n):
         eff_mat[tp[ii], t[ii]] += 1
