@@ -250,6 +250,7 @@ class SepSingleBand(Deblender):
         self,
         max_n_sources: int,
         thresh: float = 1.5,
+        min_area: int = 5,
         use_mean: bool = False,
         use_band: Optional[int] = None,
     ) -> None:
@@ -272,6 +273,7 @@ class SepSingleBand(Deblender):
         self.use_mean = use_mean
         self.use_band = use_band
         self.thresh = thresh
+        self.min_area = min_area
 
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the i-th example from the batch."""
@@ -285,7 +287,7 @@ class SepSingleBand(Deblender):
         # run source extractor
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            image, self.thresh, err=bkg.globalrms, segmentation_map=True
+            image, self.thresh, err=bkg.globalrms, segmentation_map=True, minarea=self.min_area
         )
 
         segmentation_exp = np.zeros((self.max_n_sources, *image.shape), dtype=bool)
@@ -517,7 +519,7 @@ class Scarlet(Deblender):
                 n_bands,
                 blend_batch.image_size,
                 None,
-                deblended_images,
+                deblended_images.clip(0),  # rarely scarlet gives very small neg. values
                 extra_data={"scarlet_sources": sources},
             )
 
