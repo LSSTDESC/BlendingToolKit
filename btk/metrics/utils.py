@@ -28,21 +28,6 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     return np.where(is_on, seg, np.nan)
 
 
-def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
-    """Return statistics on matches including tp, fp, t, p."""
-    n = len(detected)  # batch_size
-    tp = np.zeros(n, dtype=int)
-    fp = np.zeros(n, dtype=int)
-    t = np.zeros(n, dtype=int)
-    p = np.zeros(n, dtype=int)
-    for ii in range(n):
-        tp[ii] = np.sum(matched[ii])
-        fp[ii] = len(matched[ii]) - np.sum(matched[ii])
-        t[ii] = len(detected[ii])
-        p[ii] = len(matched[ii])
-    return tp, fp, t, p
-
-
 def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     """Computes mean-squared-error (MSE) between two images.
 
@@ -131,6 +116,21 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
         im2 = image2[ii] / image2[ii].max()
         ssim[ii] = structural_similarity(im1, im2, data_range=1, **kwargs)
     return ssim
+
+
+def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
+    """Return statistics on matches including tp, fp, t, p."""
+    n = len(detected)  # batch_size
+    tp = np.zeros(n, dtype=int)
+    fp = np.zeros(n, dtype=int)
+    t = np.zeros(n, dtype=int)
+    p = np.zeros(n, dtype=int)
+    for ii in range(n):
+        tp[ii] = np.sum(matched[ii])
+        fp[ii] = len(matched[ii]) - np.sum(matched[ii])
+        t[ii] = len(detected[ii])
+        p[ii] = len(matched[ii])
+    return tp, fp, t, p
 
 
 def effmat(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
