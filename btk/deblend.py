@@ -315,7 +315,7 @@ class SepSingleBand(Deblender):
             1,  # single band is returned
             blend_batch.image_size,
             segmentation_exp,
-            deblended_images[:, None],  # add a channel dimension
+            deblended_images[:, None].clip(0),  # add a channel dimension
         )
 
 
