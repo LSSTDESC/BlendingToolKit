@@ -96,7 +96,6 @@ class Matching:
         new_n_true = []
         new_n_pred = []
         for ii in range(self.batch_size):
-            assert len(mask[ii]) == self.n_true[ii]
             true_match = self.true_matches[ii]
             pred_match = self.pred_matches[ii]
 
