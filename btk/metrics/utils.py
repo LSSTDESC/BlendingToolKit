@@ -118,21 +118,6 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     return ssim
 
 
-def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
-    """Return statistics on matches including tp, fp, t, p."""
-    n = len(detected)  # batch_size
-    tp = np.zeros(n, dtype=int)
-    fp = np.zeros(n, dtype=int)
-    t = np.zeros(n, dtype=int)
-    p = np.zeros(n, dtype=int)
-    for ii in range(n):
-        tp[ii] = np.sum(matched[ii])
-        fp[ii] = len(matched[ii]) - np.sum(matched[ii])
-        t[ii] = len(detected[ii])
-        p[ii] = len(matched[ii])
-    return tp, fp, t, p
-
-
 def effmat(tp: np.ndarray, t: np.ndarray) -> np.ndarray:
     """Returns efficiency matrices based on number of matched truth and predicted galaxies."""
     n = len(t)  # batch size
