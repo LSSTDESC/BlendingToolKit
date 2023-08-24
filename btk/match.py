@@ -37,63 +37,93 @@ class Matching:
         self.pred_matches = pred_matches
         self.n_true = n_true
         self.n_pred = n_pred
-        self.detected = self._get_detected()
-        self.matched = self._get_matched()
         self.batch_size = len(n_true)
+        self.max_n_sources = max(len(d) for d in self.true_matches)
 
-    def _get_detected(self) -> List[np.ndarray]:
-        """Returns a boolean mask for each true object indicating if it was detected."""
-        detected = []
-        for n, match in zip(self.n_true, self.true_matches):
-            arr = [1 if ii in match else 0 for ii in range(n)]
-            detected.append(np.array(arr).astype(bool))
-        return detected
+    def _match_catalogs(self, catalog_list: Table, true_or_pred: str) -> List[Table]:
+        if true_or_pred == "true":
+            matches = self.true_matches
+        elif true_or_pred == "pred":
+            matches = self.pred_matches
+        else:
+            raise ValueError("true_or_pred must be 'true' or 'pred'")
 
-    def _get_matched(self) -> List[np.ndarray]:
-        """Returns a boolean mask for each detected object indicating if it was matched."""
-        matched = []
-        for n, match in zip(self.n_pred, self.pred_matches):
-            arr = [1 if ii in match else 0 for ii in range(n)]
-            matched.append(np.array(arr).astype(bool))
-        return matched
+        matched_catalogs = []
+        for ii in range(self.batch_size):
+            cat = catalog_list[ii].copy()
+            matched_catalogs.append(cat[matches[ii]])
+        return matched_catalogs
+
+    def _match_arrays(self, *arrs: np.ndarray, true_or_pred: str) -> tuple:
+        if true_or_pred == "true":
+            matches = self.true_matches
+        elif true_or_pred == "pred":
+            matches = self.pred_matches
+        else:
+            raise ValueError("true_or_pred must be 'true' or 'pred'")
+
+        new_arrs = []
+        for arr in arrs:
+            assert len(arr) == self.batch_size
+            new_arr = np.zeros_like(arr)
+            for ii in range(self.batch_size):
+                n_sources = len(matches[ii])
+                assert n_sources <= self.max_n_sources
+                new_arr[ii, :n_sources] = arr[ii][matches[ii]]
+            new_arrs.append(new_arr[:, : self.max_n_sources])
+        return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
 
     def match_true_catalogs(self, catalog_list: Table) -> List[Table]:
         """Returns a list of matched truth catalogs."""
-        matched_catalogs = []
-        for ii in range(self.batch_size):
-            cat = catalog_list[ii].copy()
-            matched_catalogs.append(cat[self.true_matches[ii]])
-        return matched_catalogs
+        return self._match_catalogs(catalog_list, true_or_pred="true")
 
     def match_true_arrays(self, *arrs: np.ndarray) -> tuple:
         """Return matched truth arrays."""
-        new_arrs = []
-        for arr in arrs:
-            new_arr = np.zeros_like(arr)
-            for ii in range(self.batch_size):
-                n_sources = len(self.true_matches[ii])
-                new_arr[ii, :n_sources] = arr[ii][self.true_matches[ii]]
-            new_arrs.append(new_arr)
-        return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
+        return self._match_arrays(*arrs, true_or_pred="true")
 
     def match_pred_catalogs(self, catalog_list: Table) -> List[Table]:
-        """Returns a list of matched pred catalogs."""
-        matched_catalogs = []
-        for ii in range(self.batch_size):
-            cat = catalog_list[ii].copy()
-            matched_catalogs.append(cat[self.pred_matches[ii]])
-        return matched_catalogs
+        """Returns a list of matched predicted catalogs."""
+        return self._match_catalogs(catalog_list, true_or_pred="pred")
 
     def match_pred_arrays(self, *arrs: np.ndarray) -> tuple:
-        """Return matched pred arrays."""
-        new_arrs = []
-        for arr in arrs:
-            new_arr = np.zeros_like(arr)
-            for ii in range(self.batch_size):
-                n_sources = len(self.pred_matches[ii])
-                new_arr[ii, :n_sources] = arr[ii][self.pred_matches[ii]]
-            new_arrs.append(new_arr)
-        return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
+        """Return matched predicted arrays."""
+        return self._match_arrays(*arrs, true_or_pred="pred")
+
+    def filter_by_true(self, mask: List[np.ndarray]) -> "Matching":
+        """Returns a new Matching object with true objects that pass the mask."""
+        new_true_matches = []
+        new_pred_matches = []
+        new_n_true = []
+        new_n_pred = []
+        for ii in range(self.batch_size):
+            assert len(mask[ii]) == self.n_true[ii]
+            true_match = self.true_matches[ii]
+            pred_match = self.pred_matches[ii]
+
+            # get indices in true_matches of true objects that do not pass mask
+            isin_true = np.isin(true_match, np.where(~mask[ii])[0])
+            index_of_interest = np.argwhere(isin_true).ravel()
+
+            # remove those indices from true_matches and pred_matches
+            new_true_matches.append(np.delete(true_match, index_of_interest, axis=0))
+            new_pred_matches.append(np.delete(pred_match, index_of_interest, axis=0))
+
+            new_n_true.append(np.sum(mask[ii]))
+            new_n_pred.append(self.n_pred[ii])
+
+        return Matching(
+            new_true_matches, new_pred_matches, np.array(new_n_true), np.array(new_n_pred)
+        )
+
+    @property
+    def tp(self) -> np.ndarray:
+        """Returns true positive array."""
+        return np.array([len(d) for d in self.true_matches])
+
+    @property
+    def fp(self) -> np.ndarray:
+        """Returns false positive array."""
+        return self.n_pred - self.tp
 
 
 class Matcher(ABC):
