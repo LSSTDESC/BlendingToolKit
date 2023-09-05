@@ -332,3 +332,93 @@ class PairSampling(SamplingFunction):
 
         _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
         return blend_table
+
+
+class RandomSquareSampling(SamplingFunction):
+    """Randomly selects a subset square region of the input catalog."""
+
+    def __init__(
+        self,
+        max_number: int = 2,
+        stamp_size: float = 24.0,
+        seed: int = DEFAULT_SEED,
+        max_mag: float = 25.3,
+        min_mag: float = -np.inf,
+        mag_name: str = "i_ab",
+    ):
+        """Initializes the RandomSquareSampling sampling function.
+
+        Args:
+            max_number: Defined in parent class
+            stamp_size: Size of the desired stamp (arcsec).
+            seed: Seed to initialize randomness for reproducibility.
+            min_mag: Minimum magnitude allowed in samples
+            max_mag: Maximum magnitude allowed in samples.
+            mag_name: Name of the magnitude column in the catalog.
+        """
+        super().__init__(max_number=max_number, min_number=0, seed=seed)
+        self.stamp_size = stamp_size
+        self.max_number = max_number
+        self.max_mag = max_mag
+        self.min_mag = min_mag
+        self.mag_name = mag_name
+
+    def __call__(self, table: Table):
+        """Samples galaxies from input catalog to make scene."""
+        # filter by magnitude
+        if self.mag_name not in table.colnames:
+            raise ValueError(f"Catalog must have '{self.mag_name}' column.")
+        cond1 = table[self.mag_name] <= self.max_mag
+        cond2 = table[self.mag_name] > self.min_mag
+        cond = cond1 & cond2
+        blend_table = table[cond]
+
+        ra = blend_table["ra"]
+        dec = blend_table["dec"]
+
+        # sometimes we might have data from [0, 1] U [359:360] deg
+        # in this case to make coordinates close to each other
+        # we shift the 0 of ra and dec coordinates.
+        ra %= 360
+        dec %= 360
+        ra = (ra + ra.mean()) % 360
+        dec = (dec + dec.mean()) % 360
+
+        # check size of stamp is appropriate
+        ra_range = ra.max() - ra.min()
+        dec_range = dec.max() - dec.min()
+        size = self.stamp_size / 3600
+        if size > min(ra_range, dec_range):
+            raise ValueError(
+                f"sample size {size:.2f} exceeds range of the catalog "
+                f"({ra_range:.2f}, {dec_range:.2f})"
+            )
+
+        # sample a square region
+        ra_center = np.random.uniform(ra.min() + size / 2, ra.max() - size / 2)
+        dec_center = np.random.uniform(dec.min() + size / 2, dec.max() - size / 2)
+        ra_min, ra_max = ra_center - size / 2, ra_center + size / 2
+        dec_min, dec_max = dec_center - size / 2, dec_center + size / 2
+
+        # get indices of galaxies in the square region
+        cond_ra = (ra > ra_min) & (ra < ra_max)
+        cond_dec = (dec > dec_min) & (dec < dec_max)
+        indices = np.where(cond_ra & cond_dec)
+
+        # check that number of galaxies is in [0, max_number]
+        if len(indices) > self.max_number:
+            raise ValueError(
+                "`max_number` of galaxies exceeded, decrease the stamp size, or "
+                "increase `max_number`."
+            )
+
+        # recenter catalog 'ra' and 'dec' to the center of the stamp
+        blend_table = blend_table[indices]
+        blend_table["ra"] = ra[indices] - ra_center
+        blend_table["dec"] = dec[indices] - dec_center
+
+        # finally, convert to arcsec
+        blend_table["ra"] *= 3600
+        blend_table["dec"] *= 3600
+
+        return blend_table
