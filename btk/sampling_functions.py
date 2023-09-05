@@ -335,8 +335,7 @@ class PairSampling(SamplingFunction):
 
 
 class RandomSquareSampling(SamplingFunction):
-    """Same as `DefaultSampling` sampling function but instead of shifting galaxies
-    it randomly selects a subset square region of the input catalog."""
+    """Randomly selects a subset square region of the input catalog."""
 
     def __init__(
         self,
@@ -365,8 +364,7 @@ class RandomSquareSampling(SamplingFunction):
         self.mag_name = mag_name
 
     def __call__(self, table: Table):
-        """Samples galaxies from input catalog to make blend scene."""
-
+        """Samples galaxies from input catalog to make scene."""
         # filter by magnitude
         if self.mag_name not in table.colnames:
             raise ValueError(f"Catalog must have '{self.mag_name}' column.")
