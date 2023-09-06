@@ -364,7 +364,10 @@ class RandomSquareSampling(SamplingFunction):
         self.mag_name = mag_name
 
     def __call__(self, table: Table):
-        """Samples galaxies from input catalog to make scene."""
+        """Samples galaxies from input catalog to make scene.
+
+        We assume the input catalog has `ra` and `dec` in degrees, like CATSIM does.
+        """
         # filter by magnitude
         if self.mag_name not in table.colnames:
             raise ValueError(f"Catalog must have '{self.mag_name}' column.")
