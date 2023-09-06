@@ -124,6 +124,16 @@ class Matching:
         """Returns false positive array."""
         return self.n_pred - self.tp
 
+    @property
+    def t(self) -> np.ndarray:
+        """Returns truth array."""
+        return self.n_true
+
+    @property
+    def p(self) -> np.ndarray:
+        """Returns positive array."""
+        return self.n_pred
+
 
 class Matcher(ABC):
     """Base class for matching algorithms."""
