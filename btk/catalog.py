@@ -134,10 +134,6 @@ class CosmosCatalog(Catalog):
         table.rename_column("RA", "ra")
         table.rename_column("DEC", "dec")
         index = np.arange(0, len(table))
-
-        # convert ra dec from degrees to arcsec in catalog.
-        table["ra"] *= 3600
-        table["dec"] *= 3600
         table["btk_index"] = index
 
         return table
