@@ -4,13 +4,15 @@ from typing import Dict
 import numpy as np
 
 from btk.metrics.base import Metric
-from btk.metrics.utils import effmat, get_match_stats
+from btk.metrics.utils import effmat
 
 
 class DetectionMetric(Metric):
     """Base class for detection metrics."""
 
-    def _get_data(self, detected: np.ndarray, matched: np.ndarray) -> Dict[str, np.ndarray]:
+    def _get_data(
+        self, n_matches: np.ndarray, n_true: np.ndarray, n_pred: np.ndarray
+    ) -> Dict[str, np.ndarray]:
         """Compute detection metric on batch."""
         raise NotImplementedError
 
@@ -18,9 +20,14 @@ class DetectionMetric(Metric):
 class Precision(DetectionMetric):
     """Precision class metric."""
 
-    def _get_data(self, detected: np.ndarray, matched: np.ndarray) -> Dict[str, np.ndarray]:
+    def _get_data(
+        self, n_matches: np.ndarray, n_true: np.ndarray, n_pred: np.ndarray
+    ) -> Dict[str, np.ndarray]:
         """Compute precision on batch."""
-        tp, fp, t, p = get_match_stats(detected, matched)
+        tp = n_matches
+        fp = n_pred - n_matches
+        t = n_true
+        p = n_pred
         return {"tp": tp, "fp": fp, "t": t, "p": p}
 
     def _compute(self, data: tuple) -> float:
@@ -46,9 +53,12 @@ class F1(Precision):
 class Efficiency(DetectionMetric):
     """Efficiency class metric."""
 
-    def _get_data(self, detected: np.ndarray, matched: np.ndarray) -> Dict[str, np.ndarray]:
+    def _get_data(
+        self, n_matches: np.ndarray, n_true: np.ndarray, n_pred: np.ndarray
+    ) -> Dict[str, np.ndarray]:
         """Compute efficiency matrix on batch."""
-        tp, _, t, _ = get_match_stats(detected, matched)
+        tp = n_matches
+        t = n_true
         eff_matrix = effmat(tp, t)
         return {"eff_matrix": eff_matrix}
 

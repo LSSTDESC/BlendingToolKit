@@ -16,17 +16,20 @@ class ReconstructionMetric(Metric, ABC):
     ) -> np.ndarray:
         assert iso_images1.shape == iso_images2.shape
         assert iso_images1.ndim == 4  # batch, max_n_sources, x, y
-        results = np.zeros(self.batch_size)
+        results = []
         for ii in range(self.batch_size):
-            n_sources = np.sum(iso_images1[ii].sum(axis=(-1, -2)) > 0)
+            n_sources1 = np.sum(iso_images1[ii].sum(axis=(-1, -2)) > 0).astype(int)
+            n_sources2 = np.sum(iso_images2[ii].sum(axis=(-1, -2)) > 0).astype(int)
+            n_sources = min(n_sources1, n_sources2)  # just in case
             if n_sources > 0:
                 images1 = iso_images1[ii, :n_sources]
                 images2 = iso_images2[ii, :n_sources]
-                results[ii] = np.mean(metric_func(images1, images2))
-            else:
-                results[ii] = np.nan
+                mets = metric_func(images1, images2)
+                assert mets.shape == (n_sources,)
+                for ii in range(n_sources):
+                    results.append(mets[ii])
 
-        return results
+        return np.array(results)
 
     def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
         """Compute reconstruction metric based on isolated or deblended images."""
@@ -35,7 +38,7 @@ class ReconstructionMetric(Metric, ABC):
 class MSE(ReconstructionMetric):
     """MSE class metric."""
 
-    def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
+    def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
         return {"mse": self._get_recon_metric(iso_images1, iso_images2, mse)}
 
     def _compute(self, data: dict) -> float:
@@ -45,7 +48,7 @@ class MSE(ReconstructionMetric):
 class PSNR(ReconstructionMetric):
     """PSNR class metric."""
 
-    def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
+    def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
         return {"psnr": self._get_recon_metric(iso_images1, iso_images2, psnr)}
 
     def _compute(self, data: dict) -> float:
@@ -55,7 +58,7 @@ class PSNR(ReconstructionMetric):
 class StructSim(ReconstructionMetric):
     """Structurality Similarity class metric."""
 
-    def _get_data(self, iso_images1, iso_images2) -> Dict[str, np.ndarray]:
+    def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
         return {"ssim": self._get_recon_metric(iso_images1, iso_images2, struct_sim)}
 
     def _compute(self, data: dict) -> float:

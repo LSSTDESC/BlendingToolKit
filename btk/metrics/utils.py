@@ -28,21 +28,6 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     return np.where(is_on, seg, np.nan)
 
 
-def get_match_stats(detected: np.ndarray, matched: np.ndarray) -> tuple:
-    """Return statistics on matches including tp, fp, t, p."""
-    n = len(detected)  # batch_size
-    tp = np.zeros(n)
-    fp = np.zeros(n)
-    t = np.zeros(n)
-    p = np.zeros(n)
-    for ii in range(n):
-        tp[ii] = np.sum(matched[ii])
-        fp[ii] = len(matched[ii]) - np.sum(matched[ii])
-        t[ii] = len(detected[ii])
-        p[ii] = len(matched[ii])
-    return tp, fp, t, p
-
-
 def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     """Computes mean-squared-error (MSE) between two images.
 
@@ -81,7 +66,7 @@ def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
     return i / u
 
 
-def psnr(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
+def psnr(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     """Compute peak-signal-to-noise-ratio from skimage.
 
     Args:
@@ -89,22 +74,26 @@ def psnr(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
                 size `NHW`.
         images2: Array of shape `NHW` containing `N` images each of
                 size `NHW`.
-        kwargs: Keyword arguments to be passed in to `peak_signal_noise_ratio` function
-                within `skimage.metrics`.
 
     Returns:
         Returns PSNR between each corresponding iamge as an array of shape `N`.
     """
     n, h, w = image1.shape
+    assert image1.min() >= 0 and image2.min() >= 0
     assert (n, h, w) == image2.shape
     psnr_ = np.zeros(n)
     for ii in range(n):
-        psnr_[ii] = peak_signal_noise_ratio(image1[ii], image2[ii], **kwargs)
+        im1 = image1[ii] / image1[ii].max()
+        im2 = image2[ii] / image2[ii].max()
+        psnr_[ii] = peak_signal_noise_ratio(im1, im2, data_range=1)
     return psnr_
 
 
 def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
     """Compute structural similarity index from skimage.
+
+    By default, we normalize the images to be between 0 and 1. So that the
+    `data_range` is 1.
 
     Args:
         images1: Array of shape `NHW` containing `N` images each of
@@ -118,11 +107,14 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
         Returns structural similarity index between each corresponding iamge as
         an array of shape `N`.
     """
+    assert image1.min() >= 0 and image2.min() >= 0
     n, h, w = image1.shape
     assert (n, h, w) == image2.shape
     ssim = np.zeros(n)
     for ii in range(n):
-        ssim[ii] = structural_similarity(image1[ii], image2[ii], **kwargs)
+        im1 = image1[ii] / image1[ii].max()
+        im2 = image2[ii] / image2[ii].max()
+        ssim[ii] = structural_similarity(im1, im2, data_range=1, **kwargs)
     return ssim
 
 

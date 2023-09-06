@@ -4,7 +4,6 @@ import numpy as np
 
 import btk
 from btk.survey import Survey
-from btk.utils import add_pixel_columns
 
 SEED = 0
 
@@ -87,18 +86,17 @@ def test_pipeline(data_dir):
     # detection
     recall = btk.metrics.detection.Recall(batch_size)
     precision = btk.metrics.detection.Precision(batch_size)
-    detected = matching.detected
-    matched = matching.matched
-    assert recall(detected, matched) > 0.60
-    assert precision(detected, matched) > 0.60
+    tp, t, p = matching.tp, matching.n_true, matching.n_pred
+    assert recall(tp, t, p) > 0.60
+    assert precision(tp, t, p) > 0.60
 
     # reconstruction
     mse = btk.metrics.reconstruction.MSE(batch_size)
     iso_images1 = blend_batch.isolated_images[:, :, 2]  # only r-band
     iso_images2 = deblend_batch.deblended_images[:, :, 0]
-    iso_iamges_matched1 = matching.match_true_arrays(iso_images1)
-    iso_iamges_matched2 = matching.match_pred_arrays(iso_images2)
-    mse(iso_iamges_matched1, iso_iamges_matched2)
+    iso_images_matched1 = matching.match_true_arrays(iso_images1)
+    iso_images_matched2 = matching.match_pred_arrays(iso_images2)
+    mse(iso_images_matched1, iso_images_matched2)
 
 
 def test_sep(data_dir):
@@ -143,17 +141,18 @@ def test_sep(data_dir):
     true_catalog_list = blend_batch.catalog_list
     pred_catalog_list = deblend_batch.catalog_list
     matching = matcher(true_catalog_list, pred_catalog_list)  # matching object
-    detected = matching.detected
-    matched = matching.matched
+    tp, t, p = matching.tp, matching.t, matching.p
 
     recall = btk.metrics.detection.Recall(batch_size)
     precision = btk.metrics.detection.Precision(batch_size)
 
-    assert recall(detected, matched) > 0.95
-    assert precision(detected, matched) > 0.95
+    assert recall(tp, t, p) > 0.95
+    assert precision(tp, t, p) > 0.95
 
 
 def test_scarlet(data_dir):
+    """Check scarlet deblender implementation runs without too many failures."""
+
     max_n_sources = 3
     stamp_size = 24.0
     seed = 0

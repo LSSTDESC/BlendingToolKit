@@ -231,6 +231,7 @@ class PeakLocalMax(Deblender):
         # wrap in catalog
         catalog = Table()
         catalog["ra"], catalog["dec"] = ra, dec
+        catalog["x_peak"], catalog["y_peak"] = x, y
 
         return DeblendExample(self.max_n_sources, catalog)
 
@@ -249,6 +250,7 @@ class SepSingleBand(Deblender):
         self,
         max_n_sources: int,
         thresh: float = 1.5,
+        min_area: int = 5,
         use_mean: bool = False,
         use_band: Optional[int] = None,
     ) -> None:
@@ -260,6 +262,7 @@ class SepSingleBand(Deblender):
                 interpreted as a relative threshold: the absolute threshold at pixel (j, i)
                 will be `thresh * err[j, i]` where `err` is set to the global rms of
                 the background measured by SEP.
+            min_area: Minimum number of pixels required for an object. Default is 5.
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
@@ -271,6 +274,7 @@ class SepSingleBand(Deblender):
         self.use_mean = use_mean
         self.use_band = use_band
         self.thresh = thresh
+        self.min_area = min_area
 
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the i-th example from the batch."""
@@ -284,7 +288,7 @@ class SepSingleBand(Deblender):
         # run source extractor
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            image, self.thresh, err=bkg.globalrms, segmentation_map=True
+            image, self.thresh, err=bkg.globalrms, segmentation_map=True, minarea=self.min_area
         )
 
         segmentation_exp = np.zeros((self.max_n_sources, *image.shape), dtype=bool)
@@ -312,7 +316,7 @@ class SepSingleBand(Deblender):
             1,  # single band is returned
             blend_batch.image_size,
             segmentation_exp,
-            deblended_images[:, None],  # add a channel dimension
+            deblended_images[:, None].clip(0),  # add a channel dimension
         )
 
 
@@ -516,7 +520,7 @@ class Scarlet(Deblender):
                 n_bands,
                 blend_batch.image_size,
                 None,
-                deblended_images,
+                deblended_images.clip(0),  # rarely scarlet gives very small neg. values
                 extra_data={"scarlet_sources": sources},
             )
 
