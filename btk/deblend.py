@@ -262,6 +262,7 @@ class SepSingleBand(Deblender):
                 interpreted as a relative threshold: the absolute threshold at pixel (j, i)
                 will be `thresh * err[j, i]` where `err` is set to the global rms of
                 the background measured by SEP.
+            min_area: Minimum number of pixels required for an object. Default is 5.
             use_mean: Flag to use the band average for the measurement
             use_band: Integer index of the band to use for the measurement
         """
