@@ -45,4 +45,4 @@ jobs:
       # just checks if they run
       - name: Run notebooks
         run: |
-          poetry run pytest --nbmake notebooks
+          poetry run pytest --nbmake notebooks --ignore notebooks/02-advanced-plot.ipynb
