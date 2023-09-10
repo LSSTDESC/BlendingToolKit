@@ -138,3 +138,7 @@ And that's all you need to do from now on.
 ### Documentation style
 
 BlendingToolKit follows the google format: <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
+
+## Credit
+
+This file was adapted from JAX-Galsim's [CONTRIBUTING.md](https://github.com/GalSim-developers/JAX-GalSim/edit/main/CONTRIBUTING.md)
