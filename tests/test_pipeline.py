@@ -1,5 +1,7 @@
 """Test pipeline as a whole at a high-level."""
 
+import tempfile
+
 import numpy as np
 
 import btk
@@ -97,6 +99,20 @@ def test_pipeline(data_dir):
     iso_images_matched1 = matching.match_true_arrays(iso_images1)
     iso_images_matched2 = matching.match_pred_arrays(iso_images2)
     mse(iso_images_matched1, iso_images_matched2)
+
+    # test saving
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        blend_batch.save(tmpdirname, 0)
+        blend_batch2 = btk.blend_batch.BlendBatch.load(tmpdirname, 0)
+
+        deblend_batch.save(tmpdirname, 0)
+        deblend_batch2 = btk.blend_batch.DeblendBatch.load(tmpdirname, 0)
+
+        assert blend_batch.batch_size == blend_batch2.batch_size
+        assert blend_batch.stamp_size == blend_batch2.stamp_size
+
+        assert deblend_batch.batch_size == deblend_batch2.batch_size
+        assert deblend_batch.image_size == deblend_batch2.image_size
 
 
 def test_sep(data_dir):
