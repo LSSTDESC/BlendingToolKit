@@ -77,8 +77,8 @@ matching = matcher(truth_catalogs, pred_catalogs) # object with matching informa
 # compute detection performance on this batch
 recall = btk.metrics.detection.Recall(batch_size)
 precision = btk.metrics.detection.Precision(batch_size)
-print("Recall: ", recall(matching.detected, matching.matched))
-print("Precision: ", precision(matching.detected, matching.matched))
+print("Recall: ", recall(matching.tp, matching.t, matching.p))
+print("Precision: ", precision(matching.tp, matching.t, matching.p))
 ```
 
 ## Installation
