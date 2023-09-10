@@ -105,7 +105,6 @@ class BlendBatch:
             path (str): Path to load the batch from.
             batch_number (int): Number of the batch.
         """
-
         # file path
         fpath = os.path.join(path, f"blend_{batch_number}.hdf5")
 
@@ -401,9 +400,9 @@ class DeblendBatch:
         """Save batch of measure results to disk in hdf5 format."""
         fpath = os.path.join(path, f"deblend_{batch_number}.hdf5")
         with h5py.File(fpath, "w") as f:
-            # save catalog
-            catalog_array = np.array([catalog.as_array() for catalog in self.catalog_list])
-            f.create_dataset("catalog_list", data=catalog_array)
+            # save catalog with astropy hdf5 functions
+            for ii, catalog in enumerate(self.catalog_list):
+                write_table_hdf5(catalog, f, path=f"catalog_list/{ii}")
 
             # save segmentation
             if self.segmentation is not None:
@@ -421,13 +420,15 @@ class DeblendBatch:
 
     @classmethod
     def load(cls, path: str, batch_number: int = 0):
-        """Load batch of measure results from hdf5 file in disk"""
+        """Load batch of measure results from hdf5 file in disk."""
         fpath = os.path.join(path, f"deblend_{batch_number}.hdf5")
 
         # open file
         with h5py.File(fpath, "r") as f:
-            # load catalog
-            catalog_list = [Table(catalog) for catalog in f["catalog_list"][:]]
+            # load catalog with astropy hdf5 functions
+            catalog_list = []
+            for ii in range(f.attrs["batch_size"]):
+                catalog_list.append(read_table_hdf5(f, path=f"catalog_list/{ii}"))
 
             # load segmentation
             if "segmentation" in f.keys():
