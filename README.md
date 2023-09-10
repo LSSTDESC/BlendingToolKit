@@ -93,4 +93,13 @@ In case of any issues and for details of required packages, please see the more 
 
 ## Contributing
 
-See our contributing guidelines at [CONTRIBUTING.md](https://github.com/LSSTDESC/BlendingToolKit/blob/main/CONTRIBUTING.md)
+Everyone can contribute to this project, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) document for details.
+
+In short, to interact with the project you can:
+
+- Ask or Answer questions on the [Discussions Q&A page](https://github.com/LSSTDESC/BlendingToolKit/discussions).
+- Report a bug by opening a [GitHub issue](https://github.com/LSSTDESC/BlendingToolKit/issues).
+- Open a [GitHub issue](https://github.com/LSSTDESC/BlendingToolKit/issue) or [Discussions](https://github.com/LSSTDESC/BlendingToolKit/discussions) to ask for feedback on a planned contribution.
+- Submit a [Pull Request](https://github.com/LSSTDESC/BlendingToolKit/pulls) to contribute to the code.
+
+Issues marked with `contributions welcome` or `good first issue` are particularly good places to start. These are great ways to learn more about the inner workings of BTK.
