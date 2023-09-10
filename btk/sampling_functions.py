@@ -335,7 +335,11 @@ class PairSampling(SamplingFunction):
 
 
 class RandomSquareSampling(SamplingFunction):
-    """Randomly selects a subset square region of the input catalog."""
+    """Randomly selects galaxies in square region of the input catalog.
+
+    This sampling function explicitly uses the spatial information in the input catalog to
+    generate scenes of galaxies. However, blends might not always be returned as a result.
+    """
 
     def __init__(
         self,
