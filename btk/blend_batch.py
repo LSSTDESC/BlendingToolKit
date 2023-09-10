@@ -6,6 +6,7 @@ from typing import List, Optional, Union
 import galsim
 import h5py
 import numpy as np
+from astropy.io.misc.hdf5 import read_table_hdf5, write_table_hdf5
 from astropy.table import Table
 
 from btk.survey import Survey, get_surveys, make_wcs
@@ -85,9 +86,10 @@ class BlendBatch:
             psf_array = self.get_numpy_psf()
             f.create_dataset("psf", data=psf_array)
 
-            # save catalog
-            catalog_array = np.array([catalog.as_array() for catalog in self.catalog_list])
-            f.create_dataset("catalog_list", data=catalog_array)
+            # save catalog using astropy functions
+            # (this is faster than saving as numpy array)
+            for ii, catalog in enumerate(self.catalog_list):
+                write_table_hdf5(catalog, f, path=f"catalog_list/{ii}")
 
             # save general info about blend
             f.attrs["batch_size"] = self.batch_size
@@ -117,7 +119,9 @@ class BlendBatch:
             psf_list = [galsim.Image(psf) for psf in f["psf"][:]]
 
             # load catalog
-            catalog_list = [Table(catalog) for catalog in f["catalog_list"][:]]
+            catalog_list = []
+            for ii in range(f.attrs["batch_size"]):
+                catalog_list.append(read_table_hdf5(f, path=f"catalog_list/{ii}"))
 
             # load general info about blend
             batch_size = f.attrs["batch_size"]
