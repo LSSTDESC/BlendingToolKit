@@ -4,18 +4,18 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.sampling_functions module &mdash; btk 1.0.0b2 documentation</title>
+  <title>btk.sampling_functions module &mdash; btk 1.0.0b3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cd400e19"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -60,6 +60,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.DefaultSampling"><code class="docutils literal notranslate"><span class="pre">DefaultSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.DefaultSamplingShear"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.PairSampling"><code class="docutils literal notranslate"><span class="pre">PairSampling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.RandomSquareSampling"><code class="docutils literal notranslate"><span class="pre">RandomSquareSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.SamplingFunction"><code class="docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></li>
 </ul>
 </li>
@@ -261,6 +262,40 @@ stamp size (in arcseconds).</p></li>
 <li><p><strong>seed</strong> – See parent class.</p></li>
 <li><p><strong>bright_cut</strong> – Magnitude cut for bright galaxy. (Default: 25.3)</p></li>
 <li><p><strong>dim_cut</strong> – Magnitude cut for dim galaxy. (Default: 28.0)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="btk.sampling_functions.RandomSquareSampling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">RandomSquareSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'i_ab'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.RandomSquareSampling" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></p>
+<p>Randomly selects galaxies in square region of the input catalog.</p>
+<p>This sampling function explicitly uses the spatial information in the input catalog to
+generate scenes of galaxies. However, blends might not always be returned as a result.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.RandomSquareSampling.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.RandomSquareSampling.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Samples galaxies from input catalog to make scene.</p>
+<p>We assume the input catalog has <cite>ra</cite> and <cite>dec</cite> in degrees, like CATSIM does.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.RandomSquareSampling.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'i_ab'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.RandomSquareSampling.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes the RandomSquareSampling sampling function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_number</strong> – Defined in parent class</p></li>
+<li><p><strong>stamp_size</strong> – Size of the desired stamp (arcsec).</p></li>
+<li><p><strong>seed</strong> – Seed to initialize randomness for reproducibility.</p></li>
+<li><p><strong>min_mag</strong> – Minimum magnitude allowed in samples</p></li>
+<li><p><strong>max_mag</strong> – Maximum magnitude allowed in samples.</p></li>
+<li><p><strong>mag_name</strong> – Name of the magnitude column in the catalog.</p></li>
 </ul>
 </dd>
 </dl>
