@@ -56,7 +56,7 @@ git checkout -b release/$RELEASE origin/dev
 # edit pyproject.toml file to update the version
 poetry version $RELEASE
 git add pyproject.toml
-git commit -m "Bump version"
+git commit -m "Version $RELEASE"
 
 # 6. Pushed release branch to remote repository
 git push --set-upstream origin release/$RELEASE
