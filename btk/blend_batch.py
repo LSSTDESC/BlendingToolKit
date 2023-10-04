@@ -9,6 +9,7 @@ import h5py
 import numpy as np
 from astropy.io.misc.hdf5 import read_table_hdf5, write_table_hdf5
 from astropy.table import Table
+from astropy.io import fits
 
 from btk.survey import Survey, get_surveys, make_wcs
 
@@ -97,6 +98,43 @@ class BlendBatch:
             f.attrs["max_n_sources"] = self.max_n_sources
             f.attrs["stamp_size"] = self.stamp_size
             f.attrs["survey_name"] = self.survey.name
+
+    def save_fits(self, path: str, batch_number: int = 0):
+        """Save the batch to disk using fits format.
+
+        Args:
+            path (str): Path to save the batch to.
+            batch_number (int): Number of the batch.
+        """
+        fpath = os.path.join(path, f"blend_{batch_number}.fits")
+
+        # Create HDU with blended image as primary hdu
+        primary_hdu = fits.PrimaryHDU(data=self.blend_images[batch_number])
+        hdul = fits.HDUList([primary_hdu])
+        # Save isolated images
+        for iso_img in self.isolated_images:
+            im_hdu = fits.ImageHDU(iso_img)
+            hdul.append(im_hud)
+
+        # Save catalog
+        for ii, catalog in enumerate(self.catalog_list):
+            table_hdu = fits.BinTableHDU(catalog)
+            hdul.append(table_hdu)
+
+        # Save PSF after converting to numpy
+        psf_array = self.get_numpy_psf()
+        psf_hdu = fits.ImageHDU(psf_array)
+        hdul.append(psf_hdu)
+
+        hdr = hdul[0].header
+
+        # Save general info about blend
+        hdr["batch_size"] = self.batch_size
+        hdr["max_n_sources"] = self.max_n_sources
+        hdr["stamp_size"] = self.stamp_size
+        hdr["survey_name"] = self.survey.name
+
+        hdul.writeto(fpath)
 
     @classmethod
     def load(cls, path: str, batch_number: int = 0):
