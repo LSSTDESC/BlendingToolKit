@@ -113,7 +113,7 @@ class BlendBatch:
         # Save isolated images
         for iso_img in self.isolated_images:
             im_hdu = fits.ImageHDU(iso_img)
-            hdul.append(im_hud)
+            hdul.append(im_hdu)
 
         # Save catalog
         for ii, catalog in enumerate(self.catalog_list):
