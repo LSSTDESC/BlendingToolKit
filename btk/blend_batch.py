@@ -106,24 +106,31 @@ class BlendBatch:
             batch_number (int): Number of the batch.
         """
         fpath = os.path.join(path, f"blend_{batch_number}.fits")
-
+        print(f"Writing to {fpath}")
         # Create HDU with blended image as primary hdu
-        primary_hdu = fits.PrimaryHDU(data=self.blend_images[batch_number])
+        # primary_hdu = fits.PrimaryHDU(data=self.blend_images[batch_number])
+        primary_hdu = fits.PrimaryHDU(data=self.blend_images)
+        primary_hdu.header['TYPE'] = 'BLEND'
         hdul = fits.HDUList([primary_hdu])
-        # Save isolated images
-        for iso_img in self.isolated_images:
-            im_hdu = fits.ImageHDU(iso_img)
-            hdul.append(im_hdu)
 
-        # Save catalog
-        for ii, catalog in enumerate(self.catalog_list):
-            table_hdu = fits.BinTableHDU(catalog)
-            hdul.append(table_hdu)
+        # Save isolated images
+        im_hdu = fits.ImageHDU(self.isolated_images)
+        im_hdu.header['TYPE'] = 'ISOLATED'
+        hdul.append(im_hdu)
 
         # Save PSF after converting to numpy
         psf_array = self.get_numpy_psf()
         psf_hdu = fits.ImageHDU(psf_array)
+        psf_hdu.header['TYPE'] = 'PSF'
         hdul.append(psf_hdu)
+
+        # Save catalog
+        for ii, catalog in enumerate(self.catalog_list):
+            # table_hdu = fits.BinTableHDU(catalog)
+            table_hdu = fits.BinTableHDU(catalog)
+            table_hdu.header['TYPE'] = 'CATALOG'
+            table_hdu.header['BLENDNUM'] = ii
+            hdul.append(table_hdu)
 
         hdr = hdul[0].header
 
@@ -133,7 +140,7 @@ class BlendBatch:
         hdr["stamp_size"] = self.stamp_size
         hdr["survey_name"] = self.survey.name
 
-        hdul.writeto(fpath)
+        hdul.writeto(fpath, overwrite=True)
 
     @classmethod
     def load(cls, path: str, batch_number: int = 0):
@@ -180,6 +187,61 @@ class BlendBatch:
             catalog_list=catalog_list,
             psf=psf_list,
         )
+        
+    @classmethod
+    def load_fits(cls, path: str, batch_number: int = 0):
+        """Load the batch from hdf5 format.
+
+        Args:
+            path (str): Path to load the batch from.
+            batch_number (int): Number of the batch.
+        """
+        # file path
+        fpath = os.path.join(path, f"blend_{batch_number}.fits")
+
+        # open file
+        with fits.open(fpath) as hdul:
+            # Load headers and indexing
+            fits_len = len(hdul)
+            header_types = [hd.header['TYPE'] for hd in hdul]
+            header_ndx = {hd:header_types.index(hd) for hd in header_types}
+
+            blend_images = hdul[header_ndx['BLEND']].data
+            isolated_images = hdul[header_ndx['ISOLATED']].data
+
+            # load psfs
+            psf_list = [galsim.Image(psf) for psf in hdul[header_ndx["PSF"]].data]
+
+            # load catalog 
+            catalog_list = []
+            for ii in range(header_ndx['CATALOG'], fits_len):
+                if hdul[ii].header['TYPE'] == "CATALOG":
+                    cat_ii = Table(data=hdul[ii].data)
+                    # print(f"Debugging example: FITS read in catalog type -- {type(cat_ii)}")
+                    catalog_list.append(cat_ii)
+
+            hdr = hdul[0].header
+            # load general info about blend
+            batch_size = hdr["batch_size"]
+            max_n_sources = hdr["max_n_sources"]
+            stamp_size = hdr["stamp_size"]
+            survey_name = hdr["survey_name"]
+
+        # create survey
+        survey = get_surveys(survey_name)
+
+        # create class
+        return cls(
+            batch_size=batch_size,
+            max_n_sources=max_n_sources,
+            stamp_size=stamp_size,
+            survey=survey,
+            blend_images=blend_images,
+            isolated_images=isolated_images,
+            catalog_list=catalog_list,
+            psf=psf_list,
+        )
+
 
 
 class MultiResolutionBlendBatch:
@@ -219,6 +281,14 @@ class MultiResolutionBlendBatch:
             if not os.path.exists(survey_directory):
                 os.makedirs(survey_directory)
             blend_batch.save(survey_directory, batch_number)
+
+    def save(self, path: str, batch_number: int = 0):
+        """Save blend results into path."""
+        for survey_name, blend_batch in self.results.items():
+            survey_directory = os.path.join(path, str(batch_number), survey_name)
+            if not os.path.exists(survey_directory):
+                os.makedirs(survey_directory)
+            blend_batch.save_fits(survey_directory, batch_number)
 
     @classmethod
     def load(cls, path: str, batch_number: int = 0):
@@ -456,6 +526,47 @@ class DeblendBatch:
             f.attrs["image_size"] = self.image_size
             f.attrs["n_bands"] = self.n_bands
 
+
+    def save_fits(self, path: str, batch_number: int = 0):
+
+        """Save the batch to disk using fits format.
+
+        Args:
+            path (str): Path to save the batch to.
+            batch_number (int): Number of the batch.
+        """
+        fpath = os.path.join(path, f"deblend_{batch_number}.fits")
+        print(f"Writing to {fpath}")
+        # Create HDU with deblended image as primary hdu
+
+        # save deblended images
+        primary_hdu = fits.PrimaryHDU(data=self.deblended_images)
+        primary_hdu.header['TYPE'] = 'DEBLEND'
+        hdul = fits.HDUList([primary_hdu])
+
+        # save segmentation
+        seg_hdu = fits.ImageHDU(self.segmentation)
+        seg_hdu.header['TYPE'] = 'SEGMENTATION'
+        hdul.append(seg_hdu)
+
+        # Save catalog
+        for ii, catalog in enumerate(self.catalog_list):
+            print(f"Debugging print. Catalog type is {type(catalog)}")
+            table_hdu = fits.BinTableHDU(catalog)
+            table_hdu.header['TYPE'] = 'CATALOG'
+            table_hdu.header['BLENDNUM'] = ii
+            hdul.append(table_hdu)
+
+        hdr = hdul[0].header
+
+        # save general info about class
+        hdr["batch_size"] = self.batch_size
+        hdr["max_n_sources"] = self.max_n_sources
+        hdr["image_size"] = self.image_size
+        hdr["n_bands"] = self.n_bands
+
+        hdul.writeto(fpath, overwrite=True)
+
     @classmethod
     def load(cls, path: str, batch_number: int = 0):
         """Load batch of measure results from hdf5 file in disk."""
@@ -485,6 +596,56 @@ class DeblendBatch:
             max_n_sources = f.attrs["max_n_sources"]
             image_size = f.attrs["image_size"]
             n_bands = f.attrs["n_bands"]
+
+        # create class
+        return cls(
+            batch_size=batch_size,
+            max_n_sources=max_n_sources,
+            catalog_list=catalog_list,
+            n_bands=n_bands,
+            image_size=image_size,
+            segmentation=segmentation,
+            deblended_images=deblended_images,
+        )
+
+    @classmethod
+    def load_fits(cls, path: str, batch_number: int = 0):
+        """Load batch of measure results from hdf5 file in disk."""
+        fpath = os.path.join(path, f"deblend_{batch_number}.fits")
+
+        # open file
+        with fits.open(fpath) as hdul:
+            # Load headers and indexing
+            fits_len = len(hdul)
+            header_types = [hd.header['TYPE'] for hd in hdul]
+            header_ndx = {hd:header_types.index(hd) for hd in header_types}
+
+            # load catalog 
+            catalog_list = []
+            for ii in range(header_ndx['CATALOG'], fits_len):
+                if hdul[ii].header['TYPE'] == "CATALOG":
+                    cat_ii = Table(data=hdul[ii].data)
+                    # print(f"Debugging example: FITS read in catalog type -- {type(cat_ii)}")
+                    catalog_list.append(cat_ii)
+
+            # load segmentation
+            if "SEGMENTATION" in header_types:
+                segmentation = hdul[header_ndx["SEGMENTATION"]].data
+            else:
+                segmentation = None
+
+            # load deblended images
+            if "DEBLEND" in header_types:
+                deblended_images = hdul[header_ndx["DEBLEND"]].data
+            else:
+                deblended_images = None
+
+            hdr = hdul[0].header
+            # load general info about blend
+            batch_size = hdr["batch_size"]
+            max_n_sources = hdr["max_n_sources"]
+            image_size = hdr["image_size"]
+            n_bands = hdr["n_bands"]
 
         # create class
         return cls(
