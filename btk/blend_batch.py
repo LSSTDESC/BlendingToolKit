@@ -275,15 +275,15 @@ class MultiResolutionBlendBatch:
         return string
 
     def save(self, path: str, batch_number: int = 0):
-        """Save blend results into path."""
+        """Save blend results into path using hdf5 format."""
         for survey_name, blend_batch in self.results.items():
             survey_directory = os.path.join(path, str(batch_number), survey_name)
             if not os.path.exists(survey_directory):
                 os.makedirs(survey_directory)
             blend_batch.save(survey_directory, batch_number)
 
-    def save(self, path: str, batch_number: int = 0):
-        """Save blend results into path."""
+    def save_fits(self, path: str, batch_number: int = 0):
+        """Save blend results into path using fits format."""
         for survey_name, blend_batch in self.results.items():
             survey_directory = os.path.join(path, str(batch_number), survey_name)
             if not os.path.exists(survey_directory):
