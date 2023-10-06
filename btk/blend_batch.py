@@ -106,7 +106,7 @@ class BlendBatch:
             batch_number (int): Number of the batch.
         """
         fpath = os.path.join(path, f"blend_{batch_number}.fits")
-        print(f"Writing to {fpath}")
+
         # Create HDU with blended image as primary hdu
         # primary_hdu = fits.PrimaryHDU(data=self.blend_images[batch_number])
         primary_hdu = fits.PrimaryHDU(data=self.blend_images)
@@ -190,7 +190,7 @@ class BlendBatch:
         
     @classmethod
     def load_fits(cls, path: str, batch_number: int = 0):
-        """Load the batch from hdf5 format.
+        """Load the batch from fits format.
 
         Args:
             path (str): Path to load the batch from.
@@ -300,6 +300,15 @@ class MultiResolutionBlendBatch:
             )
         return cls(blend_batch_list)
 
+    @classmethod
+    def load_fits(cls, path: str, batch_number: int = 0):
+        """Load blend results from path."""
+        blend_batch_list = []
+        for survey_name in os.listdir(os.path.join(path, str(batch_number))):
+            blend_batch_list.append(
+                BlendBatch.load_fits(os.path.join(path, str(batch_number), survey_name), batch_number)
+            )
+        return cls(blend_batch_list)
 
 @dataclass
 class DeblendExample:
