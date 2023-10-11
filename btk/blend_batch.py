@@ -218,7 +218,6 @@ class BlendBatch:
             for ii in range(header_ndx['CATALOG'], fits_len):
                 if hdul[ii].header['TYPE'] == "CATALOG":
                     cat_ii = Table(data=hdul[ii].data)
-                    # print(f"Debugging example: FITS read in catalog type -- {type(cat_ii)}")
                     catalog_list.append(cat_ii)
 
             hdr = hdul[0].header
@@ -635,7 +634,6 @@ class DeblendBatch:
             for ii in range(header_ndx['CATALOG'], fits_len):
                 if hdul[ii].header['TYPE'] == "CATALOG":
                     cat_ii = Table(data=hdul[ii].data)
-                    # print(f"Debugging example: FITS read in catalog type -- {type(cat_ii)}")
                     catalog_list.append(cat_ii)
 
             # load segmentation
