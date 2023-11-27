@@ -439,7 +439,8 @@ class FriendsOfFriendsSampling(SamplingFunction):
     Friends of friends clustering algorithm assigns a group of object same index if one can
     each member of the group is within link_distance of any other member in the group.
     This sampling function explicitly uses the spatial information in the input catalog to
-    generate scenes of galaxies. However, blends might not always be returned as a result.
+    generate scenes of galaxies. However, blends might not always be returned as a result
+    if the link_distance is too small.
     """
 
     def __init__(
@@ -490,7 +491,7 @@ class FriendsOfFriendsSampling(SamplingFunction):
 
         We assume the input catalog has `ra` and `dec` in degrees, like CATSIM does.
         """
-        # group galaxies by indecies
+        # group galaxies by indices
         if "friends_of_friends_id" not in table.colnames:
             self._precompute_friends_of_friends_index(table)
 
@@ -508,7 +509,8 @@ class FriendsOfFriendsSampling(SamplingFunction):
         cond2 = num_galaxies <= self.max_number
         if (cond1 & cond2).sum() == 0:
             raise ValueError(
-                f"No groups with number of galaxies in [{self.min_number}, {self.max_number}], found using a `link_distance` of {self.link_distance}"
+                f"No groups with number of galaxies in [{self.min_number}, {self.max_number}], "
+                "found using a `link_distance` of {self.link_distance}"
             )
         group_id = np.random.choice(num_galaxies[cond1 & cond2].index)
         indices = blend_table['friends_of_friends_id'] == group_id
@@ -516,8 +518,9 @@ class FriendsOfFriendsSampling(SamplingFunction):
         # check if galaxies fit in the window
         ra = blend_table["ra"]
         dec = blend_table["dec"]
-        if (ra[indices].max() - ra[indices].min()) * 3600 > self.stamp_size or \
-        (dec[indices].max() - dec[indices].min()) * 3600 > self.stamp_size:
+        ra_out_of_bound = (ra[indices].max() - ra[indices].min()) * 3600 > self.stamp_size
+        dec_out_of_bounds = (dec[indices].max() - dec[indices].min()) * 3600 > self.stamp_size
+        if ra_out_of_bound or dec_out_of_bounds:
             raise ValueError(
                 "sampled galaxies don't fit in the stamp size, increase the stamp size, "
                 "decrease `max_number` or `link_distance`."
