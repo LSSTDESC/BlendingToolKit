@@ -477,11 +477,11 @@ class FriendsOfFriendsSampling(SamplingFunction):
 
     @staticmethod
     def _arcsec2dist(sep, r=1.0):
-        """Converts arcsec separation to a cartesian distance"""
+        """Converts arcsec separation to a cartesian distance."""
         return np.sin(np.deg2rad(sep / 3600.0 / 2.0)) * 2.0 * r
 
     def _precompute_friends_of_friends_index(self, table: Table):
-        """Computes galaxy groups using friends of friends algorithm on cartesian coordinates"""
+        """Computes galaxy groups using friends of friends algorithm on cartesian coordinates."""
         points = SkyCoord(table["ra"], table["dec"], unit=("deg", "deg")).cartesian.xyz.value.T
         group_ids = find_friends_of_friends(
             points, self._arcsec2dist(self.link_distance), reassign_group_indices=False
