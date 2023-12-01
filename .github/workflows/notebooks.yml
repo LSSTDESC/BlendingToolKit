@@ -39,8 +39,8 @@ jobs:
 
       - name: Install Scarlet
         run: |
-          poetry run pip install "pybind11[global]" peigen
-          poetry run pip install git+https://github.com/pmelchior/scarlet.git
+          poetry run pip install "pybind11[global]" peigen pybind11
+          git clone https://github.com/pmelchior/scarlet.git; cd scarlet; poetry run python setup.py install
 
       # just checks if they run
       - name: Run notebooks
