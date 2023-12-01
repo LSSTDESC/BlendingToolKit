@@ -4,8 +4,8 @@ from typing import Optional, Tuple
 
 import astropy
 import numpy as np
-from astropy.table import Table
 from astropy.coordinates import SkyCoord
+from astropy.table import Table
 from fast3tree import find_friends_of_friends
 
 from btk.utils import DEFAULT_SEED
@@ -440,7 +440,7 @@ class FriendsOfFriendsSampling(SamplingFunction):
     each member of the group is within link_distance of any other member in the group.
     This sampling function explicitly uses the spatial information in the input catalog to
     generate scenes of galaxies. However, blends might not always be returned as a result
-    if the link_distance is too small.
+    if the provided `link_distance` is too small.
     """
 
     def __init__(
@@ -482,8 +482,10 @@ class FriendsOfFriendsSampling(SamplingFunction):
 
     def _precompute_friends_of_friends_index(self, table: Table):
         """Computes galaxy groups using friends of friends algorithm on cartesian coordinates"""
-        points = SkyCoord(table['ra'], table['dec'], unit=('deg', 'deg')).cartesian.xyz.value.T
-        group_ids = find_friends_of_friends(points, self._arcsec2dist(self.link_distance), reassign_group_indices=False)
+        points = SkyCoord(table["ra"], table["dec"], unit=("deg", "deg")).cartesian.xyz.value.T
+        group_ids = find_friends_of_friends(
+            points, self._arcsec2dist(self.link_distance), reassign_group_indices=False
+        )
         table["friends_of_friends_id"] = group_ids
 
     def __call__(self, table: Table):
@@ -504,7 +506,7 @@ class FriendsOfFriendsSampling(SamplingFunction):
         blend_table = table[cond]
 
         # filter by number of galaxies
-        num_galaxies = blend_table.to_pandas()['friends_of_friends_id'].value_counts()
+        num_galaxies = blend_table.to_pandas()["friends_of_friends_id"].value_counts()
         cond1 = num_galaxies >= self.min_number
         cond2 = num_galaxies <= self.max_number
         if (cond1 & cond2).sum() == 0:
@@ -513,7 +515,7 @@ class FriendsOfFriendsSampling(SamplingFunction):
                 "found using a `link_distance` of {self.link_distance}"
             )
         group_id = np.random.choice(num_galaxies[cond1 & cond2].index)
-        indices = blend_table['friends_of_friends_id'] == group_id
+        indices = blend_table["friends_of_friends_id"] == group_id
 
         # check if galaxies fit in the window
         ra = blend_table["ra"]
