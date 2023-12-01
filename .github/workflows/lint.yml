@@ -41,6 +41,7 @@ jobs:
 
       - name: Install Scarlet
         run: |
+          brew install pybind11
           poetry run pip install "pybind11[global]" peigen pybind11
           poetry run pip install git+https://github.com/pmelchior/scarlet.git
 
