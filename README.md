@@ -58,7 +58,7 @@ draw_generator = btk.draw_blends.CatsimGenerator(
 blend_batch = next(draw_generator)
 
 # setup deblender (we use SEP in this case)
-deblender = SepSingleBand(max_n_sources=5,
+deblender = btk.deblend.SepSingleBand(max_n_sources=5,
                           use_band=2 # measure on 'r' band
                           )
 
@@ -66,7 +66,7 @@ deblender = SepSingleBand(max_n_sources=5,
 deblend_batch = deblender(blend_batch)
 
 # setup matcher
-matcher = PixelHungarianMatcher(pixel_max_sep=5.0 # maximum separation in pixels for matching
+matcher = btk.match.PixelHungarianMatcher(pixel_max_sep=5.0 # maximum separation in pixels for matching
 )
 
 # match true and predicted catalogs
