@@ -204,3 +204,24 @@ def test_scarlet(data_dir):
     deblend_batch = deblender(blend_batch, reference_catalogs=blend_batch.catalog_list)
     n_failures = np.sum([len(cat) == 0 for cat in deblend_batch.catalog_list], axis=0)
     assert n_failures <= 3
+
+
+def test_density_sampling(data_dir):
+    """Test new density sampling function."""
+    catalog = btk.catalog.CatsimCatalog.from_file(data_dir / "input_catalog.fits")
+
+    sampling_function = btk.sampling_functions.DensitySampling(
+        max_number=50,
+        min_number=1,
+        stamp_size=24,
+        max_shift=10,
+        min_mag=-np.inf,
+        max_mag=27.3,
+        seed=SEED,
+    )
+
+    blends = sampling_function(catalog.get_raw_catalog())
+
+    assert 1 <= len(blends) <= 50
+    assert np.all(-10 <= blends["ra"]) & np.all(blends["ra"] <= 10)
+    assert np.all(-10 <= blends["dec"]) & np.all(blends["dec"] <= 10)
