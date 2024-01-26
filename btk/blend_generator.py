@@ -1,6 +1,5 @@
 """Contains class `BlendGenerator` to combine entries from a given catalog into blends."""
 
-
 from btk.catalog import Catalog
 from btk.sampling_functions import SamplingFunction
 

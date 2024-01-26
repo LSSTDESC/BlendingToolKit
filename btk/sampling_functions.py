@@ -1,4 +1,5 @@
 """Contains classes of function for extracing information from catalog in blend batches."""
+
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple
 

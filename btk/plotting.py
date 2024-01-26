@@ -1,4 +1,5 @@
 """Utility functions for plotting images."""
+
 from typing import Optional
 
 import numpy as np

@@ -1,4 +1,5 @@
 """Contains the Deblender classes and its subclasses."""
+
 import inspect
 from abc import ABC, abstractmethod
 from itertools import repeat

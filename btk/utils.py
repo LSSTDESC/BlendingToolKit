@@ -1,4 +1,5 @@
 """Contains utility functions, including functions for loading saved results."""
+
 from astropy.table import Table
 from astropy.wcs import WCS
 
