@@ -183,8 +183,8 @@ class DensitySampling(SamplingFunction):
             density: Density of galaxies, default corresponds to 27.3 i-band magnitude
                         cut in CATSIM catalog. (in counts / sq. arcmin)
             stamp_size: Size of the desired stamp (in arcseconds)
-            max_shift: Magnitude of maximum value of shift. If None then a border padding of
-                        10 pixels is set.
+            max_shift: Magnitude of maximum value of shift. If None, then centroids can fall
+                        anywhere within the image. (in arcseconds)
             seed: Seed to initialize randomness for reproducibility.
             min_mag: Minimum magnitude allowed in samples
             max_mag: Maximum magnitude allowed in samples.
@@ -194,12 +194,10 @@ class DensitySampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.min_mag, self.max_mag = min_mag, max_mag
         self.mag_name = mag_name
-        self.exp_count = density * (stamp_size / 60) ** 2
+        self.max_shift = self.stamp_size / 2 if not max_shift else max_shift
 
-        if max_shift is None:
-            self.max_shift = self.stamp_size / 2 - 5 * 0.2  # 5 pixels of padding around image
-        else:
-            self.max_shift = max_shift
+        # only within area where sources are allowed
+        self.exp_count = density * (self.max_shift * 2 / 60) ** 2
 
     def __call__(self, table: Table) -> Table:
         """Applies default sampling to catalog.
