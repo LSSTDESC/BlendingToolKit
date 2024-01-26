@@ -220,8 +220,9 @@ def test_density_sampling(data_dir):
         seed=SEED,
     )
 
-    blends = sampling_function(catalog.get_raw_catalog())
+    for _ in range(10):
+        blends = sampling_function(catalog.get_raw_catalog())
 
-    assert 1 <= len(blends) <= 50
-    assert np.all(-10 <= blends["ra"]) & np.all(blends["ra"] <= 10)
-    assert np.all(-10 <= blends["dec"]) & np.all(blends["dec"] <= 10)
+        assert 1 <= len(blends) <= 50
+        assert np.all(-10 <= blends["ra"]) & np.all(blends["ra"] <= 10)
+        assert np.all(-10 <= blends["dec"]) & np.all(blends["dec"] <= 10)
