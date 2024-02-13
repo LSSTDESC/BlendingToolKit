@@ -1,4 +1,5 @@
 """Tools to match detected objects with truth catalog."""
+
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 

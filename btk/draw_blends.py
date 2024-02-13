@@ -1,4 +1,5 @@
 """Module for generating batches of drawn blended images."""
+
 import copy
 from abc import ABC, abstractmethod
 from itertools import chain

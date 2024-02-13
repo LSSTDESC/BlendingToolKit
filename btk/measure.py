@@ -1,4 +1,5 @@
 """Module for measuring galaxy properties."""
+
 from typing import Tuple
 
 import galsim

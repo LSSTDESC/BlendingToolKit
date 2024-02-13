@@ -1,4 +1,5 @@
 """Contains information for surveys available in BTK."""
+
 import os
 import random as rd
 from typing import Callable, List, Optional, Tuple, Union

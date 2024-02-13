@@ -1,4 +1,5 @@
 """Class which stores all relevant data for blends."""
+
 import os
 from dataclasses import dataclass
 from typing import List, Optional, Union

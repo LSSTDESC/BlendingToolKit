@@ -1,4 +1,5 @@
 """Implements base class for metrics in BTK."""
+
 # pylint: disable=arguments-differ
 from abc import ABC, abstractmethod
 from typing import Dict, Union

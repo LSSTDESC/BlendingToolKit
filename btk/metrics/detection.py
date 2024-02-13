@@ -1,4 +1,5 @@
 """Implementation of detection metrics."""
+
 from typing import Dict
 
 import numpy as np

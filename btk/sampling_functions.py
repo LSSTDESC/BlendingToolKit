@@ -1,4 +1,5 @@
 """Contains classes of function for extracing information from catalog in blend batches."""
+
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple
 
@@ -108,7 +109,7 @@ class DefaultSampling(SamplingFunction):
             min_number: Defined in parent class
             stamp_size: Size of the desired stamp.
             max_shift: Magnitude of maximum value of shift. If None then it
-                             is set as one-tenth the stamp size. (in arcseconds)
+                        is set as one-tenth the stamp size. (in arcseconds)
             seed: Seed to initialize randomness for reproducibility.
             min_mag: Minimum magnitude allowed in samples
             max_mag: Maximum magnitude allowed in samples.
@@ -156,6 +157,87 @@ class DefaultSampling(SamplingFunction):
         blend_table["ra"] += dx
         blend_table["dec"] += dy
         _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
+        return blend_table
+
+
+class DensitySampling(SamplingFunction):
+    """Sampling function that produces galaxy field with a specified density."""
+
+    def __init__(
+        self,
+        max_number: int = 40,
+        min_number: int = 0,
+        density: float = 185,
+        stamp_size: float = 24.0,
+        max_shift: Optional[float] = None,
+        seed: int = DEFAULT_SEED,
+        max_mag: float = 27.3,
+        min_mag: float = -np.inf,
+        mag_name: str = "i_ab",
+    ):
+        """Initializes default sampling function.
+
+        Args:
+            max_number: Defined in parent class
+            min_number: Defined in parent class
+            density: Density of galaxies, default corresponds to 27.3 i-band magnitude
+                        cut in CATSIM catalog. (in counts / sq. arcmin)
+            stamp_size: Size of the desired stamp (in arcseconds)
+            max_shift: Magnitude of maximum value of shift. If None, then centroids can fall
+                        anywhere within the image. (in arcseconds)
+            seed: Seed to initialize randomness for reproducibility.
+            min_mag: Minimum magnitude allowed in samples
+            max_mag: Maximum magnitude allowed in samples.
+            mag_name: Name of the magnitude column in the catalog.
+        """
+        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
+        self.stamp_size = stamp_size
+        self.min_mag, self.max_mag = min_mag, max_mag
+        self.mag_name = mag_name
+        self.max_shift = self.stamp_size / 2 if not max_shift else max_shift
+
+        # only within area where sources are allowed
+        self.exp_count = density * (self.max_shift * 2 / 60) ** 2
+
+    def __call__(self, table: Table) -> Table:
+        """Applies default sampling to catalog.
+
+        Returns an astropy table with entries corresponding to a blend centered close to postage
+        stamp center.
+
+        Number of objects per blend is set at a random integer between ``self.min_number``
+        and ``self.max_number``. The blend table is then randomly sampled entries
+        from the table after magnitude selection cuts. The centers are randomly
+        distributed within ``self.max_shift`` of the center of the postage stamp.
+
+        Here even though the galaxies are sampled from a CatSim catalog, their spatial
+        location are not representative of real blends.
+
+        Args:
+            table: Table containing entries corresponding to galaxies
+                                    from which to sample.
+
+        Returns:
+            Astropy.table with entries corresponding to one blend.
+        """
+        if self.mag_name not in table.colnames:
+            raise ValueError(f"Catalog must have '{self.mag_name}' column.")
+
+        number_of_objects = np.clip(
+            self.rng.poisson(self.exp_count), self.min_number, self.max_number
+        )
+
+        cond = (table[self.mag_name] <= self.max_mag) & (table[self.mag_name] > self.min_mag)
+        (q,) = np.where(cond)
+        blend_table = table[self.rng.choice(q, size=number_of_objects)]
+
+        blend_table["ra"] = 0.0
+        blend_table["dec"] = 0.0
+        dx, dy = _get_random_center_shift(number_of_objects, self.max_shift, self.rng)
+        blend_table["ra"] += dx
+        blend_table["dec"] += dy
+        _raise_error_if_out_of_bounds(blend_table["ra"], blend_table["dec"], self.stamp_size)
+
         return blend_table
 
 
