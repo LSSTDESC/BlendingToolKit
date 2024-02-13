@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.sampling_functions module &mdash; btk 1.0.0b4 documentation</title>
+  <title>btk.sampling_functions module &mdash; btk 1.0.0b5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=06c99ed4"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=a2b11acd"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/js/theme.js"></script>
@@ -61,6 +61,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.BasicSampling"><code class="docutils literal notranslate"><span class="pre">BasicSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.DefaultSampling"><code class="docutils literal notranslate"><span class="pre">DefaultSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.DefaultSamplingShear"><code class="docutils literal notranslate"><span class="pre">DefaultSamplingShear</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.DensitySampling"><code class="docutils literal notranslate"><span class="pre">DensitySampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.FriendsOfFriendsSampling"><code class="docutils literal notranslate"><span class="pre">FriendsOfFriendsSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.PairSampling"><code class="docutils literal notranslate"><span class="pre">PairSampling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.sampling_functions.RandomSquareSampling"><code class="docutils literal notranslate"><span class="pre">RandomSquareSampling</span></code></a></li>
@@ -237,6 +238,59 @@ is set as one-tenth the stamp size. (in arcseconds)</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="btk.sampling_functions.DensitySampling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">DensitySampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">185</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">27.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'i_ab'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DensitySampling" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></p>
+<p>Sampling function that produces galaxy field with a specified density.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.DensitySampling.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Table</span></span></span><a class="headerlink" href="#btk.sampling_functions.DensitySampling.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Applies default sampling to catalog.</p>
+<p>Returns an astropy table with entries corresponding to a blend centered close to postage
+stamp center.</p>
+<p>Number of objects per blend is set at a random integer between <code class="docutils literal notranslate"><span class="pre">self.min_number</span></code>
+and <code class="docutils literal notranslate"><span class="pre">self.max_number</span></code>. The blend table is then randomly sampled entries
+from the table after magnitude selection cuts. The centers are randomly
+distributed within <code class="docutils literal notranslate"><span class="pre">self.max_shift</span></code> of the center of the postage stamp.</p>
+<p>Here even though the galaxies are sampled from a CatSim catalog, their spatial
+location are not representative of real blends.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table</strong> – Table containing entries corresponding to galaxies
+from which to sample.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Astropy.table with entries corresponding to one blend.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="btk.sampling_functions.DensitySampling.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">185</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">27.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'i_ab'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.DensitySampling.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes default sampling function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_number</strong> – Defined in parent class</p></li>
+<li><p><strong>min_number</strong> – Defined in parent class</p></li>
+<li><p><strong>density</strong> – Density of galaxies, default corresponds to 27.3 i-band magnitude
+cut in CATSIM catalog. (in counts / sq. arcmin)</p></li>
+<li><p><strong>stamp_size</strong> – Size of the desired stamp (in arcseconds)</p></li>
+<li><p><strong>max_shift</strong> – Magnitude of maximum value of shift. If None, then centroids can fall
+anywhere within the image. (in arcseconds)</p></li>
+<li><p><strong>seed</strong> – Seed to initialize randomness for reproducibility.</p></li>
+<li><p><strong>min_mag</strong> – Minimum magnitude allowed in samples</p></li>
+<li><p><strong>max_mag</strong> – Maximum magnitude allowed in samples.</p></li>
+<li><p><strong>mag_name</strong> – Name of the magnitude column in the catalog.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="btk.sampling_functions.FriendsOfFriendsSampling">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.sampling_functions.</span></span><span class="sig-name descname"><span class="pre">FriendsOfFriendsSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'i_ab'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.sampling_functions.FriendsOfFriendsSampling" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a></p>
@@ -388,7 +442,7 @@ galaxies chosen for the blend.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, btk developers.</p>
+    <p>&#169; Copyright 2024, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
