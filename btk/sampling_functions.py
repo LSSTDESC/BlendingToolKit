@@ -165,8 +165,8 @@ class DensitySampling(SamplingFunction):
 
     def __init__(
         self,
-        max_number: int = 2,
-        min_number: int = 1,
+        max_number: int = 40,
+        min_number: int = 0,
         density: float = 185,
         stamp_size: float = 24.0,
         max_shift: Optional[float] = None,
