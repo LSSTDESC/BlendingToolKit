@@ -23,7 +23,7 @@ keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
 license = "MIT"
 name = "blending_toolkit"
 readme = "README.md"
-version = "1.0.0b5"
+version = "1.0.0b6"
 packages = [{ include = "btk" }]
 repository = "https://github.com/LSSTDESC/BlendingToolKit"
 homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
