@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.draw_blends module &mdash; btk 1.0.0b5 documentation</title>
+  <title>btk.draw_blends module &mdash; btk 1.0.0b6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=a2b11acd"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=954990a7"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/js/theme.js"></script>
@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#btk.draw_blends.DrawBlendsGenerator"><code class="docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.draw_blends.SourceNotVisible"><code class="docutils literal notranslate"><span class="pre">SourceNotVisible</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.draw_blends.get_catsim_galaxy"><code class="docutils literal notranslate"><span class="pre">get_catsim_galaxy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#btk.draw_blends.render_single_catsim_galaxy"><code class="docutils literal notranslate"><span class="pre">render_single_catsim_galaxy()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="btk.deblend.html">btk.deblend module</a></li>
@@ -301,6 +302,12 @@ and the filter.</p>
 <dd class="field-odd"><p>galsim.GSObject</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="btk.draw_blends.render_single_catsim_galaxy">
+<span class="sig-prename descclassname"><span class="pre">btk.draw_blends.</span></span><span class="sig-name descname"><span class="pre">render_single_catsim_galaxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.survey.html#btk.survey.Filter" title="btk.survey.Filter"><span class="pre">Filter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.survey.html#btk.survey.Survey" title="btk.survey.Survey"><span class="pre">Survey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GSObject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_shear</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.draw_blends.render_single_catsim_galaxy" title="Permalink to this definition"></a></dt>
+<dd><p>Render an image of a single galsim galaxy from a CATSIM entry.</p>
 </dd></dl>
 
 </section>
