@@ -52,51 +52,51 @@ git pull origin dev
 # 4. Created a release branch that tracks origin/dev
 git checkout -b release/$RELEASE origin/dev
 
-# 5. Bump version in release branch
+# 5. Update README with latest pre-release version
+
+# 6. Bump version in release branch
 # edit pyproject.toml file to update the version
 poetry version $RELEASE
 git add pyproject.toml
 git commit -m "Version $RELEASE"
 
-# 6. Pushed release branch to remote repository
+# 7. Pushed release branch to remote repository
 git push --set-upstream origin release/$RELEASE
 
-# 7. Open a "pull request" in GitHub for team to verify the release
+# 8. Open a "pull request" in GitHub for team to verify the release
 
-# 8. Checkout into main branch
+# 9. Checkout into main branch
 git checkout main
 
-# 9. Updated local main branch with remote copy
+# 10. Updated local main branch with remote copy
 git pull origin main
 
-# 10. Merged release branch into main branch
+# 11. Merged release branch into main branch
 git merge release/$RELEASE
 
-# 11. Tagged the release point by creating a new tag
+# 12. Tagged the release point by creating a new tag
 git tag -a $RELEASE -m "Create release tag $RELEASE"
 
-# 12. Pushed main branch to remote repository
+# 13. Pushed main branch to remote repository
 git push origin main
 
-# 13. Pushed the tags to remote repository
+# 14. Pushed the tags to remote repository
 git push origin --tags
 
-# 14. Checkout into dev branch
+# 15. Checkout into dev branch
 git checkout dev
 
-# 15. Merged release branch into dev branch
+# 16. Merged release branch into dev branch
 git merge release/$RELEASE
 
-# 16. Pushed dev branch to remote repository
+# 17. Pushed dev branch to remote repository
 git push origin dev
 
-# 17. Removed release branch from the local repository
+# 18. Removed release branch from the local repository
 git branch -D release/$RELEASE
 
-# 18. Removed release branch from the remote repository
+# 19. Removed release branch from the remote repository
 git push origin :release/$RELEASE
-
-# 19. Update README with latest pre-release version
 
 
 CREDIT: http://www.inanzzz.com
