@@ -96,6 +96,8 @@ git branch -D release/$RELEASE
 # 18. Removed release branch from the remote repository
 git push origin :release/$RELEASE
 
+# 19. Update README with latest pre-release version
+
 
 CREDIT: http://www.inanzzz.com
 ```
