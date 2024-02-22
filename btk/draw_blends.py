@@ -45,6 +45,27 @@ def _get_center_in_pixels(blend_table: Table, wcs: WCS):
     return dx_col, dy_col
 
 
+def render_single_catsim_galaxy(
+    entry: Table,
+    filt: Filter,
+    survey: Survey,
+    psf: galsim.GSObject,
+    slen: int,
+    apply_shear: bool = False,
+):
+    """Render an image of a single galsim galaxy from a CATSIM entry."""
+    gal = get_catsim_galaxy(entry, filt, survey)
+    gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
+    if apply_shear:
+        if "g1" in entry.keys() and "g2" in entry.keys():
+            gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
+        else:
+            raise KeyError("g1 and g2 not found in blend list.")
+    gal_conv = galsim.Convolve(gal, psf)
+    gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
+    return gal_conv.drawImage(nx=slen, ny=slen, scale=survey.pixel_scale.to_value("arcsec"))
+
+
 def get_catsim_galaxy(
     entry: Table,
     filt: Filter,
@@ -404,9 +425,10 @@ class DrawBlendsGenerator(ABC):
         blend_catalog.add_column(
             Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
         )
-        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
-        iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
-        _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
+        slen = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
+
+        iso_image = np.zeros((self.max_number, slen, slen))
+        blend_image = galsim.Image(np.zeros((slen, slen)))
 
         for ii, entry in enumerate(blend_catalog):
             single_image = self.render_single(entry, filt, psf, survey)
@@ -414,7 +436,7 @@ class DrawBlendsGenerator(ABC):
                 iso_image[ii] = np.zeros(single_image)
             else:
                 iso_image[ii] = single_image.array
-                _blend_image += single_image
+                blend_image += single_image
 
         # add noise.
         if self.add_noise in ("galaxy", "all"):
@@ -422,17 +444,17 @@ class DrawBlendsGenerator(ABC):
                 print("Galaxy noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
             galaxy_noise = galsim.PoissonNoise(rng=generator, sky_level=0.0)
-            _blend_image.addNoise(galaxy_noise)
+            blend_image.addNoise(galaxy_noise)
         if self.add_noise in ("background", "all"):
             if self.verbose:
                 print("Background noise added to blend image")
             generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
             background_noise = galsim.PoissonNoise(rng=generator, sky_level=sky_level)
-            noise_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
+            noise_image = galsim.Image(np.zeros((slen, slen)))
             noise_image.addNoise(background_noise)
-            _blend_image += noise_image
+            blend_image += noise_image
 
-        blend_image = _blend_image.array
+        blend_image = blend_image.array
         return blend_image, iso_image
 
     @abstractmethod
@@ -483,20 +505,7 @@ class CatsimGenerator(DrawBlendsGenerator):
 
         slen = self._get_pix_stamp_size(survey)
         try:
-            gal = get_catsim_galaxy(entry, filt, survey)
-            gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
-            if self.apply_shear:
-                if "g1" in entry.keys() and "g2" in entry.keys():
-                    gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
-                else:
-                    raise KeyError("g1 and g2 not found in blend list.")
-            gal_conv = galsim.Convolve(gal, psf)
-            gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
-            return gal_conv.drawImage(  # pylint: disable=no-value-for-parameter
-                nx=slen,
-                ny=slen,
-                scale=survey.pixel_scale.to_value("arcsec"),
-            )
+            return render_single_catsim_galaxy(entry, filt, survey, psf, slen, self.apply_shear)
 
         except SourceNotVisible:
             if self.verbose:
