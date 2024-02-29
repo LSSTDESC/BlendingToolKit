@@ -56,12 +56,15 @@ def get_ksb_ellipticity(
     return ellipticities
 
 
-def get_blendedness(iso_image: np.ndarray):
+def get_blendedness(iso_image: np.ndarray) -> np.ndarray:
     """Calculate blendedness given isolated images of each galaxy in a blend.
 
     Args:
-        iso_image: Array of shape = (..., N, H, W) corresponding to images of the isolated
-            galaxy you are calculating blendedness for.
+        iso_image: Array of shape = (..., N, H, W) corresponding to images of isolated
+            galaxiesi you are calculating blendedness for.
+
+    Returns:
+        Array of size (..., N) corresponding to blendedness values for each individual galaxy.
     """
     assert iso_image.ndim >= 3
     num = np.sum(iso_image * iso_image, axis=(-1, -2))
@@ -70,7 +73,7 @@ def get_blendedness(iso_image: np.ndarray):
     return 1 - num / denom
 
 
-def get_snr(iso_image: np.ndarray, sky_level: float) -> float:
+def get_snr(iso_image: np.ndarray, sky_level: float) -> np.ndarray:
     """Calculate SNR of a set of isolated galaxies with same sky level.
 
     Args:
@@ -78,6 +81,9 @@ def get_snr(iso_image: np.ndarray, sky_level: float) -> float:
             galaxy you are calculating SNR for.
         sky_level: Background level of all images. Images are assume to be
             background-substracted.
+
+    Returns:
+        Array of size (...) corresponding to SNR values for each individual galaxy.
     """
     images = iso_image + sky_level
     return np.sqrt(np.sum(iso_image * iso_image / images, axis=(-1, -2)))
@@ -85,7 +91,7 @@ def get_snr(iso_image: np.ndarray, sky_level: float) -> float:
 
 def _get_single_aperture_flux(
     image: np.ndarray, x: np.ndarray, y: np.ndarray, radius: float, sky_level: float
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """Utility function to measure flux using fixed circular aperture with sep.
 
     Args:
@@ -95,15 +101,19 @@ def _get_single_aperture_flux(
         sky_level (float): Background level of all images.
             Images are assume to be background substracted.
         radius (float): Radius of the aperture in pixels.
+
+    Returns:
+        Tuple of flux and fluxerr.
     """
     assert image.ndim == 2
-    flux, _, _ = sep.sum_circle(image, x, y, radius, err=sky_level)
-    return flux[0]
+    assert x.ndim == 1 and y.ndim == 1
+    flux, fluxerr, _ = sep.sum_circle(image, x, y, radius, var=sky_level)
+    return flux, fluxerr
 
 
 def get_aperture_fluxes(
     images: np.ndarray, xs: np.ndarray, ys: np.ndarray, radius: float, sky_level: float
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """Utility function to measure flux using fixed circular aperture with sep.
 
     Args:
@@ -113,13 +123,23 @@ def get_aperture_fluxes(
         sky_level (float): Background level of all images.
             Images are assume to be background substracted.
         radius (float): Radius of the aperture in pixels.
+
+    Returns:
+        fluxes (np.array): Array of shape (B, N) corresponding to the measured aperture fluxes
+            in each given position for each of the B batches.
+        fluxerr (np.array): Array of same shape with corresponding flux errors.
     """
     assert images.ndim == 3
-    batch_size = images.shape[0]
-    fluxes = np.zeros((batch_size, len(xs)))
+    assert xs.ndim == 2 and ys.ndim == 2
+    batch_size, max_n_sources = xs.shape
+    fluxes = np.zeros((batch_size, max_n_sources))
+    fluxerrs = np.zeros((batch_size, max_n_sources))
     for ii in range(batch_size):
-        fluxes[ii] = _get_single_aperture_flux(images[ii], xs[ii], ys[ii], radius, sky_level)
-    return fluxes
+        n_sources = np.sum((xs[ii] > 0) & (ys[ii] > 0)).astype(int)
+        flux, err = _get_single_aperture_flux(images[ii], xs[ii], ys[ii], radius, sky_level)
+        fluxes[ii, :n_sources] = flux[:n_sources]
+        fluxerrs[ii, :n_sources] = err[:n_sources]
+    return fluxes, fluxerrs
 
 
 def get_residual_images(iso_images: np.ndarray, blend_images: np.ndarray) -> np.ndarray:
