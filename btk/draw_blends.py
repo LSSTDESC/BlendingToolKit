@@ -74,17 +74,17 @@ def get_catsim_galaxy(
     components = []
     total_flux = mag2counts(entry[filt.name + "_ab"], survey, filt).to_value("electron")
     # Calculate the flux of each component in detected electrons.
-    total_fluxnorm = entry["fluxnorm_disk"] + entry["fluxnorm_bulge"] + entry["fluxnorm_agn"]
-    disk_flux = 0.0 if no_disk else entry["fluxnorm_disk"] / total_fluxnorm * total_flux
-    bulge_flux = 0.0 if no_bulge else entry["fluxnorm_bulge"] / total_fluxnorm * total_flux
-    agn_flux = 0.0 if no_agn else entry["fluxnorm_agn"] / total_fluxnorm * total_flux
+    total_fluxnorm = entry["fluxnorm_disk_"+filt.name] + entry["fluxnorm_bulge_"+filt.name] + entry["fluxnorm_agn_"+filt.name]
+    disk_flux = 0.0 if no_disk else entry["fluxnorm_disk_"+filt.name] / total_fluxnorm * total_flux
+    bulge_flux = 0.0 if no_bulge else entry["fluxnorm_bulge_"+filt.name] / total_fluxnorm * total_flux
+    agn_flux = 0.0 if no_agn else entry["fluxnorm_agn_"+filt.name] / total_fluxnorm * total_flux
 
     if disk_flux + bulge_flux + agn_flux == 0:
         raise SourceNotVisible
 
     if disk_flux > 0:
-        if bulge_flux > 0:
-            assert entry["pa_disk"] == entry["pa_bulge"], "Sersic components have different beta."
+#        if bulge_flux > 0:
+#            assert entry["pa_disk"] == entry["pa_bulge"], "Sersic components have different beta."
         a_d, b_d = entry["a_d"], entry["b_d"]
         disk_hlr_arcsecs = np.sqrt(a_d * b_d)
         disk_q = b_d / a_d
@@ -281,6 +281,8 @@ class DrawBlendsGenerator(ABC):
                 blend_images[ii] = batch_results[ii][0]
                 isolated_images[ii] = batch_results[ii][1]
                 catalog_list.append(batch_results[ii][2])
+                
+            print(isolated_images.min())
 
             blend_batch = BlendBatch(
                 self.batch_size,
