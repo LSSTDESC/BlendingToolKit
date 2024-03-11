@@ -545,7 +545,7 @@ class DeblendBatch:
             batch_number (int): Number of the batch.
         """
         fpath = os.path.join(path, f"deblend_{batch_number}.fits")
-        print(f"Writing to {fpath}")
+        # print(f"Writing to {fpath}")
         # Create HDU with deblended image as primary hdu
 
         # save deblended images
@@ -560,7 +560,6 @@ class DeblendBatch:
 
         # Save catalog
         for ii, catalog in enumerate(self.catalog_list):
-            print(f"Debugging print. Catalog type is {type(catalog)}")
             table_hdu = fits.BinTableHDU(catalog)
             table_hdu.header['TYPE'] = 'CATALOG'
             table_hdu.header['BLENDNUM'] = ii
