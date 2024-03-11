@@ -108,16 +108,28 @@ class BlendBatch:
         """
         fpath = os.path.join(path, f"blend_{batch_number}.fits")
 
+        # Create empty primary hdu
         # Create HDU with blended image as primary hdu
         # primary_hdu = fits.PrimaryHDU(data=self.blend_images[batch_number])
-        primary_hdu = fits.PrimaryHDU(data=self.blend_images)
-        primary_hdu.header['TYPE'] = 'BLEND'
+        primary_hdu = fits.PrimaryHDU()
         hdul = fits.HDUList([primary_hdu])
 
+        for i,bi in enumerate(self.blend_images):
+            for j,band in enumerate(bi):
+                im_hdu = fits.ImageHDU(band)
+                im_hdu.header['TYPE'] = 'BLEND'
+                im_hdu.header['BLENDNUM'] = i
+                im_hdu.header['BANDNUM'] = j
+                hdul.append(im_hdu)
+
         # Save isolated images
-        im_hdu = fits.ImageHDU(self.isolated_images)
-        im_hdu.header['TYPE'] = 'ISOLATED'
-        hdul.append(im_hdu)
+        for i,bi in enumerate(self.isolated_images):
+            for j,band in enumerate(bi):
+                im_hdu = fits.ImageHDU(band)
+                im_hdu.header['TYPE'] = 'ISOLATED'
+                im_hdu.header['ISONUM'] = i
+                im_hdu.header['BANDNUM'] = j
+                hdul.append(im_hdu)
 
         # Save PSF after converting to numpy
         psf_array = self.get_numpy_psf()
