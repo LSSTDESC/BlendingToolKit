@@ -4,6 +4,18 @@ from typing import Optional
 
 import numpy as np
 
+CB_color_cycle = [
+    "#377eb8",
+    "#ff7f00",
+    "#4daf4a",
+    "#f781bf",
+    "#a65628",
+    "#984ea3",
+    "#999999",
+    "#e41a1c",
+    "#dede00",
+]
+
 
 def get_rgb(image: np.ndarray, min_val: Optional[float] = None, max_val: Optional[float] = None):
     """Function to normalize 3 band input image to RGB 0-255 image.

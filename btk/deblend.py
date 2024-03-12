@@ -183,6 +183,7 @@ class PeakLocalMax(Deblender):
     def __init__(
         self,
         max_n_sources: int,
+        sky_level: float,
         threshold_scale: int = 5,
         min_distance: int = 2,
         use_mean: bool = False,
@@ -192,7 +193,7 @@ class PeakLocalMax(Deblender):
 
         Args:
             max_n_sources: See parent class.
-            threshold_scale: Minimum intensity of peaks.
+            threshold_scale: Minimum intensity of peaks. TODO: update
             min_distance: Minimum distance in pixels between two peaks.
             use_mean: Flag to use the band average for the measurement.
             use_band: Integer index of the band to use for the measurement.
@@ -200,6 +201,7 @@ class PeakLocalMax(Deblender):
         super().__init__(max_n_sources)
         self.min_distance = min_distance
         self.threshold_scale = threshold_scale
+        self.sky_level = sky_level
 
         if use_band is None and not use_mean:
             raise ValueError("Either set 'use_mean=True' OR indicate a 'use_band' index")
@@ -217,10 +219,15 @@ class PeakLocalMax(Deblender):
             image = blend_image[self.use_band]
 
         # compute threshold value
-        threshold = self.threshold_scale * np.std(image)
+        threshold = self.threshold_scale * np.sqrt(self.sky_level)
 
         # calculate coordinates
-        coordinates = peak_local_max(image, min_distance=self.min_distance, threshold_abs=threshold)
+        coordinates = peak_local_max(
+            image,
+            min_distance=self.min_distance,
+            threshold_abs=threshold,
+            num_peaks=self.max_n_sources,
+        )
         x, y = coordinates[:, 1], coordinates[:, 0]
 
         # convert coordinates to ra, dec
