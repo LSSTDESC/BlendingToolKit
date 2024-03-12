@@ -115,10 +115,35 @@ class Matching:
             new_true_matches, new_pred_matches, np.array(new_n_true), np.array(new_n_pred)
         )
 
+    def filter_by_pred(self, mask: List[np.ndarray]) -> "Matching":
+        """Returns a new Matching object with detected objects that pass the mask."""
+        new_true_matches = []
+        new_pred_matches = []
+        new_n_true = []
+        new_n_pred = []
+        for ii in range(self.batch_size):
+            true_match = self.true_matches[ii]
+            pred_match = self.pred_matches[ii]
+
+            # get indices in pred_matches of pred objects that do not pass mask
+            isin_pred = np.isin(pred_match, np.where(~mask[ii])[0])
+            index_of_interest = np.argwhere(isin_pred).ravel()
+
+            # remove those indices from true_matches and pred_matches
+            new_true_matches.append(np.delete(true_match, index_of_interest, axis=0))
+            new_pred_matches.append(np.delete(pred_match, index_of_interest, axis=0))
+
+            new_n_true.append(self.n_true[ii])
+            new_n_pred.append(np.sum(mask[ii]))
+
+        return Matching(
+            new_true_matches, new_pred_matches, np.array(new_n_true), np.array(new_n_pred)
+        )
+
     @property
     def tp(self) -> np.ndarray:
         """Returns true positive array."""
-        return np.array([len(d) for d in self.true_matches])
+        return np.array([len(d[d != -1]) for d in self.true_matches])
 
     @property
     def fp(self) -> np.ndarray:
@@ -216,7 +241,7 @@ class PixelHungarianMatcher(Matcher):
         dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
         # solve optimization problem using Hungarian matching algorithm
         # truth_catalog[true_indx[i]] is matched with predicted_catalog[matched_indx[i]]
-        # len(true_indx) = len(detect_indx) = min(len(true_table), len(detected_table))
+        # len(true_indx) = len(pred_indx) = min(len(true_table), len(pred_table))
         true_indx, pred_indx = linear_sum_assignment(dist)
 
         # if the distance is greater than max_sep then mark detection as -1
