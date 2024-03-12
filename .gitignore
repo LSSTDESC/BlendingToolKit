@@ -10,3 +10,4 @@
 /docs/build
 /outputs
 /notebooks/figures
+data/cache/*
