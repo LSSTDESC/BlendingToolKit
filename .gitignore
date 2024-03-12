@@ -11,3 +11,4 @@
 /outputs
 /notebooks/figures
 data/cache/*
+/notebooks/scratch.ipynb
