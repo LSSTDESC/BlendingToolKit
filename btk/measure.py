@@ -1,4 +1,4 @@
-"""Module for measuring galaxy properties."""
+"""Module for measuring galaxy properties from images."""
 
 from typing import Tuple
 
