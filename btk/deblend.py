@@ -14,7 +14,12 @@ from galcheat.utilities import mean_sky_level
 from numpy.linalg import LinAlgError
 from skimage.feature import peak_local_max
 
-from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
+from btk.blend_batch import (
+    BlendBatch,
+    DeblendBatch,
+    DeblendExample,
+    MultiResolutionBlendBatch,
+)
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 
@@ -289,7 +294,11 @@ class SepSingleBand(Deblender):
         # run source extractor
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            image, self.thresh, err=bkg.globalrms, segmentation_map=True, minarea=self.min_area
+            image,
+            self.thresh,
+            err=bkg.globalrms,
+            segmentation_map=True,
+            minarea=self.min_area,
         )
 
         segmentation_exp = np.zeros((self.max_n_sources, *image.shape), dtype=bool)
@@ -380,10 +389,16 @@ class SepMultiband(Deblender):
 
                 # add new predictions, masking those that are closer than threshold
                 ra_coordinates = np.concatenate(
-                    [ra_coordinates, ra_detections[distance2d > self.matching_threshold]]
+                    [
+                        ra_coordinates,
+                        ra_detections[distance2d > self.matching_threshold],
+                    ]
                 )
                 dec_coordinates = np.concatenate(
-                    [dec_coordinates, dec_detections[distance2d > self.matching_threshold]]
+                    [
+                        dec_coordinates,
+                        dec_detections[distance2d > self.matching_threshold],
+                    ]
                 )
             else:
                 ra_coordinates = np.concatenate([ra_coordinates, ra_detections])
