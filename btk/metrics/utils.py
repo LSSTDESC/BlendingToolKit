@@ -27,7 +27,7 @@ def get_segmentation(isolated_images: np.ndarray, sky_level: float, sigma_noise:
     return np.where(is_on, seg, np.nan)
 
 
-def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
+def mse(images1: np.ndarray, images2: np.ndarray) -> np.ndarray:
     """Computes mean-squared-error (MSE) between two images.
 
     Args:
@@ -39,7 +39,7 @@ def mse(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     Returns:
         Returns MSE between each corresponding iamge as an array of shape `*`.
     """
-    return np.sqrt(np.power((image1 - image2), 2).mean(axis=(-1, -2)))
+    return np.sqrt(np.power((images1 - images2), 2).mean(axis=(-1, -2)))
 
 
 def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
@@ -65,7 +65,7 @@ def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
     return i / u
 
 
-def psnr(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
+def psnr(images1: np.ndarray, images2: np.ndarray) -> np.ndarray:
     """Compute peak-signal-to-noise-ratio from skimage.
 
     Args:
@@ -77,18 +77,18 @@ def psnr(image1: np.ndarray, image2: np.ndarray) -> np.ndarray:
     Returns:
         Returns PSNR between each corresponding iamge as an array of shape `N`.
     """
-    n, h, w = image1.shape
-    assert image1.min() >= 0 and image2.min() >= 0
-    assert (n, h, w) == image2.shape
+    n, h, w = images1.shape
+    assert images1.min() >= 0 and images2.min() >= 0
+    assert (n, h, w) == images2.shape
     psnr_ = np.zeros(n)
     for ii in range(n):
-        im1 = image1[ii] / image1[ii].max()
-        im2 = image2[ii] / image2[ii].max()
+        im1 = images1[ii] / images1[ii].max()
+        im2 = images2[ii] / images2[ii].max()
         psnr_[ii] = peak_signal_noise_ratio(im1, im2, data_range=1)
     return psnr_
 
 
-def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
+def struct_sim(images1: np.ndarray, images2: np.ndarray, **kwargs) -> np.ndarray:
     """Compute structural similarity index from skimage.
 
     By default, we normalize the images to be between 0 and 1. So that the
@@ -106,13 +106,13 @@ def struct_sim(image1: np.ndarray, image2: np.ndarray, **kwargs) -> np.ndarray:
         Returns structural similarity index between each corresponding iamge as
         an array of shape `N`.
     """
-    assert image1.min() >= 0 and image2.min() >= 0
-    n, h, w = image1.shape
-    assert (n, h, w) == image2.shape
+    assert images1.min() >= 0 and images2.min() >= 0
+    n, h, w = images1.shape
+    assert (n, h, w) == images2.shape
     ssim = np.zeros(n)
     for ii in range(n):
-        im1 = image1[ii] / image1[ii].max()
-        im2 = image2[ii] / image2[ii].max()
+        im1 = images1[ii] / images1[ii].max()
+        im2 = images2[ii] / images2[ii].max()
         ssim[ii] = structural_similarity(im1, im2, data_range=1, **kwargs)
     return ssim
 
