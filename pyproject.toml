@@ -46,16 +46,6 @@ h5py = "^3.9.0"
 fast3tree = "^0.4.1"
 ruff = "^0.3.2"
 
-[tool.poetry.dev-dependencies]
-pre-commit = "^3.3.3"
-jupyter = ">=1.0.0"
-jupyter-sphinx = ">=0.4.0"
-nbmake = ">=1.4.1"
-nbstripout = ">=0.6.1"
-pytest = ">=7.3.1"
-sphinx = ">=4.2.0"
-sphinx-rtd-theme = ">=1.2.1"
-
 [tool.poetry.group.scarlet]
 optional = true
 
@@ -64,6 +54,17 @@ peigen = "^0.0.9"
 autograd = "^1.5"
 proxmin = "^0.6.12"
 pybind11 = "^2.10.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^5.0.0"
+pre-commit = "^3.3.3"
+jupyter = ">=1.0.0"
+jupyter-sphinx = ">=0.4.0"
+nbmake = ">=1.4.1"
+nbstripout = ">=0.6.1"
+pytest = ">=7.3.1"
+sphinx = ">=4.2.0"
+sphinx-rtd-theme = ">=1.2.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
