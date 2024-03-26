@@ -44,6 +44,8 @@ class Deblender(ABC):
         Args:
             ii: The index of the example in the batch.
             blend_batch: Instance of `BlendBatch` class.
+            njobs: Number of processes to use.
+            kwargs: Additional arguments to pass to deblender call.
 
         Returns:
             Instance of `DeblendedExample` class.
@@ -77,7 +79,8 @@ class Deblender(ABC):
 
         Args:
             blend_batch: Instance of `BlendBatch` class
-            njobs: Number of njobs to paralelize across
+            njobs: Number of jobs to paralelize across
+            kwargs: Additional keyword arguments to pass to each deblend call.
 
         Returns:
             Instance of `DeblendedBatch` class
@@ -131,6 +134,7 @@ class MultiResolutionDeblender(ABC):
         Args:
             ii: The index of the example in the batch.
             mr_batch: Instance of `MultiResolutionBlendBatch` class
+            njobs: Number of processes to use.
 
         Returns:
             Instance of `DeblendedExample` class
@@ -456,7 +460,7 @@ class Scarlet(Deblender):
         Args:
             ii: The index of the example in the batch.
             blend_batch: Instance of `BlendBatch` class.
-            reference_catalog: Reference catalog to use for deblending. If None, the
+            reference_catalogs: Reference catalog to use for deblending. If None, the
                 truth catalog is used.
 
         Returns:
