@@ -107,7 +107,7 @@ exclude = [
   "venv",
 ]
 
-# Copying over lack configuration
+# Copying over black configuration
 line-length = 100
 indent-width = 4
 
