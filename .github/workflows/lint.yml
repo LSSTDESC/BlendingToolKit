@@ -50,4 +50,4 @@ jobs:
           poetry run pre-commit run --all-files
 
       - name: Run Ruff
-        run: poetry run ruff check btk/ tests/ --output-format=github .
+        run: poetry run ruff check --output-format=github btk/ tests/
