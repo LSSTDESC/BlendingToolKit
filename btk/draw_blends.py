@@ -431,9 +431,7 @@ class DrawBlendsGenerator(ABC):
 
         for ii, entry in enumerate(blend_catalog):
             single_image = self.render_single(entry, filt, psf, survey)
-            if single_image is None:
-                iso_image[ii] = np.zeros(single_image)
-            else:
+            if single_image is not None:
                 iso_image[ii] = single_image.array
                 blend_image += single_image
 
