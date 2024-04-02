@@ -120,7 +120,7 @@ target-version = "py310"
 # Pyflakes (`F`)
 # Pycodestyle (`E`)
 # Pycodestyle warnings (`W`)
-# import errors (`I`)
+# isort (`I`)
 # pydocstyle (`D`)
 # ruff specific errors (`RUF`)
 # simplifying flake8 (`SIM`)
