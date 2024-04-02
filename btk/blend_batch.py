@@ -432,16 +432,10 @@ class DeblendBatch:
                 catalog_list.append(read_table_hdf5(f, path=f"catalog_list/{ii}"))
 
             # load segmentation
-            if "segmentation" in f.keys():
-                segmentation = f["segmentation"][:]
-            else:
-                segmentation = None
+            segmentation = f["segmentation"][:] if "segmentation" in f.keys() else None
 
             # load deblended images
-            if "deblended_images" in f.keys():
-                deblended_images = f["deblended_images"][:]
-            else:
-                deblended_images = None
+            deblended_images = f["deblended_images"][:] if "deblended_images" in f.keys() else None
 
             # load general info about blend
             batch_size = f.attrs["batch_size"]

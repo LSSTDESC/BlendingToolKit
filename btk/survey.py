@@ -74,7 +74,7 @@ class Filter(galcheat.filter.Filter):
 
 
 def get_surveys(
-    names: Union[str, List[str]], psf_func: Callable = None
+    names: Union[str, List[str]], psf_func: Optional[Callable] = None
 ) -> Union[Survey, List[Survey]]:
     """Return specified surveys from galcheat extended to contain PSF information.
 
@@ -205,11 +205,10 @@ def get_psf_from_file(psf_dir: str, survey: Survey) -> galsim.InterpolatedImage:
     else:
         raise RuntimeError(f"No psf files found in '{psf_dir}'.")
     psf_array = fits.getdata(psf_dir + "/" + psf_file)
-    psf_model = galsim.InterpolatedImage(
+
+    return galsim.InterpolatedImage(
         galsim.Image(psf_array), scale=survey.pixel_scale.to_value("arcsec")
     ).withFlux(1.0)
-
-    return psf_model
 
 
 def make_wcs(

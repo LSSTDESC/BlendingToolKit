@@ -128,8 +128,7 @@ def get_catsim_galaxy(
         agn = galsim.Gaussian(flux=agn_flux, sigma=1e-8)
         components.append(agn)
 
-    profile = galsim.Add(components)
-    return profile
+    return galsim.Add(components)
 
 
 class DrawBlendsGenerator(ABC):

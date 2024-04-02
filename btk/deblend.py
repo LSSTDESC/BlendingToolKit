@@ -14,7 +14,12 @@ from galcheat.utilities import mean_sky_level
 from numpy.linalg import LinAlgError
 from skimage.feature import peak_local_max
 
-from btk.blend_batch import BlendBatch, DeblendBatch, DeblendExample, MultiResolutionBlendBatch
+from btk.blend_batch import (
+    BlendBatch,
+    DeblendBatch,
+    DeblendExample,
+    MultiResolutionBlendBatch,
+)
 from btk.draw_blends import DrawBlendsGenerator
 from btk.multiprocess import multiprocess
 
@@ -39,6 +44,8 @@ class Deblender(ABC):
         Args:
             ii: The index of the example in the batch.
             blend_batch: Instance of `BlendBatch` class.
+            njobs: Number of processes to use.
+            kwargs: Additional arguments to pass to deblender call.
 
         Returns:
             Instance of `DeblendedExample` class.
@@ -72,7 +79,8 @@ class Deblender(ABC):
 
         Args:
             blend_batch: Instance of `BlendBatch` class
-            njobs: Number of njobs to paralelize across
+            njobs: Number of jobs to paralelize across
+            kwargs: Additional keyword arguments to pass to each deblend call.
 
         Returns:
             Instance of `DeblendedBatch` class
@@ -126,6 +134,7 @@ class MultiResolutionDeblender(ABC):
         Args:
             ii: The index of the example in the batch.
             mr_batch: Instance of `MultiResolutionBlendBatch` class
+            njobs: Number of processes to use.
 
         Returns:
             Instance of `DeblendedExample` class
@@ -211,10 +220,7 @@ class PeakLocalMax(Deblender):
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
         blend_image = blend_batch.blend_images[ii]
-        if self.use_mean:
-            image = np.mean(blend_image, axis=0)
-        else:
-            image = blend_image[self.use_band]
+        image = np.mean(blend_image, axis=0) if self.use_mean else blend_image[self.use_band]
 
         # compute threshold value
         threshold = self.threshold_scale * np.std(image)
@@ -281,15 +287,16 @@ class SepSingleBand(Deblender):
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch.blend_images[ii]
-        if self.use_mean:
-            image = np.mean(blend_image, axis=0)
-        else:
-            image = blend_image[self.use_band]
+        image = np.mean(blend_image, axis=0) if self.use_mean else blend_image[self.use_band]
 
         # run source extractor
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
-            image, self.thresh, err=bkg.globalrms, segmentation_map=True, minarea=self.min_area
+            image,
+            self.thresh,
+            err=bkg.globalrms,
+            segmentation_map=True,
+            minarea=self.min_area,
         )
 
         segmentation_exp = np.zeros((self.max_n_sources, *image.shape), dtype=bool)
@@ -380,10 +387,16 @@ class SepMultiband(Deblender):
 
                 # add new predictions, masking those that are closer than threshold
                 ra_coordinates = np.concatenate(
-                    [ra_coordinates, ra_detections[distance2d > self.matching_threshold]]
+                    [
+                        ra_coordinates,
+                        ra_detections[distance2d > self.matching_threshold],
+                    ]
                 )
                 dec_coordinates = np.concatenate(
-                    [dec_coordinates, dec_detections[distance2d > self.matching_threshold]]
+                    [
+                        dec_coordinates,
+                        dec_detections[distance2d > self.matching_threshold],
+                    ]
                 )
             else:
                 ra_coordinates = np.concatenate([ra_coordinates, ra_detections])
@@ -441,7 +454,7 @@ class Scarlet(Deblender):
         Args:
             ii: The index of the example in the batch.
             blend_batch: Instance of `BlendBatch` class.
-            reference_catalog: Reference catalog to use for deblending. If None, the
+            reference_catalogs: Reference catalog to use for deblending. If None, the
                 truth catalog is used.
 
         Returns:
