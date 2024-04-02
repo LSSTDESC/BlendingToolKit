@@ -220,10 +220,7 @@ class PeakLocalMax(Deblender):
     def deblend(self, ii: int, blend_batch: BlendBatch) -> DeblendExample:
         """Performs measurement on the ii-th example from the batch."""
         blend_image = blend_batch.blend_images[ii]
-        if self.use_mean:
-            image = np.mean(blend_image, axis=0)
-        else:
-            image = blend_image[self.use_band]
+        image = np.mean(blend_image, axis=0) if self.use_mean else blend_image[self.use_band]
 
         # compute threshold value
         threshold = self.threshold_scale * np.std(image)
@@ -290,10 +287,7 @@ class SepSingleBand(Deblender):
         """Performs measurement on the i-th example from the batch."""
         # get a 1-channel input for sep
         blend_image = blend_batch.blend_images[ii]
-        if self.use_mean:
-            image = np.mean(blend_image, axis=0)
-        else:
-            image = blend_image[self.use_band]
+        image = np.mean(blend_image, axis=0) if self.use_mean else blend_image[self.use_band]
 
         # run source extractor
         bkg = sep.Background(image)

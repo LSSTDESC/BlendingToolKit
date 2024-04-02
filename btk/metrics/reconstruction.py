@@ -27,8 +27,8 @@ class ReconstructionMetric(Metric, ABC):
                 images2 = iso_images2[ii, :n_sources]
                 mets = metric_func(images1, images2)
                 assert mets.shape == (n_sources,)
-                for ii in range(n_sources):
-                    results.append(mets[ii])
+                for jj in range(n_sources):
+                    results.append(mets[jj])
 
         return np.array(results)
 
