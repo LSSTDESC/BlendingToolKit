@@ -214,12 +214,12 @@ class DeblendExample:
     def _validate_catalog(self, catalog: Table):
         if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
             raise ValueError(
-                "The output catalog of at least one of your measurement functions does"
+                "The output catalog of at least one of your deblenders does"
                 "not contain the mandatory 'ra' and 'dec' columns"
             )
         if not len(catalog) <= self.max_n_sources:
             raise ValueError(
-                "The predicted catalog of at least one of your deblended images "
+                "The detection catalog of at least one of your deblended images "
                 "contains more sources than the maximum number of sources specified."
             )
         return catalog
@@ -320,7 +320,7 @@ class DeblendBatch:
                 )
             if not len(catalog) <= self.max_n_sources:
                 raise ValueError(
-                    "The predicted catalog of at least one of your deblended images "
+                    "The detections catalog of at least one of your deblended images "
                     "contains more sources than the maximum number of sources specified."
                 )
         return catalog_list
