@@ -37,7 +37,6 @@ class BlendBatch:
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == self._get_image_size()
-        assert self.isolated_images.min() >= 0
 
     def _get_image_size(self) -> int:
         """Returns the size of the stamps in pixels."""
@@ -258,11 +257,7 @@ class DeblendExample:
                     "The predicted deblended_images of at least one of your deblended images "
                     f"has the wrong shape. It should be {deblended_shape}."
                 )
-            if deblended_images.min() < 0:
-                raise ValueError(
-                    "The predicted deblended_images of at least one of your "
-                    "deblended images has negative values which is unphysical."
-                )
+
         return deblended_images
 
     def __repr__(self):
@@ -359,11 +354,6 @@ class DeblendBatch:
                 self.image_size,
             )
 
-            if deblended_images.min() < 0:
-                raise ValueError(
-                    "The predicted deblended_images of at least one of your "
-                    "deblended images has negative values which is unphysical."
-                )
         return deblended_images
 
     def __repr__(self) -> str:
