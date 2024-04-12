@@ -505,6 +505,188 @@ class CatsimGenerator(DrawBlendsGenerator):
             entry["not_drawn_" + filt.name] = 1
             return None
 
+        
+        
+        
+class CosmoDC2Generator(DrawBlendsGenerator):
+    """Implementation of DrawBlendsGenerator for drawing galaxies from a Catsim-like catalog.
+
+    The code for drawing these galaxies and the default PSF is taken almost directly from
+    WeakLensingDeblending (https://github.com/LSSTDESC/WeakLensingDeblending).
+    """
+    
+    
+    def __init__(
+        self,
+        catalog: Catalog,
+        sampling_function: SamplingFunction,
+        surveys: List[Survey],
+        sky_levels: dict, 
+        batch_size: int = 8,
+        stamp_size: float = 24.0,
+        njobs: int = 1,
+        verbose: bool = False,
+        add_noise: str = "all",
+        seed: int = DEFAULT_SEED,
+        use_bar: bool = False,
+        apply_shear: bool = False,
+        augment_data: bool = False,
+        gal_type: str = "real",
+    ):
+        """Initializes the CosmosGenerator class. See parent class for most attributes.
+
+        Args:
+            catalog: See parent class.
+            sampling_function: See parent class.
+            surveys: See parent class.
+            batch_size: See parent class.
+            stamp_size: See parent class.
+            njobs: See parent class.
+            verbose: See parent class.
+            add_noise: See parent class.
+            seed: See parent class.
+            use_bar: See parent class.
+            apply_shear: See parent class.
+            augment_data: See parent class.
+            gal_type: string to specify the type of galaxy simulations.
+                            Either "real" (default) or "parametric".
+        """
+        super().__init__(
+            catalog,
+            sampling_function,
+            surveys,
+            batch_size,
+            stamp_size,
+            njobs,
+            verbose,
+            use_bar,
+            add_noise,
+            seed,
+            apply_shear,
+            augment_data,
+        )
+        
+        self.sky_levels = sky_levels
+
+    compatible_catalogs = ("CatsimCatalog",)
+
+    def _check_compatibility(self, survey: Survey) -> None:
+        if type(self.catalog).__name__ not in self.compatible_catalogs:
+            raise ValueError(
+                f"The catalog provided is of the wrong type. The types of "
+                f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
+            )
+        for band in survey.available_filters:
+            if band + "_ab" not in self.catalog.table.keys():
+                raise ValueError(
+                    f"The {band} filter of the survey {survey.name} "
+                    f"has no associated magnitude in the given catalog."
+                )       
+                
+    def render_blend(
+        self,
+        blend_catalog: Table,
+        psf: galsim.GSObject,
+        filt: Filter,
+        survey: Survey,
+        seedseq_blend: np.random.SeedSequence,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Draws image of isolated galaxies along with the blend image in the single input band.
+
+        The WLDeblending package (descwl) renders galaxies corresponding to the
+        blend_catalog entries and with observing conditions determined by
+        cutout. The rendered objects are stored in the observing conditions
+        class. So as to not overwrite images across different blends, we make a
+        copy of the cutout while drawing each galaxy. Images of isolated
+        galaxies are drawn with the WLDeblending and them summed to produce the
+        blend image.
+
+        A column 'not_drawn_{band}' is added to blend_catalog initialized as zero.
+        If a galaxy was not drawn by descwl, then this flag is set to 1.
+
+        Args:
+            blend_catalog: Catalog with entries corresponding to one blend.
+            psf: Galsim object containing the psf for the given filter
+            filt: BTK Filter object
+            survey: BTK Survey object
+            seedseq_blend: Seed sequence for the noise generation.
+
+        Returns:
+            Images of blend and isolated galaxies as `numpy.ndarray`.
+        """
+        #sky_level = mean_sky_level(survey, filt).to_value("electron")
+        sky_level = self.sky_levels[filt.name]
+        
+        blend_catalog.add_column(
+            Column(np.zeros(len(blend_catalog)), name="not_drawn_" + filt.name)
+        )
+        pix_stamp_size = int(self.stamp_size / survey.pixel_scale.to_value("arcsec"))
+        iso_image = np.zeros((self.max_number, pix_stamp_size, pix_stamp_size))
+        _blend_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
+
+        for ii, entry in enumerate(blend_catalog):
+            single_image = self.render_single(entry, filt, psf, survey)
+            if single_image is None:
+                iso_image[ii] = np.zeros(single_image)
+            else:
+                iso_image[ii] = single_image.array
+                _blend_image += single_image
+
+                
+        
+                
+        # add noise.
+        if self.add_noise in ("galaxy", "all"):
+            if self.verbose:
+                print("Galaxy noise added to blend image")
+            generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
+            galaxy_noise = galsim.PoissonNoise(rng=generator, sky_level=0.0)
+            _blend_image.addNoise(galaxy_noise)
+        if self.add_noise in ("background", "all"):
+            if self.verbose:
+                print("Background noise added to blend image")
+            generator = galsim.random.BaseDeviate(seed=seedseq_blend.generate_state(1))
+            background_noise = galsim.PoissonNoise(rng=generator, sky_level=sky_level)
+            noise_image = galsim.Image(np.zeros((pix_stamp_size, pix_stamp_size)))
+            noise_image.addNoise(background_noise)
+            _blend_image += noise_image
+            
+        #divide by exposure time
+        _blend_image = _blend_image / filt.full_exposure_time.value
+
+        blend_image = _blend_image.array
+        return blend_image, iso_image
+
+    def render_single(self, entry: Catalog, filt: Filter, psf: galsim.GSObject, survey: Survey):
+        """Returns the Galsim Image of an isolated galaxy."""
+        if self.verbose:
+            print("Draw isolated object")
+
+        slen = self._get_pix_stamp_size(survey)
+        try:
+            gal = get_catsim_galaxy(entry, filt, survey)
+            gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
+            if self.apply_shear:
+                if "g1" in entry.keys() and "g2" in entry.keys():
+                    gal = gal.shear(g1=entry["g1"], g2=entry["g2"])
+                else:
+                    raise KeyError("g1 and g2 not found in blend list.")
+            gal_conv = galsim.Convolve(gal, psf)
+            gal_conv = gal_conv.shift(entry["ra"], entry["dec"])
+            return gal_conv.drawImage(  # pylint: disable=no-value-for-parameter
+                nx=slen,
+                ny=slen,
+                scale=survey.pixel_scale.to_value("arcsec"),
+            )
+
+        except SourceNotVisible:
+            if self.verbose:
+                print("Source not visible")
+            entry["not_drawn_" + filt.name] = 1
+            return None
+        
+        
+        
 
 class CosmosGenerator(DrawBlendsGenerator):
     """Subclass of DrawBlendsGenerator for drawing galaxies from the COSMOS catalog."""
