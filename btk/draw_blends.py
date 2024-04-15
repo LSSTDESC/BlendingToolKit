@@ -591,13 +591,14 @@ class CosmosGenerator(DrawBlendsGenerator):
         # see example here: https://github.com/GalSim-developers/GalSim/blob/dfb319cdec49d769ce85b2ccaeeccf242824836d/examples/demo11.py#L110
         # more details here: https://galsim-developers.github.io/GalSim/_build/html/real_gal.html#galsim.GalaxySample.makeGalaxy
         hst_eff_area = 2.4**2 * (1.0 - 0.33**2)
-        flux_scaling = (survey.mirror_diameter**2 / hst_eff_area) * filt.full_exposure_time
+        flux_unscaled = mag2counts(entry["MAG"], survey, filt)
+        flux_scaling = survey.mirror_diameter**2 / hst_eff_area
 
         index = entry["btk_index"]
         gal = galsim_catalog.makeGalaxy(
             index, gal_type=self.gal_type, noise_pad_size=self.noise_pad_size
         )
-        gal *= flux_scaling
+        gal = gal.withFlux(flux_unscaled * flux_scaling)
         gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
         if self.apply_shear:
             if "g1" in entry.keys() and "g2" in entry.keys():
