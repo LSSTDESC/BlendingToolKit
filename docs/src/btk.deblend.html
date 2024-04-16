@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.deblend module &mdash; btk 1.0.0b6 documentation</title>
+  <title>btk.deblend module &mdash; btk 1.0.0b7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=954990a7"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=313114be"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/js/theme.js"></script>
@@ -49,6 +49,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../catalog.html">Galaxy Catalogs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 </ul>
@@ -117,7 +118,7 @@ like to add your deblender to the main BTK repository.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.DeblendGenerator.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deblenders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><span class="pre">Deblender</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_blend_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><span class="pre">DrawBlendsGenerator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.DeblendGenerator.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initialize measurement generator.</p>
+<dd><p>Initialize deblender generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -125,7 +126,7 @@ like to add your deblender to the main BTK repository.</p>
 outputs of the draw_blend_generator.</p></li>
 <li><p><strong>draw_blend_generator</strong> – Instance of subclasses of <cite>DrawBlendsGenerator</cite>.</p></li>
 <li><p><strong>njobs</strong> – The number of parallel processes to run [Default: 1].</p></li>
-<li><p><strong>verbose</strong> – Whether to print information about measurement.</p></li>
+<li><p><strong>verbose</strong> – Whether to print information about deblending.</p></li>
 </ul>
 </dd>
 </dl>
@@ -148,6 +149,8 @@ outputs of the draw_blend_generator.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
 <li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class.</p></li>
+<li><p><strong>njobs</strong> – Number of processes to use.</p></li>
+<li><p><strong>kwargs</strong> – Additional arguments to pass to deblender call.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -178,7 +181,8 @@ the iteration over all examples in the batch.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class</p></li>
-<li><p><strong>njobs</strong> – Number of njobs to paralelize across</p></li>
+<li><p><strong>njobs</strong> – Number of jobs to paralelize across</p></li>
+<li><p><strong>kwargs</strong> – Additional keyword arguments to pass to each deblend call.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -221,6 +225,7 @@ the iteration over all examples in the batch.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
 <li><p><strong>mr_batch</strong> – Instance of <cite>MultiResolutionBlendBatch</cite> class</p></li>
+<li><p><strong>njobs</strong> – Number of processes to use.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -281,20 +286,20 @@ the iteration over all examples in the batch.</p>
 <dd><p>Bases: <a class="reference internal" href="#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a></p>
 <p>This class detects centroids with <cite>skimage.feature.peak_local_max</cite>.</p>
 <p>The function performs detection and deblending of the sources based on the provided
-band index. If use_mean feature is used, then the measurement function is using
+band index. If use_mean feature is used, then the Deblender will use
 the average of all the bands.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.PeakLocalMax.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.PeakLocalMax.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes measurement class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
+<dd><p>Initializes Deblender class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_n_sources</strong> – See parent class.</p></li>
 <li><p><strong>threshold_scale</strong> – Minimum intensity of peaks.</p></li>
 <li><p><strong>min_distance</strong> – Minimum distance in pixels between two peaks.</p></li>
-<li><p><strong>use_mean</strong> – Flag to use the band average for the measurement.</p></li>
-<li><p><strong>use_band</strong> – Integer index of the band to use for the measurement.</p></li>
+<li><p><strong>use_mean</strong> – Flag to use the band average for deblending.</p></li>
+<li><p><strong>use_band</strong> – Integer index of the band to use for deblending</p></li>
 </ul>
 </dd>
 </dl>
@@ -303,7 +308,7 @@ the average of all the bands.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.PeakLocalMax.deblend">
 <span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.PeakLocalMax.deblend" title="Permalink to this definition"></a></dt>
-<dd><p>Performs measurement on the ii-th example from the batch.</p>
+<dd><p>Performs deblending on the ii-th example from the batch.</p>
 </dd></dl>
 
 </dd></dl>
@@ -341,13 +346,13 @@ See <cite>scarlet.blend.Blend.fit</cite> method for details. (Default: 1e-5)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.Scarlet.deblend">
 <span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_catalogs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.Scarlet.deblend" title="Permalink to this definition"></a></dt>
-<dd><p>Performs measurement on the ii-th example from the batch.</p>
+<dd><p>Performs deblending on the ii-th example from the batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ii</strong> – The index of the example in the batch.</p></li>
 <li><p><strong>blend_batch</strong> – Instance of <cite>BlendBatch</cite> class.</p></li>
-<li><p><strong>reference_catalog</strong> – Reference catalog to use for deblending. If None, the
+<li><p><strong>reference_catalogs</strong> – Reference catalog to use for deblending. If None, the
 truth catalog is used.</p></li>
 </ul>
 </dd>
@@ -372,7 +377,7 @@ were closer than <cite>matching_threshold</cite> to any one of already detected 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.SepMultiband.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.deblend.SepMultiband.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initialize the SepMultiband measurement function.</p>
+<dd><p>Initialize the SepMultiband Deblender.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -387,7 +392,7 @@ were closer than <cite>matching_threshold</cite> to any one of already detected 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.SepMultiband.deblend">
 <span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.SepMultiband.deblend" title="Permalink to this definition"></a></dt>
-<dd><p>Performs measurement on the ii-th example from the batch.</p>
+<dd><p>Performs deblending on the ii-th example from the batch.</p>
 </dd></dl>
 
 </dd></dl>
@@ -404,7 +409,7 @@ band index. If <cite>use_mean</cite> feature is used, then we use the average of
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.SepSingleBand.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#btk.deblend.SepSingleBand.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes measurement class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
+<dd><p>Initializes Deblender class. Exactly one of ‘use_mean’ or ‘use_band’ must be specified.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -414,8 +419,8 @@ interpreted as a relative threshold: the absolute threshold at pixel (j, i)
 will be <cite>thresh * err[j, i]</cite> where <cite>err</cite> is set to the global rms of
 the background measured by SEP.</p></li>
 <li><p><strong>min_area</strong> – Minimum number of pixels required for an object. Default is 5.</p></li>
-<li><p><strong>use_mean</strong> – Flag to use the band average for the measurement</p></li>
-<li><p><strong>use_band</strong> – Integer index of the band to use for the measurement</p></li>
+<li><p><strong>use_mean</strong> – Flag to use the band average for deblending.</p></li>
+<li><p><strong>use_band</strong> – Integer index of the band to use for deblending.</p></li>
 </ul>
 </dd>
 </dl>
@@ -424,7 +429,7 @@ the background measured by SEP.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.deblend.SepSingleBand.deblend">
 <span class="sig-name descname"><span class="pre">deblend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ii</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BlendBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DeblendExample</span></span></span><a class="headerlink" href="#btk.deblend.SepSingleBand.deblend" title="Permalink to this definition"></a></dt>
-<dd><p>Performs measurement on the i-th example from the batch.</p>
+<dd><p>Performs deblending on the i-th example from the batch.</p>
 </dd></dl>
 
 </dd></dl>

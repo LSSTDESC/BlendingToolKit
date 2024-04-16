@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Guide &mdash; btk 1.0.0a9 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>User Guide &mdash; btk 1.0.0b7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=313114be"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorials" href="tutorials.html" />
-    <link rel="prev" title="Input Catalog" href="catalog.html" /> 
+    <link rel="next" title="Galaxy Catalogs" href="catalog.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,8 +49,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="catalog.html">Input Catalog</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="catalog.html">Galaxy Catalogs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 <ul>
@@ -80,17 +83,33 @@
              
   <section id="user-guide">
 <h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h1>
-<p>This document gives a detailed look into the workflow of <em>BlendingToolKit</em> (btk). For a quick tutorial on how to run btk, take a look at our <a class="reference external" href="tutorials.html">tutorials</a>. This page is especially useful if you plan to use btk with your own detection/deblending/measurement algorithm. The workflow presented here should be as general as possible.</p>
+<p>This document gives a detailed look into the workflow of <em>BlendingToolKit</em> (btk). For tutorials on running BTK, take a look at our <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/tutorials.html">tutorials</a>. This page is especially useful if you plan to use BTK with your own detection or deblending algorithm.</p>
 <p>The workflow is as follows:</p>
 <img alt="_images/diagram.png" class="align-center" src="_images/diagram.png" />
 <ol class="arabic simple">
 <li><p><em>Set parameter values</em>: define parameter values to create postage stamps, including size of stamp, number of objects per blend, and how many stamps are to be drawn in one batch – i.e., the number of stamps btk will produce together in a singe batch. The observing survey name (e.g., LSST, DES), the name of the input catalog to draw objects from, and the names of the observing bands are also specified here.</p></li>
-<li><p><em>Load Catalog:</em> Reads the input catalog file. This must be done using a <a class="reference internal" href="src/btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a>-like object (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">WLDCatalog</span></code>), either by providing directly the catalog or by using the <a class="reference internal" href="src/btk.catalog.html#btk.catalog.Catalog.from_file" title="btk.catalog.Catalog.from_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_file()</span></code></a> method.</p></li>
-<li><p><em>Specify the</em> <a class="reference internal" href="src/btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a>: A sampling function is a callable object, which takes into input a catalog and returns specific entries along with parameters for a given blend (such as object shifts in the stamp for instance). You may use the default class <code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultSamplingFunction</span></code>, or define a new one if you want to have more control over how the galaxies are selected and the blends are defined. <em>NOTE:</em> The default sampling function performs a cut of <code class="docutils literal notranslate"><span class="pre">ref_mag</span> <span class="pre">&lt;</span> <span class="pre">25.3</span></code>. Please take a look at our <a class="reference external" href="tutorials.html">tutorials</a> page for more details.</p></li>
-<li><p><em>Choose a survey:</em> BTK now relies on the <a class="reference external" href="https://github.com/aboucaud/galcheat">galcheat</a> package. This package contains informations on various survey, including LSST, HSC and HSC COSMOS (among others). It provides this information as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, which can be easily imported in BTK using its name, via the <cite>get_surveys</cite> function. It is also pretty simple to tweak the parameters of the survey at this stage. The user can also provide a custom PSF at this point, either as a Galsim model or with a FITS file (there is also a possibility to randomize the PSF if needed), or use the default PSF provided by BTK.</p></li>
-<li><p><em>Draw blends</em>: Simulates scene of overlapping objects, convolved by the PSF and with pixel noise. This step is done by creating a <a class="reference internal" href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a>-like object (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">WLDGenerator</span></code>), which is given the catalog, sampling function and survey created in step 2 to 4. It can then be called using <code class="docutils literal notranslate"><span class="pre">next(draw_blends_generator)</span></code> to get the results as a dictionary, including the blends with the key <code class="docutils literal notranslate"><span class="pre">blend_images</span></code>, the isolated galaxy images with the key <code class="docutils literal notranslate"><span class="pre">isolated_images</span></code> and the blend parameters with the key <code class="docutils literal notranslate"><span class="pre">blend_list</span></code>. In the case where multiple surveys were provided in step 4, each entry will instead take the form of a dictionary indexed by the survey names, with each value corresponding to the information for one of the surveys. Fluxes in BTK are calculated using <cite>galcheat</cite> based on the <code class="xref py py-func docutils literal notranslate"><span class="pre">mag2counts()</span></code> function and corresponding survey and filter parameters. Please see the <cite>galcheat</cite> documentation for more details.</p></li>
-<li><p><em>Detection/Deblending/Measure</em>: Performs user-defined measurements (detection, segmentation, deblended images) on the generated blends. The user may create a <a class="reference internal" href="src/btk.measure.html#btk.measure.MeasureGenerator" title="btk.measure.MeasureGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasureGenerator</span></code></a>, providing the draw blends generator from step 5 as well as one or several measure function(s), which perform the measurements on one blend. The user is expected to write his own measure function, an implementation for <a class="reference external" href="https://sep.readthedocs.io/en/v1.0.x/index.html">SEP</a> (SourceExtractor with python) is available as an example <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/ae833212127d5c5ec64a205f6731d9d1d03fdec0/btk/measure.py#L132">here</a> and a more detailed explanation on how to implement your own measure function is available in the <a class="reference external" href="tutorials.html">tutorials page</a>.</p></li>
-<li><p><em>Compute metrics</em>: Matches the detections to the true galaxies and compute metrics relative to the quality of the detection, segmentation and deblended images. This is achieved using a <a class="reference internal" href="src/btk.metrics.html#btk.metrics.MetricsGenerator" title="btk.metrics.MetricsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricsGenerator</span></code></a> object, which takes as an argument the measure generator from step 6. For users that do not wish to use the whole BTK framework, the function <a class="reference internal" href="src/btk.metrics.html#btk.metrics.compute_metrics" title="btk.metrics.compute_metrics"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_metrics()</span></code></a> can be used directly to compute the metrics by directly providing the data.</p></li>
+<li><p><em>Load Catalog:</em> Reads the input catalog file. This must be done using a <a class="reference internal" href="src/btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a>-like object (e.g. <a class="reference internal" href="src/btk.catalog.html#btk.catalog.CatsimCatalog" title="btk.catalog.CatsimCatalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">CatsimCatalog</span></code></a>), either by providing directly the catalog or by using the <a class="reference internal" href="src/btk.catalog.html#btk.catalog.Catalog.from_file" title="btk.catalog.Catalog.from_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_file()</span></code></a> method.</p></li>
+</ol>
+<p>3. <em>Specify the</em> <a class="reference internal" href="src/btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a>: A sampling function is a callable object, which takes into input a catalog and returns specific entries along with parameters for a given blend (such as object shifts in the stamp for instance).
+You may use the default class <code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultSamplingFunction</span></code>, or define a new one if you want to have more control over how the galaxies are selected and the blends are defined. Please take a look at our <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/tutorials.html">tutorials</a> page for more details.</p>
+<ol class="arabic simple" start="4">
+<li><p><em>Choose a survey:</em> BTK now relies on the <a class="reference external" href="https://github.com/aboucaud/galcheat">galcheat</a> package. This package contains informations on various survey, including LSST, HSC and HST COSMOS (among others). It provides this information as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, which can be easily imported in BTK using the survey name, via the <cite>get_surveys</cite> function. The user can also provide a custom PSF at this point, either as a <cite>galsim</cite> model or with a FITS file, or use the default (optical + atmospheric) PSF  provided by BTK.</p></li>
+</ol>
+<p>5. <em>Draw blends</em>: Simulates scene of overlapping objects, convolved by the PSF and with pixel noise. This step is done by creating a <a class="reference internal" href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a>-like object (e.g. <a class="reference internal" href="src/btk.draw_blends.html#btk.draw_blends.CatsimGenerator" title="btk.draw_blends.CatsimGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CatsimGenerator</span></code></a>), which takes as input the catalog, sampling function and survey created in step 2 to 4. It can then be called using <code class="docutils literal notranslate"><span class="pre">next(draw_blends_generator)</span></code> to get the results as a <cite>:class:btk.blend_batch.BlendBatch</cite>, which includes attributes containing the blend images with the key <code class="docutils literal notranslate"><span class="pre">blend_images</span></code>, the isolated galaxy images <code class="docutils literal notranslate"><span class="pre">isolated_images</span></code>, and the blend parameters with the key <code class="docutils literal notranslate"><span class="pre">catalog_list</span></code>.
+Fluxes in BTK are calculated using <cite>galcheat</cite> based on the <code class="xref py py-func docutils literal notranslate"><span class="pre">mag2counts()</span></code> function and corresponding survey and filter parameters. Please see the <cite>galcheat &lt;https://aboucaud.github.io/galcheat/api/utilities.html&gt;</cite> documentation for more details.</p>
+<ol class="arabic simple" start="6">
+<li><p><em>Detection and Deblending</em>: Performs user-defined measurements (detection, segmentation, deblended images) on the generated blends. The user may create a subclass of  <a class="reference internal" href="src/btk.deblend.html#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a> to deblend the corresponding blends. We currently have 3 available ‘deblenders’:</p></li>
+</ol>
+<ul class="simple">
+<li><p>SourceExtractor in Python (SEP)</p></li>
+<li><p>Scarlet</p></li>
+<li><p>Peak-finding algorithm (from <cite>scikit-image</cite>)</p></li>
+</ul>
+<blockquote>
+<div><p>The user is also available to implement their own deblender and use it as part of BTK. See the <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/tutorials.html">tutorials page</a> for details.</p>
+</div></blockquote>
+<ol class="arabic simple" start="7">
+<li><p><em>Matching and Evaluation</em>: Matches the predicted detections to the true galaxies’ centroids and compute metrics that evaluate the quality of the detection, segmentation and deblended images.</p></li>
 </ol>
 </section>
 
@@ -98,14 +117,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="catalog.html" class="btn btn-neutral float-left" title="Input Catalog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="catalog.html" class="btn btn-neutral float-right" title="Galaxy Catalogs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, btk developers.</p>
+    <p>&#169; Copyright 2024, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
