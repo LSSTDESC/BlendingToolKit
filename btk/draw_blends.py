@@ -596,7 +596,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         else:
             gal_mag = entry["MAG"]
 
-        gal_flux = mag2counts(gal_mag, survey, filt)
+        gal_flux = mag2counts(gal_mag, survey, filt).to_value("electron")
 
         index = entry["btk_index"]
         gal = galsim_catalog.makeGalaxy(
