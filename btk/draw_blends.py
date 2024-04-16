@@ -14,7 +14,7 @@ from tqdm.auto import tqdm
 
 from btk.blend_batch import BlendBatch, MultiResolutionBlendBatch
 from btk.blend_generator import BlendGenerator
-from btk.catalog import Catalog
+from btk.catalog import Catalog, CosmosCatalog
 from btk.multiprocess import get_current_process, multiprocess
 from btk.sampling_functions import SamplingFunction
 from btk.survey import Filter, Survey, make_wcs
@@ -518,7 +518,7 @@ class CosmosGenerator(DrawBlendsGenerator):
 
     def __init__(
         self,
-        catalog: Catalog,
+        catalog: CosmosCatalog,
         sampling_function: SamplingFunction,
         surveys: List[Survey],
         batch_size: int = 8,
@@ -531,6 +531,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         apply_shear: bool = False,
         augment_data: bool = False,
         gal_type: str = "real",
+        noise_pad_size: float = 0,
     ):
         """Initializes the CosmosGenerator class. See parent class for most attributes.
 
@@ -549,6 +550,12 @@ class CosmosGenerator(DrawBlendsGenerator):
             augment_data: See parent class.
             gal_type: string to specify the type of galaxy simulations.
                             Either "real" (default) or "parametric".
+            noise_pad_size: For realistic galaxies, the size of region to pad with noise for
+                            each individual galaxy before forming the blend. This is the argument
+                            to the `COSMOSCatalog.makeGalaxy` function inside `galsim`. In BTK, we
+                            add noise after the blend is produced according to the `sky_level`,
+                            so the default for this argument is 0, as otherwise, noise would
+                            be added to the image twice.
         """
         super().__init__(
             catalog,
@@ -570,6 +577,7 @@ class CosmosGenerator(DrawBlendsGenerator):
                 f"gal_type must be either 'real' or 'parametric', but you provided {gal_type}"
             )
         self.gal_type = gal_type
+        self.noise_pad_size = noise_pad_size
 
     def _check_compatibility(self, survey: Survey) -> None:
         if type(self.catalog).__name__ not in self.compatible_catalogs:
@@ -577,24 +585,26 @@ class CosmosGenerator(DrawBlendsGenerator):
                 f"The catalog provided is of the wrong type. The types of "
                 f"catalogs available for the {type(self).__name__} are {self.compatible_catalogs}"
             )
-        for band in survey.available_filters:
-            if f"{survey.name}_{band}" not in self.catalog.table.keys():
-                raise ValueError(
-                    f"The {band} filter of the survey {survey.name} "
-                    f"has no associated magnitude in the given catalog."
-                )
 
     def render_single(self, entry: Table, filt: Filter, psf: galsim.GSObject, survey: Survey):
         """Returns the Galsim Image of an isolated galaxy."""
-        galsim_catalog = self.catalog.get_galsim_catalog()
+        galsim_catalog: galsim.COSMOSCatalog = self.catalog.get_galsim_catalog()
 
-        # get galaxy flux
-        mag_name = f"{survey.name}_{filt.name}"
-        gal_mag = entry[mag_name]
+        # we optionally check if additional entres if of the form `f'{survey_name}_{filter_name}`
+        # were added to the catalog in which case we use that (assuming it's an AB magnitude).
+        # otherwise we simply use the COSMOS magnitudes which AB magnitudes so we can apply
+        # the standard approach to converting to fluxes.
+        if f"{survey.name}_{filt.name}" in entry.colnames:
+            gal_mag = entry[f"{survey.name}_{filt.name}"]
+        else:
+            gal_mag = entry["MAG"]
+
         gal_flux = mag2counts(gal_mag, survey, filt).to_value("electron")
 
         index = entry["btk_index"]
-        gal = galsim_catalog.makeGalaxy(index, gal_type=self.gal_type, noise_pad_size=0)
+        gal = galsim_catalog.makeGalaxy(
+            index, gal_type=self.gal_type, noise_pad_size=self.noise_pad_size
+        )
         gal = gal.withFlux(gal_flux)
         gal = gal.rotate(galsim.Angle(entry["btk_rotation"], unit=galsim.degrees))
         if self.apply_shear:
