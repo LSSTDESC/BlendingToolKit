@@ -21,7 +21,6 @@ def test_pipeline(data_dir):
     fltr = survey.get_filter("r")
     assert hasattr(fltr, "psf")
 
-    # single bright galaxy
     stamp_size = 24.0
     max_shift = 1.0
     max_n_sources = 2
@@ -130,7 +129,6 @@ def test_cosmos_generator(data_dir):
     fltr = survey.get_filter("r")
     assert hasattr(fltr, "psf")
 
-    # single bright galaxy
     stamp_size = 24.0
     max_shift = 1.0
     max_n_sources = 2
