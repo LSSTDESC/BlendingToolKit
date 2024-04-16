@@ -531,7 +531,7 @@ class CosmosGenerator(DrawBlendsGenerator):
         apply_shear: bool = False,
         augment_data: bool = False,
         gal_type: str = "real",
-        noise_pad_size: float = 5,
+        noise_pad_size: float = 0,
     ):
         """Initializes the CosmosGenerator class. See parent class for most attributes.
 
@@ -550,9 +550,12 @@ class CosmosGenerator(DrawBlendsGenerator):
             augment_data: See parent class.
             gal_type: string to specify the type of galaxy simulations.
                             Either "real" (default) or "parametric".
-            noise_pad_size: For realistic galaxies, the size of region to pad with noise, in
-                                arcsec. [default: 5, an arbitrary, but not completely
-                                ridiculous choice.]
+            noise_pad_size: For realistic galaxies, the size of region to pad with noise for
+                            each individual galaxy before forming the blend. This is the argument
+                            to the `COSMOSCatalog.makeGalaxy` function inside `galsim`. In BTK, we
+                            add noise after the blend is produced according to the `sky_level`,
+                            so the default for this argument is 0, as otherwise, noise would
+                            be added to the image twice.
         """
         super().__init__(
             catalog,
