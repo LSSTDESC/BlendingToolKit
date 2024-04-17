@@ -202,6 +202,7 @@ class PeakLocalMax(Deblender):
 
         Args:
             max_n_sources: See parent class.
+            sky_level: Background intensity in images to be detected (assumed constant).
             threshold_scale: Minimum intensity of peaks. TODO: update
             min_distance: Minimum distance in pixels between two peaks.
             use_mean: Flag to use the band average for deblending.
