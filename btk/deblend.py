@@ -396,6 +396,12 @@ class SepMultiband(Deblender):
                 band_image, self.thresh, err=bkg.globalrms, segmentation_map=False
             )
 
+            if len(catalog) > self.max_n_sources:
+                raise ValueError(
+                    "SEP predicted more sources than `max_n_sources`. Consider increasing `thresh`"
+                    " or `max_n_sources`."
+                )
+
             # convert predictions to arcseconds
             ra_detections, dec_detections = wcs.pixel_to_world_values(catalog["x"], catalog["y"])
             ra_detections *= 3600
