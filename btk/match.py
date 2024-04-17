@@ -141,7 +141,7 @@ class Matching:
     @property
     def tp(self) -> np.ndarray:
         """Returns true positive array."""
-        return np.array([len(d[d != -1]) for d in self.true_matches])
+        return np.array([len(d) for d in self.true_matches])
 
     @property
     def fp(self) -> np.ndarray:
