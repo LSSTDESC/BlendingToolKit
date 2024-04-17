@@ -2,7 +2,7 @@
 
 import multiprocessing as mp
 from itertools import repeat, starmap
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Optional
 
 
 def _apply_args_and_kwargs(func: Callable, args, kwargs):
@@ -29,7 +29,7 @@ def get_current_process() -> int:
 def multiprocess(
     func: Callable,
     args_iter: Iterable,
-    kwargs_iter: Iterable = None,
+    kwargs_iter: Optional[Iterable] = None,
     njobs: int = 1,
     verbose: bool = False,
 ):

@@ -42,7 +42,7 @@ def get_ksb_ellipticity(
 ) -> np.ndarray:
     """Return ellipticities of both true and detected galaxies, assuming they are matched."""
     # psf is assumed to be the same for the entire batch and correspond to selected band.
-    assert len(images.shape) == 4  # (batch_size, max_n_sources, H, W)
+    assert images.ndim == 4  # (batch_size, max_n_sources, H, W)
     batch_size, max_n_sources, _, _ = images.shape
     ellipticities = np.zeros((batch_size, max_n_sources, 2))
     for ii in range(batch_size):

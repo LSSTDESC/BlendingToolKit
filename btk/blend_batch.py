@@ -37,7 +37,6 @@ class BlendBatch:
         assert c1 == c2 == n_bands
         assert n == self.max_n_sources
         assert ps11 == ps12 == ps21 == ps22 == self._get_image_size()
-        assert self.isolated_images.min() >= 0
 
     def _get_image_size(self) -> int:
         """Returns the size of the stamps in pixels."""
@@ -215,12 +214,12 @@ class DeblendExample:
     def _validate_catalog(self, catalog: Table):
         if not ("ra" in catalog.colnames and "dec" in catalog.colnames):
             raise ValueError(
-                "The output catalog of at least one of your measurement functions does"
+                "The output catalog of at least one of your deblenders does"
                 "not contain the mandatory 'ra' and 'dec' columns"
             )
         if not len(catalog) <= self.max_n_sources:
             raise ValueError(
-                "The predicted catalog of at least one of your deblended images "
+                "The detection catalog of at least one of your deblended images "
                 "contains more sources than the maximum number of sources specified."
             )
         return catalog
@@ -258,11 +257,7 @@ class DeblendExample:
                     "The predicted deblended_images of at least one of your deblended images "
                     f"has the wrong shape. It should be {deblended_shape}."
                 )
-            if deblended_images.min() < 0:
-                raise ValueError(
-                    "The predicted deblended_images of at least one of your "
-                    "deblended images has negative values which is unphysical."
-                )
+
         return deblended_images
 
     def __repr__(self):
@@ -325,7 +320,7 @@ class DeblendBatch:
                 )
             if not len(catalog) <= self.max_n_sources:
                 raise ValueError(
-                    "The predicted catalog of at least one of your deblended images "
+                    "The detections catalog of at least one of your deblended images "
                     "contains more sources than the maximum number of sources specified."
                 )
         return catalog_list
@@ -359,11 +354,6 @@ class DeblendBatch:
                 self.image_size,
             )
 
-            if deblended_images.min() < 0:
-                raise ValueError(
-                    "The predicted deblended_images of at least one of your "
-                    "deblended images has negative values which is unphysical."
-                )
         return deblended_images
 
     def __repr__(self) -> str:
@@ -432,16 +422,10 @@ class DeblendBatch:
                 catalog_list.append(read_table_hdf5(f, path=f"catalog_list/{ii}"))
 
             # load segmentation
-            if "segmentation" in f.keys():
-                segmentation = f["segmentation"][:]
-            else:
-                segmentation = None
+            segmentation = f["segmentation"][:] if "segmentation" in f.keys() else None
 
             # load deblended images
-            if "deblended_images" in f.keys():
-                deblended_images = f["deblended_images"][:]
-            else:
-                deblended_images = None
+            deblended_images = f["deblended_images"][:] if "deblended_images" in f.keys() else None
 
             # load general info about blend
             batch_size = f.attrs["batch_size"]

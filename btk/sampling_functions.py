@@ -194,7 +194,7 @@ class DensitySampling(SamplingFunction):
         self.stamp_size = stamp_size
         self.min_mag, self.max_mag = min_mag, max_mag
         self.mag_name = mag_name
-        self.max_shift = self.stamp_size / 2 if not max_shift else max_shift
+        self.max_shift = max_shift if max_shift else self.stamp_size / 2
 
         # only within area where sources are allowed
         self.exp_count = density * (self.max_shift * 2 / 60) ** 2

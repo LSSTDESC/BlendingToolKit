@@ -16,6 +16,7 @@ Getting Started
    :maxdepth: 1
 
    install
+   user_guide
    catalog
    tutorials
 

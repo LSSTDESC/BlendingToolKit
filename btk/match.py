@@ -220,6 +220,7 @@ class PixelHungarianMatcher(Matcher):
 
         Args:
             pixel_max_sep: the maximum separation in pixels to be considered a match
+            kwargs: Additional arguments for parent class.
         """
         super().__init__(**kwargs)
         self.distance_function = pixel_l2_distance_matrix
@@ -261,6 +262,7 @@ class SkyClosestNeighbourMatcher(Matcher):
 
         Args:
             arcsec_max_sep: the maximum separation in arcsec to be considered a match
+            kwargs: Additional arguments for parent class.
         """
         super().__init__(**kwargs)
         self.max_sep = arcsec_max_sep
