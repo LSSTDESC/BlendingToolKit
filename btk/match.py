@@ -24,13 +24,12 @@ class Matching:
         """Initialize MatchInfo.
 
         Args:
-            true_matches: a list of 1D array, each entry corresponds to a numpy array
-                containing the index of detected object in the truth catalog that
-                got matched with the i-th truth object in the blend.
-            pred_matches: a list of 1D array, where the j-th entry of i-th array
-                corresponds to the index of truth object in the i-th blend
-                that got matched with the j-th detected object in that blend.
-                If no match, value is -1.
+            true_matches: a list of 1D arrays, each array containing the matching indices of
+                truth catalog rows for a given element of a batch. These indices are in 1-1
+                correspondence to the `pred_matches` indices.
+            pred_matches: a list of 1D arrays, each array containing the matching indices of
+                predicted catalog rows for a given element of a batch. These indices are in 1-1
+                correspondence to the `true_matches` indices.
             n_true: a 1D array of length N, where each entry is the number of truth objects.
             n_pred: a 1D array of length N, where each entry is the number of detected objects.
         """
@@ -66,12 +65,11 @@ class Matching:
         new_arrs = []
         for arr in arrs:
             assert len(arr) == self.batch_size
-            new_arr = np.zeros_like(arr)
+            new_arr = np.zeros((self.batch_size, self.max_n_sources, *arr.shape[2:]))
             for ii in range(self.batch_size):
-                n_sources = len(matches[ii])
-                assert n_sources <= self.max_n_sources
-                new_arr[ii, :n_sources] = arr[ii][matches[ii]]
-            new_arrs.append(new_arr[:, : self.max_n_sources])
+                for jj, m in enumerate(matches[ii]):
+                    new_arr[ii, jj] = arr[ii, m]
+            new_arrs.append(new_arr)
         return tuple(new_arrs) if len(new_arrs) > 1 else new_arrs[0]
 
     def match_true_catalogs(self, catalog_list: Table) -> List[Table]:
@@ -179,6 +177,10 @@ class Matcher(ABC):
                 true_match, pred_match = np.array([]).astype(int), np.array([]).astype(int)
             else:
                 true_match, pred_match = self.match_catalogs(true_catalog, pred_catalog)
+
+            if -1 in true_match or -1 in pred_match:
+                raise ValueError("Matcher should return only matching indices, not dummy -1 index.")
+
             match_true.append(true_match)
             match_pred.append(pred_match)
             n_true.append(len(true_catalog))
@@ -207,6 +209,11 @@ class IdentityMatcher(Matcher):
 
     def match_catalogs(self, truth_catalog, predicted_catalog) -> np.ndarray:
         """Returns trivial identity matching."""
+        if not len(truth_catalog) == len(predicted_catalog):
+            raise ValueError(
+                "IdenityMatcher can be used because the given pair of truth "
+                "and predicated catalogs do not have the same size."
+            )
         true_indx = np.array(range(len(truth_catalog)))
         pred_indx = np.array(range(len(predicted_catalog)))
         return true_indx, pred_indx
@@ -233,11 +240,14 @@ class PixelHungarianMatcher(Matcher):
         https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
 
         Args:
-            truth_catalog: truth catalog containing relevant detecion information
-            predicted_catalog: predicted catalog to compare with the ground truth
+            truth_catalog: truth catalog containing true source centroid information.
+            predicted_catalog: predicted catalog containing detection information.
+
         Returns:
-            matched_indx: a 1D array where j-th entry is the index of the target row
-                that matched with the j-th detected row. If no match, value is -1.
+            A tuple of two arrays, each has length equal to the total number of matches. The i-th
+            index in the first array is the row of the truth catalog that was matched with the row
+            of the predicted catalog corresponding to the i-th index of the second array. The index
+            in each array.
         """
         dist = self.compute_distance_matrix(truth_catalog, predicted_catalog)
         # solve optimization problem using Hungarian matching algorithm
@@ -245,13 +255,13 @@ class PixelHungarianMatcher(Matcher):
         # len(true_indx) = len(pred_indx) = min(len(true_table), len(pred_table))
         true_indx, pred_indx = linear_sum_assignment(dist)
 
-        # if the distance is greater than max_sep then mark detection as -1
-        true_mask = dist.T[pred_indx, true_indx] > self.max_sep
-        true_indx[true_mask] = -1
-        pred_mask = dist[true_indx, pred_indx] > self.max_sep
-        pred_indx[pred_mask] = -1
+        # if the distance is greater than `max_sep` then remove the matching.
+        true_mask = dist.T[pred_indx, true_indx] < self.max_sep
+        true_match = true_indx[true_mask]
+        pred_mask = dist[true_indx, pred_indx] < self.max_sep
+        pred_match = pred_indx[pred_mask]
 
-        return true_indx, pred_indx
+        return true_match, pred_match
 
 
 class SkyClosestNeighbourMatcher(Matcher):
@@ -309,7 +319,8 @@ class SkyClosestNeighbourMatcher(Matcher):
             pred_indx[match_id] = target_idx
 
         # if the matched distance exceeds max_sep, we discard that detection
-        pred_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
+        pred_mask = d2d.to(units.arcsec) < self.max_sep * units.arcsec
+        pred_match = pred_indx[pred_mask]
 
         # now for ture indices
         idx, d2d, _ = true_coordinates.match_to_catalog_sky(pred_coordinates)
@@ -320,9 +331,10 @@ class SkyClosestNeighbourMatcher(Matcher):
             match_id = np.argmin(masked_d2d)
             true_indx[match_id] = target_idx
 
-        true_indx[d2d.to(units.arcsec) > self.max_sep * units.arcsec] = -1
+        true_mask = d2d.to(units.arcsec) < self.max_sep * units.arcsec
+        true_match = true_indx[true_mask]
 
-        return true_indx, pred_indx
+        return true_match, pred_match
 
 
 def pixel_l2_distance_matrix(
