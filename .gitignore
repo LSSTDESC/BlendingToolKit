@@ -8,4 +8,4 @@
 .coverage
 /dist/
 /docs/build
-/outputs
+/data/cache
