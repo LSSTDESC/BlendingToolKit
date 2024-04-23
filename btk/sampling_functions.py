@@ -369,7 +369,7 @@ class PairSampling(SamplingFunction):
     def __init__(
         self,
         stamp_size: float = 24.0,
-        max_shift: float = Optional[None],
+        max_shift: Optional[float] = None,
         mag_name: str = "i_ab",
         seed: int = DEFAULT_SEED,
         bright_cut: float = 25.3,
