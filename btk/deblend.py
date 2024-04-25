@@ -25,9 +25,9 @@ from btk.multiprocess import multiprocess
 
 
 class Deblender(ABC):
-    """Abstract base class containing the measure class for BTK.
+    """Abstract base class containing the deblender class for BTK.
 
-    Each new measure class should be a subclass of Measure.
+    Each new deblender class should be a subclass of Deblender.
     """
 
     def __init__(self, max_n_sources: int) -> None:
@@ -71,7 +71,7 @@ class Deblender(ABC):
         """
 
     def batch_call(self, blend_batch: BlendBatch, njobs: int = 1, **kwargs) -> DeblendBatch:
-        """Implements the call of a measure function on the entire batch.
+        """Implements the call of the deblender on the entire batch.
 
         Overwrite this function if you perform measurments on the batch.
         The default fucntionality is to use multiprocessing to speed up
@@ -160,7 +160,7 @@ class MultiResolutionDeblender(ABC):
         """
 
     def batch_call(self, mr_batch: MultiResolutionBlendBatch, njobs: int = 1) -> DeblendBatch:
-        """Implements the call of a measure function on the entire batch.
+        """Implements the call of the deblender on the entire batch.
 
         Overwrite this function if you perform measurments on a batch.
         The default fucntionality is to use multiprocessing to speed up
