@@ -348,7 +348,7 @@ class SepSingleBand(Deblender):
         )
 
 
-class SepMultiband(Deblender):
+class SepMultiBand(Deblender):
     """This class returns centers detected with SEP by combining predictions in different bands.
 
     For each band in the input image we run `sep` for detection and append new detections
@@ -359,7 +359,7 @@ class SepMultiband(Deblender):
     """
 
     def __init__(self, max_n_sources: int, matching_threshold: float = 1.0, thresh: float = 1.5):
-        """Initialize the SepMultiband Deblender.
+        """Initialize the SepMultiBand Deblender.
 
         Args:
             max_n_sources: See parent class.
@@ -665,6 +665,6 @@ class DeblendGenerator:
 available_deblenders = {
     "PeakLocalMax": PeakLocalMax,
     "SepSingleBand": SepSingleBand,
-    "SepMultiBand": SepMultiband,
+    "SepMultiBand": SepMultiBand,
     "Scarlet": Scarlet,
 }
