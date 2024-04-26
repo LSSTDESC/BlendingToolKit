@@ -465,7 +465,7 @@ class Scarlet(Deblender):
         the same pixel, which is allowed by the majority of currently implemented sampling
         functions in BTK. To get around this, our Deblender implementation automatically
         catches this exception and outputs an array of zeroes for the deblended images of the
-        particular blend that caused this exception. See the issue for details:
+        particular blend that caused this exception. See this issue for details:
         https://github.com/pmelchior/scarlet/issues/282#issuecomment-2074886534
 
         Args:
