@@ -461,6 +461,12 @@ class Scarlet(Deblender):
         of the argument also see the Scarlet API at:
         https://pmelchior.github.io/scarlet/api/scarlet.initialization.html.
 
+        Note that as of commit 45187fd, Scarlet raises a `LinAlg` error if two sources are on
+        the same pixel, which is allowed by the majority of currently implemented sampling
+        functions in BTK. To get around this, our Deblender implementation automatically
+        catches this exception and outputs an array of zeroes for the deblended images of the
+        particular blend that caused this exception.
+
         Args:
             max_n_sources: See parent class.
             thresh: Multiple of the backround RMS used as a flux cutoff for morphology
