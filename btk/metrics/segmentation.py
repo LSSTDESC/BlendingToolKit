@@ -31,15 +31,15 @@ class IoU(SegmentationMetric):
     ) -> Dict[str, np.ndarray]:
         assert seg1.shape == seg2.shape
         assert seg1.ndim == 4  # batch, max_n_sources, x, y
-        ious = np.zeros(self.batch_size)
+        ious = np.full((self.batch_size, seg1.shape[1]), fill_value=np.nan)
         for ii in range(self.batch_size):
-            n_sources = np.sum(~np.isnan(seg1[ii].sum(axis=(-1, -2))))
+            n_sources1 = np.sum(np.sum(seg1[ii], axis=(-1, -2)) > 0)
+            n_sources2 = np.sum(np.sum(seg2[ii], axis=(-1, -2)) > 0)
+            n_sources = min(n_sources1, n_sources2)
             if n_sources > 0:
                 seg1_ii = seg1[ii, :n_sources]
                 seg2_ii = seg2[ii, :n_sources]
-                ious[ii] = iou(seg1_ii, seg2_ii)
-            else:
-                ious[ii] = np.nan
+                ious[ii, :n_sources] = iou(seg1_ii, seg2_ii)
 
         return {"iou": ious}
 
