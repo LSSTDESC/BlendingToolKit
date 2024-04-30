@@ -61,7 +61,7 @@ def get_blendedness(iso_image: np.ndarray) -> np.ndarray:
 
     Args:
         iso_image: Array of shape = (..., N, H, W) corresponding to images of isolated
-            galaxiesi you are calculating blendedness for.
+            galaxies you are calculating blendedness for.
 
     Returns:
         Array of size (..., N) corresponding to blendedness values for each individual galaxy.
@@ -70,7 +70,7 @@ def get_blendedness(iso_image: np.ndarray) -> np.ndarray:
     num = np.sum(iso_image * iso_image, axis=(-1, -2))
     blend = np.sum(iso_image, axis=-3)[..., None, :, :]
     denom = np.sum(blend * iso_image, axis=(-1, -2))
-    return 1 - np.divide(num, denom, out=np.zeros_like(num), where=(num != 0))
+    return 1 - np.divide(num, denom, out=np.ones_like(num), where=(num != 0))
 
 
 def get_snr(iso_image: np.ndarray, sky_level: float) -> np.ndarray:
