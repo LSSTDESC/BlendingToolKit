@@ -242,7 +242,8 @@ class DrawBlendsGenerator(ABC):
         for band in survey.available_filters:
             filt = survey.get_filter(band)
             if callable(filt.psf):
-                generated_psf = filt.psf()  # generate the PSF with the provided function
+                # generate the PSF with the provided function
+                generated_psf = filt.psf(survey, filt)
                 if isinstance(generated_psf, galsim.GSObject):
                     psf.append(generated_psf)
                 else:

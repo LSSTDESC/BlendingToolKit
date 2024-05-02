@@ -102,10 +102,9 @@ def get_surveys(
         for band in survey.available_filters:
             filtr = survey.get_filter(band)
             if psf_func is None:
-                psf = _get_default_psf_with_galcheat_info(survey, filtr)
+                filtr.psf = _get_default_psf_with_galcheat_info(survey, filtr)
             else:
-                psf = psf_func(survey, filtr)
-            filtr.psf = psf
+                filtr.psf = psf_func
         surveys.append(survey)
 
     if len(surveys) == 1:

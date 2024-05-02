@@ -59,7 +59,7 @@ def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
     """
     assert not np.any(np.isnan(seg1)) and not np.any(np.isnan(seg2))
     seg1 = seg1.astype(bool)
-    seg2 = seg1.astype(bool)
+    seg2 = seg2.astype(bool)
     i = np.logical_and(seg1, seg2).sum(axis=(-1, -2))
     u = np.logical_or(seg1, seg2).sum(axis=(-1, -2))
     return i / u
