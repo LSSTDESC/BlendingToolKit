@@ -51,7 +51,7 @@ sampling_function = btk.sampling_functions.DefaultSampling(
 # setup generator to create batches of blends
 batch_size = 100
 draw_generator = btk.draw_blends.CatsimGenerator(
-    catalog, sampling_function, survey, batch_size, stamp_size
+    catalog, sampling_function, survey, batch_size
 )
 
 # get batch of blends

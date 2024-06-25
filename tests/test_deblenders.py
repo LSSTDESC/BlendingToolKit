@@ -33,7 +33,6 @@ def test_sep(data_dir):
         sampling_function,
         survey,
         batch_size=batch_size,
-        stamp_size=24.0,
         njobs=1,
         add_noise="all",
         seed=SEED,
@@ -84,7 +83,6 @@ def test_scarlet(data_dir):
         sampling_function,
         LSST,
         batch_size=batch_size,
-        stamp_size=stamp_size,
         njobs=1,
         add_noise="all",
         seed=seed,  # use same seed here
