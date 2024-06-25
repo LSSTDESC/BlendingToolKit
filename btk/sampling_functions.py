@@ -262,8 +262,8 @@ class BasicSampling(SamplingFunction):
         """Initializes the basic sampling function.
 
         Args:
-            max_number: Defined in parent class.
             stamp_size: Size of the desired stamp.
+            max_number: Defined in parent class.
             min_number: Defined in parent class.
             seed: Seed to initialize randomness for reproducibility.
             mag_name: Name of the magnitude column in the catalog for cuts.
