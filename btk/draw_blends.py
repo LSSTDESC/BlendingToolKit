@@ -148,7 +148,6 @@ class DrawBlendsGenerator(ABC):
         sampling_function: SamplingFunction,
         surveys: Union[List[Survey], Survey],
         batch_size: int = 8,
-        stamp_size: float = 24.0,
         njobs: int = 1,
         verbose: bool = False,
         use_bar: bool = False,
@@ -165,7 +164,6 @@ class DrawBlendsGenerator(ABC):
             surveys: List of BTK Survey objects or
                 single BTK Survey object.
             batch_size: Number of blends generated per batch
-            stamp_size: Size of the stamps, in arcseconds
             njobs: Number of njobs to use; defines the number of minibatches
             verbose: Indicates whether additionnal information should be printed
             use_bar: Whether to use progress bar (default: False)
@@ -187,7 +185,7 @@ class DrawBlendsGenerator(ABC):
         self.max_number = self.blend_generator.max_number
         self.apply_shear = apply_shear
         self.augment_data = augment_data
-        self.stamp_size = stamp_size
+        self.stamp_size = sampling_function.stamp_size
         self.use_bar = use_bar
         self._set_surveys(surveys)
 
@@ -523,7 +521,6 @@ class CosmosGenerator(DrawBlendsGenerator):
         sampling_function: SamplingFunction,
         surveys: List[Survey],
         batch_size: int = 8,
-        stamp_size: float = 24.0,
         njobs: int = 1,
         verbose: bool = False,
         add_noise: str = "all",
@@ -541,7 +538,6 @@ class CosmosGenerator(DrawBlendsGenerator):
             sampling_function: See parent class.
             surveys: See parent class.
             batch_size: See parent class.
-            stamp_size: See parent class.
             njobs: See parent class.
             verbose: See parent class.
             add_noise: See parent class.
@@ -563,7 +559,6 @@ class CosmosGenerator(DrawBlendsGenerator):
             sampling_function,
             surveys,
             batch_size,
-            stamp_size,
             njobs,
             verbose,
             use_bar,
