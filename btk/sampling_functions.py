@@ -346,11 +346,15 @@ class DefaultSamplingShear(DefaultSampling):
         """Initializes default sampling function with shear.
 
         Args:
+            stamp_size: Defined in parent class.
             max_number: Defined in parent class.
             min_number: Defined in parent class.
             stamp_size: Defined in parent class.
             max_shift: Defined in parent class.
             seed: Defined in parent class.
+            max_mag: Defined in parent class.
+            min_mag: Defined in parent class.
+            mag_name: Defined in parent class.
             shear: Constant (g1,g2) shear to apply to every galaxy.
         """
         super().__init__(
@@ -447,8 +451,8 @@ class RandomSquareSampling(SamplingFunction):
         """Initializes the RandomSquareSampling sampling function.
 
         Args:
-            max_number: Defined in parent class
             stamp_size: Size of the desired stamp (arcsec).
+            max_number: Defined in parent class
             seed: Seed to initialize randomness for reproducibility.
             min_mag: Minimum magnitude allowed in samples
             max_mag: Maximum magnitude allowed in samples.
@@ -547,8 +551,9 @@ class FriendsOfFriendsSampling(SamplingFunction):
         """Initializes the FriendsOfFriendsSampling sampling function.
 
         Args:
-            max_number: Defined in parent class
-            min_number: Defined in parent class
+            stamp_size: Defined in parent class.
+            max_number: Defined in parent class.
+            min_number: Defined in parent class.
             link_distance: Minimum linkage distance to form a group (arcsec).
             stamp_size: Size of the desired stamp (arcsec).
             seed: Seed to initialize randomness for reproducibility.
