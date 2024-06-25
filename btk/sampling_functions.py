@@ -64,14 +64,16 @@ class SamplingFunction(ABC):
     galaxies chosen for the blend.
     """
 
-    def __init__(self, max_number: int, min_number: int = 1, seed=DEFAULT_SEED):
+    def __init__(self, stamp_size: int, max_number: int, min_number: int = 1, seed=DEFAULT_SEED):
         """Initializes the SamplingFunction.
 
         Args:
+            stamp_size: The size of the stamp in arcseconds.
             max_number: maximum number of catalog entries returned from sample.
             min_number: minimum number of catalog entries returned from sample. (Default: 1)
             seed: Seed to initialize randomness for reproducibility. (Default: btk.DEFAULT_SEED)
         """
+        self.stamp_size = stamp_size
         self.min_number = min_number
         self.max_number = max_number
 
@@ -93,9 +95,9 @@ class DefaultSampling(SamplingFunction):
 
     def __init__(
         self,
+        stamp_size: float = 24.0,
         max_number: int = 2,
         min_number: int = 1,
-        stamp_size: float = 24.0,
         max_shift: Optional[float] = None,
         seed: int = DEFAULT_SEED,
         max_mag: float = 25.3,
@@ -105,9 +107,9 @@ class DefaultSampling(SamplingFunction):
         """Initializes default sampling function.
 
         Args:
+            stamp_size: Size of the desired stamp.
             max_number: Defined in parent class
             min_number: Defined in parent class
-            stamp_size: Size of the desired stamp.
             max_shift: Magnitude of maximum value of shift. If None then it
                         is set as one-tenth the stamp size. (in arcseconds)
             seed: Seed to initialize randomness for reproducibility.
@@ -115,8 +117,9 @@ class DefaultSampling(SamplingFunction):
             max_mag: Maximum magnitude allowed in samples.
             mag_name: Name of the magnitude column in the catalog.
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
-        self.stamp_size = stamp_size
+        super().__init__(
+            stamp_size=stamp_size, max_number=max_number, min_number=min_number, seed=seed
+        )
         self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
         self.min_mag, self.max_mag = min_mag, max_mag
         self.mag_name = mag_name
@@ -165,10 +168,10 @@ class DensitySampling(SamplingFunction):
 
     def __init__(
         self,
+        stamp_size: float = 24.0,
         max_number: int = 40,
         min_number: int = 0,
         density: float = 185,
-        stamp_size: float = 24.0,
         max_shift: Optional[float] = None,
         seed: int = DEFAULT_SEED,
         max_mag: float = 27.3,
@@ -178,11 +181,11 @@ class DensitySampling(SamplingFunction):
         """Initializes default sampling function.
 
         Args:
+            stamp_size: Size of the desired stamp (in arcseconds)
             max_number: Defined in parent class
             min_number: Defined in parent class
             density: Density of galaxies, default corresponds to 27.3 i-band magnitude
                         cut in CATSIM catalog. (in counts / sq. arcmin)
-            stamp_size: Size of the desired stamp (in arcseconds)
             max_shift: Magnitude of maximum value of shift. If None, then centroids can fall
                         anywhere within the image. (in arcseconds)
             seed: Seed to initialize randomness for reproducibility.
@@ -190,8 +193,9 @@ class DensitySampling(SamplingFunction):
             max_mag: Maximum magnitude allowed in samples.
             mag_name: Name of the magnitude column in the catalog.
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
-        self.stamp_size = stamp_size
+        super().__init__(
+            stamp_size=stamp_size, max_number=max_number, min_number=min_number, seed=seed
+        )
         self.min_mag, self.max_mag = min_mag, max_mag
         self.mag_name = mag_name
         self.max_shift = max_shift if max_shift else self.stamp_size / 2
@@ -249,9 +253,9 @@ class BasicSampling(SamplingFunction):
 
     def __init__(
         self,
+        stamp_size: float = 24.0,
         max_number: int = 4,
         min_number: int = 1,
-        stamp_size: float = 24.0,
         mag_name: str = "i_ab",
         seed: int = DEFAULT_SEED,
     ):
@@ -259,13 +263,14 @@ class BasicSampling(SamplingFunction):
 
         Args:
             max_number: Defined in parent class.
-            min_number: Defined in parent class.
             stamp_size: Size of the desired stamp.
+            min_number: Defined in parent class.
             seed: Seed to initialize randomness for reproducibility.
             mag_name: Name of the magnitude column in the catalog for cuts.
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
-        self.stamp_size = stamp_size
+        super().__init__(
+            stamp_size=stamp_size, max_number=max_number, min_number=min_number, seed=seed
+        )
         self.mag_name = mag_name
 
         if min_number < 1:
@@ -328,11 +333,14 @@ class DefaultSamplingShear(DefaultSampling):
 
     def __init__(
         self,
+        stamp_size: float = 24.0,
         max_number: int = 2,
         min_number: int = 1,
-        stamp_size: float = 24.0,
         max_shift: Optional[float] = None,
         seed=DEFAULT_SEED,
+        max_mag: float = 25.3,
+        min_mag: float = -np.inf,
+        mag_name: str = "i_ab",
         shear: Tuple[float, float] = (0.0, 0.0),
     ):
         """Initializes default sampling function with shear.
@@ -345,7 +353,9 @@ class DefaultSamplingShear(DefaultSampling):
             seed: Defined in parent class.
             shear: Constant (g1,g2) shear to apply to every galaxy.
         """
-        super().__init__(max_number, min_number, stamp_size, max_shift, seed)
+        super().__init__(
+            stamp_size, max_number, min_number, max_shift, seed, max_mag, min_mag, mag_name
+        )
         self.shear = shear
 
     def __call__(self, table: Table, **kwargs) -> Table:
@@ -386,7 +396,7 @@ class PairSampling(SamplingFunction):
             bright_cut: Magnitude cut for bright galaxy. (Default: 25.3)
             dim_cut: Magnitude cut for dim galaxy. (Default: 28.0)
         """
-        super().__init__(2, 1, seed)
+        super().__init__(stamp_size, 2, 1, seed)
         self.stamp_size = stamp_size
         self.max_shift = max_shift if max_shift is not None else self.stamp_size / 10.0
         self.mag_name = mag_name
@@ -427,8 +437,8 @@ class RandomSquareSampling(SamplingFunction):
 
     def __init__(
         self,
-        max_number: int = 2,
         stamp_size: float = 24.0,
+        max_number: int = 2,
         seed: int = DEFAULT_SEED,
         max_mag: float = 25.3,
         min_mag: float = -np.inf,
@@ -444,9 +454,7 @@ class RandomSquareSampling(SamplingFunction):
             max_mag: Maximum magnitude allowed in samples.
             mag_name: Name of the magnitude column in the catalog.
         """
-        super().__init__(max_number=max_number, min_number=0, seed=seed)
-        self.stamp_size = stamp_size
-        self.max_number = max_number
+        super().__init__(stamp_size=stamp_size, max_number=max_number, min_number=0, seed=seed)
         self.max_mag = max_mag
         self.min_mag = min_mag
         self.mag_name = mag_name
@@ -527,10 +535,10 @@ class FriendsOfFriendsSampling(SamplingFunction):
 
     def __init__(
         self,
+        stamp_size: float = 24.0,
         max_number: int = 10,
         min_number: int = 2,
         link_distance: int = 2.5,
-        stamp_size: float = 24.0,
         seed: int = DEFAULT_SEED,
         min_mag: float = -np.inf,
         max_mag: float = 25.3,
@@ -548,11 +556,10 @@ class FriendsOfFriendsSampling(SamplingFunction):
             max_mag: Maximum magnitude allowed in samples.
             mag_name: Name of the magnitude column in the catalog.
         """
-        super().__init__(max_number=max_number, min_number=min_number, seed=seed)
-        self.stamp_size = stamp_size
+        super().__init__(
+            stamp_size=stamp_size, max_number=max_number, min_number=min_number, seed=seed
+        )
         self.link_distance = link_distance
-        self.max_number = max_number
-        self.min_number = min_number
         self.max_mag = max_mag
         self.min_mag = min_mag
         self.mag_name = mag_name
