@@ -40,7 +40,6 @@ def test_cosmos_generator(data_dir):
         sampling_function,
         survey,
         batch_size=batch_size,
-        stamp_size=stamp_size,
         njobs=1,
         add_noise="all",
         seed=SEED,
