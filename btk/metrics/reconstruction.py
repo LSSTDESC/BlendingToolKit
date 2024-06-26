@@ -37,7 +37,11 @@ class ReconstructionMetric(Metric, ABC):
 
 
 class MSE(ReconstructionMetric):
-    """MSE class metric."""
+    """MSE class metric.
+
+    Note that this metric can become diluted as the postage stamp size grows, as it does not
+    exclude pixels with a common value of zero in the images it compares.
+    """
 
     def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
         return {"mse": self._get_recon_metric(iso_images1, iso_images2, mse)}
