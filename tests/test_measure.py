@@ -40,7 +40,6 @@ def test_measure(data_dir):
         sampling_function,
         survey,
         batch_size=batch_size,
-        stamp_size=stamp_size,
         njobs=1,
         add_noise="all",
         seed=SEED,
@@ -56,6 +55,9 @@ def test_measure(data_dir):
         n_sources = len(t["x_peak"])
         xs_peak[ii, :n_sources] = t["x_peak"].value
         ys_peak[ii, :n_sources] = t["y_peak"].value
+    centroids = np.concatenate(
+        [xs_peak.reshape(batch_size, -1, 1), ys_peak.reshape(batch_size, -1, 1)], axis=2
+    )
 
     # aperture photometry
     fluxes, fluxerr = get_aperture_fluxes(batch.blend_images[:, 2], xs_peak, ys_peak, 5, sky_level)
@@ -73,15 +75,15 @@ def test_measure(data_dir):
     assert np.all(np.greater_equal(snr, 0))
 
     # ellipticity
-    ellips = get_ksb_ellipticity(batch.isolated_images[:, :, 2], batch.psf[2], 0.2)
+    ellips = get_ksb_ellipticity(batch.isolated_images[:, :, 2], centroids, batch.psf[2], 0.2)
     assert ellips.shape == (batch_size, max_n_sources, 2)
+    assert np.sum(np.abs(ellips) == 10) == 0  # should output np.nan for bad shear measurements
 
     # zeroes if no galaxies
     for ii in range(batch_size):
         n_sources = len(batch.catalog_list[ii])
         for jj in range(max_n_sources):
             if jj >= n_sources:
-                print(blendedness)
                 assert snr[ii, jj] == 0
                 assert np.all(np.isnan(ellips[ii, jj]))
                 assert blendedness[ii, jj] == 0
