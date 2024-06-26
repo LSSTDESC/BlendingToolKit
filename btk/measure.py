@@ -68,7 +68,7 @@ def get_ksb_ellipticity(
         An array containing the measured ellipticities of shape (batch_size, max_n_sources, 2)
     """
     # psf is assumed to be the same for the entire batch and correspond to selected band.
-    assert images.ndim == 4  #
+    assert images.ndim == 4
     batch_size, max_n_sources, _, _ = images.shape
     ellipticities = np.zeros((batch_size, max_n_sources, 2))
     for ii in range(batch_size):
