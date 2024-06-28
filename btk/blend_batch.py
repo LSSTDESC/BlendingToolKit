@@ -233,7 +233,9 @@ class DeblendExample:
                     "The predicted segmentation of at least one of your deblended images "
                     "has the wrong shape. It should be `(max_n_sources, image_size, image_size)`."
                 )
-            if np.any(np.greater(segmentation, 0) & np.less(segmentation, 1)):
+            cond1 = np.any(np.greater(segmentation, 0) & np.less(segmentation, 1))
+            cond2 = np.any(np.less(segmentation, 0) | np.greater(segmentation, 1))
+            if cond1 or cond2:
                 raise ValueError(
                     "The predicted segmentation of at least one of your deblended images "
                     "has values different than 0 or 1."
@@ -336,7 +338,9 @@ class DeblendBatch:
                 self.image_size,
                 self.image_size,
             )
-            if np.any(np.greater(segmentation, 0) & np.less(segmentation, 1)):
+            cond1 = np.any(np.greater(segmentation, 0) & np.less(segmentation, 1))
+            cond2 = np.any(np.less(segmentation, 0) | np.greater(segmentation, 1))
+            if cond1 or cond2:
                 raise ValueError(
                     "The predicted segmentation of at least one of your deblended images "
                     "has values different than 0 or 1."
