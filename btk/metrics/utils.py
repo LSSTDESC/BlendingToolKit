@@ -45,7 +45,8 @@ def mse(images1: np.ndarray, images2: np.ndarray) -> np.ndarray:
 def iou(seg1: np.ndarray, seg2: np.ndarray) -> np.ndarray:
     """Calculates intersection-over-union (IoU) given two semgentation arrays.
 
-    The segmentation arrays should each have values of 1 or 0s only.
+    This metric assumes that the input arrays are boolean. Otherwise the arrays are
+    casted to boolean arrays before the computation.
 
     Args:
         seg1: Array of shape `NHW` containing `N` segmentation maps each of

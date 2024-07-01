@@ -22,7 +22,11 @@ class SegmentationMetric(Metric, ABC):
 
 
 class IoU(SegmentationMetric):
-    """Intersection-over-Union class metric."""
+    """Intersection-over-Union class metric.
+
+    Note that this metric assumes that the input segmentation arrays are booleans. An error is
+    raised if that condition is not met.
+    """
 
     def _get_data(
         self,
@@ -31,6 +35,10 @@ class IoU(SegmentationMetric):
     ) -> Dict[str, np.ndarray]:
         assert seg1.shape == seg2.shape
         assert seg1.ndim == 4  # batch, max_n_sources, x, y
+
+        if not (seg1.dtype == "bool" and seg2.dtype == "bool"):
+            raise TypeError("Segmentation arrays for the IoU metric should be of boolean type.")
+
         ious = np.full((self.batch_size, seg1.shape[1]), fill_value=np.nan)
         for ii in range(self.batch_size):
             n_sources1 = np.sum(np.sum(seg1[ii], axis=(-1, -2)) > 0)

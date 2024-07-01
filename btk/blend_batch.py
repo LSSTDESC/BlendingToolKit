@@ -224,7 +224,7 @@ class DeblendExample:
             )
         return catalog
 
-    def _validate_segmentation(self, segmentation):
+    def _validate_segmentation(self, segmentation: Optional[np.ndarray]):
         if segmentation is not None:
             if self.image_size is None or self.n_bands is None:
                 raise ValueError("`image_size` must be specified if segmentation is provided")
@@ -233,14 +233,17 @@ class DeblendExample:
                     "The predicted segmentation of at least one of your deblended images "
                     "has the wrong shape. It should be `(max_n_sources, image_size, image_size)`."
                 )
-            if segmentation.min() < 0 or segmentation.max() > 1:
+            cond1 = np.any(np.greater(segmentation, 0) & np.less(segmentation, 1))
+            cond2 = np.any(np.less(segmentation, 0) | np.greater(segmentation, 1))
+            if cond1 or cond2:
                 raise ValueError(
                     "The predicted segmentation of at least one of your deblended images "
-                    "has values outside the range [0, 1]."
+                    "has values different than 0 or 1."
                 )
+            return segmentation.astype(bool)
         return segmentation
 
-    def _validate_deblended_images(self, deblended_images):
+    def _validate_deblended_images(self, deblended_images: Optional[np.ndarray]):
         if deblended_images is not None:
             if self.image_size is None or self.n_bands is None:
                 raise ValueError(
@@ -335,7 +338,14 @@ class DeblendBatch:
                 self.image_size,
                 self.image_size,
             )
-            assert segmentation.min() >= 0 and segmentation.max() <= 1
+            cond1 = np.any(np.greater(segmentation, 0) & np.less(segmentation, 1))
+            cond2 = np.any(np.less(segmentation, 0) | np.greater(segmentation, 1))
+            if cond1 or cond2:
+                raise ValueError(
+                    "The predicted segmentation of at least one of your deblended images "
+                    "has values different than 0 or 1."
+                )
+            return segmentation.astype(bool)
         return segmentation
 
     def _validate_deblended_images(
