@@ -175,10 +175,8 @@ def test_recall_curves(data_dir):
             recalls_peaks[jj - 1](matching_peak_new.tp, matching_peak_new.t, matching_peak_new.p)
             recalls_sep[jj - 1](matching_sep_new.tp, matching_sep_new.t, matching_sep_new.p)
 
-    mean_recalls_peaks = np.array([recall.aggregate() for recall in recalls_peaks])
-    mean_recalls_sep = np.array([recall.aggregate() for recall in recalls_sep])
-
-    median_bins = (snr_bins[1:] + snr_bins[:-1]) / 2
+    _ = np.array([recall.aggregate() for recall in recalls_peaks])
+    _ = np.array([recall.aggregate() for recall in recalls_sep])
 
 
 def test_reconstruction_histograms(data_dir):
