@@ -34,7 +34,7 @@ homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
 [tool.poetry.dependencies]
 numpy = ">=1.22"
 astropy = ">=5.1"
-galcheat = "^1.0.0"
+surveycodex = "^1.2.0"
 matplotlib = ">=3.7.1"
 scikit-image = ">=0.20.0"
 scipy = ">=1.9.1"

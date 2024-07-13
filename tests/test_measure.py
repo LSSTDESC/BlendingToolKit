@@ -1,7 +1,7 @@
 """Test measure functions run on simple outputs from generator and deblenders."""
 
 import numpy as np
-from galcheat.utilities import mean_sky_level
+from surveycodex.utilities import mean_sky_level
 
 import btk
 from btk.measure import get_aperture_fluxes, get_blendedness, get_ksb_ellipticity, get_snr
