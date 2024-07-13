@@ -10,9 +10,9 @@ import sep
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from galcheat.utilities import mean_sky_level
 from numpy.linalg import LinAlgError
 from skimage.feature import peak_local_max
+from surveycodex.utilities import mean_sky_level
 
 from btk.blend_batch import (
     BlendBatch,

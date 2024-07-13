@@ -9,7 +9,7 @@ import galsim
 import numpy as np
 from astropy.table import Column, Table
 from astropy.wcs import WCS
-from galcheat.utilities import mag2counts, mean_sky_level
+from surveycodex.utilities import mag2counts, mean_sky_level
 from tqdm.auto import tqdm
 
 from btk.blend_batch import BlendBatch, MultiResolutionBlendBatch
