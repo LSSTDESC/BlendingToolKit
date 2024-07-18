@@ -6,7 +6,7 @@ The required packages for ``btk`` are:
 
 * astropy
 * galsim
-* galcheat
+* surveycodex
 * matplotlib
 * numpy
 * scikit-image

@@ -25,7 +25,7 @@ A valid catsim catalog should at least contain the following columns:
 - `pa_disk` : Disk position angle (degrees)
 - `pa_bulge` : Bulge position angle (degrees), should be equivalent to `pa_disk`.
 
-Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in galcheat we require `i_ab`, `r_ab`, `u_ab`, `y_ab`, `z_ab`, and `g_ab` as found `here <https://github.com/aboucaud/galcheat/blob/main/galcheat/data/LSST.yaml>`_.
+Additionally, the catalog must contain columns corresponding to the ab magnitudes for each the filters in the survey you selected. For example, for the default LSST survey in surveycodex we require `i_ab`, `r_ab`, `u_ab`, `y_ab`, `z_ab`, and `g_ab` as found `here <https://github.com/LSSTDESC/surveycodex/blob/main/surveycodex/data/LSST.yaml>`_.
 
 
 COSMOS

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Guide &mdash; btk 1.0.0b8 documentation</title>
+  <title>User Guide &mdash; btk 1.0.0b9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d92bb77c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d533365"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -93,10 +93,10 @@
 <p>3. <em>Specify the</em> <a class="reference internal" href="src/btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingFunction</span></code></a>: A sampling function is a callable object, which takes into input a catalog and returns specific entries along with parameters for a given blend (such as object shifts in the stamp for instance).
 You may use the default class <code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultSamplingFunction</span></code>, or define a new one if you want to have more control over how the galaxies are selected and the blends are defined. Please take a look at our <a class="reference external" href="https://lsstdesc.org/BlendingToolKit/tutorials.html">tutorials</a> page for more details.</p>
 <ol class="arabic simple" start="4">
-<li><p><em>Choose a survey:</em> BTK now relies on the <a class="reference external" href="https://github.com/aboucaud/galcheat">galcheat</a> package. This package contains informations on various survey, including LSST, HSC and HST COSMOS (among others). It provides this information as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, which can be easily imported in BTK using the survey name, via the <cite>get_surveys</cite> function. The user can also provide a custom PSF at this point, either as a <cite>galsim</cite> model or with a FITS file, or use the default (optical + atmospheric) PSF  provided by BTK.</p></li>
+<li><p><em>Choose a survey:</em> BTK now relies on the <a class="reference external" href="https://github.com/LSSTDESC/surveycodex">surveycodex</a> package. This package contains informations on various survey, including LSST, HSC and HST COSMOS (among others). It provides this information as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, which can be easily imported in BTK using the survey name, via the <cite>get_surveys</cite> function. The user can also provide a custom PSF at this point, either as a <cite>galsim</cite> model or with a FITS file, or use the default (optical + atmospheric) PSF  provided by BTK.</p></li>
 </ol>
 <p>5. <em>Draw blends</em>: Simulates scene of overlapping objects, convolved by the PSF and with pixel noise. This step is done by creating a <a class="reference internal" href="src/btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a>-like object (e.g. <a class="reference internal" href="src/btk.draw_blends.html#btk.draw_blends.CatsimGenerator" title="btk.draw_blends.CatsimGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CatsimGenerator</span></code></a>), which takes as input the catalog, sampling function and survey created in step 2 to 4. It can then be called using <code class="docutils literal notranslate"><span class="pre">next(draw_blends_generator)</span></code> to get the results as a <cite>:class:btk.blend_batch.BlendBatch</cite>, which includes attributes containing the blend images with the key <code class="docutils literal notranslate"><span class="pre">blend_images</span></code>, the isolated galaxy images <code class="docutils literal notranslate"><span class="pre">isolated_images</span></code>, and the blend parameters with the key <code class="docutils literal notranslate"><span class="pre">catalog_list</span></code>.
-Fluxes in BTK are calculated using <cite>galcheat</cite> based on the <code class="xref py py-func docutils literal notranslate"><span class="pre">mag2counts()</span></code> function and corresponding survey and filter parameters. Please see the <cite>galcheat &lt;https://aboucaud.github.io/galcheat/api/utilities.html&gt;</cite> documentation for more details.</p>
+Fluxes in BTK are calculated using <cite>surveycodex</cite> based on the <code class="xref py py-func docutils literal notranslate"><span class="pre">mag2counts()</span></code> function and corresponding survey and filter parameters. Please see the <cite>surveycodex &lt;https://lsstdesc.org/surveycodex/api/utilities.html&gt;</cite> documentation for more details.</p>
 <ol class="arabic simple" start="6">
 <li><p><em>Detection and Deblending</em>: Performs user-defined measurements (detection, segmentation, deblended images) on the generated blends. The user may create a subclass of  <a class="reference internal" href="src/btk.deblend.html#btk.deblend.Deblender" title="btk.deblend.Deblender"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deblender</span></code></a> to deblend the corresponding blends. We currently have 3 available ‘deblenders’:</p></li>
 </ol>

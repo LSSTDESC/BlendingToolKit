@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.survey module &mdash; btk 1.0.0b8 documentation</title>
+  <title>btk.survey module &mdash; btk 1.0.0b9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d92bb77c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=7d533365"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/js/theme.js"></script>
@@ -104,9 +104,9 @@
              
   <section id="btk-survey-module">
 <h1>btk.survey module<a class="headerlink" href="#btk-survey-module" title="Permalink to this heading"></a></h1>
-<p>The survey module interfaces with the <a class="reference external" href="https://github.com/aboucaud/galcheat">galcheat</a> package.</p>
-<p>This package contains various informations about different surveys, including <cite>LSST</cite>, <cite>HSC</cite> (wide-field survey), HST COSMOS, etc. These informations are stored in a galcheat <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, containing several galcheat <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which is retrieved in BTK to compute fluxes and noise levels (using functions which are available in galcheat).</p>
-<p>The main modifications made by BTK to the galcheat objects are adding the PSF to the Filter object, and making them editable. This is achieved by defining a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> and a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which directly inherit from the corresponding galcheat objects.</p>
+<p>The survey module interfaces with the <a class="reference external" href="https://github.com/LSSTDESC/surveycodex">surveycodex</a> package.</p>
+<p>This package contains various informations about different surveys, including <cite>LSST</cite>, <cite>HSC</cite> (wide-field survey), HST COSMOS, etc. These informations are stored in a surveycodex <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> object, containing several surveycodex <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which is retrieved in BTK to compute fluxes and noise levels (using functions which are available in surveycodex).</p>
+<p>The main modifications made by BTK to the surveycodex objects are adding the PSF to the Filter object, and making them editable. This is achieved by defining a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code> and a BTK <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code> objects, which directly inherit from the corresponding surveycodex objects.</p>
 <span class="target" id="module-btk.survey"></span><p>Contains information for surveys available in BTK.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.survey.Filter">
@@ -114,8 +114,8 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <p>Survey object that extends Galcheat surveys to allow modification.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="btk.survey.Filter.from_galcheat_filter">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_galcheat_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">galcheat_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Filter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter.from_galcheat_filter" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="btk.survey.Filter.from_surveycodex_filter">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_surveycodex_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surveycodex_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Filter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Filter.from_surveycodex_filter" title="Permalink to this definition"></a></dt>
 <dd><p>Return the corresponding BTK Filter from the Galcheat Filter.</p>
 </dd></dl>
 
@@ -127,8 +127,8 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Survey</span></code></p>
 <p>Survey object that extends Galcheat surveys to allow modification.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="btk.survey.Survey.from_galcheat_survey">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_galcheat_survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey.from_galcheat_survey" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="btk.survey.Survey.from_surveycodex_survey">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_surveycodex_survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Survey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.survey.Survey.from_surveycodex_survey" title="Permalink to this definition"></a></dt>
 <dd><p>Obtain the corresponding BTK survey object from a Galcheat survey object.</p>
 </dd></dl>
 
@@ -163,13 +163,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="btk.survey.get_surveys">
 <span class="sig-prename descclassname"><span class="pre">btk.survey.</span></span><span class="sig-name descname"><span class="pre">get_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><span class="pre">Survey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#btk.survey.Survey" title="btk.survey.Survey"><span class="pre">Survey</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#btk.survey.get_surveys" title="Permalink to this definition"></a></dt>
-<dd><p>Return specified surveys from galcheat extended to contain PSF information.</p>
+<dd><p>Return specified surveys from surveycodex extended to contain PSF information.</p>
 <p>This function currently returns a list of <cite>Survey</cite> instances if <cite>names</cite> is a list with more
 than one element. If <cite>names</cite> is a str or a singleton list then we return a single <cite>Survey</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>names</strong> – A single str specifying a survey from galcheat.available_surveys().</p></li>
+<li><p><strong>names</strong> – A single str specifying a survey from surveycodex.available_surveys().</p></li>
 <li><p><strong>psf_func</strong> – Python function which takes in two arguments: <cite>survey</cite> and <cite>filter</cite>
 that returns a PSF as a galsim object or as a callable with no arguments.
 If <cite>None</cite>, the default PSF for the specified survey will be used in each band.</p></li>
