@@ -53,6 +53,7 @@ git pull origin dev
 git checkout -b release/$RELEASE origin/dev
 
 # 5. Update README with latest pre-release version
+git add README.md
 
 # 6. Bump version in release branch
 # edit pyproject.toml file to update the version
