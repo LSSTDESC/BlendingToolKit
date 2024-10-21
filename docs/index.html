@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BlendingToolKit &mdash; btk 1.0.0 documentation</title>
+  <title>BlendingToolKit &mdash; btk 1.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0b546569"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -85,6 +85,25 @@
 <h1><em>BlendingToolKit</em><a class="headerlink" href="#blendingtoolkit" title="Permalink to this heading"></a></h1>
 <p><em>BlendingToolKit</em> (BTK) is a framework to generate images of blended objects and evaluate performance metrics on various detection, deblending and measurement algorithms.</p>
 <p>Detecting and separating overlapping sources, or “deblending”, is primarily a research problem with several potential algorithmic solutions, including machine learning approaches. Computation of performance metrics on identical datasets will enable comparison between different algorithms. The goals of the BTK framework are to allow the user to easily and quickly generate datasets of blended objects for testing different detection, deblending and measurement algorithms, as well as training samples for machine learning algorithms.</p>
+<p>If you use this software for your research, please use the following bibtex entry to cite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@ARTICLE</span><span class="p">{</span><span class="n">mendoza2024btk</span><span class="p">,</span>
+      <span class="n">author</span> <span class="o">=</span> <span class="p">{{</span><span class="n">Mendoza</span><span class="p">},</span> <span class="n">Ismael</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Torchylo</span><span class="p">},</span> <span class="n">Andrii</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Sainrat</span><span class="p">},</span> <span class="n">Thomas</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Guinot</span><span class="p">},</span> <span class="n">Axel</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Boucaud</span><span class="p">},</span> <span class="n">Alexandre</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Paillassa</span><span class="p">},</span> <span class="n">Maxime</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Avestruz</span><span class="p">},</span> <span class="n">Camille</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Adari</span><span class="p">},</span> <span class="n">Prakruth</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Aubourg</span><span class="p">},</span> <span class="n">Eric</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Biswas</span><span class="p">},</span> <span class="n">Biswajit</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Buchanan</span><span class="p">},</span> <span class="n">James</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Burchat</span><span class="p">},</span> <span class="n">Patricia</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Doux</span><span class="p">},</span> <span class="n">Cyrille</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Joseph</span><span class="p">},</span> <span class="n">Remy</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Kamath</span><span class="p">},</span> <span class="n">Sowmya</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Malz</span><span class="p">},</span> <span class="n">Alex</span> <span class="n">I</span><span class="o">.</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Merz</span><span class="p">},</span> <span class="n">Grant</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Miyatake</span><span class="p">},</span> <span class="n">Hironao</span> <span class="ow">and</span> <span class="p">{</span><span class="n">Roucelle</span><span class="p">},</span> <span class="n">C</span><span class="p">{</span>\<span class="s1">&#39;e}cile and </span><span class="si">{Zhang}</span><span class="s1">, Tianqing and {the LSST Dark Energy Science Collaboration}},</span>
+      <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;{The Blending ToolKit: A simulation framework for evaluation of galaxy detection and deblending}&quot;</span><span class="p">,</span>
+      <span class="n">journal</span> <span class="o">=</span> <span class="p">{</span><span class="n">arXiv</span> <span class="n">e</span><span class="o">-</span><span class="n">prints</span><span class="p">},</span>
+   <span class="n">keywords</span> <span class="o">=</span> <span class="p">{</span><span class="n">Astrophysics</span> <span class="o">-</span> <span class="n">Instrumentation</span> <span class="ow">and</span> <span class="n">Methods</span> <span class="k">for</span> <span class="n">Astrophysics</span><span class="p">,</span> <span class="n">Astrophysics</span> <span class="o">-</span> <span class="n">Cosmology</span> <span class="ow">and</span> <span class="n">Nongalactic</span> <span class="n">Astrophysics</span><span class="p">},</span>
+         <span class="n">year</span> <span class="o">=</span> <span class="mi">2024</span><span class="p">,</span>
+      <span class="n">month</span> <span class="o">=</span> <span class="n">sep</span><span class="p">,</span>
+         <span class="n">eid</span> <span class="o">=</span> <span class="p">{</span><span class="n">arXiv</span><span class="p">:</span><span class="mf">2409.06986</span><span class="p">},</span>
+      <span class="n">pages</span> <span class="o">=</span> <span class="p">{</span><span class="n">arXiv</span><span class="p">:</span><span class="mf">2409.06986</span><span class="p">},</span>
+         <span class="n">doi</span> <span class="o">=</span> <span class="p">{</span><span class="mf">10.48550</span><span class="o">/</span><span class="n">arXiv</span><span class="mf">.2409.06986</span><span class="p">},</span>
+<span class="n">archivePrefix</span> <span class="o">=</span> <span class="p">{</span><span class="n">arXiv</span><span class="p">},</span>
+      <span class="n">eprint</span> <span class="o">=</span> <span class="p">{</span><span class="mf">2409.06986</span><span class="p">},</span>
+<span class="n">primaryClass</span> <span class="o">=</span> <span class="p">{</span><span class="n">astro</span><span class="o">-</span><span class="n">ph</span><span class="o">.</span><span class="n">IM</span><span class="p">},</span>
+      <span class="n">adsurl</span> <span class="o">=</span> <span class="p">{</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">ui</span><span class="o">.</span><span class="n">adsabs</span><span class="o">.</span><span class="n">harvard</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="nb">abs</span><span class="o">/</span><span class="mi">2024</span><span class="n">arXiv240906986M</span><span class="p">},</span>
+      <span class="n">adsnote</span> <span class="o">=</span> <span class="p">{</span><span class="n">Provided</span> <span class="n">by</span> <span class="n">the</span> <span class="n">SAO</span><span class="o">/</span><span class="n">NASA</span> <span class="n">Astrophysics</span> <span class="n">Data</span> <span class="n">System</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </section>
 <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
