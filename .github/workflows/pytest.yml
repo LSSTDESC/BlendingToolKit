@@ -15,20 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - name: Checkout github repo
-        uses: actions/checkout@v2
+      - name: Check out the repository
+        uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: "Setup Python, Poetry and Dependencies"
+        uses: dsoftwareinc/setup-python-poetry-action@v1
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          poetry-version: 2.0.0
 
       # galsim needs this.
       - name: Install FFTW
