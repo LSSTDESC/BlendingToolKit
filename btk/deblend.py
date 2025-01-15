@@ -6,7 +6,7 @@ from itertools import repeat
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import sep
+import sep_pjw as sep
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
