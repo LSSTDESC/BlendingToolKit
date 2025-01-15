@@ -4,7 +4,7 @@ from typing import Tuple
 
 import galsim
 import numpy as np
-import sep
+import sep_pjw as sep
 from galsim import GSObject
 
 
