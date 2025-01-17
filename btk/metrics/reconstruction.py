@@ -40,7 +40,7 @@ class MSE(ReconstructionMetric):
     """MSE class metric.
 
     Note that this metric can become diluted as the postage stamp size grows, as it does not
-    exclude pixels with a common value of zero in the images it compares.
+    exclude pixels far way from the galaxy.
     """
 
     def _get_data(self, iso_images1: np.ndarray, iso_images2: np.ndarray) -> Dict[str, np.ndarray]:
