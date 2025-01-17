@@ -61,4 +61,4 @@ Scarlet
 ------------------------------
 BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you can easily run the Scarlet deblender on BTK blends.
 
-First you need to install the ``scarlet`` package, which is not installed by default as ``scarlet`` is not in PyPI. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.
+To use this functionality you need to install the ``scarlet`` package, which is not installed by default as ``scarlet`` is not in PyPI. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.
