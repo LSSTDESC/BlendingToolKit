@@ -307,7 +307,7 @@ class SepSingleBand(Deblender):
         bkg = sep.Background(image)
         catalog, segmentation = sep.extract(
             image,
-            self.thresh,
+            thresh=self.thresh,
             err=bkg.globalrms,
             segmentation_map=True,
             minarea=self.min_area,
