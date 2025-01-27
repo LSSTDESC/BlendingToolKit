@@ -1,18 +1,11 @@
-[tool.poetry]
+[project]
 authors = [
-  "Ismael Mendoza <imendoza@umich.edu>",
-  "Thomas Sainrat",
-  "Andrii Torchylo",
-  "Somwya Kamath",
-  "Maxime Paillasa",
-  "Alexandre Boucaud",
-  "Biswajit Biswas",
-  "Prakruth Adari",
-  "Remy Joseph",
-  "Patricia Burchat",
-  "Cyrille Doux",
-  "Eric Aubourg",
+  { name = "Thomas Sainrat" },
+  { name = "Andrii Torychlo" },
+  { name = "Somwya Kamath" },
+  { name = "Maxime Paillasa" },
 ]
+maintainers = [{ name = "Ismael Mendoza", email = "imendoza@umich.edu" }]
 classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -23,56 +16,55 @@ classifiers = [
 ]
 description = "Blending ToolKit"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
-license = "MIT"
+license = { file = "LICENSE.txt" }
 name = "blending_toolkit"
 readme = "README.md"
 version = "1.0.1"
-packages = [{ include = "btk" }]
-repository = "https://github.com/LSSTDESC/BlendingToolKit"
-homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
+requires-python = ">= 3.9"
+dependencies = [
+  "galsim>=2.4.9",
+  "sep_pjw>=1.3.7",
+  "surveycodex>=1.2.0",
+  "numpy>=1.22",
+  "fast3tree>=0.4.1",
+  "scipy>=1.13.1",
+  "scikit-image>=0.24.0",
+  "h5py>=3.12.1",
+  "tqdm>=4.67.1",
+  "pybind11>=2.13.6",
+]
 
-[tool.poetry.urls]
+[project.optional-dependencies]
+dev = [
+  "cython>=3.0.11",
+  "jupyter>=1.1.1",
+  "nbmake>=1.5.5",
+  "nbstripout>=0.8.1",
+  "pre-commit>=4.0.1",
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.9.1",
+  "sphinx>=7.4.7",
+]
+scarlet = [
+  "peigen>=0.0.9",
+  "autograd>=1.5.0",
+  "proxmin>=0.6.12",
+  "pybind11>=2.10.3",
+]
+
+[project.urls]
+Homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
+Repository = "https://github.com/LSSTDESC/BlendingToolKit"
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
-
-[tool.poetry.dependencies]
-numpy = ">=1.26.0"
-astropy = ">=5.1"
-surveycodex = "^1.2.0"
-matplotlib = ">=3.7.1"
-scikit-image = ">=0.20.0"
-scipy = ">=1.9.1"
-tqdm = ">=4.65.0"
-sep_pjw = ">=1.3.7"
-galsim = ">=2.4.9"
-python = ">=3.9,<3.13"
-h5py = ">=3.9.0"
-fast3tree = ">=0.4.1"
-
-[tool.poetry.group.scarlet]
-optional = true
-
-[tool.poetry.group.scarlet.dependencies]
-peigen = "^0.0.9"
-autograd = "^1.5"
-proxmin = "^0.6.12"
-pybind11 = "^2.10.3"
-
-[tool.poetry.group.dev.dependencies]
-pytest-cov = ">=5.0.0"
-pre-commit = ">=3.5.0"
-jupyter = ">=1.0.0"
-jupyter-sphinx = ">=0.4.0"
-nbmake = ">=1.4.1"
-nbstripout = ">=0.6.1"
-pytest = ">=7.3.1"
-sphinx = ">=4.2.0"
-sphinx-rtd-theme = ">=1.2.1"
-ruff = ">=0.9.1"
 
 
 [build-system]
-requires = ["poetry-core>=2.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["btk"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -109,8 +101,8 @@ exclude = [
 line-length = 100
 indent-width = 4
 
-# Assume Python 3.10
-target-version = "py310"
+# Assume Python 3.12
+target-version = "py312"
 
 [tool.ruff.lint]
 # Enable the following rules:
@@ -168,7 +160,7 @@ docstring-code-line-length = "dynamic"
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "I", "F"]
 "**/{tests,docs,tools}/*" = ["E402", "D", "PLR0915"]
-"**/*.ipynb" = ["I", "F"]
+"**/*.ipynb" = ["I"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

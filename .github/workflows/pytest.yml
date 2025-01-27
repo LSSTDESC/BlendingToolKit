@@ -19,34 +19,35 @@ jobs:
 
     steps:
       - name: Checkout github repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - uses: conda-incubator/setup-miniconda@v3
         with:
+          activate-environment: btk
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          auto-activate-base: false
 
       # galsim needs this.
       - name: Install FFTW
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install poetry dependencies
+      - name: Activate environment
         run: |
-          poetry install --with scarlet
+          conda activate btk
 
       - name: Install Scarlet
         run: |
-          poetry run pip install "pybind11[global]" peigen pybind11
-          git clone https://github.com/pmelchior/scarlet.git; cd scarlet; poetry run python setup.py install
+          git clone https://github.com/pmelchior/scarlet.git; cd scarlet; pip install .
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .
+          pip install -e ".[dev]"
 
       - name: Run Tests
         run: |
-          poetry run pytest --cov=./btk --cov-report=xml --durations=0
+          pytest --cov=./btk --cov-report=xml --durations=0
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
