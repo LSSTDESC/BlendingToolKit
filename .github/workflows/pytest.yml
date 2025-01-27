@@ -34,6 +34,7 @@ jobs:
       - name: Install Scarlet
         run: |
           pip install --upgrade pip
+          pip install wheel setuptools pip --upgrade
           pip install "pybind11[global]"
           pip install numpy scipy astropy pybind11
           pip install proxmin peigen autograd
