@@ -36,13 +36,11 @@ git pull origin dev
 # 4. Created a release branch that tracks origin/dev
 git checkout -b release/$RELEASE origin/dev
 
-# 5. Update README with latest pre-release version
-git add README.md
-
 # 6. Bump version in release branch
 # edit pyproject.toml file to update the version
-poetry version $RELEASE
+# also CHANGELOG.md
 git add pyproject.toml
+git add CHANGELOG.md
 git commit -m "Version $RELEASE"
 
 # 7. Pushed release branch to remote repository
