@@ -16,7 +16,7 @@ classifiers = [
 ]
 description = "Blending ToolKit"
 keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
-license = { file = "LICENSE.txt" }
+license = { file = "LICENSE" }
 name = "blending_toolkit"
 readme = "README.md"
 version = "1.0.2"
