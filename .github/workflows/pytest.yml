@@ -21,10 +21,10 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v4
 
-      - uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          auto-activate-base: True
 
       # galsim needs this.
       - name: Install FFTW
@@ -33,7 +33,8 @@ jobs:
 
       - name: Install Scarlet
         run: |
-          conda install -c conda-forge numpy scipy astropy pybind11
+          pip install numpy scipy astropy pybind11
+          pip install "pybind11[global]"
           pip install proxmin peigen autograd
           git clone https://github.com/pmelchior/scarlet.git; cd scarlet; pip install .
 
