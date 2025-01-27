@@ -24,7 +24,6 @@ class Precision(DetectionMetric):
     def _get_data(
         self, n_matches: np.ndarray, n_true: np.ndarray, n_pred: np.ndarray
     ) -> Dict[str, np.ndarray]:
-        """Compute precision on batch."""
         tp = n_matches
         fp = n_pred - n_matches
         t = n_true

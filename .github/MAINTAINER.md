@@ -2,35 +2,19 @@
 
 ## Setup environment
 
-1. We use [poetry](https://python-poetry.org/docs/) as python package manager for BTK. It guarantees all developers are sharing the same python environment, makes it really easy to update dependencies, and publish to [pypi](https://pypi.org).
+For development, I recommend the following instructions to install the package:
 
-2. For development, it is recommended to create a `poetry` virtual environment from scratch and use it to install all required dependencies. Please follow the following series of steps:
+1. Create a new `conda` environment.
+
+2. Install `scarlet` following the conda instructions in the documentation.
+
+3. Then run the following commands **within the new `conda` environment**:
 
 ```bash
-# enter to the local repo
-cd BlendingToolKit
-
-# install poetry
-curl -sSL https://install.python-poetry.org | python3 -
-
-# install all python dependencies from pyproject.toml file
-# and create lock file
-poetry update
-
-# activate pdm environment
-poetry shell
-
-# install the git hook scripts
+pip install -e .
+pip install -e ".[dev]"
 pre-commit install
 ```
-
-Remember that `galsim` has additional dependencies that you might need to install prior to running `poetry update`. Please follow the instructions [here](https://galsim-developers.github.io/GalSim/_build/html/install.html).
-
-One workaround in case of problems is to setup a `conda` environment, install `galsim`, install `poetry` with `conda`, and then run `poetry update`.
-
-## Updating packages
-
-If any of the dependencies requires an update, you can simply run `poetry update` inside your local repo to automatically update and install them. Feel free to push the changes of the `poetry.lock` file to the PR you are working on.
 
 ## Making new Releases
 
@@ -76,7 +60,7 @@ git pull origin main
 git merge release/$RELEASE
 
 # 12. Tagged the release point by creating a new tag
-git tag -a $RELEASE -m "Create release tag $RELEASE"
+git tag -a $RELEASE -m "Release v$RELEASE"
 
 # 13. Pushed main branch to remote repository
 git push origin main

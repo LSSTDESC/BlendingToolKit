@@ -11,3 +11,4 @@
 /data/cache
 Dockerfile
 .devcontainer
+blending_toolkit.egg-info
