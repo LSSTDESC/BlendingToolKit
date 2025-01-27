@@ -31,12 +31,15 @@ jobs:
         run: |
           sudo apt-get install libfftw3-dev
 
-      - name: Install Scarlet
+      - name: pip upgrade
         run: |
           pip install --upgrade pip
           pip install wheel setuptools pip --upgrade
-          pip install "pybind11[global]"
-          pip install numpy scipy astropy pybind11
+
+      - name: Install Scarlet
+        run: |
+          pip install "pybind11[global]" pybind11
+          pip install numpy scipy astropy
           pip install proxmin peigen autograd
           git clone https://github.com/pmelchior/scarlet.git; cd scarlet; pip install .
 
