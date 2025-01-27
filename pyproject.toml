@@ -19,7 +19,7 @@ keywords = ["cosmology", "galaxies", "blending", "lsst", "simulation"]
 license = { file = "LICENSE.txt" }
 name = "blending_toolkit"
 readme = "README.md"
-version = "1.0.1"
+version = "1.0.2"
 requires-python = ">= 3.9"
 dependencies = [
   "galsim>=2.4.9",
