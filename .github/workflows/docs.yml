@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout github repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install pandoc
         run: sudo apt-get install pandoc
