@@ -25,3 +25,30 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: pip upgrade
+        run: |
+          pip install --upgrade pip
+          pip install wheel setuptools pip --upgrade
+
+      # galsim needs this.
+      - name: Install FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
+
+      - name: Install Scarlet
+        run: |
+          pip install "pybind11[global]" pybind11
+          pip install numpy scipy astropy
+          pip install proxmin peigen autograd
+          git clone https://github.com/pmelchior/scarlet.git; cd scarlet; pip install .
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .
+          pip install -e ".[dev]"
+
+      # just checks if they run
+      - name: Run notebooks
+        run: |
+          poetry run pytest --nbmake notebooks --ignore notebooks/02-advanced-plots.ipynb
