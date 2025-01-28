@@ -1,9 +1,11 @@
 name: notebooks
 
 on:
-  schedule:
-    - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
   push:
+    branches:
+      - main
+      - dev
+  pull_request:
     branches:
       - main
       - dev
@@ -13,40 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout github repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-     - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      # galsim needs this.
-      - name: Install FFTW
-        run: |
-          sudo apt-get install libfftw3-dev
-
-      - name: pip upgrade
-        run: |
-          pip install --upgrade pip
-          pip install wheel setuptools pip --upgrade
-
-      - name: Install Scarlet
-        run: |
-          pip install "pybind11[global]" pybind11
-          pip install numpy scipy astropy
-          pip install proxmin peigen autograd
-          git clone https://github.com/pmelchior/scarlet.git; cd scarlet; pip install .
-
-      - name: Install Dependencies
-        run: |
-          pip install -e .
-          pip install -e ".[dev]"
-
-      # just checks if they run
-      - name: Run notebooks
-        run: |
-          poetry run pytest --nbmake notebooks --ignore notebooks/02-advanced-plots.ipynb
