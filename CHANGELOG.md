@@ -1,3 +1,7 @@
+# v1.0.5
+
+- Fix potential issue with circular imports in `metrics`.
+
 # v1.0.3
 
 - Documentation fixes
