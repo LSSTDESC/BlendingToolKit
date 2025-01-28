@@ -4,8 +4,8 @@ from typing import Dict
 
 import numpy as np
 
-from btk.metrics.base import Metric
-from btk.metrics.utils import effmat
+from .base import Metric
+from .utils import effmat
 
 
 class DetectionMetric(Metric):

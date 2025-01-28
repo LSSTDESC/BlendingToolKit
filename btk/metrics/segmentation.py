@@ -5,8 +5,8 @@ from typing import Dict
 
 import numpy as np
 
-from btk.metrics.base import Metric
-from btk.metrics.utils import iou
+from .base import Metric
+from .utils import iou
 
 
 class SegmentationMetric(Metric, ABC):
