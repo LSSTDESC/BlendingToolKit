@@ -41,7 +41,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd docs
-          poetry run make html
+          make html
           if [ $? = 2 ]; then exit 1;fi
           cd build/html
           touch .nojekyll
