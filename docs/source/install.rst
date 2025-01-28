@@ -37,7 +37,7 @@ Another option is to create a ``conda`` environment and install GalSim through `
     conda activate py39
     conda install -c conda-forge galsim
 
-For more details see `this link <https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`.
+For more details see `this link <https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`_.
 
 
 
