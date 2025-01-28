@@ -26,8 +26,7 @@ improved computational efficiency. It can be installed with:
 
     pip install galsim
 
-However you may have to install FFTW and Eigen manually. Refer to
-`this link<https://galsim-developers.github.io/GalSim/_build/html/install_pip.html>`_
+However you may have to install FFTW and Eigen manually. Refer to `this link <https://galsim-developers.github.io/GalSim/_build/html/install_pip.html>`_
 for more details.
 
 Another option is to create a ``conda`` environment and install GalSim through ``conda``. A minimal working example (after having installed ``conda``) looks like:
@@ -38,7 +37,7 @@ Another option is to create a ``conda`` environment and install GalSim through `
     conda activate py39
     conda install -c conda-forge galsim
 
-For more details see `this link<https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`.
+For more details see `this link <https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`.
 
 
 
