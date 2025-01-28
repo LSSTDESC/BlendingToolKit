@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
       - name: Checkout github repo
@@ -20,3 +20,46 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      # galsim needs this.
+      - name: Install FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
+
+      - name: pip upgrade
+        run: |
+          pip install --upgrade pip
+          pip install wheel setuptools pip --upgrade
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .
+          pip install -e ".[dev]"
+
+      - name: build docs
+        shell: bash -l {0}
+        run: |
+          cd docs
+          poetry run make html
+          if [ $? = 2 ]; then exit 1;fi
+          cd build/html
+          touch .nojekyll
+
+      - name: Commit documentation changes
+        run: |
+          git clone https://github.com/LSSTDESC/BlendingToolKit.git --branch gh-pages --single-branch gh-pages
+          cp -r docs/build/html/* gh-pages/docs/
+          cd gh-pages/docs
+          touch .nojekyll
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+
+      # The above command will fail if no changes were present, so we ignore that.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
