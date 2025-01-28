@@ -13,26 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout github repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-     - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      # galsim needs this.
-      - name: Install FFTW
-        run: |
-          sudo apt-get install libfftw3-dev
 
       - name: pip upgrade
         run: |
           pip install --upgrade pip
           pip install wheel setuptools pip --upgrade
+
+      # galsim needs this.
+      - name: Install FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
 
       - name: Install Scarlet
         run: |
@@ -49,4 +49,4 @@ jobs:
       # just checks if they run
       - name: Run notebooks
         run: |
-          poetry run pytest --nbmake notebooks --ignore notebooks/02-advanced-plots.ipynb
+          pytest --nbmake notebooks --ignore notebooks/02-advanced-plots.ipynb

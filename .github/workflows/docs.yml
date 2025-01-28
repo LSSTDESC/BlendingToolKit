@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -16,13 +17,15 @@ jobs:
       - name: Checkout github repo
         uses: actions/checkout@v4
 
-      - name: Install pandoc
-        run: sudo apt-get install pandoc
-
-     - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      # galsim needs this.
+      - name: Install FFTW
+        run: |
+          sudo apt-get install libfftw3-dev
 
       - name: pip upgrade
         run: |
