@@ -1,35 +1,27 @@
-name: docs
+name: pytest
 
 on:
   push:
     branches:
       - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout github repo
         uses: actions/checkout@v4
 
-      - name: Install pandoc
-        run: sudo apt-get install pandoc
-
-     - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: pip upgrade
-        run: |
-          pip install --upgrade pip
-          pip install wheel setuptools pip --upgrade
-
-      - name: Install Dependencies
-        run: |
-          pip install -e .
-          pip install -e ".[dev]"
