@@ -1,11 +1,9 @@
 name: notebooks
 
 on:
+  schedule:
+    - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
   push:
-    branches:
-      - main
-      - dev
-  pull_request:
     branches:
       - main
       - dev
