@@ -5,8 +5,8 @@ from typing import Callable, Dict
 
 import numpy as np
 
-from btk.metrics.base import Metric
-from btk.metrics.utils import mse, psnr, struct_sim
+from .base import Metric
+from .utils import mse, psnr, struct_sim
 
 
 class ReconstructionMetric(Metric, ABC):
