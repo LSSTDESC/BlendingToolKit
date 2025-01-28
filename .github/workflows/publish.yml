@@ -1,9 +1,9 @@
 name: publish
 
 on:
-  push:
+  pull-request:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
