@@ -4,6 +4,13 @@ authors = [
   { name = "Andrii Torychlo" },
   { name = "Somwya Kamath" },
   { name = "Maxime Paillasa" },
+  { name = "Alexandre Boucaud" },
+  { name = "Biswajit Biswas" },
+  { name = "Prakruth Adari" },
+  { name = "Remy Joseph" },
+  { name = "Patricia Burchat" },
+  { name = "Cyrille Doux" },
+  { name = "Eric Aubourg" },
 ]
 maintainers = [{ name = "Ismael Mendoza", email = "imendoza@umich.edu" }]
 classifiers = [

@@ -14,7 +14,7 @@ The required packages for ``btk`` are:
 * sep
 * tqdm
 
-and their specific versions are listed in the `pyproject.toml <https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml>`_ under the ``[tool.poetry.dependencies]`` section.
+and their specific versions are listed in the `pyproject.toml <https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml>`_ under the ``dependencies`` section.
 
 Install GalSim
 -------------------------------

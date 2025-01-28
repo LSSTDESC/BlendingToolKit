@@ -12,19 +12,15 @@ Once you have some code you wish to contribute, you can follow this procedure to
 
 - Fork the `BTK` repository under your own account, using the **Fork** button on the top right of the [GitHub page](https://github.com/LSSTDESC/BlendingToolKit).
 
-- We use [poetry](https://python-poetry.org/docs/) for managing the dependencies of the project. You can install it with:
-
-  ```bash
-  curl -sSL https://install.python-poetry.org | python3 -
-  ```
-
 - Clone and pip install your fork of the repository like so:
 
   ```bash
   git clone https://github.com/YOUR_USERNAME/BlendingToolKit
   cd BlendingToolKit
-  poetry install
-  poetry shell # activate the virtual environment
+  conda create -n btk python=3.xx # create a virtual env with conda or something else
+  conda activate btk
+  pip install -e .
+  pip install -e ".[dev]"
   ```
 
   This will install your local fork in editable mode, meaning you can directly modify source files in this folder without having to reinstall the package for them to be taken into account.
@@ -44,7 +40,7 @@ Once you have some code you wish to contribute, you can follow this procedure to
 - Add your changes to the code using your favorite editor. You may at any moment test that everything is still working by running the test suite. From the root folder of the repository, run:
 
   ```bash
-  poetry run pytest # or poetry shell; pytest
+  pytest
   ```
 
 - Once you are happy with your modifications, commit them, and push your changes to GitHub:
@@ -75,15 +71,15 @@ Before submitting your PR, have a look at the procedure documented below.
 - Make sure the unit tests still work:
 
   ```bash
-  poetry run pytest
+  pytest
   ```
 
   Ideally there should be some new unit tests for the new functionality, unless the work is completely covered by existing unit tests.
 
-- Make sure your code conforms to the [Black](https://github.com/psf/black) style:
+- Make sure your code conforms to our formatter:
 
   ```bash
-  black .
+  ruff check btk/ tests/
   ```
 
 - If your changes contain multiple commits, we encourage you to squash them into a single (or very few) commit, before opening the PR. To do so, you can using this command:
@@ -120,11 +116,7 @@ git rebase -i
 
 ### Code Style
 
-In this project we follow the [Black](https://github.com/psf/black) code formatting guidelines` (Any color you like...) This means that all code should be automatically formatted using Black and CI will fail if that's not the case.
-
-Black should be automatically installed when you install the project with `poetry install`.
-
-And run it manually from the root directory of your local clone with `black .`
+We use `ruff` for formatting with the settings specified in the `pyproject.toml` file.
 
 We highly recommend installing `pre-commit`, which will take care of trailing whitespace, checking for large files, and stripping
 notebook metadata (keeping output).
@@ -137,7 +129,7 @@ And that's all you need to do from now on.
 
 ### Documentation style
 
-BlendingToolKit follows the google format: <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
+BlendingToolKit follows the google format for docstrings: <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
 
 ## Credit
 
