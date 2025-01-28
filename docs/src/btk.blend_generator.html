@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.blend_generator module &mdash; btk 1.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+  <title>btk.blend_generator module &mdash; btk 1.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0b546569"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1ed6394b"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +34,6 @@
           <a href="../index.html" class="icon icon-home">
             btk
           </a>
-              <div class="version">
-                1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -99,17 +94,17 @@
            <div itemprop="articleBody">
              
   <section id="btk-blend-generator-module">
-<h1>btk.blend_generator module<a class="headerlink" href="#btk-blend-generator-module" title="Permalink to this heading"></a></h1>
+<h1>btk.blend_generator module<a class="headerlink" href="#btk-blend-generator-module" title="Link to this heading"></a></h1>
 <p>The <cite>blend_generator</cite> module defines the <a class="reference internal" href="#btk.blend_generator.BlendGenerator" title="btk.blend_generator.BlendGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlendGenerator</span></code></a> class, which is used for generating blend parameters. This class is only used internally, inside a <a class="reference internal" href="btk.draw_blends.html#btk.draw_blends.DrawBlendsGenerator" title="btk.draw_blends.DrawBlendsGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">DrawBlendsGenerator</span></code></a>.</p>
-<span class="target" id="module-btk.blend_generator"></span><p>Contains class <cite>BlendGenerator</cite> to combine entries from a given catalog into blends.</p>
+<p id="module-btk.blend_generator">Contains class <cite>BlendGenerator</cite> to combine entries from a given catalog into blends.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.blend_generator.BlendGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.blend_generator.</span></span><span class="sig-name descname"><span class="pre">BlendGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><span class="pre">Catalog</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><span class="pre">SamplingFunction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.blend_generator.BlendGenerator" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.blend_generator.</span></span><span class="sig-name descname"><span class="pre">BlendGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><span class="pre">Catalog</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><span class="pre">SamplingFunction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.blend_generator.BlendGenerator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class that uses a catalog and a sampling function to return blend information in batches.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.blend_generator.BlendGenerator.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><span class="pre">Catalog</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><span class="pre">SamplingFunction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.blend_generator.BlendGenerator.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.catalog.html#btk.catalog.Catalog" title="btk.catalog.Catalog"><span class="pre">Catalog</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="btk.sampling_functions.html#btk.sampling_functions.SamplingFunction" title="btk.sampling_functions.SamplingFunction"><span class="pre">SamplingFunction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.blend_generator.BlendGenerator.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initializes the BlendGenerator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -138,7 +133,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, btk developers.</p>
+    <p>&#169; Copyright 2025, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

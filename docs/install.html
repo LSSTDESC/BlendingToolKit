@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; btk 1.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Installation &mdash; btk 1.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0b546569"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=1ed6394b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,9 +34,6 @@
           <a href="index.html" class="icon icon-home">
             btk
           </a>
-              <div class="version">
-                1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -87,8 +82,8 @@
            <div itemprop="articleBody">
              
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The required python version for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.9</span></code>.
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p><em>BlendingToolKit</em> (<code class="docutils literal notranslate"><span class="pre">btk</span></code>) uses <a class="reference external" href="https://github.com/GalSim-developers/GalSim">GalSim</a> to simulate galaxy images. The python version required for <code class="docutils literal notranslate"><span class="pre">btk</span></code> is <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.9</span></code> or higher. We currently do not support the latest python version <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.13</span></code>.
 The required packages for <code class="docutils literal notranslate"><span class="pre">btk</span></code> are:</p>
 <ul class="simple">
 <li><p>astropy</p></li>
@@ -101,35 +96,41 @@ The required packages for <code class="docutils literal notranslate"><span class
 <li><p>sep</p></li>
 <li><p>tqdm</p></li>
 </ul>
-<p>and their specific versions are listed in the <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml">pyproject.toml</a> under the <code class="docutils literal notranslate"><span class="pre">[tool.poetry.dependencies]</span></code> section.</p>
+<p>and their specific versions are listed in the <a class="reference external" href="https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml">pyproject.toml</a> under the <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> section.</p>
 <section id="install-galsim">
-<h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Permalink to this heading"></a></h2>
+<h2>Install GalSim<a class="headerlink" href="#install-galsim" title="Link to this heading"></a></h2>
 <p>GalSim is a python module that has much of its implementation in C++ for
 improved computational efficiency. It can be installed with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">galsim</span>
 </pre></div>
 </div>
-<p>However, you may have to install FFTW and Eigen manually. Refer to
-<a class="reference external" href="https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md">this</a>
+<p>However you may have to install FFTW and Eigen manually. Refer to
+<a href="#id1"><span class="problematic" id="id2">`this link&lt;https://galsim-developers.github.io/GalSim/_build/html/install_pip.html&gt;`_</span></a>
 for more details.</p>
-</section>
-<section id="install-btk">
-<h2>Install BTK<a class="headerlink" href="#install-btk" title="Permalink to this heading"></a></h2>
-<p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest released version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">pre</span> <span class="n">blending</span><span class="o">-</span><span class="n">toolkit</span>
+<p>Another option is to create a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment and install GalSim through <code class="docutils literal notranslate"><span class="pre">conda</span></code>. A minimal working example (after having installed <code class="docutils literal notranslate"><span class="pre">conda</span></code>) looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">py39</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span> <span class="n">anaconda</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">py39</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">galsim</span>
 </pre></div>
 </div>
-<p>The version flag is necessary as the latest version is a pre-release. This command should install all other missing dependencies if necessary. You can then import the package as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">btk</span>
-<span class="kn">import</span> <span class="nn">btk.catalog</span>
+<p>For more details see <cite>this link&lt;https://galsim-developers.github.io/GalSim/_build/html/install_conda.html&gt;</cite>.</p>
+</section>
+<section id="install-btk">
+<h2>Install BTK<a class="headerlink" href="#install-btk" title="Link to this heading"></a></h2>
+<p>Once you installed <code class="docutils literal notranslate"><span class="pre">galsim</span></code>, you can install the latest version of <code class="docutils literal notranslate"><span class="pre">btk</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">blending</span><span class="o">-</span><span class="n">toolkit</span>
+</pre></div>
+</div>
+<p>This command should install all other missing dependencies if necessary. You can then import the package as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">btk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">btk.catalog</span>
 </pre></div>
 </div>
 </section>
 <section id="scarlet">
-<h2>Scarlet<a class="headerlink" href="#scarlet" title="Permalink to this heading"></a></h2>
-<p>BTK includes the Scarlet deblender as one of its <code class="docutils literal notranslate"><span class="pre">Deblender</span></code> classes. This means that you can easily run the scarlet deblender on BTK blends.</p>
-<p>First you need to install scarlet, this is not by default installed with BTK as scarlet
-is not in pypi. You can install scarlet by following the instructions here: <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">https://pmelchior.github.io/scarlet/install.html</a>.</p>
+<h2>Scarlet<a class="headerlink" href="#scarlet" title="Link to this heading"></a></h2>
+<p>BTK includes the Scarlet deblender as one of its <code class="docutils literal notranslate"><span class="pre">Deblender</span></code> classes. This means that you can easily run the Scarlet deblender on BTK blends.</p>
+<p>To use this functionality you need to install the <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> package, which is not installed by default as <code class="docutils literal notranslate"><span class="pre">scarlet</span></code> is not in PyPI. You can install scarlet by following the instructions here: <a class="reference external" href="https://pmelchior.github.io/scarlet/install.html">https://pmelchior.github.io/scarlet/install.html</a>.</p>
 </section>
 </section>
 
@@ -144,7 +145,7 @@ is not in pypi. You can install scarlet by following the instructions here: <a c
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, btk developers.</p>
+    <p>&#169; Copyright 2025, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

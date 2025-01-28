@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>btk.catalog module &mdash; btk 1.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+  <title>btk.catalog module &mdash; btk 1.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0b546569"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1ed6394b"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +34,6 @@
           <a href="../index.html" class="icon icon-home">
             btk
           </a>
-              <div class="version">
-                1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -59,7 +54,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="btk.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">btk.catalog module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#btk.catalog.Catalog"><code class="docutils literal notranslate"><span class="pre">Catalog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#btk.catalog.Catalog.self.table"><code class="docutils literal notranslate"><span class="pre">Catalog.self.table</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.catalog.CatsimCatalog"><code class="docutils literal notranslate"><span class="pre">CatsimCatalog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#btk.catalog.CosmosCatalog"><code class="docutils literal notranslate"><span class="pre">CosmosCatalog</span></code></a></li>
 </ul>
@@ -102,19 +96,19 @@
            <div itemprop="articleBody">
              
   <section id="btk-catalog-module">
-<h1>btk.catalog module<a class="headerlink" href="#btk-catalog-module" title="Permalink to this heading"></a></h1>
+<h1>btk.catalog module<a class="headerlink" href="#btk-catalog-module" title="Link to this heading"></a></h1>
 <p>The catalog module defines the <a class="reference internal" href="#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a> class and its implementation
 for Catsim and COSMOS.</p>
-<span class="target" id="module-btk.catalog"></span><p>Contains abstract base class <cite>Catalog</cite> that standarizes catalog usage across BTK.</p>
+<p id="module-btk.catalog">Contains abstract base class <cite>Catalog</cite> that standarizes catalog usage across BTK.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.catalog.Catalog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">Catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">Catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Abstract base class containing the catalog for BTK.</p>
 <p>Each new catalog should be a subclass of Catalog.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="btk.catalog.Catalog.self.table">
-<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">table</span></span><a class="headerlink" href="#btk.catalog.Catalog.self.table" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">table</span></span><a class="headerlink" href="#btk.catalog.Catalog.self.table" title="Link to this definition"></a></dt>
 <dd><p>Standardized table containing information from the catalog</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -125,7 +119,7 @@ for Catsim and COSMOS.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.Catalog.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog.__init__" title="Link to this definition"></a></dt>
 <dd><p>Creates Catalog object and standarizes raw_catalog information.</p>
 <p>The standarization is done via the attribute self.table via the _prepare_table method.</p>
 <dl class="field-list simple">
@@ -137,19 +131,19 @@ for Catsim and COSMOS.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.Catalog.from_file">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.Catalog.from_file" title="Link to this definition"></a></dt>
 <dd><p>Constructs the catalog object from a file. Should be implemented in subclasses.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.Catalog.get_raw_catalog">
-<span class="sig-name descname"><span class="pre">get_raw_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Table</span></span></span><a class="headerlink" href="#btk.catalog.Catalog.get_raw_catalog" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_raw_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Table</span></span></span><a class="headerlink" href="#btk.catalog.Catalog.get_raw_catalog" title="Link to this definition"></a></dt>
 <dd><p>Returns the raw catalog.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="btk.catalog.Catalog.name">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#btk.catalog.Catalog.name" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#btk.catalog.Catalog.name" title="Link to this definition"></a></dt>
 <dd><p>Property containing the name of the (sub)class.</p>
 <p>It is used to check whether the catalog is compatible with the chosen DrawBlendsGenerator.</p>
 </dd></dl>
@@ -158,12 +152,12 @@ for Catsim and COSMOS.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.catalog.CatsimCatalog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">CatsimCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">CatsimCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a></p>
 <p>Implementation of Catalog for the Catsim catalog.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.CatsimCatalog.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CatsimCatalog.from_file" title="Link to this definition"></a></dt>
 <dd><p>Constructs the catalog object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -176,18 +170,18 @@ for Catsim and COSMOS.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="btk.catalog.CosmosCatalog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">CosmosCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">COSMOSCatalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">btk.catalog.</span></span><span class="sig-name descname"><span class="pre">CosmosCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">COSMOSCatalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#btk.catalog.Catalog" title="btk.catalog.Catalog"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></a></p>
 <p>Class containing catalog information for drawing COSMOS galaxies from galsim.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.CosmosCatalog.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">COSMOSCatalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">galsim_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">COSMOSCatalog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initializes the COSMOS Catalog class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.CosmosCatalog.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'marginal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'marginal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#btk.catalog.CosmosCatalog.from_file" title="Link to this definition"></a></dt>
 <dd><p>Constructs the catalog object from a file. It also places exclusion level cuts.</p>
 <p>For more details: (<a class="reference external" href="https://galsim-developers.github.io/GalSim/_build/html/real_gal.html">https://galsim-developers.github.io/GalSim/_build/html/real_gal.html</a>)</p>
 <dl class="field-list simple">
@@ -232,7 +226,7 @@ images catalog, Otherwise the “bad_stamp” and “marginal” cuts will fail
 
 <dl class="py method">
 <dt class="sig sig-object py" id="btk.catalog.CosmosCatalog.get_galsim_catalog">
-<span class="sig-name descname"><span class="pre">get_galsim_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">COSMOSCatalog</span></span></span><a class="headerlink" href="#btk.catalog.CosmosCatalog.get_galsim_catalog" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_galsim_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">COSMOSCatalog</span></span></span><a class="headerlink" href="#btk.catalog.CosmosCatalog.get_galsim_catalog" title="Link to this definition"></a></dt>
 <dd><p>Returns the galsim.COSMOSCatalog object.</p>
 </dd></dl>
 
@@ -251,7 +245,7 @@ images catalog, Otherwise the “bad_stamp” and “marginal” cuts will fail
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, btk developers.</p>
+    <p>&#169; Copyright 2025, btk developers.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

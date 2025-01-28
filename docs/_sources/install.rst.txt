@@ -1,7 +1,7 @@
 Installation
 ===============
 
-*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The required python version for ``btk`` is ``python 3.9``.
+*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The python version required for ``btk`` is ``python 3.9`` or higher. We currently do not support the latest python version ``python 3.13``.
 The required packages for ``btk`` are:
 
 * astropy
@@ -14,7 +14,7 @@ The required packages for ``btk`` are:
 * sep
 * tqdm
 
-and their specific versions are listed in the `pyproject.toml <https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml>`_ under the ``[tool.poetry.dependencies]`` section.
+and their specific versions are listed in the `pyproject.toml <https://github.com/LSSTDESC/BlendingToolKit/blob/main/pyproject.toml>`_ under the ``dependencies`` section.
 
 Install GalSim
 -------------------------------
@@ -26,20 +26,31 @@ improved computational efficiency. It can be installed with:
 
     pip install galsim
 
-However, you may have to install FFTW and Eigen manually. Refer to
-`this <https://github.com/GalSim-developers/GalSim/blob/releases/2.1/INSTALL.md>`_
+However you may have to install FFTW and Eigen manually. Refer to
+`this link<https://galsim-developers.github.io/GalSim/_build/html/install_pip.html>`_
 for more details.
+
+Another option is to create a ``conda`` environment and install GalSim through ``conda``. A minimal working example (after having installed ``conda``) looks like:
+
+.. code-block::
+
+    conda create -n py39 python=3.9 anaconda
+    conda activate py39
+    conda install -c conda-forge galsim
+
+For more details see `this link<https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`.
+
 
 
 Install BTK
 ------------------------------
-Once you installed ``galsim``, you can install the latest released version of ``btk`` with ``pip``:
+Once you installed ``galsim``, you can install the latest version of ``btk`` with ``pip``:
 
 .. code-block::
 
-    pip install --pre blending-toolkit
+    pip install blending-toolkit
 
-The version flag is necessary as the latest version is a pre-release. This command should install all other missing dependencies if necessary. You can then import the package as follows:
+This command should install all other missing dependencies if necessary. You can then import the package as follows:
 
 .. code-block:: python
 
@@ -48,7 +59,6 @@ The version flag is necessary as the latest version is a pre-release. This comma
 
 Scarlet
 ------------------------------
-BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you can easily run the scarlet deblender on BTK blends.
+BTK includes the Scarlet deblender as one of its ``Deblender`` classes. This means that you can easily run the Scarlet deblender on BTK blends.
 
-First you need to install scarlet, this is not by default installed with BTK as scarlet
-is not in pypi. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.
+To use this functionality you need to install the ``scarlet`` package, which is not installed by default as ``scarlet`` is not in PyPI. You can install scarlet by following the instructions here: `<https://pmelchior.github.io/scarlet/install.html>`_.
