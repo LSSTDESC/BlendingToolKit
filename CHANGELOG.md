@@ -1,3 +1,7 @@
+# v1.0.7
+
+- Fixed issue with `metrics` not being included in the build.
+
 # v1.0.6
 
 - Fixed issue with publishing to PyPI
