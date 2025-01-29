@@ -1,6 +1,6 @@
 # v1.0.6
 
-- Fixed issue with publish to PyPI
+- Fixed issue with publishing to PyPI
 
 # v1.0.5
 
