@@ -1,3 +1,7 @@
+# v1.0.6
+
+- Fixed issue with publish to PyPI
+
 # v1.0.5
 
 - Fix potential issue with circular imports in `metrics`.
