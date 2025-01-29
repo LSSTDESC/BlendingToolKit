@@ -34,7 +34,7 @@ git remote update
 git pull origin dev
 
 # 4. Created a release branch that tracks origin/dev
-git checkout -b release/$RELEASE origin/dev
+git checkout -b release/v$RELEASE origin/dev
 
 # 6. Bump version in release branch
 # edit pyproject.toml file to update the version
@@ -44,7 +44,7 @@ git add CHANGELOG.md
 git commit -m "Version $RELEASE"
 
 # 7. Pushed release branch to remote repository
-git push --set-upstream origin release/$RELEASE
+git push --set-upstream origin release/v$RELEASE
 
 # 8. Open a "pull request" in GitHub for team to verify the release
 
@@ -55,31 +55,31 @@ git checkout main
 git pull origin main
 
 # 11. Merged release branch into main branch
-git merge release/$RELEASE
+git merge release/v$RELEASE
 
 # 12. Tagged the release point by creating a new tag
-git tag -a $RELEASE -m "Release v$RELEASE"
+git tag -a v$RELEASE -m "Release version $RELEASE"
 
 # 13. Pushed main branch to remote repository
 git push origin main
 
 # 14. Pushed the tags to remote repository
-git push origin --tags
+git push origin v$RELEASE
 
 # 15. Checkout into dev branch
 git checkout dev
 
 # 16. Merged release branch into dev branch
-git merge release/$RELEASE
+git merge release/v$RELEASE
 
 # 17. Pushed dev branch to remote repository
 git push origin dev
 
 # 18. Removed release branch from the local repository
-git branch -D release/$RELEASE
+git branch -D release/v$RELEASE
 
 # 19. Removed release branch from the remote repository
-git push origin :release/$RELEASE
+git push origin :release/v$RELEASE
 
 
 CREDIT: http://www.inanzzz.com
