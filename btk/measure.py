@@ -4,7 +4,7 @@ from typing import Tuple
 
 import galsim
 import numpy as np
-import sep_pjw as sep
+import sep
 from galsim import GSObject
 
 
@@ -37,7 +37,7 @@ def _get_single_ksb_ellipticity(
         output = (np.nan, np.nan)
         if verbose:
             print(
-                f"Shear measurement error: '{res.error_message }'. \
+                f"Shear measurement error: '{res.error_message}'. \
                 This error may happen for faint galaxies or inaccurate detections."
             )
     return output
