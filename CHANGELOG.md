@@ -1,3 +1,7 @@
+# v1.0.9
+
+Updated citation to the OJA publication.
+
 # v1.0.8
 
 - Use `sep >= 1.4.0` instead of `sep-pjw`. See [here](https://github.com/sep-developers/sep?tab=readme-ov-file#sep-sep-pjw-and-package-names) for more details.
