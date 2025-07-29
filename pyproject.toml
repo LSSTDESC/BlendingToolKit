@@ -39,7 +39,7 @@ dependencies = [
   "h5py>=3.12.1",
   "tqdm>=4.67.1",
   "astropy>=5.1.0,<7.0.0",
-  "matplotlib>=3.7.0", # scarlet needs this
+  "matplotlib>=3.7.0",     # scarlet needs this
 ]
 
 [project.optional-dependencies]
@@ -55,21 +55,16 @@ dev = [
   "sphinx>=7.4.7",
   "sphinx-rtd-theme>=1.2.1",
 ]
-scarlet = [
-  "peigen>=0.0.9",
-  "autograd>=1.5.0",
-  "proxmin>=0.6.12",
-  "pybind11>=2.10.3",
-]
+scarlet = ["peigen>=0.0.9", "autograd>=1.5.0", "proxmin>=0.6.12", "pybind11>=2.10.3"]
 
 [project.urls]
-Homepage = "https://lsstdesc.org/BlendingToolKit/index.html"
-Repository = "https://github.com/LSSTDESC/BlendingToolKit"
+Homepage      = "https://lsstdesc.org/BlendingToolKit/index.html"
+Repository    = "https://github.com/LSSTDESC/BlendingToolKit"
 "Bug Tracker" = "https://github.com/LSSTDESC/BlendingToolKit/issues"
 
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires      = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -107,7 +102,7 @@ exclude = [
 ]
 
 # Copying over black configuration
-line-length = 100
+line-length  = 100
 indent-width = 4
 
 # Assume Python 3.12
@@ -129,10 +124,10 @@ select = ["E", "F", "W", "I", "D", "PL", "RUF", "SIM", "RET"]
 # PLR2004: Magic value comparison is OK most of the time.
 # PLR0913: "Too many arguments in function definition", we should fix some of these eventually.
 # SIM118: Too many places where we use `k in table.keys()`, and table is not a dict.
-ignore = ["PLR2004", "PLR0913", "SIM118"]
+ignore = ["PLR2004", "PLR0913", "SIM118", "PLC0415"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
+fixable   = ["ALL"]
 unfixable = []
 
 # Allow unused variables when underscore-prefixed.
@@ -167,14 +162,14 @@ docstring-code-line-length = "dynamic"
 
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "I", "F"]
+"__init__.py"             = ["E402", "I", "F"]
 "**/{tests,docs,tools}/*" = ["E402", "D", "PLR0915"]
-"**/*.ipynb" = ["I"]
+"**/*.ipynb"              = ["I"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.pytest.ini_options]
-addopts = "-ra"
+addopts    = "-ra"
 minversion = "6.0"
-testpaths = ["tests"]
+testpaths  = ["tests"]
