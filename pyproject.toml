@@ -124,7 +124,7 @@ select = ["E", "F", "W", "I", "D", "PL", "RUF", "SIM", "RET"]
 # PLR2004: Magic value comparison is OK most of the time.
 # PLR0913: "Too many arguments in function definition", we should fix some of these eventually.
 # SIM118: Too many places where we use `k in table.keys()`, and table is not a dict.
-ignore = ["PLR2004", "PLR0913", "SIM118"]
+ignore = ["PLR2004", "PLR0913", "SIM118", "PLC0415"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable   = ["ALL"]

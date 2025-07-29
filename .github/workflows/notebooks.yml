@@ -2,7 +2,7 @@ name: notebooks
 
 on:
   schedule:
-    - cron: "0 12 * * MON" # run job every Monday at 7.00a EST
+    - cron: "0 0 1 * *" # run job every Monday at 7.00a EST
   push:
     branches:
       - main
