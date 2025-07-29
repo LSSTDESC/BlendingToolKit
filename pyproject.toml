@@ -14,10 +14,10 @@ authors = [
 ]
 maintainers = [{ name = "Ismael Mendoza", email = "imendoza@umich.edu" }]
 classifiers = [
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
@@ -27,7 +27,7 @@ license = { file = "LICENSE" }
 name = "blending_toolkit"
 readme = "README.md"
 version = "1.0.8"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.10,<3.14"
 dependencies = [
   "galsim>=2.4.9",
   "sep>=1.4.0",

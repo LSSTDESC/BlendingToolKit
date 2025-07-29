@@ -1,7 +1,7 @@
 Installation
 ===============
 
-*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The python version required for ``btk`` is ``python 3.9`` or higher. We currently do not support the latest python version ``python 3.13``.
+*BlendingToolKit* (``btk``) uses `GalSim <https://github.com/GalSim-developers/GalSim>`_ to simulate galaxy images. The python version required for ``btk`` is ``python 3.10`` or higher.
 The required packages for ``btk`` are:
 
 * astropy
@@ -33,8 +33,8 @@ Another option is to create a ``conda`` environment and install GalSim through `
 
 .. code-block::
 
-    conda create -n py39 python=3.9 anaconda
-    conda activate py39
+    conda create -n py313 python=3.13 anaconda
+    conda activate py313
     conda install -c conda-forge galsim
 
 For more details see `this link <https://galsim-developers.github.io/GalSim/_build/html/install_conda.html>`_.
