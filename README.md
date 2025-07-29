@@ -108,20 +108,14 @@ Issues marked with `contributions welcome` or `good first issue` are particularl
 If you use this software for your research, please cite using the following bibtex entry:
 
 ```
-@ARTICLE{mendoza2024btk,
-       author = {{Mendoza}, Ismael and {Torchylo}, Andrii and {Sainrat}, Thomas and {Guinot}, Axel and {Boucaud}, Alexandre and {Paillassa}, Maxime and {Avestruz}, Camille and {Adari}, Prakruth and {Aubourg}, Eric and {Biswas}, Biswajit and {Buchanan}, James and {Burchat}, Patricia and {Doux}, Cyrille and {Joseph}, Remy and {Kamath}, Sowmya and {Malz}, Alex I. and {Merz}, Grant and {Miyatake}, Hironao and {Roucelle}, C{\'e}cile and {Zhang}, Tianqing and {the LSST Dark Energy Science Collaboration}},
-        title = "{The Blending ToolKit: A simulation framework for evaluation of galaxy detection and deblending}",
-      journal = {arXiv e-prints},
-     keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Cosmology and Nongalactic Astrophysics},
-         year = 2024,
-        month = sep,
-          eid = {arXiv:2409.06986},
-        pages = {arXiv:2409.06986},
-          doi = {10.48550/arXiv.2409.06986},
-archivePrefix = {arXiv},
-       eprint = {2409.06986},
- primaryClass = {astro-ph.IM},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2024arXiv240906986M},
-      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+@article{article,
+author = {Mendoza, Ismael and Torchylo, Andrii and Sainrat, Thomas and Guinot, Axel and Boucaud, Alexandre and Paillasa, Maxime and Avestruz, Camille and Adari, Prakruth and Aubourg, Eric and Biswas, Biswajit and Buchanan, James and Burchat, Patricia and Doux, Cyrille and Joseph, Remy and Kamath, Sowmya and Malz, Alex and Merz, Grant and Miyatake, Hironao and Roucelle, Cécile and Zhang, Tianqing},
+year = {2025},
+month = {02},
+pages = {},
+title = {The Blending ToolKit: A simulation framework for evaluation of galaxy detection and deblending},
+volume = {8},
+journal = {The Open Journal of Astrophysics},
+doi = {10.33232/001c.129699}
 }
 ```
